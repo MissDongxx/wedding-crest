@@ -48,9 +48,9 @@
             "group": "one-time"
           },
           {
-            "title": "Pro",
-            "description": "Unlimited watermark removal for professionals.",
-            "label": "Most Popular",
+            "title": "Lifetime",
+            "description": "Unlimited watermark removal for professionals. Pay once, use forever.",
+            "label": "Best Value",
             "features_title": "Everything in Free, plus",
             "features": [
               "Unlimited images",
@@ -60,54 +60,24 @@
               "Priority support",
               "API access"
             ],
-            "interval": "month",
-            "amount": 900,
-            "currency": "USD",
-            "price": "$9",
-            "unit": "/ month",
-            "is_featured": true,
-            "tip": "Cancel anytime",
-            "button": {
-              "title": "Get Pro",
-              "url": "/#pricing",
-              "icon": "RiFlashlightFill"
-            },
-            "product_id": "pro-monthly",
-            "product_name": "RemoveGeminiWatermark Pro Monthly",
-            "credits": 9999,
-            "valid_days": 30,
-            "group": "one-time",
-            "plan_name": "Pro"
-          },
-          {
-            "title": "Lifetime",
-            "description": "Pay once, use forever. Best value.",
-            "features_title": "Everything in Pro, plus",
-            "features": [
-              "Lifetime access",
-              "All future AI platforms",
-              "No monthly fees",
-              "Early access to new features",
-              "Priority support forever"
-            ],
             "interval": "one-time",
-            "amount": 4900,
+            "amount": 990,
             "currency": "USD",
-            "price": "$49",
-            "original_price": "$99",
+            "price": "$9.9",
             "unit": "",
-            "is_featured": false,
-            "tip": "50% OFF — Limited time!",
+            "is_featured": true,
+            "tip": "Pay once, use forever",
             "button": {
               "title": "Get Lifetime Access",
               "url": "/#pricing",
               "icon": "RiFlashlightFill"
             },
-            "product_id": "lifetime",
-            "product_name": "RemoveGeminiWatermark Lifetime",
+            "product_id": "pro-lifetime",
+            "product_name": "RemoveGeminiWatermark Lifetime Pro",
             "credits": 999999,
             "valid_days": 36500,
-            "group": "one-time"
+            "group": "one-time",
+            "plan_name": "Lifetime"
           }
         ]
       }

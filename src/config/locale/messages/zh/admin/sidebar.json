@@ -1,10 +1,10 @@
 {
   "header": {
     "brand": {
-      "title": "ShipAny Two",
+      "title": "RemoveGeminiWatermark",
       "logo": {
         "src": "/logo.png",
-        "alt": "ShipAny Two"
+        "alt": "RemoveGeminiWatermark"
       },
       "url": "/admin"
     },

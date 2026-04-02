@@ -3,19 +3,11 @@
   "version": "1.8.2",
   "private": true,
   "author": "RemoveGeminiWatermark Team",
-  "homepage": "https://shipany.ai",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/shipanyai/shipany-template-two"
-  },
   "keywords": [
-    "shipany",
-    "shipany-two",
-    "shipany-template-two",
-    "ai-saas-boilerplate",
-    "ai-saas-template",
-    "ai-saas-framework",
-    "ai-saas-development"
+    "remove-gemini-watermark",
+    "watermark-remover",
+    "gemini",
+    "ai-image-tool"
   ],
   "scripts": {
     "dev": "next dev --turbopack",

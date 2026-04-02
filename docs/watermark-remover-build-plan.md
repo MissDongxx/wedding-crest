@@ -1,5 +1,5 @@
 # RemoveGeminiWatermark —— 完整建站执行方案
-> 基于 ShipAny Two 模板 | 可直接交给 AI 执行 | v2.0
+> 基于 RemoveGeminiWatermark | 可直接交给 AI 执行 | v2.0
 
 ---
 
@@ -1757,7 +1757,7 @@ export default config
 ## 十七、安装依赖命令
 
 ```bash
-# 初始化项目（基于 ShipAny Two 克隆后执行）
+# 初始化项目
 pnpm install
 
 # 额外依赖
@@ -1777,7 +1777,7 @@ pnpm dev
 
 ## 十八、给 AI 执行时的注意事项
 
-1. **ShipAny Two 已内置**：认证、Stripe、Supabase 初始化代码，直接修改配置文件即可，无需从头写
+1. **项目已内置**：认证、Stripe、Supabase 初始化代码，直接修改配置文件即可，无需从头写
 2. **i18n 翻译文件**：先用英文占位，上线后用 DeepL API 或 Claude 批量翻译其他13种语言
 3. **Alpha Map 数据**：`/public/alpha-maps/gemini-48.bin` 和 `gemini-96.bin` 需要提前从 Gemini 提取，具体方法见前面的技术文档
 4. **水印 Logo 文件**：`/public/watermark-logos/gemini-48.png` 和 `gemini-96.png` 同样需要提前提取
