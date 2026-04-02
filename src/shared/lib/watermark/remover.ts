@@ -1,24 +1,27 @@
 /**
  * Core watermark removal using reverse alpha blending.
  *
- * Algorithm: original = (composed - watermark × α) / (1 − α)
+ * Algorithm: original = (composed - logo × α) / (1 − α)
+ * Where logo = 255 (white watermark), so:
+ *   original = (composed - 255 × α) / (1 − α)
  *
  * This mathematically recovers the original pixel values from the
- * watermarked image, given the known watermark alpha map and logo pixels.
+ * watermarked image, given the known watermark alpha map.
  *
  * All processing happens client-side via Canvas API.
  * No image data is uploaded to any server.
  */
-import { getAlphaMap, getLogoPixels } from './alpha-map';
+import { getAlphaMap } from './alpha-map';
 import type { WatermarkParams } from './types';
 
 /**
  * Auto-detect watermark size based on image dimensions.
- * Gemini uses 48×48 for images ≤1024px, 96×96 for larger.
+ * Gemini uses 48×48 with 32px margin for smaller images,
+ * 96×96 with 64px margin for larger images.
  */
 function getWatermarkParams(width: number, height: number): WatermarkParams {
   return width > 1024 && height > 1024
-    ? { size: 96, margin: 32 }
+    ? { size: 96, margin: 64 }
     : { size: 48, margin: 32 };
 }
 
@@ -34,11 +37,7 @@ export async function removeWatermark(
   const { width, height } = canvas;
   const { size: wmSize, margin } = getWatermarkParams(width, height);
 
-  // Load alpha map and logo pixels in parallel
-  const [alphaMap, logoPixels] = await Promise.all([
-    getAlphaMap(wmSize),
-    getLogoPixels(wmSize),
-  ]);
+  const alphaMap = await getAlphaMap(wmSize);
 
   const ctx = canvas.getContext('2d')!;
 
@@ -63,11 +62,11 @@ export async function removeWatermark(
     const idx = i * 4;
 
     // Reverse alpha blending for R, G, B channels
-    // Formula: original = (composed - watermark × α) / (1 − α)
+    // The Gemini watermark is white (logo = 255)
+    // Formula: original = (composed - 255 × α) / (1 − α)
     for (let c = 0; c < 3; c++) {
       const composed = data[idx + c];
-      const wmPixel = logoPixels[idx + c];
-      const original = (composed - wmPixel * alpha) / denominator;
+      const original = (composed - 255 * alpha) / denominator;
       data[idx + c] = Math.max(0, Math.min(255, Math.round(original)));
     }
     // Alpha channel (idx + 3) stays unchanged
