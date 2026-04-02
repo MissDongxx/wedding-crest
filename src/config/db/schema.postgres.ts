@@ -10,14 +10,9 @@ import {
 
 import { envConfigs } from '@/config';
 
-const schemaName = (envConfigs.db_schema || 'public').trim();
-// Drizzle forbids pgSchema('public'); for public schema use pgTable().
-// For non-public schema (e.g. 'web'), use pgSchema(name).table() to generate "schema"."table".
-const customSchema =
-  schemaName && schemaName !== 'public' ? pgSchema(schemaName) : null;
-const table: typeof pgTable = customSchema
-  ? (customSchema.table.bind(customSchema) as unknown as typeof pgTable)
-  : pgTable;
+const schemaName = 'watermark';
+const customSchema = pgSchema(schemaName);
+const table: typeof pgTable = customSchema.table.bind(customSchema) as unknown as typeof pgTable;
 
 export const user = table(
   'user',
@@ -553,5 +548,27 @@ export const chatMessage = table(
   (table) => [
     index('idx_chat_message_chat_id').on(table.chatId, table.status),
     index('idx_chat_message_user_id').on(table.userId, table.status),
+  ]
+);
+
+export const processingLog = table(
+  'processing_log',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id'), // nullable for anonymous users
+    sessionId: text('session_id'), // anonymous tracking
+    platform: text('platform').notNull(), // gemini | dalle | midjourney
+    imageWidth: integer('image_width'),
+    imageHeight: integer('image_height'),
+    processingTimeMs: integer('processing_time_ms'),
+    watermarkDetected: text('watermark_detected'), // true | false | unknown
+    ipAddress: text('ip_address'),
+    userAgent: text('user_agent'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_wm_log_user').on(table.userId),
+    index('idx_wm_log_session').on(table.sessionId),
+    index('idx_wm_log_created').on(table.createdAt),
   ]
 );

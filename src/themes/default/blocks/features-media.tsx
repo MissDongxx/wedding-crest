@@ -46,11 +46,13 @@ export function FeaturesMedia({ section }: { section: Section }) {
               ease: [0.22, 1, 0.36, 1] as const,
             }}
           >
-            <LazyImage
-              src={section.image?.src ?? ''}
-              className="rounded-2xl"
-              alt={section.image?.alt ?? ''}
-            />
+            {section.image?.src && (
+              <LazyImage
+                src={section.image.src}
+                className="rounded-2xl"
+                alt={section.image.alt ?? ''}
+              />
+            )}
           </motion.div>
 
           <motion.div

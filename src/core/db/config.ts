@@ -27,6 +27,7 @@ export default defineConfig({
     | 'singlestore'
     | 'gel',
   dbCredentials,
+  schemaFilter: [envConfigs.db_schema || 'watermark'],
   // Migration journal location (used by drizzle-kit migrate)
   migrations:
     envConfigs.database_provider === 'postgresql'

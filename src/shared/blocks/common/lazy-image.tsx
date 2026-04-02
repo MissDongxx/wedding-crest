@@ -27,6 +27,10 @@ export function LazyImage({
   priority?: boolean;
   sizes?: string;
 }) {
+  if (!src) {
+    return null;
+  }
+
   return (
     <LazyLoadImage
       src={src}

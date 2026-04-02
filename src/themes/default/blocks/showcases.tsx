@@ -133,13 +133,15 @@ export function Showcases({
                       whileHover={{ scale: 1.05 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <Image
-                        src={item.image?.src ?? ''}
-                        alt={item.image?.alt ?? ''}
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        fill
-                        className="rounded-t-lg object-cover transition-transform duration-300"
-                      />
+                      {item.image?.src && (
+                        <Image
+                          src={item.image.src}
+                          alt={item.image.alt ?? ''}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          fill
+                          className="rounded-t-lg object-cover transition-transform duration-300"
+                        />
+                      )}
                     </motion.div>
                     <div className="p-6">
                       <h3 className="mb-2 line-clamp-1 text-xl font-semibold text-balance">

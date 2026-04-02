@@ -21,6 +21,10 @@ export function LocaleSelector({
 }: {
   type?: 'icon' | 'button';
 }) {
+  // TODO: Restore this once the translation JSON files in /messages are ready.
+  // For now, we hide the selector to avoid showing English content for other locales.
+  return null;
+
   const currentLocale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
