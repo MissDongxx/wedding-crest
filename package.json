@@ -1,8 +1,8 @@
 {
-  "name": "shipany-template-two",
+  "name": "remove-gemini-watermark",
   "version": "1.8.2",
   "private": true,
-  "author": "ShipAny.ai",
+  "author": "RemoveGeminiWatermark Team",
   "homepage": "https://shipany.ai",
   "repository": {
     "type": "git",

@@ -2,10 +2,10 @@
   "header": {
     "id": "header",
     "brand": {
-      "title": "AIWatermarkCleaner",
+      "title": "RemoveGeminiWatermark",
       "logo": {
         "src": "/logo.png",
-        "alt": "AIWatermarkCleaner",
+        "alt": "RemoveGeminiWatermark",
         "width": 100,
         "height": 100
       },
@@ -62,11 +62,11 @@
   "footer": {
     "id": "footer",
     "brand": {
-      "title": "AIWatermarkCleaner",
+      "title": "RemoveGeminiWatermark",
       "description": "Free browser-based tool to remove AI watermarks from Gemini, DALL-E, Midjourney and other AI-generated images. 100% local processing.",
       "logo": {
         "src": "/logo.png",
-        "alt": "AIWatermarkCleaner",
+        "alt": "RemoveGeminiWatermark",
         "width": 1024,
         "height": 1024
       },
@@ -126,13 +126,13 @@
         {
           "title": "X",
           "icon": "RiTwitterXFill",
-          "url": "https://x.com/aiwatermarkcleaner",
+          "url": "https://x.com/RemoveGeminiWM",
           "target": "_blank"
         },
         {
           "title": "Email",
           "icon": "Mail",
-          "url": "mailto:support@aiwatermarkcleaner.com",
+          "url": "mailto:support@removegeminiwatermark.org",
           "target": "_self"
         }
       ]

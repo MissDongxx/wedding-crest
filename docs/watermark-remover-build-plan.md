@@ -1,11 +1,11 @@
-# AI Watermark Remover —— 完整建站执行方案
+# RemoveGeminiWatermark —— 完整建站执行方案
 > 基于 ShipAny Two 模板 | 可直接交给 AI 执行 | v2.0
 
 ---
 
 ## 一、项目概述
 
-**产品名称**：AIWatermarkCleaner（域名建议：aiwatermarkcleaner.com 或 cleanaiimage.com）
+**产品名称**：RemoveGeminiWatermark（域名建议：removegeminiwatermark.org 或 removegeminiwatermark.org）
 
 **定位**：覆盖所有主流 AI 平台的图片水印去除工具，对标并超越 geminiwatermarkcleaner.com
 
@@ -132,7 +132,7 @@ project-root/
 │       ├── how-to-remove-gemini-watermark.mdx
 │       ├── how-to-remove-chatgpt-dalle-watermark.mdx
 │       ├── how-to-remove-midjourney-watermark.mdx
-│       ├── ai-watermark-remover-comparison-2026.mdx
+│       ├── remove-gemini-watermark-comparison-2026.mdx
 │       ├── what-is-synthid-watermark.mdx
 │       ├── is-it-legal-to-remove-ai-watermarks.mdx   # ← P0 升级，EU AI Act 专题
 │       ├── how-to-detect-ai-watermark.mdx            # 检测器专属文章
@@ -147,19 +147,19 @@ project-root/
 ├── middleware.ts                     # i18n 路由中间件
 ├── next.config.ts
 ├── tailwind.config.ts
-└── .env.local
+└── .env.development
 ```
 
 ---
 
 ## 三、环境变量配置
 
-在项目根目录创建 `.env.local`，填入以下变量：
+在项目根目录创建 `.env.development`，填入以下变量：
 
 ```bash
 # ── 基础配置 ──
 NEXT_PUBLIC_SITE_URL=https://yourdomain.com
-NEXT_PUBLIC_SITE_NAME=AIWatermarkCleaner
+NEXT_PUBLIC_SITE_NAME=RemoveGeminiWatermark
 
 # ── Supabase ──
 NEXT_PUBLIC_SUPABASE_URL=你的_supabase_url
@@ -1178,7 +1178,7 @@ import { getTranslations } from 'next-intl/server'
 // SEO 元数据
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: 'Pricing — AI Watermark Remover | Free & Pro Plans',
+    title: 'Pricing — RemoveGeminiWatermark | Free & Pro Plans',
     description: 'Remove AI watermarks for free. Upgrade to Pro for unlimited processing, batch mode, and priority support. No subscription required.',
   }
 }
@@ -1334,7 +1334,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     metadataBase: new URL(baseUrl),
     alternates: { languages },
     openGraph: {
-      siteName: 'AIWatermarkCleaner',
+      siteName: 'RemoveGeminiWatermark',
       locale: locale === 'zh-CN' ? 'zh_CN' : locale,
     },
     twitter: { card: 'summary_large_image' },
@@ -1360,7 +1360,7 @@ import { Metadata } from 'next'
 // 每种语言的 SEO 标题/描述单独配置
 const SEO_BY_LOCALE: Record<string, { title: string; description: string }> = {
   en: {
-    title: 'AI Watermark Remover — Remove Watermarks from Gemini, DALL-E, Midjourney Images',
+    title: 'RemoveGeminiWatermark — Remove Watermarks from Gemini, DALL-E, Midjourney Images',
     description: 'Free AI watermark remover. Remove watermarks from Google Gemini, ChatGPT DALL-E, Midjourney, Stable Diffusion images instantly. 100% local processing, no upload needed.',
   },
   'zh-CN': {
@@ -1418,7 +1418,7 @@ export function WebAppStructuredData() {
   const data = {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
-    name: 'AIWatermarkCleaner',
+    name: 'RemoveGeminiWatermark',
     description: 'Remove watermarks from AI-generated images including Gemini, DALL-E, and Midjourney',
     url: process.env.NEXT_PUBLIC_SITE_URL,
     applicationCategory: 'UtilitiesApplication',
@@ -1530,7 +1530,7 @@ const GEMINI_FAQS = [
 |--------|-----------|------------|--------|
 | `how-to-remove-gemini-watermark.mdx` | how to remove gemini image ai watermark | 高 | P0 |
 | `how-to-remove-chatgpt-dalle-watermark.mdx` | remove dall-e watermark, chatgpt image watermark | 高 | P0 |
-| `ai-watermark-remover-comparison-2026.mdx` | best ai watermark remover, ai watermark remover comparison | 中 | P1 |
+| `remove-gemini-watermark-comparison-2026.mdx` | best ai watermark remover, ai watermark remover comparison | 中 | P1 |
 | `what-is-synthid-watermark.mdx` | what is synthid, google synthid watermark | 中 | P1 |
 | `how-to-remove-midjourney-watermark.mdx` | midjourney watermark remover | 中 | P1 |
 | `is-it-legal-to-remove-ai-watermarks.mdx` | is it legal to remove ai watermark | 高意向 | P2 |
@@ -1542,7 +1542,7 @@ const GEMINI_FAQS = [
 title: "How to Remove Gemini Watermark from AI-Generated Images (2026 Guide)"
 description: "Step-by-step guide to remove the Gemini AI watermark (Nano Banana logo) from images. Free online tool, works in seconds."
 date: "2026-01-15"
-author: "AIWatermarkCleaner Team"
+author: "RemoveGeminiWatermark Team"
 tags: ["gemini", "watermark", "how-to"]
 image: "/images/blog/remove-gemini-watermark.png"
 ---
@@ -1782,7 +1782,7 @@ pnpm dev
 3. **Alpha Map 数据**：`/public/alpha-maps/gemini-48.bin` 和 `gemini-96.bin` 需要提前从 Gemini 提取，具体方法见前面的技术文档
 4. **水印 Logo 文件**：`/public/watermark-logos/gemini-48.png` 和 `gemini-96.png` 同样需要提前提取
 5. **免费额度限制**：使用 IP + localStorage 双重限流（未登录用户），防止滥用
-6. **Stripe 价格 ID**：在 Stripe Dashboard 创建产品后，将实际 Price ID 填入 `.env.local`
+6. **Stripe 价格 ID**：在 Stripe Dashboard 创建产品后，将实际 Price ID 填入 `.env.development`
 
 ---
 

@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "title": "Pricing — AI Watermark Remover",
+    "title": "Pricing — RemoveGeminiWatermark",
     "description": "Remove AI watermarks for free. Upgrade to Pro for unlimited processing."
   },
   "page": {
-    "title": "AI Watermark Remover Pricing",
+    "title": "RemoveGeminiWatermark Pricing",
     "sections": {
       "pricing": {
         "id": "pricing",
@@ -42,7 +42,7 @@
               "icon": "RiFlashlightFill"
             },
             "product_id": "free",
-            "product_name": "AI Watermark Remover Free",
+            "product_name": "RemoveGeminiWatermark Free",
             "credits": 0,
             "valid_days": 0,
             "group": "one-time"
@@ -73,7 +73,7 @@
               "icon": "RiFlashlightFill"
             },
             "product_id": "pro-monthly",
-            "product_name": "AI Watermark Remover Pro Monthly",
+            "product_name": "RemoveGeminiWatermark Pro Monthly",
             "credits": 9999,
             "valid_days": 30,
             "group": "one-time",
@@ -104,7 +104,7 @@
               "icon": "RiFlashlightFill"
             },
             "product_id": "lifetime",
-            "product_name": "AI Watermark Remover Lifetime",
+            "product_name": "RemoveGeminiWatermark Lifetime",
             "credits": 999999,
             "valid_days": 36500,
             "group": "one-time"

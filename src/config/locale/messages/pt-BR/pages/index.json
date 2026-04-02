@@ -70,7 +70,7 @@
       "benefits": {
         "block": "features-accordion",
         "id": "benefits",
-        "title": "Why Choose AIWatermarkCleaner",
+        "title": "Why Choose RemoveGeminiWatermark",
         "label": "Benefits",
         "description": "The most private and highest-quality AI watermark removal tool available.",
         "items": [
@@ -131,7 +131,7 @@
       "stats": {
         "id": "stats",
         "title": "Trusted by Creators Worldwide",
-        "description": "Join thousands of creators who use AIWatermarkCleaner every day.",
+        "description": "Join thousands of creators who use RemoveGeminiWatermark every day.",
         "items": [
           {
             "title": "50,000+",

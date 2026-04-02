@@ -15,6 +15,7 @@
  *
  * Priority: --env argument > ENV_FILE env var > .env.{NODE_ENV} > .env.development (default)
  */
+import fs from 'fs';
 import { execSync } from 'child_process';
 
 // Parse command line arguments
@@ -46,19 +47,29 @@ if (envIndex !== -1) {
       );
       process.exit(1);
     }
-    // Remove --env and the value from args
     args.splice(envIndex, 2);
   }
 } else {
   // Determine env file with priority:
   // 1. ENV_FILE environment variable
-  // 2. .env.{NODE_ENV} based on NODE_ENV
-  // 3. .env.development (default)
-  envFile =
-    process.env.ENV_FILE ||
-    (process.env.NODE_ENV
-      ? `.env.${process.env.NODE_ENV}`
-      : '.env.development');
+  // 2. .env.{NODE_ENV}.local
+  // 3. .env.{NODE_ENV}
+  // 4. .env.development
+  // 5. .env
+  // Default to .env.development if none of the above exist
+  if (process.env.ENV_FILE) {
+    envFile = process.env.ENV_FILE;
+  } else {
+    const nodeEnv = process.env.NODE_ENV || 'development';
+    const potentialFiles = [
+      `.env.${nodeEnv}.local`,
+      `.env.${nodeEnv}`,
+      '.env.development',
+      '.env',
+    ];
+    envFile =
+      potentialFiles.find((file) => fs.existsSync(file)) || '.env.development';
+  }
 }
 
 // Get command and arguments (after removing --env)
