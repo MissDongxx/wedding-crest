@@ -199,10 +199,10 @@ await handleSubscriptionRenewal({
     return Response.json({
       message: 'success',
     });
-  } catch {
+  } catch (err) {
     return Response.json(
       {
-        message: `handle payment notify failed: ${err.message}`,
+        message: `handle payment notify failed: ${err instanceof Error ? err.message : String(err)}`,
       },
       {
         status: 500,

@@ -108,6 +108,8 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {/* Polyfill for esbuild's __name helper used in inline scripts */}
+        <script dangerouslySetInnerHTML={{ __html: 'if(typeof globalThis.__name==="undefined"){globalThis.__name=function(){}}' }} />
         <link rel="icon" href={envConfigs.app_favicon} />
         <link rel="alternate icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
