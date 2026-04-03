@@ -27,7 +27,7 @@ export function Hero({
     <section
       id={section.id}
       className={cn(
-        `pt-24 pb-8 md:pt-36 md:pb-8`,
+        `pt-12 pb-8 md:pt-16 md:pb-8`,
         section.className,
         className
       )}
@@ -58,7 +58,7 @@ export function Hero({
 
       <div className="relative mx-auto max-w-full px-4 text-center md:max-w-5xl">
         {texts && texts.length > 0 ? (
-          <h1 className="text-foreground text-4xl font-semibold text-balance sm:mt-12 sm:text-6xl">
+          <h1 className="text-foreground text-4xl font-semibold text-balance sm:mt-8 sm:text-6xl">
             {texts[0]}
             <Highlighter action="underline" color="#FF9800">
               {highlightText}
@@ -66,7 +66,7 @@ export function Hero({
             {texts[1]}
           </h1>
         ) : (
-          <h1 className="text-foreground text-4xl font-semibold text-balance sm:mt-12 sm:text-6xl">
+          <h1 className="text-foreground text-4xl font-semibold text-balance sm:mt-8 sm:text-6xl">
             {section.title}
           </h1>
         )}

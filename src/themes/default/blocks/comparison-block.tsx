@@ -16,11 +16,11 @@ export function ComparisonBlock({
   return (
     <section
       id={section.id}
-      className={cn('py-16 md:py-24', section.className, className)}
+      className={cn('py-8 md:py-12', section.className, className)}
     >
       <div className="container max-w-4xl px-4">
         {section.title && (
-          <div className="mx-auto mb-12 max-w-3xl text-center">
+          <div className="mx-auto mb-8 max-w-3xl text-center">
             {section.label && (
               <div className="bg-primary/10 text-primary mb-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium">
                 <span>✦</span>

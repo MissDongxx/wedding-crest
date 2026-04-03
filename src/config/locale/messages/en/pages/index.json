@@ -18,7 +18,8 @@
         "id": "tool",
         "title": "Remove Gemini Watermark Now",
         "label": "Free Online Tool",
-        "description": "Upload your AI-generated image and remove the Gemini watermark instantly. 100% local processing — your images never leave your device."
+        "description": "Upload your AI-generated image and remove the Gemini watermark instantly. 100% local processing — your images never leave your device.",
+        "comparison_tip": "Press & hold to see the result"
       },
       "hero": {
         "id": "hero",
@@ -57,10 +58,10 @@
         "label": "Comparison",
         "description": "See how our browser-based tool removes AI watermarks with zero quality loss.",
         "before_after": {
-          "before_image": "/images/examples/before.jpg",
-          "after_image": "/images/examples/after.jpg",
+          "before_image": "/images/examples/castle-before.jpg",
+          "after_image": "/images/examples/castle-after.jpg",
           "before_label": "Before",
-          "after_label": "after",
+          "after_label": "After",
           "before_alt": "AI-generated image with Gemini watermark visible in corner",
           "after_alt": "Same image after removing Gemini watermark with zero quality loss",
           "layout": "side-by-side"

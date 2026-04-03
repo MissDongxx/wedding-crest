@@ -47,7 +47,7 @@ function canProcess(): boolean {
 
 // ============ Component ============
 
-export function UploadZone() {
+export function UploadZone({ onStateChange }: { onStateChange?: (state: ProcessingState) => void } = {}) {
   const [state, setState] = useState<ProcessingState>('idle');
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
   const [cleanUrl, setCleanUrl] = useState<string | null>(null);
@@ -58,6 +58,10 @@ export function UploadZone() {
   useEffect(() => {
     setUsageCount(getUsageCount());
   }, []);
+
+  useEffect(() => {
+    onStateChange?.(state);
+  }, [state, onStateChange]);
   const cleanBlobRef = useRef<Blob | null>(null);
 
   const processImage = useCallback(async (file: File) => {
