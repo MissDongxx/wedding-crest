@@ -166,30 +166,42 @@
         "description": "你获得一切 AI 创业所需——从开箱即用的模板到专业技术支持。",
         "items": [
           {
-            "title": "全栈解决方案",
-            "description": "基于 Next.js，集成认证、支付、AI，一站式开箱即用。",
-            "icon": "RiNextjsFill",
-            "image": {
-              "src": "/imgs/features/user-billing.png",
-              "alt": "benefits"
+            "title": "100% 隐私安全 — 无需上传",
+            "description": "不同于其他工具，您的图片完全在浏览器中处理。数据绝不会发送到服务器。您的创作始终私密。",
+            "icon": "RiShieldCheckLine",
+            "before_after": {
+              "before_image": "/images/examples/woman-before.jpg",
+              "after_image": "/images/examples/woman-after.jpg",
+              "before_label": "Watermarked",
+              "after_label": "Clean",
+              "before_alt": "Original AI image with Gemini watermark",
+              "after_alt": "Processed image with watermark removed with zero quality loss"
             }
           },
           {
-            "title": "丰富模板库",
-            "description": "多样的 AI SaaS 模板，点击即用，涵盖聊天、图像生成等多场景。",
-            "icon": "RiClapperboardAiLine",
-            "image": {
-              "src": "/imgs/features/admin-settings.png",
-              "alt": "benefits"
+            "title": "零画质损耗",
+            "description": "我们的反向 Alpha 混合算法可以从数学上恢复水印下的原始像素。无模糊、无伪影、无画质降低。",
+            "icon": "RiImageEditLine",
+            "before_after": {
+              "before_image": "/images/examples/woman-before.jpg",
+              "after_image": "/images/examples/woman-after.jpg",
+              "before_label": "Watermarked",
+              "after_label": "Clean",
+              "before_alt": "Original AI image with Gemini watermark",
+              "after_alt": "Processed image with watermark removed with zero quality loss"
             }
           },
           {
-            "title": "专属技术指导",
-            "description": "享受专属技术支持与开发者社区，为你的成功保驾护航。",
-            "icon": "RiCodeFill",
-            "image": {
-              "src": "/imgs/features/landing-page.png",
-              "alt": "benefits"
+            "title": "秒级极速处理",
+            "description": "使用 Canvas API 在 500 毫秒内完成处理。无需等待服务器响应或处理队列。",
+            "icon": "RiFlashlightLine",
+            "before_after": {
+              "before_image": "/images/examples/woman-before.jpg",
+              "after_image": "/images/examples/woman-after.jpg",
+              "before_label": "Watermarked",
+              "after_label": "Clean",
+              "before_alt": "Original AI image with Gemini watermark",
+              "after_alt": "Processed image with watermark removed with zero quality loss"
             }
           }
         ]

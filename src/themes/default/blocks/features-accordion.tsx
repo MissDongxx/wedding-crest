@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 
 import { LazyImage, SmartIcon } from '@/shared/blocks/common';
+import { BeforeAfter } from '@/shared/components/watermark/BeforeAfter';
 import { BorderBeam } from '@/shared/components/magicui/border-beam';
 import {
   Accordion,
@@ -29,6 +30,7 @@ export function FeaturesAccordion({
     images[`item-${idx + 1}`] = {
       image: item.image?.src ?? '',
       alt: item.image?.alt || item.title || '',
+      before_after: item.before_after,
     };
   });
 
@@ -93,12 +95,32 @@ export function FeaturesAccordion({
                     transition={{ duration: 0.2 }}
                     className="size-full overflow-hidden rounded-2xl border shadow-md"
                   >
-                    {images[activeItem].image && (
-                      <LazyImage
-                        src={images[activeItem].image}
-                        className="size-full object-cover object-left-top dark:mix-blend-lighten"
-                        alt={images[activeItem].alt}
-                      />
+                    {images[activeItem].before_after ? (
+                      <div className="size-full overflow-hidden">
+                        <BeforeAfter
+                          beforeImage={
+                            images[activeItem].before_after.before_image
+                          }
+                          afterImage={
+                            images[activeItem].before_after.after_image
+                          }
+                          beforeLabel={
+                            images[activeItem].before_after.before_label
+                          }
+                          afterLabel={
+                            images[activeItem].before_after.after_label
+                          }
+                          layout="slider"
+                        />
+                      </div>
+                    ) : (
+                      images[activeItem].image && (
+                        <LazyImage
+                          src={images[activeItem].image}
+                          className="size-full object-cover object-left-top dark:mix-blend-lighten"
+                          alt={images[activeItem].alt}
+                        />
+                      )
                     )}
                   </motion.div>
                 </AnimatePresence>

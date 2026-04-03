@@ -99,23 +99,47 @@
         "id": "benefits",
         "title": "Why Choose RemoveGeminiWatermark to Remove Gemini Watermark",
         "label": "Benefits",
-        "description": "The most private and highest-quality AI watermark removal tool available.",
-        "items": [
+        "description": "The most private and highest-quality AI watermark removal t        "items": [
           {
             "title": "100% Private — No Upload Required",
             "description": "Unlike other tools, your images are processed entirely in your browser. No data is sent to any server, ever. Your creative work stays private.",
-            "icon": "RiShieldCheckLine"
+            "icon": "RiShieldCheckLine",
+            "before_after": {
+              "before_image": "/images/examples/woman-before.jpg",
+              "after_image": "/images/examples/woman-after.jpg",
+              "before_label": "Watermarked",
+              "after_label": "Clean",
+              "before_alt": "Original AI image with Gemini watermark",
+              "after_alt": "Processed image with watermark removed with zero quality loss"
+            }
           },
           {
             "title": "Zero Quality Loss",
             "description": "Our reverse alpha blending algorithm mathematically recovers the original pixels under the watermark. No blurring, no artifacts, no quality degradation.",
-            "icon": "RiImageEditLine"
+            "icon": "RiImageEditLine",
+            "before_after": {
+              "before_image": "/images/examples/dog-before.jpg",
+              "after_image": "/images/examples/dog-after.jpg",
+              "before_label": "Watermarked",
+              "after_label": "Clean",
+              "before_alt": "Original AI image of a dog with Gemini watermark",
+              "after_alt": "Processed image with watermark removed with zero quality loss"
+            }
           },
           {
             "title": "Lightning Fast Processing",
             "description": "Process images in under 500ms using the Canvas API. No waiting for server responses or processing queues.",
-            "icon": "RiFlashlightLine"
+            "icon": "RiFlashlightLine",
+            "before_after": {
+              "before_image": "/images/examples/skater-before.jpg",
+              "after_image": "/images/examples/skater-after.jpg",
+              "before_label": "Watermarked",
+              "after_label": "Clean",
+              "before_alt": "Original AI image of a skater with Gemini watermark",
+              "after_alt": "Processed image with watermark removed with zero quality loss"
+            }
           }
+        ]        }
         ]
       },
       "features": {
@@ -213,7 +237,7 @@
         "buttons": [
           {
             "title": "Remove Watermark Now",
-            "url": "/tools/gemini",
+            "url": "#tool",
             "target": "_self",
             "icon": "Sparkles"
           },

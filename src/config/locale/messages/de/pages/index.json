@@ -196,7 +196,7 @@
         "buttons": [
           {
             "title": "Remove Watermark Now",
-            "url": "/tools/gemini",
+            "url": "#tool",
             "target": "_self",
             "icon": "Sparkles"
           },
