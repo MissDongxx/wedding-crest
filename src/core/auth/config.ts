@@ -76,8 +76,16 @@ export async function getAuthOptions(configs: Record<string, string>) {
   const emailVerificationEnabled =
     configs.email_verification_enabled === 'true' && !!configs.resend_api_key;
 
+  // Use runtime configs to override static authOptions.
+  // envConfigs is evaluated at module load time; on Cloudflare Workers,
+  // process.env secrets may not be available then but are accessible
+  // at runtime through getAllConfigs().
+  const runtimeSecret =
+    configs.auth_secret || configs.AUTH_SECRET || envConfigs.auth_secret;
+
   return {
     ...authOptions,
+    ...(runtimeSecret ? { secret: runtimeSecret } : {}),
     // Add database connection only when actually needed (runtime)
     // D1 is only available inside Cloudflare Workers runtime (not during build)
     database: (envConfigs.database_url || (envConfigs.database_provider === 'd1' && isCloudflareWorker))

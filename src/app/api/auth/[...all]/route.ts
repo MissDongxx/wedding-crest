@@ -28,9 +28,17 @@ export async function POST(request: Request) {
     return limited;
   }
 
-  const auth = await getAuth();
-  const handler = toNextJsHandler(auth.handler);
-  return handler.POST(request);
+  try {
+    const auth = await getAuth();
+    const handler = toNextJsHandler(auth.handler);
+    return await handler.POST(request);
+  } catch (error) {
+    console.error('[auth POST] Error:', error);
+    return new Response(
+      JSON.stringify({ error: 'Internal Server Error', details: String(error?.valueOf()) }),
+      { status: 500, headers: { 'content-type': 'application/json' } }
+    );
+  }
 }
 
 export async function GET(request: Request) {
@@ -39,7 +47,15 @@ export async function GET(request: Request) {
     return limited;
   }
 
-  const auth = await getAuth();
-  const handler = toNextJsHandler(auth.handler);
-  return handler.GET(request);
+  try {
+    const auth = await getAuth();
+    const handler = toNextJsHandler(auth.handler);
+    return await handler.GET(request);
+  } catch (error) {
+    console.error('[auth GET] Error:', error);
+    return new Response(
+      JSON.stringify({ error: 'Internal Server Error', details: String(error?.valueOf()) }),
+      { status: 500, headers: { 'content-type': 'application/json' } }
+    );
+  }
 }

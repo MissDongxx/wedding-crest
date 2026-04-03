@@ -56,16 +56,18 @@ export default async function BlogPage({
     categories = allCategories;
 
     categories.unshift(currentCategory);
-  } catch {
+  } catch (error) {
     // failed to fetch posts
+    console.error(`Failed to fetch posts for locale "${locale}":`, error);
   }
 
   // build page sections
+  const blogSection = t.raw('page.sections.blog');
   const page: DynamicPage = {
     title: t('page.title'),
     sections: {
       blog: {
-        ...t.raw('page.sections.blog'),
+        ...(blogSection && typeof blogSection === 'object' ? blogSection : {}),
         data: {
           categories,
           currentCategory,

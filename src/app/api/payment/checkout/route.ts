@@ -1,11 +1,10 @@
-import { getTranslations } from 'next-intl/server';
-
 import {
   PaymentInterval,
   PaymentOrder,
   PaymentPrice,
   PaymentType,
 } from '@/extensions/payment/types';
+import { loadMessages } from '@/core/i18n/request';
 import { getSnowId, getUuid } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
 import { getAllConfigs } from '@/shared/models/config';
@@ -27,11 +26,16 @@ export async function POST(req: Request) {
       return respErr('product_id is required');
     }
 
-    const t = await getTranslations({
-      locale: locale || 'en',
-      namespace: 'pages.pricing',
-    });
-    const pricing = t.raw('page.sections.pricing');
+    // Load pricing config directly instead of using getTranslations.
+    // getTranslations relies on next-intl middleware context which is not
+    // available in API routes (middleware matcher excludes /api).
+    // In Cloudflare Workers this causes the request to hang indefinitely.
+    const pricingMessages = await loadMessages('pages/pricing', locale || 'en');
+    const pricing = pricingMessages?.page?.sections?.pricing;
+
+    if (!pricing || !pricing.items) {
+      return respErr('pricing configuration not found');
+    }
 
     const pricingItem = pricing.items.find(
       (item: any) => item.product_id === product_id
@@ -291,6 +295,7 @@ export async function POST(req: Request) {
 
       return respData(result.checkoutInfo);
     } catch (e: any) {
+      console.error('PayPal checkout creation failed:', e);
       // update order status to completed, means checkout failed
       await updateOrderByOrderNo(orderNo, {
         status: OrderStatus.COMPLETED, // means checkout failed
@@ -300,6 +305,7 @@ export async function POST(req: Request) {
       return respErr('checkout failed: ' + e.message);
     }
   } catch (e: any) {
+    console.error('Checkout route error:', e);
     return respErr('checkout failed: ' + e.message);
   }
 }

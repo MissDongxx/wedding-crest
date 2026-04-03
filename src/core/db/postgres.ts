@@ -11,8 +11,8 @@ let client: ReturnType<typeof postgres> | null = null;
 
 export function getPostgresDb() {
   let databaseUrl = envConfigs.database_url;
-
   let isHyperdrive = false;
+
   const schemaName = (envConfigs.db_schema || 'public').trim();
   const connectionSchemaOptions =
     schemaName && schemaName !== 'public'
@@ -21,7 +21,6 @@ export function getPostgresDb() {
 
   if (isCloudflareWorker) {
     const { env }: { env: any } = getCloudflareContext();
-    // Detect if set Hyperdrive
     isHyperdrive = 'HYPERDRIVE' in env;
 
     if (isHyperdrive) {
@@ -34,46 +33,64 @@ export function getPostgresDb() {
     throw new Error('DATABASE_URL is not set');
   }
 
-  // In Cloudflare Workers, create new connection each time
-  if (isCloudflareWorker) {
-    // Workers environment uses minimal configuration
-    const client = postgres(databaseUrl, {
-      prepare: false,
-      max: 1, // Limit to 1 connection in Workers
-      idle_timeout: 10, // Shorter timeout for Workers
-      connect_timeout: 5,
-      ...connectionSchemaOptions,
-    });
-
-    return drizzle(client);
-  }
-
-  // Singleton mode: reuse existing connection (good for traditional servers and serverless warm starts)
-  if (envConfigs.db_singleton_enabled === 'true') {
-    // Return existing instance if already initialized
+  // Cloudflare Workers + Hyperdrive: singleton is safe (Hyperdrive manages the pool)
+  // NOTE: Hyperdrive does not support postgres.js connection.options (e.g. search_path).
+  // If you need a custom schema, set it at the database role level instead:
+  //   ALTER ROLE your_role SET search_path TO your_schema, public;
+  if (isCloudflareWorker && isHyperdrive) {
     if (dbInstance) {
       return dbInstance;
     }
 
-    // Create connection pool only once
-    const maxConnections = Number(envConfigs.db_max_connections) || 10;
-    client = postgres(databaseUrl, {
+    const pgClient = postgres(databaseUrl, {
       prepare: false,
-      max: maxConnections, // Maximum connections in pool
-      idle_timeout: 30, // Idle connection timeout (seconds)
-      connect_timeout: 10, // Connection timeout (seconds)
-      ...connectionSchemaOptions,
+      max: 1,
+      idle_timeout: 20,
+      connect_timeout: 10,
     });
 
-    dbInstance = drizzle({ client });
+    client = pgClient;
+    dbInstance = drizzle(pgClient);
     return dbInstance;
   }
 
-  // Non-singleton mode: create new connection each time (good for serverless)
-  // In serverless, the connection will be cleaned up when the function instance is destroyed
+  // Cloudflare Workers without Hyperdrive: new connection per request
+  // (Workers are stateless, cached connections may be stale)
+  if (isCloudflareWorker) {
+    const cfClient = postgres(databaseUrl, {
+      prepare: false,
+      max: 1,
+      idle_timeout: 10,
+      connect_timeout: 5,
+    });
+
+    return drizzle(cfClient);
+  }
+
+  // Non-Workers: singleton mode
+  if (envConfigs.db_singleton_enabled === 'true') {
+    if (dbInstance) {
+      return dbInstance;
+    }
+
+    const maxConnections = Number(envConfigs.db_max_connections) || 10;
+    const pgClient = postgres(databaseUrl, {
+      prepare: false,
+      max: maxConnections,
+      idle_timeout: 30,
+      connect_timeout: 10,
+      ...connectionSchemaOptions,
+    });
+
+    client = pgClient;
+    dbInstance = drizzle({ client: pgClient });
+    return dbInstance;
+  }
+
+  // Non-singleton mode: new connection each time (serverless)
   const serverlessClient = postgres(databaseUrl, {
     prepare: false,
-    max: 1, // Use single connection in serverless
+    max: 1,
     idle_timeout: 20,
     connect_timeout: 10,
     ...connectionSchemaOptions,
@@ -82,10 +99,9 @@ export function getPostgresDb() {
   return drizzle({ client: serverlessClient });
 }
 
-// Optional: Function to close database connection (useful for testing or graceful shutdown)
-// Note: Only works in singleton mode
+// Close database connection (for graceful shutdown / testing)
 export async function closePostgresDb() {
-  if (envConfigs.db_singleton_enabled && client) {
+  if (client) {
     await client.end();
     client = null;
     dbInstance = null;

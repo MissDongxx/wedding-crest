@@ -137,6 +137,16 @@ export async function getAllConfigs(): Promise<Configs> {
     }
   });
 
+  // Explicitly pick up Workers secrets that are not in settingNames.
+  // envConfigs captures these at module-load time; on Cloudflare Workers,
+  // process.env may be populated later by @opennextjs/cloudflare.
+  if (!dbConfigs.auth_secret && process.env.AUTH_SECRET) {
+    dbConfigs.auth_secret = process.env.AUTH_SECRET;
+  }
+  if (!dbConfigs.database_url && process.env.DATABASE_URL) {
+    dbConfigs.database_url = process.env.DATABASE_URL;
+  }
+
   const configs = {
     ...envConfigs,
     ...dbConfigs,

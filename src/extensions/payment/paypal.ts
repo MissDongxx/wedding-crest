@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import {
   CheckoutSession,
   PaymentBilling,
@@ -753,9 +754,6 @@ export class PayPalProvider implements PaymentProvider {
       case 'BILLING.SUBSCRIPTION.EXPIRED':
         return PaymentEventType.SUBSCRIBE_CANCELED;
 
-      // Subscription payment events
-      case 'PAYMENT.SALE.COMPLETED':
-        return PaymentEventType.PAYMENT_SUCCESS;
 
       default:
         throw new Error(`Unknown PayPal event type: ${eventType}`);
