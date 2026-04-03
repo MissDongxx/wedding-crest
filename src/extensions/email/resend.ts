@@ -84,8 +84,6 @@ export class ResendProvider implements EmailProvider {
         resendEmail as CreateEmailOptions
       );
 
-      console.log('resend email result', result);
-
       if (result.error) {
         return {
           success: false,

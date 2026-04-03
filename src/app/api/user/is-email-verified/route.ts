@@ -14,8 +14,7 @@ export async function POST(req: Request) {
     const emailVerified = await isEmailVerified(email);
 
     return respData({ emailVerified });
-  } catch (e) {
-    console.log('check email verified failed:', e);
+  } catch {
     return respErr('check email verified failed');
   }
 }

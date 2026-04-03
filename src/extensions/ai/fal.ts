@@ -84,8 +84,6 @@ export class FalProvider implements AIProvider {
       apiUrl += `?fal_webhook=${callbackUrl}`;
     }
 
-    console.log('fal input', apiUrl, input);
-
     const resp = await fetch(apiUrl, {
       method: 'POST',
       headers,

@@ -319,17 +319,9 @@ export class PayPalProvider implements PaymentProvider {
         // If order status is APPROVED, auto-capture the payment
         // APPROVED means user has authorized but payment not yet captured
         if (orderResult.status === 'APPROVED') {
-          console.log(
-            'PayPal order is APPROVED, auto-capturing payment...',
-            sessionId
-          );
           orderResult = await this.makeRequest(
             `/v2/checkout/orders/${sessionId}/capture`,
             'POST'
-          );
-          console.log(
-            'PayPal payment captured, new status:',
-            orderResult.status
           );
         }
 
@@ -348,11 +340,6 @@ export class PayPalProvider implements PaymentProvider {
           // If subscription status is APPROVED, wait for it to become ACTIVE
           // PayPal automatically activates subscription after user approval
           if (subscriptionResult.status === 'APPROVED') {
-            console.log(
-              'PayPal subscription is APPROVED, waiting for activation...',
-              sessionId
-            );
-
             // Poll for up to 10 seconds (5 attempts, 2 seconds apart)
             for (let i = 0; i < 5; i++) {
               await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -360,13 +347,7 @@ export class PayPalProvider implements PaymentProvider {
                 `/v1/billing/subscriptions/${sessionId}`,
                 'GET'
               );
-              console.log(
-                `PayPal subscription poll ${i + 1}/5, status:`,
-                subscriptionResult.status
-              );
-
               if (subscriptionResult.status === 'ACTIVE') {
-                console.log('PayPal subscription activated successfully');
                 break;
               }
             }
@@ -374,9 +355,6 @@ export class PayPalProvider implements PaymentProvider {
             // If still APPROVED after polling, treat it as success
             // PayPal will activate it shortly
             if (subscriptionResult.status === 'APPROVED') {
-              console.log(
-                'PayPal subscription still APPROVED after polling, treating as success'
-              );
             }
           }
 
@@ -982,9 +960,7 @@ export class PayPalProvider implements PaymentProvider {
             metadata = { custom_id: purchaseUnit.custom_id };
           }
         }
-      } catch (e) {
-        console.log('Failed to fetch order for metadata:', e);
-      }
+      } catch { }
     }
 
     const result: PaymentSession = {

@@ -280,7 +280,6 @@ export function Form({
       const formData = new FormData();
 
       Object.entries(data).forEach(([key, value]) => {
-        console.log('checkbox value', key, typeof value);
         // If it's an array, join with commas
         if (Array.isArray(value)) {
           // const joinedValue = value.join(",");
@@ -315,7 +314,6 @@ export function Form({
 
       setLoading(false);
     } catch (err: any) {
-      console.log('submit form error', err);
       toast.error(err.message || 'submit form failed');
       setLoading(false);
     }

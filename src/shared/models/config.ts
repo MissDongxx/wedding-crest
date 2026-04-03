@@ -101,7 +101,16 @@ export const getConfigs = unstable_cache(
   }
 );
 
+// In-memory cache for configurations to avoid repeated unstable_cache/DB overHead
+let cachedAllConfigs: { data: Configs; timestamp: number } | null = null;
+const CACHE_TTL_MS = 60 * 1000; // 1 minute
+
 export async function getAllConfigs(): Promise<Configs> {
+  const now = Date.now();
+  if (cachedAllConfigs && now - cachedAllConfigs.timestamp < CACHE_TTL_MS) {
+    return cachedAllConfigs.data;
+  }
+
   let dbConfigs: Configs = {};
 
   // only get configs from db in server side
@@ -109,8 +118,7 @@ export async function getAllConfigs(): Promise<Configs> {
   if (typeof window === 'undefined' && hasDb) {
     try {
       dbConfigs = await getConfigs();
-    } catch (e) {
-      console.log(`get configs from db failed:`, e);
+    } catch {
       dbConfigs = {};
     }
   }
@@ -129,6 +137,12 @@ export async function getAllConfigs(): Promise<Configs> {
   const configs = {
     ...envConfigs,
     ...dbConfigs,
+  };
+
+  // Update in-memory cache
+  cachedAllConfigs = {
+    data: configs,
+    timestamp: Date.now(),
   };
 
   return configs;

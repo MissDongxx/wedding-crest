@@ -136,13 +136,11 @@ export async function handleCheckoutSuccess({
 
   // Idempotency check: if order is already paid, skip processing
   if (order.status === OrderStatus.PAID) {
-    console.log(`Order ${orderNo} is already paid, skipping`);
     return;
   }
 
   // Only process orders in CREATED or PENDING status
   if (order.status !== OrderStatus.CREATED && order.status !== OrderStatus.PENDING) {
-    console.log(`Order ${orderNo} status is ${order.status}, not processing`);
     return;
   }
 

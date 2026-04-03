@@ -4,12 +4,32 @@ import { getAllConfigs } from '@/shared/models/config';
 
 import { getAuthOptions } from './config';
 
+let authInstance: ReturnType<typeof betterAuth> | null = null;
+let authInitializationPromise: Promise<ReturnType<typeof betterAuth>> | null = null;
+
 // get auth instance in server side
 export async function getAuth() {
-  // get configs from db and env
-  const configs = await getAllConfigs();
+  if (authInstance) {
+    return authInstance;
+  }
 
-  const authOptions = await getAuthOptions(configs);
+  if (authInitializationPromise) {
+    return authInitializationPromise;
+  }
 
-  return betterAuth(authOptions as BetterAuthOptions);
+  authInitializationPromise = (async () => {
+    try {
+      const configs = await getAllConfigs();
+      const authOptions = await getAuthOptions(configs);
+      const instance = betterAuth(authOptions as BetterAuthOptions);
+
+      authInstance = instance;
+      return instance;
+    } catch (error) {
+      authInitializationPromise = null;
+      throw error;
+    }
+  })();
+
+  return authInitializationPromise;
 }

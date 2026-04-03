@@ -54,7 +54,6 @@ export async function GET(req: Request) {
       sessionId: order.paymentSessionId,
     });
 
-    // console.log('callback payment session', session);
 
     await handleCheckoutSuccess({
       order,
@@ -66,8 +65,7 @@ export async function GET(req: Request) {
       (order.paymentType === PaymentType.SUBSCRIPTION
         ? `${envConfigs.app_url}/settings/billing`
         : `${envConfigs.app_url}/settings/payments`);
-  } catch (e: any) {
-    console.log('checkout callback failed:', e);
+  } catch {
     redirectUrl = `${envConfigs.app_url}/pricing`;
   }
 

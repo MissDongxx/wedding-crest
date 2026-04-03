@@ -22,14 +22,14 @@
         "announcement": {
           "badge": "全新",
           "title": "🎉 RemoveGeminiWatermark 模板二已发布",
-          "url": "/pricing"
+          "url": "/#pricing"
         },
         "tip": "🎁 前 1000 名用户特价优惠",
         "buttons": [
           {
             "title": "立即开始",
             "icon": "Zap",
-            "url": "/pricing",
+            "url": "/#pricing",
             "target": "_self",
             "variant": "default"
           },

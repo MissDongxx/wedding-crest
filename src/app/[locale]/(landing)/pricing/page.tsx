@@ -21,19 +21,22 @@ export default async function PricingPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
+  // Parallelize data fetching
+  const [user, t, Page] = await Promise.all([
+    getUserInfo(),
+    getTranslations('pages.pricing'),
+    getThemePage('dynamic-page'),
+  ]);
+
   // get current subscription
   let currentSubscription;
-  try {
-    const user = await getUserInfo();
-    if (user) {
+  if (user) {
+    try {
       currentSubscription = await getCurrentSubscription(user.id);
+    } catch {
+      // subscription lookup failed, continue without it
     }
-  } catch (error) {
-    console.log('getting current subscription failed:', error);
   }
-
-  // get pricing data
-  const t = await getTranslations('pages.pricing');
 
   // build page sections
   const page: DynamicPage = {
@@ -48,9 +51,6 @@ export default async function PricingPage({
       },
     },
   };
-
-  // load page component
-  const Page = await getThemePage('dynamic-page');
 
   return <Page locale={locale} page={page} />;
 }

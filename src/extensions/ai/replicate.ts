@@ -80,8 +80,6 @@ export class ReplicateProvider implements AIProvider {
       !callbackUrl.includes('localhost') &&
       !callbackUrl.includes('127.0.0.1');
 
-    console.log('replicate input', input);
-
     const output = await this.client.predictions.create({
       model,
       input,

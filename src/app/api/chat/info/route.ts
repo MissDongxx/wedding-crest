@@ -25,7 +25,6 @@ export async function POST(req: Request) {
 
     return respData(chat);
   } catch (e: any) {
-    console.log('get chat info failed:', e);
     return respErr(`get chat info failed: ${e.message}`);
   }
 }

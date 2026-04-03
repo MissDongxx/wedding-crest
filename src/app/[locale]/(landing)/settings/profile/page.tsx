@@ -50,7 +50,6 @@ export default async function ProfilePage() {
         }
 
         const image = data.get('image');
-        console.log('image', image, typeof image);
 
         const updatedUser: UpdateUser = {
           name: name.trim(),

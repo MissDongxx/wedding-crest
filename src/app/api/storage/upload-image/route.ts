@@ -22,15 +22,6 @@ export async function POST(req: Request) {
     const formData = await req.formData();
     const files = formData.getAll('files') as File[];
 
-    console.log('[API] Received files:', files.length);
-    files.forEach((file, i) => {
-      console.log(`[API] File ${i}:`, {
-        name: file.name,
-        type: file.type,
-        size: file.size,
-      });
-    });
-
     if (!files || files.length === 0) {
       return respErr('No files provided');
     }
@@ -81,8 +72,6 @@ export async function POST(req: Request) {
         return respErr(result.error || 'Upload failed');
       }
 
-      console.log('[API] Upload success:', result.url);
-
       uploadResults.push({
         url: result.url,
         key: result.key,
@@ -90,11 +79,6 @@ export async function POST(req: Request) {
         deduped: false,
       });
     }
-
-    console.log(
-      '[API] All uploads complete. Returning URLs:',
-      uploadResults.map((r) => r.url)
-    );
 
     return respData({
       urls: uploadResults.map((r) => r.url),

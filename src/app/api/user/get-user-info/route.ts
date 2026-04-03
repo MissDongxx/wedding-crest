@@ -19,8 +19,7 @@ export async function POST(req: Request) {
     const remainingCredits = await getRemainingCredits(user.id);
 
     return respData({ ...user, isAdmin, credits: { remainingCredits } });
-  } catch (e) {
-    console.log('get user info failed:', e);
+  } catch {
     return respErr('get user info failed');
   }
 }

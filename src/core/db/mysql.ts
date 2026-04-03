@@ -21,7 +21,6 @@ export function getMysqlDb() {
     if (isHyperdrive) {
       const hyperdrive = env.HYPERDRIVE;
       databaseUrl = hyperdrive.connectionString;
-      console.log('using Hyperdrive connection');
     }
   }
 
@@ -31,7 +30,6 @@ export function getMysqlDb() {
 
   // In Cloudflare Workers, create new connection each time
   if (isCloudflareWorker) {
-    console.log('in Cloudflare Workers environment');
     // Workers environment uses minimal configuration
     const client = mysql.createConnection({
       uri: databaseUrl,

@@ -114,7 +114,6 @@ export async function POST(request: Request) {
 
     return respData(newAITask);
   } catch (e: any) {
-    console.log('generate failed', e);
     return respErr(e.message);
   }
 }

@@ -27,7 +27,6 @@ export function getPostgresDb() {
     if (isHyperdrive) {
       const hyperdrive = env.HYPERDRIVE;
       databaseUrl = hyperdrive.connectionString;
-      console.log('using Hyperdrive connection');
     }
   }
 
@@ -37,7 +36,6 @@ export function getPostgresDb() {
 
   // In Cloudflare Workers, create new connection each time
   if (isCloudflareWorker) {
-    console.log('in Cloudflare Workers environment');
     // Workers environment uses minimal configuration
     const client = postgres(databaseUrl, {
       prepare: false,
@@ -58,9 +56,10 @@ export function getPostgresDb() {
     }
 
     // Create connection pool only once
+    const maxConnections = Number(envConfigs.db_max_connections) || 10;
     client = postgres(databaseUrl, {
       prepare: false,
-      max: Number(envConfigs.db_max_connections) || 1, // Maximum connections in pool (default 1)
+      max: maxConnections, // Maximum connections in pool
       idle_timeout: 30, // Idle connection timeout (seconds)
       connect_timeout: 10, // Connection timeout (seconds)
       ...connectionSchemaOptions,

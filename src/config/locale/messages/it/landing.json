@@ -2,7 +2,7 @@
   "header": {
     "id": "header",
     "brand": {
-      "title": "RemoveGeminiWatermark",
+      "title": "Remove Gemini Watermark",
       "logo": {
         "src": "/logo.png",
         "alt": "RemoveGeminiWatermark",
@@ -32,7 +32,7 @@
         },
         {
           "title": "Pricing",
-          "url": "/pricing",
+          "url": "/#pricing",
           "icon": "DollarSign"
         },
         {
@@ -62,7 +62,7 @@
   "footer": {
     "id": "footer",
     "brand": {
-      "title": "RemoveGeminiWatermark",
+      "title": "Remove Gemini Watermark",
       "description": "Free browser-based tool to remove AI watermarks from Gemini, DALL-E, Midjourney and other AI-generated images. 100% local processing.",
       "logo": {
         "src": "/logo.png",
@@ -94,7 +94,7 @@
           "children": [
             {
               "title": "Pricing",
-              "url": "/pricing",
+              "url": "/#pricing",
               "target": "_self"
             },
             {

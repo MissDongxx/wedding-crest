@@ -187,9 +187,7 @@ export async function getPost({
 
       return post;
     }
-  } catch (e) {
-    console.log('get post from database failed:', e);
-  }
+  } catch { }
 
   // get post from locale file
   const localPost = await getLocalPost({ slug, locale, postPrefix });
@@ -437,9 +435,7 @@ export async function getRemotePostsAndCategories({
         url: `${categoryPrefix}${category.slug}`,
       }))
     );
-  } catch (e) {
-    console.log('get remote posts and categories failed:', e);
-  }
+  } catch { }
 
   return {
     posts: dbPostsList,

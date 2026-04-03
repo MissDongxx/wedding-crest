@@ -2,6 +2,7 @@
   "page": {
     "show_sections": [
       "hero",
+      "tool",
       "introduce",
       "benefits",
       "features",
@@ -11,6 +12,13 @@
       "cta"
     ],
     "sections": {
+      "tool": {
+        "block": "upload-zone",
+        "id": "tool",
+        "title": "Remove Gemini Watermark Now",
+        "label": "Free Online Tool",
+        "description": "Upload your AI-generated image and remove the Gemini watermark instantly. 100% local processing — your images never leave your device."
+      },
       "hero": {
         "id": "hero",
         "title": "Remove AI Watermarks from Any Image",
@@ -33,7 +41,7 @@
           {
             "title": "View Pricing",
             "icon": "DollarSign",
-            "url": "/pricing",
+            "url": "/#pricing",
             "target": "_self",
             "variant": "outline"
           }
@@ -193,7 +201,7 @@
           },
           {
             "title": "View Pricing",
-            "url": "/pricing",
+            "url": "/#pricing",
             "target": "_self",
             "variant": "outline",
             "icon": "DollarSign"

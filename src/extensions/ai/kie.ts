@@ -245,8 +245,6 @@ export class KieProvider implements AIProvider {
       }
     }
 
-    console.log('kie input', apiUrl, payload);
-
     const resp = await fetch(apiUrl, {
       method: 'POST',
       headers,

@@ -55,8 +55,8 @@ export default async function UpdatesPage({
         const versionB = b.version || '';
         return versionB.localeCompare(versionA);
       });
-  } catch (error) {
-    console.log('getting posts failed:', error);
+  } catch {
+    // failed to fetch updates
   }
 
   // build page sections

@@ -42,7 +42,6 @@ export async function POST(req: Request) {
       hasMore: page * limit < total,
     });
   } catch (e: any) {
-    console.log('get chat messages failed:', e);
     return respErr(`get chat messages failed: ${e.message}`);
   }
 }

@@ -142,8 +142,8 @@ export async function getAuthOptions(configs: Record<string, string>) {
 
               // grant role for new user
               await grantRoleForNewUser(user);
-            } catch (e) {
-              console.log('grant credits or role for new user failed', e);
+            } catch {
+              // grant credits/role failed, non-critical
             }
           },
         },
@@ -195,8 +195,8 @@ export async function getAuthOptions(configs: Record<string, string>) {
                     url,
                   }),
                 });
-              } catch (e) {
-                console.log('send verification email failed:', e);
+              } catch {
+                // send verification email failed, non-critical
               }
             },
           },

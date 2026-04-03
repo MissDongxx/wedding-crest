@@ -56,8 +56,8 @@ export default async function BlogPage({
     categories = allCategories;
 
     categories.unshift(currentCategory);
-  } catch (error) {
-    console.log('getting posts failed:', error);
+  } catch {
+    // failed to fetch posts
   }
 
   // build page sections

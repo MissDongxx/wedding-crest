@@ -61,7 +61,6 @@ export async function POST(req: Request) {
 
     return respData(task);
   } catch (e: any) {
-    console.log('ai query failed', e);
     return respErr(e.message);
   }
 }

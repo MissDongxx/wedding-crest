@@ -15,21 +15,25 @@ export default async function LandingPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const t = await getTranslations('pages.index');
-  const tp = await getTranslations('pages.pricing');
+  // Parallelize data fetching
+  const [user, t, tp, Page] = await Promise.all([
+    getUserInfo(),
+    getTranslations('pages.index'),
+    getTranslations('pages.pricing'),
+    getThemePage('dynamic-page'),
+  ]);
 
   // get page data
   const page: DynamicPage = t.raw('page');
 
   // get current subscription
   let currentSubscription;
-  try {
-    const user = await getUserInfo();
-    if (user) {
+  if (user) {
+    try {
       currentSubscription = await getCurrentSubscription(user.id);
+    } catch {
+      // subscription lookup failed, continue without it
     }
-  } catch (error) {
-    console.log('getting current subscription failed:', error);
   }
 
   // inject pricing section
@@ -41,9 +45,6 @@ export default async function LandingPage({
       },
     };
   }
-
-  // load page component
-  const Page = await getThemePage('dynamic-page');
 
   return <Page locale={locale} page={page} />;
 }

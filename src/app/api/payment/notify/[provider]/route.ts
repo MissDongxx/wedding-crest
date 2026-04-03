@@ -49,9 +49,8 @@ export async function POST(
       throw new Error('payment session not found');
     }
 
-    // console.log('notify payment session', session);
 
-    if (eventType === PaymentEventType.CHECKOUT_SUCCESS) {
+if (eventType === PaymentEventType.CHECKOUT_SUCCESS) {
       // one-time payment or subscription first payment
       const orderNo = session.metadata.order_no;
 
@@ -87,11 +86,8 @@ export async function POST(
           // Method 1: Use subscriptionCycleType if available (Stripe, Creem, PayPal all provide this)
           if (subscriptionCycleType) {
             if (subscriptionCycleType === SubscriptionCycleType.CREATE) {
-              console.log(
-                `Subscription ${session.subscriptionId}: subscriptionCycleType is CREATE, ` +
-                  'skipping PAYMENT_SUCCESS as this is the first payment (already handled)'
-              );
-              return Response.json({ message: 'success' });
+
+return Response.json({ message: 'success' });
             }
 
             if (subscriptionCycleType === SubscriptionCycleType.RENEWAL) {
@@ -102,18 +98,13 @@ export async function POST(
                   paymentProvider: provider,
                 });
                 if (existingOrder) {
-                  console.log(
-                    `Subscription ${session.subscriptionId}: transaction ${transactionId} already processed, skipping`
-                  );
-                  return Response.json({ message: 'success' });
+
+return Response.json({ message: 'success' });
                 }
               }
 
-              console.log(
-                `Subscription ${session.subscriptionId}: subscriptionCycleType is RENEWAL, treating as RENEWAL`
-              );
 
-              await handleSubscriptionRenewal({
+await handleSubscriptionRenewal({
                 subscription: existingSubscription,
                 session,
               });
@@ -129,41 +120,27 @@ export async function POST(
               paymentProvider: provider,
             });
             if (existingOrder) {
-              console.log(
-                `Subscription ${session.subscriptionId}: transaction ${transactionId} already processed, skipping`
-              );
-              return Response.json({ message: 'success' });
+
+return Response.json({ message: 'success' });
             }
 
             // Transaction not found - treat as renewal (subscription exists but transaction is new)
-            console.log(
-              `Subscription ${session.subscriptionId}: new transaction ${transactionId}, treating as RENEWAL`
-            );
 
-            await handleSubscriptionRenewal({
+await handleSubscriptionRenewal({
               subscription: existingSubscription,
               session,
             });
           } else {
-            console.log(
-              `Subscription ${session.subscriptionId}: no subscriptionCycleType and no transactionId, cannot determine if renewal`
-            );
           }
         } else {
           // Subscription not in database - this might be first payment
           // But first payment should be handled via CHECKOUT_SUCCESS or SUBSCRIBE_UPDATED
-          console.log(
-            `Subscription ${session.subscriptionId} not found in database, ` +
-              `subscriptionCycleType: ${session.paymentInfo?.subscriptionCycleType}, ` +
-              'not handling via PAYMENT_SUCCESS'
-          );
         }
       } else {
         // handle one-time payment
         const orderNo = session.metadata?.order_no;
 
         if (!orderNo) {
-          console.log('one-time payment: order_no not found in metadata, skipping');
           return Response.json({ message: 'success' });
         }
 
@@ -217,14 +194,12 @@ export async function POST(
         session,
       });
     } else {
-      console.log('not handle other event type: ' + eventType);
     }
 
     return Response.json({
       message: 'success',
     });
-  } catch (err: any) {
-    console.log('handle payment notify failed', err);
+  } catch {
     return Response.json(
       {
         message: `handle payment notify failed: ${err.message}`,

@@ -65,11 +65,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       }
 
       setConfigs(data);
-    } catch (e) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('fetch configs failed:', e);
-      }
-    }
+    } catch { }
   }, []);
 
   const fetchUserCredits = useCallback(async () => {
@@ -90,11 +86,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       }
 
       setUser((prev) => (prev ? { ...prev, credits: data } : prev));
-    } catch (e) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('fetch user credits failed:', e);
-      }
-    }
+    } catch { }
   }, []);
 
   const fetchUserInfo = useCallback(async () => {
@@ -111,11 +103,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       }
 
       setUser(data);
-    } catch (e) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('fetch user info failed:', e);
-      }
-    }
+    } catch { }
   }, []);
 
   const showOneTap = useCallback(async (configs: Record<string, string>) => {
@@ -126,9 +114,6 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
         onPromptNotification: (notification: any) => {
           // Handle prompt dismissal silently
           // This callback is triggered when the prompt is dismissed or skipped
-          if (process.env.NODE_ENV !== 'production') {
-            console.log('One Tap prompt notification:', notification);
-          }
         },
         // fetchOptions: {
         //   onSuccess: () => {

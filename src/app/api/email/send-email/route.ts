@@ -14,11 +14,8 @@ export async function POST(req: Request) {
       react: VerificationCode({ code: '123455' }),
     });
 
-    console.log('send email result', result);
-
     return respData(result);
   } catch (e) {
-    console.log('send email failed:', e);
     return respErr('send email failed');
   }
 }

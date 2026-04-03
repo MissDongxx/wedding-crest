@@ -71,8 +71,7 @@ export function ChatLibrary({}) {
 
       setChats(list);
       setHasMore(hasMore);
-    } catch (e: any) {
-      console.log('fetch chats failed:', e);
+    } catch {
       return [];
     }
   };

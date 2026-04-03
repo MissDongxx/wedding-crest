@@ -300,7 +300,6 @@ export async function POST(req: Request) {
       return respErr('checkout failed: ' + e.message);
     }
   } catch (e: any) {
-    console.log('checkout failed:', e);
     return respErr('checkout failed: ' + e.message);
   }
 }
@@ -325,8 +324,7 @@ async function getPaymentProductId(
         productIds[`${productId}_${checkoutCurrency}`] || productIds[productId]
       );
     }
-  } catch (e: any) {
-    console.log('get payment product id failed:', e);
+  } catch {
     return;
   }
 }
@@ -352,8 +350,7 @@ async function getPromotionCode(
         promotionCodes[productId]
       );
     }
-  } catch (e: any) {
-    console.log('get promotion code failed:', e);
+  } catch {
     return;
   }
 }

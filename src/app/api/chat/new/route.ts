@@ -56,7 +56,6 @@ export async function POST(req: Request) {
 
     return respData(chat);
   } catch (e: any) {
-    console.log('new chat failed:', e);
     return respErr(`new chat failed: ${e.message}`);
   }
 }
