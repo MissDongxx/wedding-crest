@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import {
   Upload,
@@ -53,12 +53,11 @@ export function UploadZone() {
   const [cleanUrl, setCleanUrl] = useState<string | null>(null);
   const [processingTime, setProcessingTime] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [usageCount, setUsageCount] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return getUsageCount();
-    }
-    return 0;
-  });
+  const [usageCount, setUsageCount] = useState(0);
+
+  useEffect(() => {
+    setUsageCount(getUsageCount());
+  }, []);
   const cleanBlobRef = useRef<Blob | null>(null);
 
   const processImage = useCallback(async (file: File) => {

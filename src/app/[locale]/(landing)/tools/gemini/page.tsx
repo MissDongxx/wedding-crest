@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
-
-import { UploadZone } from '@/shared/components/watermark/UploadZone';
+import UploadZoneClient from './upload-zone-client';
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -133,7 +132,7 @@ export default function GeminiToolPage() {
 
         {/* Upload Zone */}
         <div className="mx-auto max-w-4xl px-4">
-          <UploadZone />
+          <UploadZoneClient />
         </div>
 
         {/* How It Works */}
@@ -164,7 +163,7 @@ export default function GeminiToolPage() {
             ].map((item) => (
               <div
                 key={item.step}
-                className="group relative rounded-xl border p-6 transition-colors hover:border-primary/30"
+                className="group relative rounded-xl border border-border/40 bg-white/30 p-6 backdrop-blur-sm transition-colors hover:border-primary/20"
               >
                 <span className="text-primary/20 text-5xl font-bold">
                   {item.step}

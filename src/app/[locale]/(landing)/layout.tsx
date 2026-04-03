@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 
 import { getThemeLayout } from '@/core/theme';
 import { LocaleDetector, TopBanner } from '@/shared/blocks/common';
+import { GeminiBackground } from '@/shared/components/gemini-background';
 import {
   Footer as FooterType,
   Header as HeaderType,
@@ -25,6 +26,7 @@ export default async function LandingLayout({
 
   return (
     <Layout header={header} footer={footer}>
+      <GeminiBackground />
       <LocaleDetector />
       {header.topbanner && header.topbanner.text && (
         <TopBanner

@@ -19,18 +19,6 @@
           "icon": "Sparkles"
         },
         {
-          "title": "Tools",
-          "icon": "RiToolsLine",
-          "children": [
-            {
-              "title": "Gemini Watermark Remover",
-              "description": "Remove Google Gemini ✦ watermark",
-              "url": "/tools/gemini",
-              "icon": "RiImage2Line"
-            }
-          ]
-        },
-        {
           "title": "Pricing",
           "url": "/#pricing",
           "icon": "DollarSign"
