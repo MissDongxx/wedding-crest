@@ -101,6 +101,11 @@ export function Footer({ footer }: { footer: FooterType }) {
                   key={index}
                   href={item.url || ''}
                   target={item.target || ''}
+                  rel={
+                    item.target === '_blank'
+                      ? 'noopener noreferrer nofollow'
+                      : undefined
+                  }
                   className="text-muted-foreground hover:text-primary bg-background block cursor-pointer rounded-full p-2 duration-150"
                   aria-label={item.title || 'Social media link'}
                 >

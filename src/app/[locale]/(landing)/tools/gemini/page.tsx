@@ -1,25 +1,26 @@
 import { Metadata } from 'next';
+
+import { envConfigs } from '@/config';
 import UploadZoneClient from './upload-zone-client';
+
+const baseUrl = envConfigs.app_url;
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: 'Gemini Watermark Remover — Remove Google Gemini AI Watermark Free',
+    title: 'Remove Gemini Watermark Free — RemoveGeminiWatermark.org',
     description:
-      'Remove the Gemini AI watermark (✦ star logo) from images instantly. Free browser-based tool with 100% local processing. No upload required, your data never leaves your device.',
+      'Remove the Gemini AI watermark (✦) from images instantly. Free, 100% local processing, no upload. Try RemoveGeminiWatermark now!',
     keywords: [
-      'gemini watermark remover',
       'remove gemini watermark',
-      'google gemini watermark',
-      'gemini ai watermark',
-      'gemini image watermark',
-      'remove ai watermark',
-      'gemini star logo',
-      'ai watermark cleaner',
+      'gemini watermark cleaner',
+      'gemini logo remover',
+      'remove gemini watermark free',
+      'gemini ai watermark remover',
     ],
     openGraph: {
-      title: 'Gemini Watermark Remover — Free AI Watermark Removal Tool',
+      title: 'Remove Gemini Watermark Free — RemoveGeminiWatermark.org',
       description:
-        'Remove the Gemini AI watermark from images instantly. 100% local processing, no upload required.',
+        'Remove the Gemini AI watermark (✦) from images instantly. Free, 100% local processing, no upload.',
       type: 'website',
     },
   };
@@ -96,6 +97,33 @@ export default function GeminiToolPage() {
     })),
   };
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: baseUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Gemini Watermark Remover',
+        item: `${baseUrl}/tools/gemini`,
+      },
+    ],
+  };
+
+  const imageJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ImageObject',
+    contentUrl: `${baseUrl}/logo.png`,
+    description:
+      'RemoveGeminiWatermark - Free Gemini AI Watermark Removal Tool',
+  };
+
   return (
     <>
       {/* Structured Data */}
@@ -106,6 +134,14 @@ export default function GeminiToolPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(imageJsonLd) }}
       />
 
       <div className="pt-24 pb-16 md:pt-36">

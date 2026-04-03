@@ -1,8 +1,9 @@
 {
   "page": {
     "show_sections": [
-      "hero",
       "tool",
+      "comparison",
+      "hero",
       "introduce",
       "benefits",
       "features",
@@ -49,6 +50,22 @@
         "show_avatars": false,
         "show_award": false
       },
+      "comparison": {
+        "block": "comparison-block",
+        "id": "comparison",
+        "title": "Professional Quality Results",
+        "label": "Comparison",
+        "description": "See how our browser-based tool removes AI watermarks with zero quality loss.",
+        "before_after": {
+          "before_image": "/images/examples/before.jpg",
+          "after_image": "/images/examples/after.jpg",
+          "before_label": "Before",
+          "after_label": "after",
+          "before_alt": "AI-generated image with Gemini watermark visible in corner",
+          "after_alt": "Same image after removing Gemini watermark with zero quality loss",
+          "layout": "side-by-side"
+        }
+      },
       "introduce": {
         "block": "features-step",
         "id": "introduce",
@@ -79,7 +96,7 @@
       "benefits": {
         "block": "features-accordion",
         "id": "benefits",
-        "title": "Why Choose RemoveGeminiWatermark",
+        "title": "Why Choose RemoveGeminiWatermark to Remove Gemini Watermark",
         "label": "Benefits",
         "description": "The most private and highest-quality AI watermark removal tool available.",
         "items": [
@@ -102,7 +119,7 @@
       },
       "features": {
         "id": "features",
-        "title": "Powerful Features",
+        "title": "Powerful Features to Remove Gemini Watermark",
         "description": "Everything you need to clean AI-generated images.",
         "items": [
           {

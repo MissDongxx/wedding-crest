@@ -1,8 +1,9 @@
 {
   "page": {
     "show_sections": [
-      "hero",
       "tool",
+      "comparison",
+      "hero",
       "logos",
       "introduce",
       "benefits",
@@ -49,24 +50,21 @@
             "variant": "outline"
           }
         ],
-        "show_avatars": true,
-        "avatars_tip": "999+ 用户在使用 RemoveGeminiWatermark 上站",
-        "show_award": false,
-        "image": {
-          "src": "/imgs/features/admin.png",
-          "alt": "hero",
-          "width": 1200,
-          "height": 800
-        },
-        "image_invert": {
-          "src": "/imgs/features/admin-dark.png",
-          "alt": "hero",
-          "width": 1200,
-          "height": 800
-        },
-        "background_image": {
-          "src": "/imgs/bg/tree.jpg",
-          "alt": "hero"
+        "show_avatars": false,
+        "show_award": false
+      },
+      "comparison": {
+        "block": "comparison-block",
+        "id": "comparison",
+        "title": "专业级处理效果",
+        "label": "效果对比",
+        "description": "查看我们的浏览器处理工具如何在保持画质的前提下移除 AI 水印。",
+        "before_after": {
+          "before_image": "/images/examples/before.jpg",
+          "after_image": "/images/examples/after.jpg",
+          "before_label": "Before",
+          "after_label": "after",
+          "layout": "side-by-side"
         }
       },
       "logos": {

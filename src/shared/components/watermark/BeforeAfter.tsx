@@ -8,6 +8,9 @@ interface BeforeAfterProps {
   afterImage: string;
   beforeLabel?: string;
   afterLabel?: string;
+  beforeAlt?: string;
+  afterAlt?: string;
+  layout?: 'slider' | 'side-by-side';
 }
 
 export const BeforeAfter: React.FC<BeforeAfterProps> = ({
@@ -15,12 +18,15 @@ export const BeforeAfter: React.FC<BeforeAfterProps> = ({
   afterImage,
   beforeLabel = 'Before',
   afterLabel = 'After',
+  beforeAlt = 'Before',
+  afterAlt = 'After',
+  layout = 'slider',
 }) => {
   const [sliderPosition, setSliderPosition] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleMove = (event: React.MouseEvent | React.TouchEvent) => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || layout !== 'slider') return;
 
     const rect = containerRef.current.getBoundingClientRect();
     const x = 'touches' in event ? event.touches[0].clientX : (event as React.MouseEvent).clientX;
@@ -29,10 +35,49 @@ export const BeforeAfter: React.FC<BeforeAfterProps> = ({
     setSliderPosition(Math.max(0, Math.min(100, position)));
   };
 
+  if (layout === 'side-by-side') {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full px-4">
+        <div className="flex flex-col gap-5">
+          <div className="flex justify-center">
+            <span className="inline-flex items-center rounded-full bg-red-100 px-6 py-2 text-lg font-black text-red-700 ring-1 ring-inset ring-red-700/20 shadow-sm transition-all hover:scale-105">
+              {beforeLabel}
+            </span>
+          </div>
+          <div className="relative aspect-[3/2] overflow-hidden rounded-3xl shadow-2xl border-[6px] border-white/10 bg-muted/20 transition-transform hover:scale-[1.01]">
+            <Image
+              src={beforeImage}
+              alt={beforeAlt}
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+        </div>
+        <div className="flex flex-col gap-5">
+          <div className="flex justify-center">
+            <span className="inline-flex items-center rounded-full bg-green-100 px-6 py-2 text-lg font-black text-green-700 ring-1 ring-inset ring-green-700/20 shadow-sm transition-all hover:scale-105">
+              {afterLabel}
+            </span>
+          </div>
+          <div className="relative aspect-[3/2] overflow-hidden rounded-3xl shadow-2xl border-[6px] border-white/10 bg-muted/20 transition-transform hover:scale-[1.01]">
+            <Image
+              src={afterImage}
+              alt={afterAlt}
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       ref={containerRef}
-      className="relative w-full aspect-[4/3] overflow-hidden rounded-xl shadow-2xl border-4 border-white/10 group cursor-col-resize select-none"
+      className="relative w-full aspect-[3/2] overflow-hidden rounded-xl shadow-2xl border-4 border-white/10 group cursor-col-resize select-none"
       onMouseMove={(e) => handleMove(e)}
       onTouchMove={(e) => handleMove(e)}
     >
@@ -40,7 +85,7 @@ export const BeforeAfter: React.FC<BeforeAfterProps> = ({
       <div className="absolute inset-0">
         <Image
           src={afterImage}
-          alt="After"
+          alt={afterAlt}
           fill
           className="object-cover"
           priority
@@ -57,7 +102,7 @@ export const BeforeAfter: React.FC<BeforeAfterProps> = ({
       >
         <Image
           src={beforeImage}
-          alt="Before"
+          alt={beforeAlt}
           fill
           className="object-cover"
           priority

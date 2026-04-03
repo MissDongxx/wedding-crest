@@ -70,6 +70,15 @@ export interface Hero extends Section {
   avatars_tip?: string;
   show_award?: boolean;
   highlight_text?: string;
+  before_after?: {
+    before_image: string;
+    after_image: string;
+    before_label?: string;
+    after_label?: string;
+    before_alt?: string;
+    after_alt?: string;
+    layout?: 'slider' | 'side-by-side';
+  };
 }
 
 export interface Logos extends Section {}
