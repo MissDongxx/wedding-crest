@@ -90,7 +90,7 @@ export const BeforeAfter: React.FC<BeforeAfterProps> = ({
           className="object-cover"
           priority
         />
-        <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute bottom-4 right-12 bg-black/50 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
           {afterLabel}
         </div>
       </div>
@@ -107,7 +107,7 @@ export const BeforeAfter: React.FC<BeforeAfterProps> = ({
           className="object-cover"
           priority
         />
-        <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+        <div className="absolute bottom-4 left-12 bg-black/50 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
           {beforeLabel}
         </div>
       </div>

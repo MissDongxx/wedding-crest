@@ -170,12 +170,12 @@
             "description": "不同于其他工具，您的图片完全在浏览器中处理。数据绝不会发送到服务器。您的创作始终私密。",
             "icon": "RiShieldCheckLine",
             "before_after": {
-              "before_image": "/images/examples/woman-before.jpg",
-              "after_image": "/images/examples/woman-after.jpg",
-              "before_label": "Watermarked",
-              "after_label": "Clean",
-              "before_alt": "Original AI image with Gemini watermark",
-              "after_alt": "Processed image with watermark removed with zero quality loss"
+              "before_image": "/images/examples/woman-after.jpg",
+              "after_image": "/images/examples/woman-before.jpg",
+              "before_label": "Clean",
+              "after_label": "Watermarked",
+              "before_alt": "Clean AI image with watermark removed",
+              "after_alt": "Original AI image with Gemini watermark"
             }
           },
           {
@@ -183,11 +183,11 @@
             "description": "我们的反向 Alpha 混合算法可以从数学上恢复水印下的原始像素。无模糊、无伪影、无画质降低。",
             "icon": "RiImageEditLine",
             "before_after": {
-              "before_image": "/images/examples/woman-before.jpg",
-              "after_image": "/images/examples/woman-after.jpg",
+              "before_image": "/images/examples/dog-before.jpg",
+              "after_image": "/images/examples/dog-after.jpg",
               "before_label": "Watermarked",
               "after_label": "Clean",
-              "before_alt": "Original AI image with Gemini watermark",
+              "before_alt": "Original AI image of a dog with Gemini watermark",
               "after_alt": "Processed image with watermark removed with zero quality loss"
             }
           },
@@ -196,11 +196,11 @@
             "description": "使用 Canvas API 在 500 毫秒内完成处理。无需等待服务器响应或处理队列。",
             "icon": "RiFlashlightLine",
             "before_after": {
-              "before_image": "/images/examples/woman-before.jpg",
-              "after_image": "/images/examples/woman-after.jpg",
+              "before_image": "/images/examples/skater-before.jpg",
+              "after_image": "/images/examples/skater-after.jpg",
               "before_label": "Watermarked",
               "after_label": "Clean",
-              "before_alt": "Original AI image with Gemini watermark",
+              "before_alt": "Original AI image of a skater with Gemini watermark",
               "after_alt": "Processed image with watermark removed with zero quality loss"
             }
           }

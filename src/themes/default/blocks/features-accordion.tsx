@@ -85,7 +85,7 @@ export function FeaturesAccordion({
             {/* min-w-0/flex-shrink to prevent overflow */}
             <div className="bg-background relative flex min-w-0 flex-shrink overflow-hidden rounded-3xl border p-2">
               <div className="absolute inset-0 right-0 ml-auto w-15 border-l bg-[repeating-linear-gradient(-45deg,var(--color-border),var(--color-border)_1px,transparent_1px,transparent_8px)]"></div>
-              <div className="bg-background relative aspect-76/59 w-full min-w-0 rounded-2xl sm:w-[calc(3/4*100%+3rem)]">
+              <div className="bg-background relative aspect-[3/2] w-full min-w-0 rounded-2xl sm:w-[calc(3/4*100%+3rem)]">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={`${activeItem}-id`}
