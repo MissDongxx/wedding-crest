@@ -13,7 +13,7 @@
     ],
     "sections": {
       "tool": {
-        "block": "upload-zone",
+        "block": "upload-zone-block",
         "id": "tool",
         "title": "Remove Gemini Watermark Now",
         "label": "Free Online Tool",

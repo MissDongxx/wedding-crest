@@ -19,7 +19,7 @@ export * from './stats';
 export * from './testimonials';
 export * from './faq';
 export * from './cta';
-export * from './upload-zone';
+export * from './upload-zone-block';
 export * from './subscribe';
 export * from './pricing';
 

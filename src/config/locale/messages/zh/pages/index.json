@@ -2,6 +2,7 @@
   "page": {
     "show_sections": [
       "hero",
+      "tool",
       "logos",
       "introduce",
       "benefits",
@@ -14,6 +15,13 @@
       "cta"
     ],
     "sections": {
+      "tool": {
+        "block": "upload-zone-block",
+        "id": "tool",
+        "title": "立即移除 Gemini 水印",
+        "label": "免费在线工具",
+        "description": "上传你的 AI 生成图片，立即移除 Gemini 水印。100% 本地处理 — 你的图片不会离开你的设备。"
+      },
       "hero": {
         "id": "hero",
         "title": "一小时快速上线你的 AI 创业项目",
