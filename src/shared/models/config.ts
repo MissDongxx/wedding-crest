@@ -71,35 +71,38 @@ export async function addConfig(newConfig: NewConfig) {
   return result;
 }
 
-export const getConfigs = unstable_cache(
-  async (): Promise<Configs> => {
-    const configs: Record<string, string> = {};
+async function getConfigsFromDb(): Promise<Configs> {
+  const configs: Record<string, string> = {};
 
-    // D1 is only available inside Cloudflare Workers runtime (not during build)
-    if (envConfigs.database_provider === 'd1' && !isCloudflareWorker) {
-      return configs;
-    }
-    if (!envConfigs.database_url && envConfigs.database_provider !== 'd1') {
-      return configs;
-    }
-
-    const result = await db().select().from(config);
-    if (!result) {
-      return configs;
-    }
-
-    for (const config of result) {
-      configs[config.name] = config.value ?? '';
-    }
-
+  // D1 is only available inside Cloudflare Workers runtime (not during build)
+  if (envConfigs.database_provider === 'd1' && !isCloudflareWorker) {
     return configs;
-  },
-  ['configs'],
-  {
-    revalidate: 3600,
-    tags: [CACHE_TAG_CONFIGS],
   }
-);
+  if (!envConfigs.database_url && envConfigs.database_provider !== 'd1') {
+    return configs;
+  }
+
+  const result = await db().select().from(config);
+  if (!result) {
+    return configs;
+  }
+
+  for (const config of result) {
+    configs[config.name] = config.value ?? '';
+  }
+
+  return configs;
+}
+
+// Cloudflare Workers doesn't fully support Next.js unstable_cache and it can
+// cause requests to hang indefinitely. Since getAllConfigs() already has an
+// in-memory cache with 1-minute TTL, we skip unstable_cache on Workers.
+export const getConfigs = isCloudflareWorker
+  ? getConfigsFromDb
+  : unstable_cache(getConfigsFromDb, ['configs'], {
+      revalidate: 3600,
+      tags: [CACHE_TAG_CONFIGS],
+    });
 
 // In-memory cache for configurations to avoid repeated unstable_cache/DB overHead
 let cachedAllConfigs: { data: Configs; timestamp: number } | null = null;
