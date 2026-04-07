@@ -1,41 +1,41 @@
 {
   "metadata": {
-    "title": "iOS Shortcut Configuration Guide - RemoveGeminiWatermark",
-    "description": "Learn how to create an iOS shortcut to remove AI watermarks from Gemini-generated images directly from the share menu."
+    "title": "Guia de Configuração do Atalho iOS - RemoveGeminiWatermark",
+    "description": "Saiba como criar um Atalho iOS para remover marcas d'água de imagens geradas pelo Gemini com um toque através do menu de compartilhamento."
   },
-  "title": "iOS Shortcut Guide",
-  "description": "By integrating our API into iOS Shortcuts, you can remove watermarks directly from the Photos share menu. No need to open a browser, process images anytime, anywhere.",
+  "title": "Guia do Atalho iOS",
+  "description": "Ao integrar nossa API com os Atalhos do iOS, você pode remover marcas d'água diretamente do menu de compartilhamento da galeria. Sem abrir o navegador, processamento rápido em qualquer lugar.",
   "steps": {
     "step1": {
-      "title": "Setup Share Sheet",
-      "description": "In the Shortcut's Details page, toggle 'Show in Share Sheet'.",
-      "details": "Set 'Receive Types' to 'Images' only. This keeps your share menu clean when sharing text or links."
+      "title": "Ativar Configurações da Folha de Compartilhamento",
+      "description": "Na página de Details (Detalhes) do atalho, marque 'Mostrar na Folha de Compartilhamento' (Show in Share Sheet).",
+      "details": "Restrinja os 'Tipos Aceitos' a 'Imagens' (Images), para que o atalho não apareça ao compartilhar texto ou links, mantendo o menu limpo."
     },
     "step2": {
-      "title": "Handle Input Logic",
-      "description": "Add logic to ensure the shortcut works both from the share sheet and directly.",
-      "details": "Use 'Get Shortcut Input' as the first step. Add an 'If' condition: if Shortcut Input has no value, add 'Select Photos' step."
+      "title": "Configurar Lógica de Entrada",
+      "description": "Adicione lógica condicional para garantir que o atalho funcione tanto quando chamado pelo compartilhamento quanto pela seleção na galeria.",
+      "details": "Use 'Obter Entrada da Folha de Compartilhamento' como primeiro passo. Adicione uma condição If: se Shortcut Input estiver vazio, execute a ação 'Selecionar Foto'."
     },
     "step3": {
-      "title": "Configure Data Transfer",
-      "description": "Add the 'Get Contents of URL' action and configure these core settings:",
+      "title": "Configurar Transferência de API",
+      "description": "Adicione a ação 'Obter Conteúdo da URL' (Get Contents of URL) e configure os seguintes parâmetros principais:",
       "details": [
         { "label": "URL", "value": "{baseUrl}/api/v1/remove-watermark" },
-        { "label": "Method", "value": "POST" },
-        { "label": "Request Body", "value": "Form or File" },
-        { "label": "Key", "value": "image" }
+        { "label": "Método (Method)", "value": "POST" },
+        { "label": "Corpo (Request Body)", "value": "Form ou File" },
+        { "label": "Chave (Key)", "value": "image" }
       ]
     },
     "step4": {
-      "title": "Output and Save",
-      "description": "After the server returns the cleaned image, add saving actions.",
-      "details": "Add 'Save to Photo Album' and 'Show Result' to complete the workflow."
+      "title": "Salvar e Exibir Resultado",
+      "description": "Após o servidor processar e retornar a imagem limpa, adicione a lógica de salvamento subsequente.",
+      "details": "Adicione as ações: 'Salvar no Álbum de Fotos' (Save to Photo Album) e 'Mostrar Resultado' (Show Result) para concluir o fluxo."
     }
   },
-  "tips_title": "Usage Tips",
+  "tips_title": "Dicas de Uso",
   "tips": {
-    "tip1": "Pro users can use the shortcut without rate limits or anonymity counters (requires passing an auth token in the URL).",
-    "tip2": "Currently supports original Gemini-generated images. Non-Gemini images might not be processed correctly."
+    "tip1": "Se você é usuário Pro, o processamento via Atalho iOS não conta para o limite gratuito e não tem restrição de frequência (é necessário passar o token de autorização na URL).",
+    "tip2": "Atualmente, apenas imagens geradas pelo Gemini original são suportadas. Imagens não-Gemini podem não ter a marca d'água detectada."
   },
-  "back_to_home": "Back to Home"
+  "back_to_home": "Voltar ao Início"
 }

@@ -1,27 +1,20 @@
 {
   "fields": {
-    "subscription_no": "Subscription No",
-    "user": "User",
-    "amount": "Amount",
-    "interval": "Interval",
-    "provider": "Provider",
-    "created_at": "Created At",
-    "current_period_start": "Current Period Start",
-    "current_period_end": "Current Period End",
+    "subscription_no": "Número da Assinatura",
+    "user": "Usuário",
+    "amount": "Valor",
+    "interval": "Intervalo",
+    "provider": "Provedor",
+    "created_at": "Data de Criação",
+    "current_period_start": "Início do Período Atual",
+    "current_period_end": "Fim do Período Atual",
     "status": "Status",
-    "description": "Description",
-    "action": "Action"
+    "description": "Descrição",
+    "action": "Ação"
   },
   "list": {
-    "title": "Subscriptions",
-    "crumbs": {
-      "admin": "Admin",
-      "subscriptions": "Subscriptions"
-    },
-    "tabs": {
-      "all": "All",
-      "month": "Month",
-      "year": "Year"
-    }
+    "title": "Assinaturas",
+    "crumbs": { "admin": "Admin", "subscriptions": "Assinaturas" },
+    "tabs": { "all": "Todas", "month": "Mensal", "year": "Anual" }
   }
 }

@@ -1,43 +1,43 @@
 {
   "metadata": {
-    "title": "Pricing — RemoveGeminiWatermark",
-    "description": "Remove AI watermarks for free. Upgrade to Lifetime for unlimited processing."
+    "title": "Preços — RemoveGeminiWatermark",
+    "description": "Remova marcas d'água de IA gratuitamente. Atualize para o plano Vitalício para processamento ilimitado."
   },
   "page": {
-    "title": "RemoveGeminiWatermark Pricing",
+    "title": "Preços do RemoveGeminiWatermark",
     "sections": {
       "pricing": {
         "id": "pricing",
-        "title": "Simple, Transparent Pricing",
-        "description": "Start free. Upgrade when you need more.",
+        "title": "Preços Simples e Transparentes",
+        "description": "Comece grátis. Atualize quando precisar de mais.",
         "groups": [
           {
             "name": "one-time",
-            "title": "Pay Once",
+            "title": "Pague Uma Vez",
             "is_featured": true
           }
         ],
         "items": [
           {
-            "title": "Free",
-            "description": "Try AI watermark removal risk-free.",
-            "features_title": "Includes",
+            "title": "Grátis",
+            "description": "Experimente a remoção de marca d'água de IA sem risco.",
+            "features_title": "Inclui",
             "features": [
-              "5 images per day",
-              "Gemini watermark removal",
-              "100% local processing",
-              "PNG, JPG, WebP support",
-              "No signup required"
+              "5 imagens por dia",
+              "Remoção de marca d'água do Gemini",
+              "Processamento 100% local",
+              "Suporte a PNG, JPG, WebP",
+              "Sem cadastro necessário"
             ],
             "interval": "one-time",
             "amount": 0,
             "currency": "USD",
             "price": "$0",
-            "unit": "forever",
+            "unit": "para sempre",
             "is_featured": false,
-            "tip": "No credit card required",
+            "tip": "Sem cartão de crédito",
             "button": {
-              "title": "Start Free",
+              "title": "Começar Grátis",
               "url": "/tools/gemini",
               "icon": "RiFlashlightFill"
             },
@@ -48,17 +48,17 @@
             "group": "one-time"
           },
           {
-            "title": "Lifetime",
-            "description": "Unlimited watermark removal for professionals. Pay once, use forever.",
-            "label": "Best Value",
-            "features_title": "Everything in Free, plus",
+            "title": "Vitalício",
+            "description": "Remoção ilimitada de marcas d'água para profissionais. Pague uma vez, use para sempre.",
+            "label": "Melhor Custo-Benefício",
+            "features_title": "Tudo do plano Grátis, mais",
             "features": [
-              "Unlimited images",
-              "All AI platforms supported",
-              "Batch processing (up to 100)",
-              "C2PA/Exif metadata removal",
-              "Priority support",
-              "API access"
+              "Imagens ilimitadas",
+              "Todas as plataformas de IA suportadas",
+              "Processamento em lote (até 100)",
+              "Remoção de metadados C2PA/Exif",
+              "Suporte prioritário",
+              "Acesso à API"
             ],
             "interval": "one-time",
             "amount": 990,
@@ -66,9 +66,9 @@
             "price": "$9.9",
             "unit": "",
             "is_featured": true,
-            "tip": "Pay once, use forever",
+            "tip": "Pague uma vez, use para sempre",
             "button": {
-              "title": "Get Lifetime Access",
+              "title": "Obter Acesso Vitalício",
               "url": "/#pricing",
               "icon": "RiFlashlightFill"
             },
@@ -77,14 +77,14 @@
             "credits": 999999,
             "valid_days": 36500,
             "group": "one-time",
-            "plan_name": "Lifetime"
+            "plan_name": "Vitalício"
           }
         ]
       }
     }
   },
   "messages": {
-    "current_plan": "Current Plan",
-    "processing": "Processing"
+    "current_plan": "Plano Atual",
+    "processing": "Processando"
   }
 }

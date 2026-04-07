@@ -1,37 +1,24 @@
 {
   "fields": {
-    "task_id": "Task ID",
-    "media_type": "Media Type",
-    "provider": "Provider",
-    "model": "Model",
+    "task_id": "ID da Tarefa",
+    "media_type": "Tipo de Mídia",
+    "provider": "Provedor",
+    "model": "Modelo",
     "prompt": "Prompt",
-    "options": "Options",
-    "user": "User",
+    "options": "Opções",
+    "user": "Usuário",
     "status": "Status",
-    "cost_credits": "Cost Credits",
-    "result": "Result",
-    "created_at": "Created At",
-    "action": "Action",
-    "scene": "Scene"
+    "cost_credits": "Créditos Consumidos",
+    "result": "Resultado",
+    "created_at": "Data de Criação",
+    "action": "Ação",
+    "scene": "Cena"
   },
   "list": {
-    "title": "AI Tasks",
-    "crumbs": {
-      "admin": "Admin",
-      "ai-tasks": "AI Tasks"
-    },
-    "tabs": {
-      "all": "All",
-      "music": "Music",
-      "image": "Image",
-      "video": "Video",
-      "audio": "Audio",
-      "text": "Text"
-    },
-    "buttons": {
-      "view": "View Task",
-      "refresh": "Refresh Task"
-    },
-    "empty_message": "No tasks found"
+    "title": "Tarefas de IA",
+    "crumbs": { "admin": "Admin", "ai-tasks": "Tarefas de IA" },
+    "tabs": { "all": "Todas", "music": "Música", "image": "Imagem", "video": "Vídeo", "audio": "Áudio", "text": "Texto" },
+    "buttons": { "view": "Ver Tarefa", "refresh": "Atualizar Tarefa" },
+    "empty_message": "Nenhuma tarefa encontrada"
   }
 }

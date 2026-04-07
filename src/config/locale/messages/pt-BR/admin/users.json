@@ -1,77 +1,38 @@
 {
   "fields": {
     "id": "ID",
-    "name": "Name",
+    "name": "Nome",
     "avatar": "Avatar",
-    "email": "Email",
-    "email_verified": "Email Verified",
-    "remaining_credits": "Remaining Credits",
-    "created_at": "Created At",
-    "actions": "Actions",
-    "roles": "Roles",
+    "email": "E-mail",
+    "email_verified": "E-mail Verificado",
+    "remaining_credits": "Créditos Restantes",
+    "created_at": "Data de Criação",
+    "actions": "Ações",
+    "roles": "Funções",
     "ip": "IP",
-    "locale": "Locale",
+    "locale": "Idioma",
     "utm_source": "UTM Source"
   },
   "list": {
-    "title": "Users",
-    "crumbs": {
-      "admin": "Admin",
-      "users": "Users"
-    },
-    "buttons": {
-      "add": "Add User",
-      "edit": "Edit User",
-      "view": "View User",
-      "delete": "Delete User",
-      "edit_roles": "Edit Roles",
-      "grant_credits": "Grant Credits"
-    },
-    "search": {
-      "email": {
-        "title": "Email",
-        "placeholder": "Email"
-      }
-    }
+    "title": "Usuários",
+    "crumbs": { "admin": "Admin", "users": "Usuários" },
+    "buttons": { "add": "Adicionar Usuário", "edit": "Editar Usuário", "view": "Ver Usuário", "delete": "Excluir Usuário", "edit_roles": "Editar Funções", "grant_credits": "Conceder Créditos" },
+    "search": { "email": { "title": "E-mail", "placeholder": "E-mail" } }
   },
   "edit": {
-    "title": "Edit User",
-    "crumbs": {
-      "admin": "Admin",
-      "users": "Users",
-      "edit": "Edit"
-    },
-    "buttons": {
-      "submit": "Update"
-    }
+    "title": "Editar Usuário",
+    "crumbs": { "admin": "Admin", "users": "Usuários", "edit": "Editar" },
+    "buttons": { "submit": "Atualizar" }
   },
   "edit_roles": {
-    "title": "Edit Roles",
-    "crumbs": {
-      "admin": "Admin",
-      "users": "Users",
-      "edit_roles": "Edit Roles"
-    },
-    "buttons": {
-      "submit": "Update"
-    }
+    "title": "Editar Funções",
+    "crumbs": { "admin": "Admin", "users": "Usuários", "edit_roles": "Editar Funções" },
+    "buttons": { "submit": "Atualizar" }
   },
   "grant_credits": {
-    "title": "Grant Credits",
-    "crumbs": {
-      "admin": "Admin",
-      "users": "Users",
-      "grant_credits": "Grant Credits"
-    },
-    "buttons": {
-      "submit": "Grant"
-    },
-    "fields": {
-      "credits": "Credits Amount",
-      "valid_days": "Credits Valid Days",
-      "valid_days_tip": "0 means no expiration",
-      "description": "Credits Grant Description",
-      "description_placeholder": "Admin grant credits"
-    }
+    "title": "Conceder Créditos",
+    "crumbs": { "admin": "Admin", "users": "Usuários", "grant_credits": "Conceder Créditos" },
+    "buttons": { "submit": "Conceder" },
+    "fields": { "credits": "Quantidade de Créditos", "valid_days": "Dias de Validade dos Créditos", "valid_days_tip": "0 significa válido para sempre", "description": "Descrição da Concessão de Créditos", "description_placeholder": "Créditos concedidos pelo administrador" }
   }
 }

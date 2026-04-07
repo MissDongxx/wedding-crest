@@ -1,8 +1,9 @@
 {
   "page": {
     "show_sections": [
-      "hero",
       "tool",
+      "comparison",
+      "hero",
       "introduce",
       "benefits",
       "features",
@@ -15,32 +16,32 @@
       "tool": {
         "block": "upload-zone-block",
         "id": "tool",
-        "title": "Remove Gemini Watermark Now",
-        "label": "Free Online Tool",
-        "description": "Upload your AI-generated image and remove the Gemini watermark instantly. 100% local processing — your images never leave your device.",
+        "title": "Remova a Marca d'água do Gemini Agora",
+        "label": "Ferramenta Online Grátis",
+        "description": "Envie sua imagem gerada por IA e remova a marca d'água do Gemini instantaneamente. Processamento 100% local — suas imagens nunca saem do seu dispositivo.",
         "comparison_tip": "Pressione e segure para ver o resultado"
       },
       "hero": {
         "id": "hero",
-        "title": "Remove AI Watermarks from Any Image",
-        "highlight_text": "Any Image",
-        "description": "Free browser-based tool to remove watermarks from Gemini, DALL-E, Midjourney and other AI-generated images.<br/>100% local processing — your images never leave your device.",
+        "title": "Remova Marcas d'água de IA de Qualquer Imagem",
+        "highlight_text": "Qualquer Imagem",
+        "description": "Ferramenta gratuita no navegador para remover marcas d'água de imagens geradas por Gemini, DALL-E, Midjourney e outras IAs.<br/>Processamento 100% local — suas imagens nunca saem do seu dispositivo.",
         "announcement": {
-          "badge": "Free",
-          "title": "✦ Remove Gemini Watermarks Instantly",
+          "badge": "Grátis",
+          "title": "✦ Remova Marcas d'água do Gemini Instantaneamente",
           "url": "/tools/gemini"
         },
-        "tip": "🔒 100% private • no upload • works offline",
+        "tip": "🔒 100% privado • sem upload • funciona offline",
         "buttons": [
           {
-            "title": "Remove Watermark Free",
+            "title": "Remover Marca d'água Grátis",
             "icon": "Sparkles",
             "url": "/tools/gemini",
             "target": "_self",
             "variant": "default"
           },
           {
-            "title": "View Pricing",
+            "title": "Ver Preços",
             "icon": "DollarSign",
             "url": "/#pricing",
             "target": "_self",
@@ -50,28 +51,44 @@
         "show_avatars": false,
         "show_award": false
       },
+      "comparison": {
+        "block": "comparison-block",
+        "id": "comparison",
+        "title": "Resultados Profissionais",
+        "label": "Comparação",
+        "description": "Veja como nossa ferramenta no navegador remove marcas d'água de IA sem perda de qualidade.",
+        "before_after": {
+          "before_image": "/images/examples/castle-before.jpg",
+          "after_image": "/images/examples/castle-after.jpg",
+          "before_label": "Antes",
+          "after_label": "Depois",
+          "before_alt": "Imagem gerada por IA com marca d'água do Gemini visível no canto",
+          "after_alt": "Mesma imagem após remover a marca d'água do Gemini sem perda de qualidade",
+          "layout": "side-by-side"
+        }
+      },
       "introduce": {
         "block": "features-step",
         "id": "introduce",
-        "title": "How It Works",
-        "label": "3 Simple Steps",
-        "description": "Remove AI watermarks in seconds — no signup, no software download.",
+        "title": "Como Funciona",
+        "label": "3 Passos Simples",
+        "description": "Remova marcas d'água de IA em segundos — sem cadastro, sem download de software.",
         "image_position": "left",
         "text_align": "center",
         "items": [
           {
-            "title": "Upload Your Image",
-            "description": "Drag & drop or click to upload your AI-generated image. Supports PNG, JPG, and WebP up to 20MB.",
+            "title": "Envie Sua Imagem",
+            "description": "Arraste e solte ou clique para enviar sua imagem gerada por IA. Suporta PNG, JPG e WebP até 20MB.",
             "icon": "RiUploadCloud2Line"
           },
           {
-            "title": "Auto-Remove Watermark",
-            "description": "Our algorithm detects and removes the watermark using reverse alpha blending — 100% in your browser.",
+            "title": "Remoção Automática",
+            "description": "Nosso algoritmo detecta e remove a marca d'água usando mistura alfa reversa — 100% no seu navegador.",
             "icon": "RiMagicLine"
           },
           {
-            "title": "Download Clean Image",
-            "description": "Get your clean image instantly in PNG format. Original quality preserved with zero artifacts.",
+            "title": "Baixe a Imagem Limpa",
+            "description": "Obtenha sua imagem limpa instantaneamente em formato PNG. Qualidade original preservada sem artefatos.",
             "icon": "RiDownloadLine"
           }
         ],
@@ -80,128 +97,152 @@
       "benefits": {
         "block": "features-accordion",
         "id": "benefits",
-        "title": "Why Choose RemoveGeminiWatermark",
-        "label": "Benefits",
-        "description": "The most private and highest-quality AI watermark removal tool available.",
+        "title": "Por Que Escolher o RemoveGeminiWatermark",
+        "label": "Vantagens",
+        "description": "A ferramenta mais privada e de maior qualidade para remoção de marcas d'água de IA.",
         "items": [
           {
-            "title": "100% Private — No Upload Required",
-            "description": "Unlike other tools, your images are processed entirely in your browser. No data is sent to any server, ever. Your creative work stays private.",
-            "icon": "RiShieldCheckLine"
+            "title": "100% Privado — Sem Upload Necessário",
+            "description": "Ao contrário de outras ferramentas, suas imagens são processadas inteiramente no seu navegador. Nenhum dado é enviado a qualquer servidor. Seu trabalho criativo permanece privado.",
+            "icon": "RiShieldCheckLine",
+            "before_after": {
+              "before_image": "/images/examples/woman-after.jpg",
+              "after_image": "/images/examples/woman-before.jpg",
+              "before_label": "Limpa",
+              "after_label": "Com Marca d'água",
+              "before_alt": "Imagem de IA limpa com marca d'água removida",
+              "after_alt": "Imagem de IA original com marca d'água do Gemini"
+            }
           },
           {
-            "title": "Zero Quality Loss",
-            "description": "Our reverse alpha blending algorithm mathematically recovers the original pixels under the watermark. No blurring, no artifacts, no quality degradation.",
-            "icon": "RiImageEditLine"
+            "title": "Zero Perda de Qualidade",
+            "description": "Nosso algoritmo de mistura alfa reversa recupera matematicamente os pixels originais sob a marca d'água. Sem desfoque, sem artefatos, sem degradação.",
+            "icon": "RiImageEditLine",
+            "before_after": {
+              "before_image": "/images/examples/dog-before.jpg",
+              "after_image": "/images/examples/dog-after.jpg",
+              "before_label": "Com Marca d'água",
+              "after_label": "Limpa",
+              "before_alt": "Imagem de IA de um cachorro com marca d'água do Gemini",
+              "after_alt": "Imagem processada com marca d'água removida sem perda de qualidade"
+            }
           },
           {
-            "title": "Lightning Fast Processing",
-            "description": "Process images in under 500ms using the Canvas API. No waiting for server responses or processing queues.",
-            "icon": "RiFlashlightLine"
+            "title": "Processamento Ultrarrápido",
+            "description": "Processe imagens em menos de 500ms usando a Canvas API. Sem esperar por respostas de servidor ou filas de processamento.",
+            "icon": "RiFlashlightLine",
+            "before_after": {
+              "before_image": "/images/examples/skater-before.jpg",
+              "after_image": "/images/examples/skater-after.jpg",
+              "before_label": "Com Marca d'água",
+              "after_label": "Limpa",
+              "before_alt": "Imagem de IA de um skatista com marca d'água do Gemini",
+              "after_alt": "Imagem processada com marca d'água removida sem perda de qualidade"
+            }
           }
         ]
       },
       "features": {
         "id": "features",
-        "title": "Powerful Features",
-        "description": "Everything you need to clean AI-generated images.",
+        "title": "Recursos Poderosos para Remover Marca d'água do Gemini",
+        "description": "Tudo o que você precisa para limpar imagens geradas por IA.",
         "items": [
           {
-            "title": "Multi-Platform Support",
-            "description": "Remove watermarks from Gemini, DALL-E, Midjourney, Stable Diffusion, and Adobe Firefly.",
+            "title": "Suporte Multi-Plataforma",
+            "description": "Remova marcas d'água de Gemini, DALL-E, Midjourney, Stable Diffusion e Adobe Firefly.",
             "icon": "RiRobot2Line"
           },
           {
-            "title": "Double-Layer Cleaning",
-            "description": "Remove both visible watermarks (logos, stars) and invisible metadata (C2PA, EXIF AI tags).",
+            "title": "Limpeza em Dupla Camada",
+            "description": "Remove tanto marcas d'água visíveis (logos, estrelas) quanto metadados invisíveis (C2PA, tags EXIF de IA).",
             "icon": "RiStackLine"
           },
           {
-            "title": "Browser-Based Processing",
-            "description": "All processing happens locally in your browser using the Canvas API. Works offline too.",
+            "title": "Processamento no Navegador",
+            "description": "Todo processamento acontece localmente no seu navegador usando a Canvas API. Funciona offline também.",
             "icon": "RiGlobalLine"
           },
           {
-            "title": "Batch Processing",
-            "description": "Pro users can process up to 100 images at once with drag & drop batch upload.",
+            "title": "Processamento em Lote",
+            "description": "Usuários Pro podem processar até 100 imagens de uma vez com upload em lote por arrastar e soltar.",
             "icon": "RiFileCopyLine"
           },
           {
-            "title": "Instant Download",
-            "description": "Download your clean images immediately in high-quality PNG format. No waiting, no email required.",
+            "title": "Download Instantâneo",
+            "description": "Baixe suas imagens limpas imediatamente em formato PNG de alta qualidade. Sem espera, sem e-mail necessário.",
             "icon": "RiDownloadLine"
           },
           {
-            "title": "Free Forever Plan",
-            "description": "Process 5 images per day completely free. No signup, no credit card, no strings attached.",
+            "title": "Plano Gratuito Para Sempre",
+            "description": "Processe 5 imagens por dia totalmente grátis. Sem cadastro, sem cartão de crédito, sem pegadinhas.",
             "icon": "RiGiftLine"
           }
         ]
       },
       "stats": {
         "id": "stats",
-        "title": "Trusted by Creators Worldwide",
-        "description": "Join thousands of creators who use RemoveGeminiWatermark every day.",
+        "title": "Confiado por Criadores do Mundo Todo",
+        "description": "Junte-se a milhares de criadores que usam o RemoveGeminiWatermark todos os dias.",
         "items": [
           {
-            "title": "50,000+",
-            "description": "Images Cleaned"
+            "title": "50.000+",
+            "description": "Imagens Processadas"
           },
           {
             "title": "5+",
-            "description": "AI Platforms"
+            "description": "Plataformas de IA"
           },
           {
             "title": "100%",
-            "description": "Local Processing"
+            "description": "Processamento Local"
           }
         ],
         "className": "bg-muted"
       },
       "faq": {
         "id": "faq",
-        "title": "Frequently Asked Questions",
-        "description": "Everything you need to know about removing AI watermarks.",
+        "title": "Perguntas Frequentes",
+        "description": "Tudo o que você precisa saber sobre remoção de marcas d'água de IA.",
         "items": [
           {
-            "question": "Is it legal to remove AI watermarks?",
-            "answer": "Removing watermarks for personal use is generally legal in most jurisdictions. However, we recommend checking the terms of service of the specific AI platform and your local laws. Our tool is designed for legitimate use cases such as personal projects and portfolio work."
+            "question": "É legal remover marcas d'água de IA?",
+            "answer": "Remover marcas d'água para uso pessoal é geralmente legal na maioria das jurisdições. No entanto, recomendamos verificar os termos de serviço da plataforma de IA específica e as leis locais. Nossa ferramenta é projetada para casos de uso legítimos, como projetos pessoais e portfólios."
           },
           {
-            "question": "Does this tool upload my images to a server?",
-            "answer": "No. All image processing happens 100% locally in your web browser using the Canvas API. Your image data never leaves your device. We don't store, transmit, or have access to any of your images."
+            "question": "Esta ferramenta envia minhas imagens para um servidor?",
+            "answer": "Não. Todo o processamento de imagem acontece 100% localmente no seu navegador usando a Canvas API. Os dados das suas imagens nunca saem do seu dispositivo. Não armazenamos, transmitimos ou temos acesso a nenhuma das suas imagens."
           },
           {
-            "question": "Which AI watermarks can be removed?",
-            "answer": "Currently, we support removing visible watermarks from Google Gemini (the ✦ star logo). Support for DALL-E, Midjourney, Stable Diffusion, and Adobe Firefly watermarks is coming in upcoming updates."
+            "question": "Quais marcas d'água de IA podem ser removidas?",
+            "answer": "Atualmente, suportamos a remoção de marcas d'água visíveis do Google Gemini (o logo de estrela ✦). Suporte para marcas d'água do DALL-E, Midjourney, Stable Diffusion e Adobe Firefly estará disponível em atualizações futuras."
           },
           {
-            "question": "Will removing the watermark affect image quality?",
-            "answer": "Our reverse alpha blending algorithm mathematically recovers the original pixel values, resulting in virtually zero quality loss in the watermark region. The rest of the image remains completely untouched."
+            "question": "Remover a marca d'água afetará a qualidade da imagem?",
+            "answer": "Nosso algoritmo de mistura alfa reversa recupera matematicamente os valores originais dos pixels, resultando em praticamente zero perda de qualidade na região da marca d'água. O restante da imagem permanece completamente intacto."
           },
           {
-            "question": "How many images can I process for free?",
-            "answer": "You can process up to 5 images per day completely free. No signup or credit card required. For unlimited processing, our Pro plan starts at just $9/month."
+            "question": "Quantas imagens posso processar gratuitamente?",
+            "answer": "Você pode processar até 5 imagens por dia totalmente grátis. Sem cadastro ou cartão de crédito necessário. Para processamento ilimitado, nosso plano Pro começa a partir de $9/mês."
           },
           {
-            "question": "Does it work on mobile devices?",
-            "answer": "Yes! Our tool works in any modern web browser, including mobile browsers on iOS and Android. The processing is lightweight enough to run smoothly on most smartphones."
+            "question": "Funciona em dispositivos móveis?",
+            "answer": "Sim! Nossa ferramenta funciona em qualquer navegador moderno, incluindo navegadores móveis no iOS e Android. O processamento é leve o suficiente para rodar sem problemas na maioria dos smartphones."
           }
         ]
       },
       "cta": {
         "id": "cta",
-        "title": "Start Removing AI Watermarks — It's Free",
-        "description": "No signup required. Process up to 5 images daily for free.",
+        "title": "Comece a Remover Marcas d'água de IA — É Grátis",
+        "description": "Sem cadastro necessário. Processe até 5 imagens por dia gratuitamente.",
         "buttons": [
           {
-            "title": "Remove Watermark Now",
+            "title": "Remover Marca d'água Agora",
             "url": "#tool",
             "target": "_self",
             "icon": "Sparkles"
           },
           {
-            "title": "View Pricing",
+            "title": "Ver Preços",
             "url": "/#pricing",
             "target": "_self",
             "variant": "outline",

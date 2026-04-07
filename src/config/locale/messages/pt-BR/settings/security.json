@@ -1,32 +1,32 @@
 {
   "fields": {
     "email": "Email",
-    "password": "Password",
-    "new_password": "New Password",
-    "confirm_password": "Confirm Password"
+    "password": "Senha",
+    "new_password": "Nova Senha",
+    "confirm_password": "Confirmar Senha"
   },
   "reset_password": {
-    "title": "Reset Password",
-    "description": "Reset your password",
-    "tip": "We will send you an email to reset your password.",
+    "title": "Redefinir Senha",
+    "description": "Redefina sua senha",
+    "tip": "Enviaremos um email para você redefinir sua senha.",
     "crumbs": {
-      "settings": "Settings",
-      "security": "Security"
+      "settings": "Configurações",
+      "security": "Segurança"
     },
     "buttons": {
-      "submit": "Save"
+      "submit": "Salvar"
     }
   },
   "delete_account": {
-    "title": "Delete Account",
-    "description": "Delete your account",
-    "tip": "Are you sure you want to delete your account? This action cannot be undone.",
+    "title": "Excluir Conta",
+    "description": "Exclua sua conta",
+    "tip": "Tem certeza de que deseja excluir sua conta? Esta ação não pode ser desfeita.",
     "crumbs": {
-      "settings": "Settings",
-      "security": "Security"
+      "settings": "Configurações",
+      "security": "Segurança"
     },
     "buttons": {
-      "submit": "Delete"
+      "submit": "Excluir"
     }
   }
 }

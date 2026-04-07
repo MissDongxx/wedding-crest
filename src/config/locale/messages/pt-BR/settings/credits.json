@@ -1,26 +1,26 @@
 {
   "fields": {
-    "transaction_no": "Transaction No",
-    "description": "Description",
-    "type": "Type",
-    "scene": "Scene",
-    "credits": "Credits",
-    "expires_at": "Expires At",
-    "created_at": "Created At",
-    "action": "Action"
+    "transaction_no": "N° da Transação",
+    "description": "Descrição",
+    "type": "Tipo",
+    "scene": "Cenário",
+    "credits": "Créditos",
+    "expires_at": "Expira Em",
+    "created_at": "Data de Criação",
+    "action": "Ação"
   },
   "list": {
-    "title": "Credits Records",
+    "title": "Registro de Créditos",
     "tabs": {
-      "all": "All",
-      "grant": "Grant",
-      "consume": "Consume"
+      "all": "Todos",
+      "grant": "Creditado",
+      "consume": "Utilizado"
     }
   },
   "view": {
-    "title": "Credits Balance",
+    "title": "Saldo de Créditos",
     "buttons": {
-      "purchase": "Purchase Credits"
+      "purchase": "Comprar Créditos"
     }
   }
 }

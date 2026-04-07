@@ -1,22 +1,22 @@
 {
   "metadata": {
     "title": "Blog",
-    "description": "Read latest product features, solutions, and updates."
+    "description": "Leia sobre os recursos mais recentes, soluções e atualizações do produto."
   },
   "page": {
-    "title": "RemoveGeminiWatermark Blog",
+    "title": "Blog do RemoveGeminiWatermark",
     "sections": {
       "blog": {
         "id": "blog",
         "title": "Blog",
-        "description": "Read latest product features, solutions, and updates."
+        "description": "Leia sobre os recursos mais recentes, soluções e atualizações do produto."
       }
     }
   },
   "messages": {
-    "all": "All",
-    "no_content": "No Content",
+    "all": "Todos",
+    "no_content": "Sem Conteúdo",
     "crumb": "Blog",
-    "toc": "Table of Contents"
+    "toc": "Índice"
   }
 }

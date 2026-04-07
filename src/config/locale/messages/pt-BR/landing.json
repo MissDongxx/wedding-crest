@@ -5,7 +5,7 @@
       "title": "Remove Gemini Watermark",
       "logo": {
         "src": "/logo.png",
-        "alt": "RemoveGeminiWatermark",
+        "alt": "RemoveGeminiWatermark - Ferramenta Grátis para Remover Marca d'água do Gemini",
         "width": 100,
         "height": 100
       },
@@ -14,12 +14,12 @@
     "nav": {
       "items": [
         {
-          "title": "Features",
+          "title": "Recursos",
           "url": "/#features",
           "icon": "Sparkles"
         },
         {
-          "title": "Pricing",
+          "title": "Preços",
           "url": "/#pricing",
           "icon": "DollarSign"
         },
@@ -37,7 +37,7 @@
       "show_sign_out": true,
       "items": [
         {
-          "title": "Billing",
+          "title": "Faturamento",
           "url": "/settings/billing",
           "icon": "CreditCard"
         }
@@ -51,10 +51,10 @@
     "id": "footer",
     "brand": {
       "title": "Remove Gemini Watermark",
-      "description": "Free browser-based tool to remove AI watermarks from Gemini, DALL-E, Midjourney and other AI-generated images. 100% local processing.",
+      "description": "Ferramenta gratuita no navegador para remover marcas d'água de imagens geradas por Gemini, DALL-E, Midjourney e outras IAs. Processamento 100% local.",
       "logo": {
         "src": "/logo.png",
-        "alt": "RemoveGeminiWatermark",
+        "alt": "RemoveGeminiWatermark - Ferramenta Grátis para Remover Marca d'água do Gemini",
         "width": 1024,
         "height": 1024
       },
@@ -63,31 +63,36 @@
     "nav": {
       "items": [
         {
-          "title": "Tools",
+          "title": "Ferramentas",
           "children": [
             {
-              "title": "Gemini Remover",
+              "title": "Removedor Gemini",
               "url": "/tools/gemini",
               "target": "_self"
             },
             {
-              "title": "All Features",
+              "title": "Todos os Recursos",
               "url": "/#features",
               "target": "_self"
             }
           ]
         },
         {
-          "title": "Product",
+          "title": "Produto",
           "children": [
             {
-              "title": "Pricing",
+              "title": "Preços",
               "url": "/#pricing",
               "target": "_self"
             },
             {
               "title": "Blog",
               "url": "/blog",
+              "target": "_self"
+            },
+            {
+              "title": "Atalho iOS",
+              "url": "/shortcuts",
               "target": "_self"
             }
           ]
@@ -96,12 +101,12 @@
           "title": "Legal",
           "children": [
             {
-              "title": "Privacy Policy",
+              "title": "Política de Privacidade",
               "url": "/privacy-policy",
               "target": "_self"
             },
             {
-              "title": "Terms of Service",
+              "title": "Termos de Serviço",
               "url": "/terms-of-service",
               "target": "_self"
             }
@@ -118,7 +123,7 @@
           "target": "_blank"
         },
         {
-          "title": "Email",
+          "title": "E-mail",
           "icon": "Mail",
           "url": "mailto:support@removegeminiwatermark.org",
           "target": "_self"
@@ -128,11 +133,11 @@
     "agreement": {
       "items": [
         {
-          "title": "Privacy Policy",
+          "title": "Política de Privacidade",
           "url": "/privacy-policy"
         },
         {
-          "title": "Terms of Service",
+          "title": "Termos de Serviço",
           "url": "/terms-of-service"
         }
       ]

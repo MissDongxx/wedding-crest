@@ -1,60 +1,34 @@
 {
   "fields": {
     "slug": "Slug",
-    "title": "Title",
-    "description": "Description",
-    "image": "Image",
-    "content": "Content",
-    "categories": "Categories",
+    "title": "Título",
+    "description": "Descrição",
+    "image": "Imagem",
+    "content": "Conteúdo",
+    "categories": "Categorias",
     "tags": "Tags",
-    "author_name": "Author Name",
-    "author_role": "Author Role",
-    "author_image": "Author Image",
+    "author_name": "Nome do Autor",
+    "author_role": "Função do Autor",
+    "author_image": "Imagem do Autor",
     "status": "Status",
-    "created_at": "Created At",
-    "updated_at": "Updated At",
-    "deleted_at": "Deleted At"
+    "created_at": "Data de Criação",
+    "updated_at": "Data de Atualização",
+    "deleted_at": "Data de Exclusão"
   },
   "list": {
-    "title": "Posts",
-    "crumbs": {
-      "admin": "Admin",
-      "posts": "Posts"
-    },
-    "buttons": {
-      "add": "Add Post",
-      "edit": "Edit Post",
-      "view": "View Post",
-      "delete": "Delete Post"
-    },
-    "tabs": {
-      "all": "All",
-      "published": "Published",
-      "pending": "Pending",
-      "draft": "Draft",
-      "archived": "Archived"
-    }
+    "title": "Artigos",
+    "crumbs": { "admin": "Admin", "posts": "Artigos" },
+    "buttons": { "add": "Adicionar Artigo", "edit": "Editar Artigo", "view": "Ver Artigo", "delete": "Excluir Artigo" },
+    "tabs": { "all": "Todos", "published": "Publicados", "pending": "Pendentes", "draft": "Rascunhos", "archived": "Arquivados" }
   },
   "add": {
-    "title": "Add Post",
-    "crumbs": {
-      "admin": "Admin",
-      "posts": "Posts",
-      "add": "Add Post"
-    },
-    "buttons": {
-      "submit": "Add Post"
-    }
+    "title": "Adicionar Artigo",
+    "crumbs": { "admin": "Admin", "posts": "Artigos", "add": "Adicionar" },
+    "buttons": { "submit": "Adicionar Artigo" }
   },
   "edit": {
-    "title": "Edit Post",
-    "crumbs": {
-      "admin": "Admin",
-      "posts": "Posts",
-      "edit": "Edit Post"
-    },
-    "buttons": {
-      "submit": "Edit Post"
-    }
+    "title": "Editar Artigo",
+    "crumbs": { "admin": "Admin", "posts": "Artigos", "edit": "Editar" },
+    "buttons": { "submit": "Editar Artigo" }
   }
 }

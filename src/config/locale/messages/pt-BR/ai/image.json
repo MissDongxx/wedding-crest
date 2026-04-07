@@ -1,43 +1,43 @@
 {
   "metadata": {
-    "title": "AI Image Generator",
-    "description": "Generate images with AI models, support text-to-image and image-to-image."
+    "title": "Gerador de Imagens com IA",
+    "description": "Gere imagens com modelos de IA, suporte de texto para imagem e imagem para imagem."
   },
   "page": {
-    "title": "AI Image Generator",
-    "description": "Generate images with AI models, support text-to-image and image-to-image."
+    "title": "Gerador de Imagens com IA",
+    "description": "Gere imagens com modelos de IA, suporte de texto para imagem e imagem para imagem."
   },
   "generator": {
-    "title": "Image Generator",
-    "description": "Generate images with AI models, support text-to-image and image-to-image.",
+    "title": "Gerador de Imagens",
+    "description": "Gere imagens com modelos de IA, suporte de texto para imagem e imagem para imagem.",
     "tabs": {
-      "text-to-image": "Text to Image",
-      "image-to-image": "Image to Image"
+      "text-to-image": "Texto para Imagem",
+      "image-to-image": "Imagem para Imagem"
     },
     "form": {
-      "provider": "Provider",
-      "model": "Model",
-      "select_provider": "Select Provider",
-      "select_model": "Select Model",
+      "provider": "Provedor",
+      "model": "Modelo",
+      "select_provider": "Selecionar Provedor",
+      "select_model": "Selecionar Modelo",
       "prompt": "Prompt",
-      "prompt_placeholder": "Describe the details of the image, such as color, shape, texture, etc.",
-      "reference_image": "Reference Image",
-      "reference_image_placeholder": "Upload reference images, support multiple images",
-      "some_images_failed_to_upload": "Some images failed to upload, please delete them and re-upload",
-      "prompt_too_long": "Prompt is too long, please delete some content"
+      "prompt_placeholder": "Descreva os detalhes da imagem, como cor, forma, textura, etc.",
+      "reference_image": "Imagem de Referência",
+      "reference_image_placeholder": "Envie imagens de referência, suporta múltiplas imagens",
+      "some_images_failed_to_upload": "Algumas imagens falharam ao enviar, exclua-as e envie novamente",
+      "prompt_too_long": "O prompt é muito longo, exclua algum conteúdo"
     },
-    "generate": "Generate Images",
-    "checking_account": "Checking Account...",
-    "loading": "Loading...",
-    "generating": "Generating...",
-    "sign_in_to_generate": "Sign In to Generate Image",
-    "credits_cost": "Cost {credits} credits",
-    "credits_remaining": "Remaining {credits} credits",
-    "buy_credits": "Buy Credits",
-    "progress": "Progress",
-    "generated_images": "Image Preview",
-    "ready_to_generate": "Ready to Generate",
-    "ready_for_generating": "Ready for Generating",
-    "no_images_generated": "No Images Generated"
+    "generate": "Gerar Imagens",
+    "checking_account": "Verificando Conta...",
+    "loading": "Carregando...",
+    "generating": "Gerando...",
+    "sign_in_to_generate": "Entre para Gerar Imagem",
+    "credits_cost": "Custa {credits} créditos",
+    "credits_remaining": "{credits} créditos restantes",
+    "buy_credits": "Comprar Créditos",
+    "progress": "Progresso",
+    "generated_images": "Pré-visualização de Imagens",
+    "ready_to_generate": "Pronto para Gerar",
+    "ready_for_generating": "Pronto para Gerar",
+    "no_images_generated": "Nenhuma Imagem Gerada"
   }
 }

@@ -1,24 +1,24 @@
 {
   "fields": {
-    "title": "Title",
+    "title": "Título",
     "status": "Status",
-    "model": "Model",
-    "provider": "Provider",
-    "created_at": "Created At",
-    "action": "Action"
+    "model": "Modelo",
+    "provider": "Provedor",
+    "created_at": "Data de Criação",
+    "action": "Ação"
   },
   "list": {
-    "title": "AI Chats",
+    "title": "Chats de IA",
     "tabs": {
-      "all": "All",
-      "pending": "Pending",
-      "completed": "Completed",
-      "failed": "Failed"
+      "all": "Todos",
+      "pending": "Pendentes",
+      "completed": "Concluídos",
+      "failed": "Falhados"
     },
     "buttons": {
-      "view": "View Chat",
-      "new": "New Chat"
+      "view": "Ver Chat",
+      "new": "Novo Chat"
     },
-    "empty_message": "No chats found"
+    "empty_message": "Nenhum chat encontrado"
   }
 }

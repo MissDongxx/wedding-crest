@@ -1,30 +1,30 @@
 {
   "fields": {
-    "order_no": "Order No",
-    "user": "User",
-    "amount": "Amount",
-    "product_name": "Product Name",
-    "price": "Price",
-    "paid_amount": "Paid Amount",
-    "discount_amount": "Discount Amount",
-    "description": "Description",
-    "type": "Type",
-    "provider": "Provider",
-    "created_at": "Created At",
+    "order_no": "N° do Pedido",
+    "user": "Usuário",
+    "amount": "Valor",
+    "product_name": "Nome do Produto",
+    "price": "Preço",
+    "paid_amount": "Valor Pago",
+    "discount_amount": "Valor do Desconto",
+    "description": "Descrição",
+    "type": "Tipo",
+    "provider": "Provedor",
+    "created_at": "Data de Criação",
     "status": "Status",
-    "action": "Action",
+    "action": "Ação",
     "actions": {
-      "view_invoice": "View Invoice"
+      "view_invoice": "Visualizar Fatura"
     }
   },
   "list": {
-    "title": "Payments",
-    "description": "View your payments",
+    "title": "Pagamentos",
+    "description": "Visualize seus pagamentos",
     "tabs": {
-      "all": "All",
-      "one-time": "One-Time",
-      "subscription": "Subscription",
-      "renew": "Renew"
+      "all": "Todos",
+      "one-time": "Pagamento Único",
+      "subscription": "Assinatura",
+      "renew": "Renovação"
     }
   }
 }

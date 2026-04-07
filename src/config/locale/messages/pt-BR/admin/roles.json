@@ -1,49 +1,29 @@
 {
   "fields": {
     "id": "ID",
-    "name": "Name",
-    "title": "Title",
-    "description": "Description",
+    "name": "Nome",
+    "title": "Título",
+    "description": "Descrição",
     "status": "Status",
-    "sort": "Sort",
-    "created_at": "Created At",
-    "updated_at": "Updated At",
-    "permissions": "Permissions",
-    "actions": "Actions"
+    "sort": "Ordenação",
+    "created_at": "Data de Criação",
+    "updated_at": "Data de Atualização",
+    "permissions": "Permissões",
+    "actions": "Ações"
   },
   "list": {
-    "title": "Roles",
-    "crumbs": {
-      "admin": "Admin",
-      "roles": "Roles"
-    },
-    "buttons": {
-      "create": "Create Role",
-      "edit": "Edit Role",
-      "edit_permissions": "Edit Permissions",
-      "delete": "Delete Role"
-    }
+    "title": "Funções",
+    "crumbs": { "admin": "Admin", "roles": "Funções" },
+    "buttons": { "create": "Criar Função", "edit": "Editar Função", "edit_permissions": "Editar Permissões", "delete": "Excluir Função" }
   },
   "edit": {
-    "title": "Edit Role",
-    "crumbs": {
-      "admin": "Admin",
-      "roles": "Roles",
-      "edit": "Edit Role"
-    },
-    "buttons": {
-      "submit": "Update"
-    }
+    "title": "Editar Função",
+    "crumbs": { "admin": "Admin", "roles": "Funções", "edit": "Editar" },
+    "buttons": { "submit": "Atualizar" }
   },
   "edit_permissions": {
-    "title": "Edit Permissions",
-    "crumbs": {
-      "admin": "Admin",
-      "roles": "Roles",
-      "edit_permissions": "Edit Permissions"
-    },
-    "buttons": {
-      "submit": "Update"
-    }
+    "title": "Editar Permissões",
+    "crumbs": { "admin": "Admin", "roles": "Funções", "edit_permissions": "Editar Permissões" },
+    "buttons": { "submit": "Atualizar" }
   }
 }
