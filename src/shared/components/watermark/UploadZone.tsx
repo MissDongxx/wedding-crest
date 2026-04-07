@@ -207,7 +207,7 @@ export function UploadZone({
             </h3>
             <p className="text-muted-foreground mb-6 text-center text-sm">
               {gatingStatus?.mode === 'anonymous'
-                ? `You've used ${DAILY_FREE_LIMIT}/${DAILY_FREE_LIMIT} free images today. Sign in for more or upgrade to Pro.`
+                ? `You've used ${DAILY_FREE_LIMIT}/${DAILY_FREE_LIMIT} free images today. Try tomorrow or upgrade to Pro.`
                 : `You've used all your credits. Upgrade to Pro for unlimited watermark removal.`}
             </p>
             <div className="flex gap-3">
