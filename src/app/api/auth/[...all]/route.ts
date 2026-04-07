@@ -30,7 +30,7 @@ export async function POST(request: Request) {
 
   try {
     const auth = await getAuth();
-    const handler = toNextJsHandler(auth.handler);
+    const handler = toNextJsHandler(auth);
     return await handler.POST(request);
   } catch (error) {
     console.error('[auth POST] Error:', error);
@@ -49,7 +49,7 @@ export async function GET(request: Request) {
 
   try {
     const auth = await getAuth();
-    const handler = toNextJsHandler(auth.handler);
+    const handler = toNextJsHandler(auth);
     return await handler.GET(request);
   } catch (error) {
     console.error('[auth GET] Error:', error);

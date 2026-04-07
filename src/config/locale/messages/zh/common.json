@@ -52,5 +52,12 @@
   "locale_detector": {
     "title": "检测到浏览器语言是: {locale}，是否切换？",
     "switch_to": "切换到{locale}"
+  },
+  "watermark": {
+    "trust_badges": {
+      "local": "100% 本地处理",
+      "metadata": "自动移除元数据",
+      "free_today": "今日免费额度 {remaining}/{limit}"
+    }
   }
 }

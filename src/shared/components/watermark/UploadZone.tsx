@@ -12,108 +12,118 @@ import {
   ImageIcon,
   Sparkles,
   Lock,
+  Shield,
 } from 'lucide-react';
 import { removeWatermark } from '@/shared/lib/watermark';
-import type { ProcessingState } from '@/shared/lib/watermark';
+import type { ProcessingState, MetadataInfo } from '@/shared/lib/watermark';
+import {
+  checkPermission,
+  reportUsage,
+  getLocalUsageCount,
+  DAILY_FREE_LIMIT,
+} from '@/shared/lib/watermark/gating';
+import type { GatingStatus } from '@/shared/lib/watermark/gating';
+import { analyzeMetadata } from '@/shared/lib/watermark/metadata';
 import { Button } from '@/shared/components/ui/button';
-
-// ============ Free Usage Limit ============
-
-const DAILY_FREE_LIMIT = 5;
-
-function getStorageKey(): string {
-  return `wm_usage_${new Date().toISOString().slice(0, 10)}`;
-}
-
-function getUsageCount(): number {
-  try {
-    return parseInt(localStorage.getItem(getStorageKey()) || '0', 10);
-  } catch {
-    return 0;
-  }
-}
-
-function incrementUsage(): void {
-  try {
-    localStorage.setItem(getStorageKey(), String(getUsageCount() + 1));
-  } catch {
-    /* silent */
-  }
-}
-
-function canProcess(): boolean {
-  return getUsageCount() < DAILY_FREE_LIMIT;
-}
+import { useTranslations } from 'next-intl';
 
 // ============ Component ============
 
-export function UploadZone({ onStateChange }: { onStateChange?: (state: ProcessingState) => void } = {}) {
+export function UploadZone({
+  onStateChange,
+}: {
+  onStateChange?: (state: ProcessingState) => void;
+} = {}) {
   const [state, setState] = useState<ProcessingState>('idle');
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
   const [cleanUrl, setCleanUrl] = useState<string | null>(null);
   const [processingTime, setProcessingTime] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [usageCount, setUsageCount] = useState(0);
+  const [gatingStatus, setGatingStatus] = useState<GatingStatus | null>(null);
+  const [metadataInfo, setMetadataInfo] = useState<MetadataInfo | null>(null);
+  const t = useTranslations('common');
 
   useEffect(() => {
-    setUsageCount(getUsageCount());
+    setUsageCount(getLocalUsageCount());
+    // Check permission on mount
+    checkPermission().then(setGatingStatus);
   }, []);
 
   useEffect(() => {
     onStateChange?.(state);
   }, [state, onStateChange]);
+
   const cleanBlobRef = useRef<Blob | null>(null);
 
-  const processImage = useCallback(async (file: File) => {
-    if (!canProcess()) {
-      setError('limit_reached');
-      setState('error');
-      return;
-    }
+  const processImage = useCallback(
+    async (file: File) => {
+      // Check permission
+      const gating = await checkPermission();
+      setGatingStatus(gating);
 
-    setState('processing');
-    setError(null);
+      if (!gating.allowed) {
+        setError('limit_reached');
+        setState('error');
+        return;
+      }
 
-    try {
-      const startTime = performance.now();
+      setState('processing');
+      setError(null);
 
-      // Create object URL for original preview
-      const origUrl = URL.createObjectURL(file);
-      setOriginalUrl(origUrl);
+      try {
+        const startTime = performance.now();
 
-      // Load image as ImageBitmap
-      const bitmap = await createImageBitmap(file);
-      const { width, height } = bitmap;
+        // Analyze metadata in parallel with processing
+        const metadataPromise = analyzeMetadata(file);
 
-      // Create OffscreenCanvas and draw the image
-      const canvas = new OffscreenCanvas(width, height);
-      const ctx = canvas.getContext('2d')!;
-      ctx.drawImage(bitmap, 0, 0);
-      bitmap.close();
+        // Create object URL for original preview
+        const origUrl = URL.createObjectURL(file);
+        setOriginalUrl(origUrl);
 
-      // Run watermark removal
-      await removeWatermark(canvas);
+        // Load image as ImageBitmap
+        const bitmap = await createImageBitmap(file);
+        const { width, height } = bitmap;
 
-      // Convert result to blob for download
-      const blob = await canvas.convertToBlob({ type: 'image/png' });
-      cleanBlobRef.current = blob;
-      const resultUrl = URL.createObjectURL(blob);
-      setCleanUrl(resultUrl);
+        // Create OffscreenCanvas and draw the image
+        const canvas = new OffscreenCanvas(width, height);
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(bitmap, 0, 0);
+        bitmap.close();
 
-      const elapsed = Math.round(performance.now() - startTime);
-      setProcessingTime(elapsed);
+        // Run watermark removal
+        await removeWatermark(canvas);
 
-      // Increment usage
-      incrementUsage();
-      setUsageCount(getUsageCount());
+        // Convert result to blob for download
+        const blob = await canvas.convertToBlob({ type: 'image/png' });
+        cleanBlobRef.current = blob;
+        const resultUrl = URL.createObjectURL(blob);
+        setCleanUrl(resultUrl);
 
-      setState('done');
-    } catch (err) {
-      console.error('Watermark removal failed:', err);
-      setError(err instanceof Error ? err.message : 'Processing failed');
-      setState('error');
-    }
-  }, []);
+        const elapsed = Math.round(performance.now() - startTime);
+        setProcessingTime(elapsed);
+
+        // Get metadata analysis
+        const meta = await metadataPromise;
+        setMetadataInfo(meta);
+
+        // Report usage
+        await reportUsage(1, elapsed);
+        setUsageCount(getLocalUsageCount());
+
+        // Refresh gating status
+        const updatedGating = await checkPermission();
+        setGatingStatus(updatedGating);
+
+        setState('done');
+      } catch (err) {
+        console.error('Watermark removal failed:', err);
+        setError(err instanceof Error ? err.message : 'Processing failed');
+        setState('error');
+      }
+    },
+    []
+  );
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -156,8 +166,12 @@ export function UploadZone({ onStateChange }: { onStateChange?: (state: Processi
     cleanBlobRef.current = null;
     setProcessingTime(0);
     setError(null);
+    setMetadataInfo(null);
     setState('idle');
   }, [originalUrl, cleanUrl]);
+
+  const displayRemaining = gatingStatus?.remaining ?? DAILY_FREE_LIMIT - usageCount;
+  const isPro = gatingStatus?.plan === 'pro';
 
   // ============ Render: Processing ============
   if (state === 'processing') {
@@ -192,10 +206,9 @@ export function UploadZone({ onStateChange }: { onStateChange?: (state: Processi
               Daily limit reached
             </h3>
             <p className="text-muted-foreground mb-6 text-center text-sm">
-              You&apos;ve used {DAILY_FREE_LIMIT}/{DAILY_FREE_LIMIT} free images
-              today.
-              <br />
-              Upgrade to Pro for unlimited watermark removal.
+              {gatingStatus?.mode === 'anonymous'
+                ? `You've used ${DAILY_FREE_LIMIT}/${DAILY_FREE_LIMIT} free images today. Sign in for more or upgrade to Pro.`
+                : `You've used all your credits. Upgrade to Pro for unlimited watermark removal.`}
             </p>
             <div className="flex gap-3">
               <Button asChild>
@@ -247,8 +260,10 @@ export function UploadZone({ onStateChange }: { onStateChange?: (state: Processi
                 Watermark removed!
               </h3>
               <p className="text-muted-foreground text-sm">
-                Processed in {processingTime}ms • {usageCount}/
-                {DAILY_FREE_LIMIT} free images used today
+                Processed in {processingTime}ms
+                {isPro
+                  ? ' · Pro plan'
+                  : ` · ${usageCount}/${DAILY_FREE_LIMIT} free images used today`}
               </p>
             </div>
           </div>
@@ -263,6 +278,40 @@ export function UploadZone({ onStateChange }: { onStateChange?: (state: Processi
             </Button>
           </div>
         </div>
+
+        {/* Metadata stripped badge */}
+        {metadataInfo &&
+          (metadataInfo.hasExif ||
+            metadataInfo.hasC2PA ||
+            metadataInfo.hasIPTC ||
+            metadataInfo.hasXMP) && (
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <span className="text-muted-foreground flex items-center gap-1 text-xs">
+                <Shield className="h-3.5 w-3.5 text-green-500" />
+                Metadata stripped:
+              </span>
+              {metadataInfo.hasExif && (
+                <span className="rounded-full bg-green-500/10 px-2 py-0.5 text-xs text-green-600 dark:text-green-400">
+                  Exif
+                </span>
+              )}
+              {metadataInfo.hasC2PA && (
+                <span className="rounded-full bg-green-500/10 px-2 py-0.5 text-xs text-green-600 dark:text-green-400">
+                  C2PA
+                </span>
+              )}
+              {metadataInfo.hasXMP && (
+                <span className="rounded-full bg-green-500/10 px-2 py-0.5 text-xs text-green-600 dark:text-green-400">
+                  XMP
+                </span>
+              )}
+              {metadataInfo.hasIPTC && (
+                <span className="rounded-full bg-green-500/10 px-2 py-0.5 text-xs text-green-600 dark:text-green-400">
+                  IPTC
+                </span>
+              )}
+            </div>
+          )}
 
         {/* Before / After */}
         <div className="grid gap-6 md:grid-cols-2">
@@ -332,21 +381,32 @@ export function UploadZone({ onStateChange }: { onStateChange?: (state: Processi
                 : 'Upload AI-generated image'}
             </h3>
             <p className="text-muted-foreground text-sm">
-              Drag & drop or click to select • PNG, JPG, WebP • Max 20MB
+              Drag & drop or click to select · PNG, JPG, WebP · Max 20MB
             </p>
           </div>
+        </div>
+      </div>
 
-          <div className="flex items-center gap-6 text-xs">
-            <span className="text-muted-foreground flex items-center gap-1.5">
-              <Lock className="h-3.5 w-3.5" />
-              100% Local Processing
-            </span>
-            <span className="text-muted-foreground flex items-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5" />
-              {usageCount}/{DAILY_FREE_LIMIT} free today
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 px-4 text-xs font-medium tracking-tight">
+        <div className="text-muted-foreground/80 hover:text-foreground flex items-center gap-1.5 transition-colors">
+          <Lock className="h-3.5 w-3.5 text-primary/70" />
+          <span>{t('watermark.trust_badges.local')}</span>
+        </div>
+        <div className="text-muted-foreground/80 hover:text-foreground flex items-center gap-1.5 transition-colors">
+          <Shield className="h-3.5 w-3.5 text-primary/70" />
+          <span>{t('watermark.trust_badges.metadata')}</span>
+        </div>
+        {!isPro && (
+          <div className="text-muted-foreground/80 hover:text-foreground flex items-center gap-1.5 transition-colors">
+            <Sparkles className="h-3.5 w-3.5 text-primary/70" />
+            <span>
+              {t('watermark.trust_badges.free_today', {
+                remaining: displayRemaining,
+                limit: DAILY_FREE_LIMIT,
+              })}
             </span>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

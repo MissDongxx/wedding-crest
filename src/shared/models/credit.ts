@@ -32,6 +32,7 @@ export enum CreditTransactionScene {
   RENEWAL = 'renewal', // renewal
   GIFT = 'gift', // gift
   REWARD = 'reward', // reward
+  WATERMARK_REMOVAL = 'watermark_removal', // watermark removal
 }
 
 // Calculate credit expiration time based on order and subscription info

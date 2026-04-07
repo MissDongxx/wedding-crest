@@ -1,0 +1,178 @@
+---
+title: How to Remove Midjourney Watermark from AI-Generated Images
+description: Learn about Midjourney's watermark approach, how it varies between free and paid tiers, techniques for removing visible watermarks, and the metadata Midjourney embeds in generated images.
+created_at: 2026-04-04
+author_name: RemoveGeminiWatermark Team
+author_image: /logo.png
+image: /images/blog/how-to-remove-midjourney-watermark.png
+---
+
+Midjourney has established itself as one of the premier AI image generation platforms, known for its distinctive artistic style and high-quality outputs. Like other AI image generators, Midjourney uses watermarks and metadata to mark its generated content. This guide covers everything you need to know about Midjourney watermarks and how they work.
+
+## How Midjourney's Watermark Works
+
+Midjourney's approach to watermarking has evolved across versions and depends on your subscription tier. Understanding the current watermark system is essential for anyone working with Midjourney-generated content.
+
+### The Visible Watermark
+
+Midjourney applies a visible text-based watermark in the bottom-right corner of images. The watermark typically reads "Midjourney" and is rendered in a semi-transparent style that overlays the image content. The exact appearance has changed across versions:
+
+- **Midjourney v1-v4** — The watermark was more prominent and varied in style
+- **Midjourney v5 and later** — The watermark became more standardized and less intrusive
+- **Midjourney v6** — Further refinement of the watermark placement and transparency
+
+### When Watermarks Appear
+
+The visibility of the watermark depends on your Midjourney subscription level:
+
+| Tier | Visible Watermark | Notes |
+|------|-------------------|-------|
+| Free trial | Yes | All images include the watermark |
+| Basic Plan | No | Paid subscribers get unwatermarked images |
+| Standard Plan | No | No visible watermark on any generations |
+| Pro Plan | No | Includes additional features like stealth mode |
+
+**Important distinction**: Free trial users receive images with the Midjourney watermark. Once you subscribe to any paid plan, your generated images no longer include the visible watermark.
+
+### Stealth Mode and Public Visibility
+
+Midjourney Pro subscribers have access to a "Stealth Mode" feature. By default, all Midjourney images generated in public channels are visible to other users on the Midjourney platform. Stealth Mode prevents your generations from appearing in the Midjourney gallery.
+
+This is separate from the watermark — Stealth Mode controls who can see your images on the Midjourney platform, not whether a watermark is applied.
+
+## Removing the Midjourney Visible Watermark
+
+If you are working with watermarked Midjourney images (for example, images from a free trial), there are several approaches to remove the watermark.
+
+### Content-Aware Inpainting
+
+The most effective manual approach for Midjourney watermarks uses content-aware inpainting:
+
+1. **Select the watermark area** — Use a selection tool to outline the watermark region, including a small margin of surrounding pixels
+2. **Apply content-aware fill** — Tools like Photoshop's Content-Aware Fill, or dedicated AI inpainting models, can generate plausible replacements
+3. **Refine edges** — Use blending and healing tools to smooth the transition between filled and original areas
+
+This approach works well because the Midjourney watermark is typically positioned in the bottom-right corner, often over relatively simple background areas.
+
+### AI-Powered Watermark Removal
+
+Several AI-based tools specialize in watermark removal by analyzing the surrounding context and generating matching content for the watermark region. These tools can produce convincing results but are approximating the original image rather than recovering it.
+
+The quality of AI-powered removal depends heavily on what is behind the watermark. Simple backgrounds (skies, solid colors, gradients) produce excellent results. Complex textures or detailed subjects under the watermark area are more challenging.
+
+### Limitations of Removal
+
+Unlike Gemini's alpha-blended watermark, which can be reversed mathematically, the Midjourney watermark does not use a consistent blending approach that can be inverted. This means removal always involves approximation rather than exact pixel recovery.
+
+For generating clean images from the start, the most reliable approach is using a paid Midjourney subscription, which produces images without the visible watermark.
+
+## Metadata Embedded by Midjourney
+
+Beyond the visible watermark, Midjourney embeds metadata in generated image files that can identify them as AI-generated.
+
+### EXIF Data
+
+Midjourney images may include EXIF metadata fields such as:
+
+- **Software/Creator** — Identifying Midjourney as the generation tool
+- **Generation parameters** — Including the prompt, version, and settings used
+- **Timestamp** — When the image was generated
+- **Job ID** — A unique identifier for the generation job
+
+### PNG Text Chunks
+
+Midjourney often embeds generation information in PNG text chunks (tEXt or iTXt). This can include:
+
+- The full prompt used for generation
+- The Midjourney version
+- Upscale settings and parameters
+- Aspect ratio and other configuration options
+
+### Checking Midjourney Metadata
+
+You can inspect this metadata using our [AI watermark detector](/tools/detector), which analyzes images for visible watermarks, metadata markers, and other indicators of AI generation.
+
+For manual inspection, ExifTool provides comprehensive metadata extraction:
+
+```bash
+exiftool -a -G1 -s your_midjourney_image.png
+```
+
+This command displays all metadata tags with their group, tag name, and value.
+
+## Removing Midjourney Metadata
+
+If you need to strip metadata from Midjourney images, the process is similar to other image formats.
+
+### Using ExifTool
+
+```bash
+exiftool -all= midjourney_image.png
+```
+
+This removes all metadata, including EXIF, XMP, and PNG text chunks.
+
+### Using ImageMagick
+
+```bash
+convert midjourney_image.png -strip clean_image.png
+```
+
+Note that converting PNG to JPEG will also remove PNG-specific metadata structures, though this introduces lossy compression.
+
+### Batch Processing
+
+If you need to process multiple images:
+
+```bash
+exiftool -all= *.png
+```
+
+ExifTool will process all PNG files in the current directory, removing metadata from each one.
+
+## Midjourney vs Other AI Image Generators
+
+Understanding how Midjourney's watermarking compares to other platforms can help you choose the right approach for your workflow.
+
+### Midjourney vs Gemini
+
+- Gemini applies a visible star watermark to all generated images regardless of tier
+- Midjourney only watermarks free trial images
+- Gemini's watermark can be removed using mathematical reverse alpha blending
+- Midjourney's watermark requires content-aware approximation
+
+### Midjourney vs DALL-E
+
+- DALL-E free tier applies a watermark; paid tiers do not
+- Both embed metadata markers in generated images
+- DALL-E may include C2PA content credentials in newer versions
+- Midjourney relies more on EXIF and PNG text chunk metadata
+
+For more details on removing watermarks from other platforms, see our guides on [removing Gemini watermarks](/posts/how-to-remove-gemini-watermark) and [removing DALL-E watermarks](/posts/how-to-remove-chatgpt-dalle-watermark).
+
+## Ethical and Legal Considerations
+
+When working with Midjourney watermarks and metadata, keep these considerations in mind:
+
+- **Terms of Service** — Midjourney's Terms of Service govern how generated images can be used, modified, and distributed
+- **Attribution** — Even after removing visible markers, consider disclosing AI involvement when required
+- **Copyright** — Midjourney grants paid subscribers commercial rights to their generations, but free trial images have different licensing terms
+- **Regulations** — Emerging AI regulations in various jurisdictions may require disclosure of AI-generated content
+
+## Frequently Asked Questions
+
+### Do paid Midjourney images have any watermarks?
+
+No. Images generated with any paid Midjourney subscription (Basic, Standard, or Pro) do not include a visible watermark. However, they may still contain metadata that identifies them as Midjourney generations, including prompt information and job IDs. You can use our [AI watermark detector](/tools/detector) to check what metadata your images contain.
+
+### Can I remove the Midjourney watermark from free trial images?
+
+Technically, yes, using inpainting or content-aware fill tools. However, you should review Midjourney's Terms of Service regarding free trial images, as they may have different usage rights compared to paid-tier generations. Free trial images typically do not include commercial usage rights.
+
+### Does Midjourney use invisible watermarks like SynthID?
+
+As of the current version, Midjourney does not use SynthID or similar invisible statistical watermarks. Midjourney primarily uses visible watermarks (for free tier) and metadata markers (EXIF and PNG text chunks). However, AI watermarking approaches evolve, and this could change in future versions. For understanding invisible watermarking technology, see our guide on [what is SynthID](/posts/what-is-synthid-watermark).
+
+### How can I verify if an image was generated by Midjourney?
+
+You can check for Midjourney indicators using several methods: look for the visible watermark in the bottom-right corner, examine EXIF data and PNG text chunks for Midjourney-related tags, or use our [AI watermark detection tool](/tools/detector) for automated analysis. Midjourney images also tend to have a distinctive aesthetic quality that experienced users can recognize visually.
