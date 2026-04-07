@@ -20,6 +20,7 @@ export function UploadZoneBlock({
 
   const handlePointerDown = useCallback(() => setShowAfter(true), []);
   const handlePointerUp = useCallback(() => setShowAfter(false), []);
+  const handleContextMenu = useCallback((e: React.SyntheticEvent) => e.preventDefault(), []);
   const handleUploadStateChange = useCallback((state: ProcessingState) => {
     if (state !== 'idle') setUploaded(true);
   }, []);
@@ -57,16 +58,17 @@ export function UploadZoneBlock({
           {!uploaded && (
             <div className="flex flex-col items-center gap-3">
               <div
-                className="relative aspect-[3/2] w-full overflow-hidden rounded-2xl border border-border/40 bg-muted/20 shadow-lg cursor-pointer select-none"
+                className="relative aspect-[3/2] w-full overflow-hidden rounded-2xl border border-border/40 bg-muted/20 shadow-lg cursor-pointer select-none [&_img]:pointer-events-none"
                 onPointerDown={handlePointerDown}
                 onPointerUp={handlePointerUp}
                 onPointerLeave={handlePointerUp}
+                onContextMenu={handleContextMenu}
               >
                 <Image
                   src={showAfter ? '/images/examples/after.jpg' : '/images/examples/before.jpg'}
                   alt={showAfter ? 'After watermark removal' : 'Before watermark removal'}
                   fill
-                  className="object-cover transition-opacity duration-200"
+                  className="object-cover transition-opacity duration-200 select-none"
                   priority
                 />
                 {/* Label badge */}

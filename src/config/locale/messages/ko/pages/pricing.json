@@ -1,0 +1,90 @@
+{
+  "metadata": {
+    "title": "가격 — RemoveGeminiWatermark",
+    "description": "무료로 AI 워터마크를 제거하세요. 무제한 처리를 원하시면 Pro로 업그레이드."
+  },
+  "page": {
+    "title": "RemoveGeminiWatermark 가격",
+    "sections": {
+      "pricing": {
+        "id": "pricing",
+        "title": "심플하고 투명한 가격",
+        "description": "무료로 시작하세요. 필요할 때 업그레이드.",
+        "groups": [
+          {
+            "name": "one-time",
+            "title": "1회 결제",
+            "is_featured": true
+          }
+        ],
+        "items": [
+          {
+            "title": "무료",
+            "description": "리스크 없이 AI 워터마크 제거를 체험하세요.",
+            "features_title": "포함된 기능",
+            "features": [
+              "하루 5장",
+              "제미니 워터마크 제거",
+              "100% 로컬 처리",
+              "PNG, JPG, WebP 지원",
+              "가입 불필요"
+            ],
+            "interval": "one-time",
+            "amount": 0,
+            "currency": "USD",
+            "price": "$0",
+            "unit": "영구 무료",
+            "is_featured": false,
+            "tip": "신용카드 불필요",
+            "button": {
+              "title": "무료로 시작",
+              "url": "/tools/gemini",
+              "icon": "RiFlashlightFill"
+            },
+            "product_id": "free",
+            "product_name": "RemoveGeminiWatermark Free",
+            "credits": 0,
+            "valid_days": 0,
+            "group": "one-time"
+          },
+          {
+            "title": "평생",
+            "description": "전문가를 위한 무제한 워터마크 제거. 한 번 결제, 영구 사용.",
+            "label": "최고 가성비",
+            "features_title": "무료 플랜의 모든 기능 포함",
+            "features": [
+              "무제한 이미지",
+              "모든 AI 플랫폼 지원",
+              "일괄 처리(최대 100장)",
+              "C2PA/Exif 메타데이터 제거",
+              "우선 지원",
+              "API 접근"
+            ],
+            "interval": "one-time",
+            "amount": 990,
+            "currency": "USD",
+            "price": "$9.9",
+            "unit": "",
+            "is_featured": true,
+            "tip": "한 번 결제, 영구 사용",
+            "button": {
+              "title": "평생 이용권 구매",
+              "url": "/#pricing",
+              "icon": "RiFlashlightFill"
+            },
+            "product_id": "pro-lifetime",
+            "product_name": "RemoveGeminiWatermark Lifetime Pro",
+            "credits": 999999,
+            "valid_days": 36500,
+            "group": "one-time",
+            "plan_name": "평생"
+          }
+        ]
+      }
+    }
+  },
+  "messages": {
+    "current_plan": "현재 플랜",
+    "processing": "처리 중"
+  }
+}

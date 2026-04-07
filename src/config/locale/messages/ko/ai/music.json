@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "title": "AI 음악 생성기",
+    "description": "AI로 멋진 음악을 만드세요"
+  },
+  "page": {
+    "title": "AI 음악 생성기",
+    "description": "AI로 멋진 음악을 만드세요"
+  },
+  "generator": {
+    "title": "음악 생성기",
+    "prompt": "프롬프트",
+    "prompt_placeholder": "로미오와 줄리엣의 사랑 이야기",
+    "generate": "음악 생성",
+    "loading": "로딩 중...",
+    "generating": "생성 중...",
+    "sign_in_to_generate": "로그인 후 음악 생성",
+    "credits_cost": "{credits} 크레딧 소모",
+    "credits_remaining": "남은 크레딧 {credits}",
+    "buy_credits": "크레딧 구매",
+    "generation_progress": "생성 진행 상황",
+    "time_cost": "최대 2~3분이 소요될 수 있습니다...",
+    "generated_song": "생성된 곡",
+    "ready_to_play": "재생 준비 완료",
+    "audio_generating": "오디오 생성 중...",
+    "generating_song": "곡 생성 중...",
+    "waiting_generation": "곡이 완성될 때까지 기다려주세요",
+    "no_song_generated": "생성된 곡 없음",
+    "downloading": "다운로드 중...",
+    "download_success": "다운로드가 완료되었습니다",
+    "download_failed": "오디오 다운로드에 실패했습니다",
+    "form": {
+      "custom_mode": "커스텀 모드",
+      "title": "제목",
+      "title_placeholder": "The Sound of Silence",
+      "style": "음악 스타일",
+      "style_placeholder": "인디, 전자음악, 신디사이저, 120bpm, 디스토션",
+      "instrumental": "연주곡",
+      "prompt": "프롬프트",
+      "prompt_placeholder": "사랑에 관한 컨트리 포크송",
+      "model": "모델",
+      "lyrics": "가사",
+      "lyrics_placeholder": "직접 가사를 작성하세요. 최상의 결과를 위해 2절(8줄)을 권장합니다"
+    }
+  }
+}
