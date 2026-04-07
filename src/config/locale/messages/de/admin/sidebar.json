@@ -1,10 +1,10 @@
 {
   "header": {
     "brand": {
-      "title": "RemoveGeminiWatermark",
+      "title": "Gemini Wasserzeichen entfernen",
       "logo": {
         "src": "/logo.png",
-        "alt": "RemoveGeminiWatermark"
+        "alt": "Gemini Wasserzeichen entfernen"
       },
       "url": "/admin"
     },
@@ -15,59 +15,59 @@
       "title": "System",
       "items": [
         {
-          "title": "Users & Permissions",
+          "title": "Benutzer & Berechtigungen",
           "icon": "User",
           "is_expand": true,
           "children": [
             {
-              "title": "Users",
+              "title": "Benutzer",
               "url": "/admin/users",
               "icon": "User"
             },
             {
-              "title": "Roles",
+              "title": "Rollen",
               "url": "/admin/roles",
               "icon": "Users"
             },
             {
-              "title": "Permissions",
+              "title": "Berechtigungen",
               "url": "/admin/permissions",
               "icon": "ShieldCheck"
             }
           ]
         },
         {
-          "title": "Pages & Content",
+          "title": "Seiten & Inhalte",
           "icon": "FileText",
           "children": [
             {
-              "title": "Categories",
+              "title": "Kategorien",
               "icon": "Folder",
               "url": "/admin/categories"
             },
             {
-              "title": "Posts",
+              "title": "Beiträge",
               "icon": "FileText",
               "url": "/admin/posts"
             }
           ]
         },
         {
-          "title": "Payments & Credits",
+          "title": "Zahlungen & Guthaben",
           "icon": "DollarSign",
           "children": [
             {
-              "title": "Payments",
+              "title": "Zahlungen",
               "url": "/admin/payments",
               "icon": "DollarSign"
             },
             {
-              "title": "Subscriptions",
+              "title": "Abonnements",
               "url": "/admin/subscriptions",
               "icon": "CreditCard"
             },
             {
-              "title": "Credits",
+              "title": "Guthaben",
               "url": "/admin/credits",
               "icon": "Coins"
             }
@@ -76,15 +76,15 @@
       ]
     },
     {
-      "title": "Business",
+      "title": "Geschäft",
       "items": [
         {
-          "title": "AI Tasks",
+          "title": "KI-Aufgaben",
           "url": "/admin/ai-tasks",
           "icon": "Brain"
         },
         {
-          "title": "AI Chats",
+          "title": "KI-Chats",
           "url": "/admin/chats",
           "icon": "MessageCircle"
         }
@@ -94,12 +94,12 @@
   "bottom_nav": {
     "items": [
       {
-        "title": "Settings",
+        "title": "Einstellungen",
         "url": "/admin/settings/general",
         "icon": "Settings"
       },
       {
-        "title": "API Keys",
+        "title": "API-Schlüssel",
         "url": "/admin/apikeys",
         "icon": "Key"
       }
@@ -109,7 +109,7 @@
     "nav": {
       "items": [
         {
-          "title": "Profile",
+          "title": "Profil",
           "url": "/settings/profile",
           "icon": "User",
           "target": "_blank"
@@ -124,7 +124,7 @@
     "nav": {
       "items": [
         {
-          "title": "Home",
+          "title": "Startseite",
           "url": "/",
           "icon": "Home",
           "target": "_blank"
@@ -148,7 +148,7 @@
           "target": "_blank"
         },
         {
-          "title": "Email",
+          "title": "E-Mail",
           "url": "mailto:support@your-domain.com",
           "icon": "Mail",
           "target": "_blank"

@@ -3,75 +3,75 @@
     "id": "ID",
     "name": "Name",
     "avatar": "Avatar",
-    "email": "Email",
-    "email_verified": "Email Verified",
-    "remaining_credits": "Remaining Credits",
-    "created_at": "Created At",
-    "actions": "Actions",
-    "roles": "Roles",
+    "email": "E-Mail",
+    "email_verified": "E-Mail verifiziert",
+    "remaining_credits": "Verbleibendes Guthaben",
+    "created_at": "Erstellt am",
+    "actions": "Aktionen",
+    "roles": "Rollen",
     "ip": "IP",
-    "locale": "Locale",
-    "utm_source": "UTM Source"
+    "locale": "Sprache",
+    "utm_source": "UTM-Quelle"
   },
   "list": {
-    "title": "Users",
+    "title": "Benutzer",
     "crumbs": {
       "admin": "Admin",
-      "users": "Users"
+      "users": "Benutzer"
     },
     "buttons": {
-      "add": "Add User",
-      "edit": "Edit User",
-      "view": "View User",
-      "delete": "Delete User",
-      "edit_roles": "Edit Roles",
-      "grant_credits": "Grant Credits"
+      "add": "Benutzer hinzufügen",
+      "edit": "Benutzer bearbeiten",
+      "view": "Benutzer anzeigen",
+      "delete": "Benutzer löschen",
+      "edit_roles": "Rollen bearbeiten",
+      "grant_credits": "Guthaben zuweisen"
     },
     "search": {
       "email": {
-        "title": "Email",
-        "placeholder": "Email"
+        "title": "E-Mail",
+        "placeholder": "E-Mail"
       }
     }
   },
   "edit": {
-    "title": "Edit User",
+    "title": "Benutzer bearbeiten",
     "crumbs": {
       "admin": "Admin",
-      "users": "Users",
-      "edit": "Edit"
+      "users": "Benutzer",
+      "edit": "Bearbeiten"
     },
     "buttons": {
-      "submit": "Update"
+      "submit": "Aktualisieren"
     }
   },
   "edit_roles": {
-    "title": "Edit Roles",
+    "title": "Rollen bearbeiten",
     "crumbs": {
       "admin": "Admin",
-      "users": "Users",
-      "edit_roles": "Edit Roles"
+      "users": "Benutzer",
+      "edit_roles": "Rollen bearbeiten"
     },
     "buttons": {
-      "submit": "Update"
+      "submit": "Aktualisieren"
     }
   },
   "grant_credits": {
-    "title": "Grant Credits",
+    "title": "Guthaben zuweisen",
     "crumbs": {
       "admin": "Admin",
-      "users": "Users",
-      "grant_credits": "Grant Credits"
+      "users": "Benutzer",
+      "grant_credits": "Guthaben zuweisen"
     },
     "buttons": {
-      "submit": "Grant"
+      "submit": "Zuweisen"
     },
     "fields": {
-      "credits": "Credits Amount",
-      "valid_days": "Credits Valid Days",
-      "valid_days_tip": "0 means no expiration",
-      "description": "Credits Grant Description",
-      "description_placeholder": "Admin grant credits"
+      "credits": "Guthabenbetrag",
+      "valid_days": "Gültigkeitstage",
+      "valid_days_tip": "0 bedeutet kein Ablauf",
+      "description": "Beschreibung der Guthabenzuweisung",
+      "description_placeholder": "Admin weist Guthaben zu"
     }
   }
 }

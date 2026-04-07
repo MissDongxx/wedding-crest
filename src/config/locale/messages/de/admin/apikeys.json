@@ -1,17 +1,17 @@
 {
   "fields": {
-    "title": "Title",
-    "key": "Key",
-    "user": "User",
+    "title": "Titel",
+    "key": "Schlüssel",
+    "user": "Benutzer",
     "status": "Status",
-    "created_at": "Created At",
-    "action": "Action"
+    "created_at": "Erstellt am",
+    "action": "Aktion"
   },
   "list": {
-    "title": "API Keys",
+    "title": "API-Schlüssel",
     "crumbs": {
       "admin": "Admin",
-      "apikeys": "API Keys"
+      "apikeys": "API-Schlüssel"
     }
   }
 }

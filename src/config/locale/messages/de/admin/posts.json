@@ -1,60 +1,60 @@
 {
   "fields": {
     "slug": "Slug",
-    "title": "Title",
-    "description": "Description",
-    "image": "Image",
-    "content": "Content",
-    "categories": "Categories",
+    "title": "Titel",
+    "description": "Beschreibung",
+    "image": "Bild",
+    "content": "Inhalt",
+    "categories": "Kategorien",
     "tags": "Tags",
-    "author_name": "Author Name",
-    "author_role": "Author Role",
-    "author_image": "Author Image",
+    "author_name": "Autorname",
+    "author_role": "Autorrolle",
+    "author_image": "Autorbild",
     "status": "Status",
-    "created_at": "Created At",
-    "updated_at": "Updated At",
-    "deleted_at": "Deleted At"
+    "created_at": "Erstellt am",
+    "updated_at": "Aktualisiert am",
+    "deleted_at": "Gelöscht am"
   },
   "list": {
-    "title": "Posts",
+    "title": "Beiträge",
     "crumbs": {
       "admin": "Admin",
-      "posts": "Posts"
+      "posts": "Beiträge"
     },
     "buttons": {
-      "add": "Add Post",
-      "edit": "Edit Post",
-      "view": "View Post",
-      "delete": "Delete Post"
+      "add": "Beitrag hinzufügen",
+      "edit": "Beitrag bearbeiten",
+      "view": "Beitrag anzeigen",
+      "delete": "Beitrag löschen"
     },
     "tabs": {
-      "all": "All",
-      "published": "Published",
-      "pending": "Pending",
-      "draft": "Draft",
-      "archived": "Archived"
+      "all": "Alle",
+      "published": "Veröffentlicht",
+      "pending": "Ausstehend",
+      "draft": "Entwurf",
+      "archived": "Archiviert"
     }
   },
   "add": {
-    "title": "Add Post",
+    "title": "Beitrag hinzufügen",
     "crumbs": {
       "admin": "Admin",
-      "posts": "Posts",
-      "add": "Add Post"
+      "posts": "Beiträge",
+      "add": "Beitrag hinzufügen"
     },
     "buttons": {
-      "submit": "Add Post"
+      "submit": "Beitrag hinzufügen"
     }
   },
   "edit": {
-    "title": "Edit Post",
+    "title": "Beitrag bearbeiten",
     "crumbs": {
       "admin": "Admin",
-      "posts": "Posts",
-      "edit": "Edit Post"
+      "posts": "Beiträge",
+      "edit": "Beitrag bearbeiten"
     },
     "buttons": {
-      "submit": "Edit Post"
+      "submit": "Beitrag bearbeiten"
     }
   }
 }

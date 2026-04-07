@@ -2,48 +2,48 @@
   "fields": {
     "id": "ID",
     "name": "Name",
-    "title": "Title",
-    "description": "Description",
+    "title": "Titel",
+    "description": "Beschreibung",
     "status": "Status",
-    "sort": "Sort",
-    "created_at": "Created At",
-    "updated_at": "Updated At",
-    "permissions": "Permissions",
-    "actions": "Actions"
+    "sort": "Sortierung",
+    "created_at": "Erstellt am",
+    "updated_at": "Aktualisiert am",
+    "permissions": "Berechtigungen",
+    "actions": "Aktionen"
   },
   "list": {
-    "title": "Roles",
+    "title": "Rollen",
     "crumbs": {
       "admin": "Admin",
-      "roles": "Roles"
+      "roles": "Rollen"
     },
     "buttons": {
-      "create": "Create Role",
-      "edit": "Edit Role",
-      "edit_permissions": "Edit Permissions",
-      "delete": "Delete Role"
+      "create": "Rolle erstellen",
+      "edit": "Rolle bearbeiten",
+      "edit_permissions": "Berechtigungen bearbeiten",
+      "delete": "Rolle löschen"
     }
   },
   "edit": {
-    "title": "Edit Role",
+    "title": "Rolle bearbeiten",
     "crumbs": {
       "admin": "Admin",
-      "roles": "Roles",
-      "edit": "Edit Role"
+      "roles": "Rollen",
+      "edit": "Rolle bearbeiten"
     },
     "buttons": {
-      "submit": "Update"
+      "submit": "Aktualisieren"
     }
   },
   "edit_permissions": {
-    "title": "Edit Permissions",
+    "title": "Berechtigungen bearbeiten",
     "crumbs": {
       "admin": "Admin",
-      "roles": "Roles",
-      "edit_permissions": "Edit Permissions"
+      "roles": "Rollen",
+      "edit_permissions": "Berechtigungen bearbeiten"
     },
     "buttons": {
-      "submit": "Update"
+      "submit": "Aktualisieren"
     }
   }
 }

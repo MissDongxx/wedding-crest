@@ -1,14 +1,14 @@
 {
-  "title": "Activity",
+  "title": "Aktivität",
   "nav": {
     "items": [
       {
-        "title": "AI Tasks",
+        "title": "KI-Aufgaben",
         "url": "/activity/ai-tasks",
         "icon": "RiTaskLine"
       },
       {
-        "title": "AI Chats",
+        "title": "KI-Chats",
         "url": "/activity/chats",
         "icon": "RiChat2Line"
       }
@@ -17,12 +17,12 @@
   "top_nav": {
     "items": [
       {
-        "title": "Activity",
+        "title": "Aktivität",
         "url": "/activity",
         "icon": "Activity"
       },
       {
-        "title": "Settings",
+        "title": "Einstellungen",
         "url": "/settings",
         "icon": "Settings"
       }

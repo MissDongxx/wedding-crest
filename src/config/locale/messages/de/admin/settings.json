@@ -1,9 +1,9 @@
 {
   "groups": {
-    "email_auth": "Email Auth",
-    "google_auth": "Google Auth",
-    "github_auth": "Github Auth",
-    "basic_payment": "Basic Payment",
+    "email_auth": "E-Mail-Authentifizierung",
+    "google_auth": "Google-Authentifizierung",
+    "github_auth": "GitHub-Authentifizierung",
+    "basic_payment": "Grundzahlung",
     "stripe": "Stripe",
     "creem": "Creem",
     "paypal": "Paypal",
@@ -23,31 +23,31 @@
     "promotekit": "PromoteKit",
     "tawk": "Tawk",
     "crisp": "Crisp",
-    "credit": "Credit",
-    "appinfo": "App Info",
-    "user_role": "User Role"
+    "credit": "Guthaben",
+    "appinfo": "App-Informationen",
+    "user_role": "Benutzerrolle"
   },
   "edit": {
-    "title": "Settings",
+    "title": "Einstellungen",
     "crumbs": {
       "admin": "Admin",
-      "settings": "Settings"
+      "settings": "Einstellungen"
     },
     "tabs": {
-      "general": "General",
-      "auth": "Auth",
-      "payment": "Payment",
-      "credit": "Credit",
-      "email": "Email",
-      "storage": "Storage",
-      "ai": "AI",
-      "analytics": "Analytics",
-      "ads": "Ads",
-      "affiliate": "Affiliate",
-      "customer_service": "Customer Service"
+      "general": "Allgemein",
+      "auth": "Authentifizierung",
+      "payment": "Zahlung",
+      "credit": "Guthaben",
+      "email": "E-Mail",
+      "storage": "Speicher",
+      "ai": "KI",
+      "analytics": "Analytik",
+      "ads": "Werbung",
+      "affiliate": "Partnerprogramm",
+      "customer_service": "Kundenservice"
     },
     "buttons": {
-      "submit": "Save"
+      "submit": "Speichern"
     }
   }
 }

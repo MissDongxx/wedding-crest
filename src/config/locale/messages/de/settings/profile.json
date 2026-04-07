@@ -1,18 +1,18 @@
 {
   "fields": {
-    "email": "Email",
+    "email": "E-Mail",
     "name": "Name",
     "avatar": "Avatar"
   },
   "edit": {
-    "title": "Profile",
-    "description": "Update your profile",
+    "title": "Profil",
+    "description": "Aktualisieren Sie Ihr Profil",
     "crumbs": {
-      "settings": "Settings",
-      "profile": "Profile"
+      "settings": "Einstellungen",
+      "profile": "Profil"
     },
     "buttons": {
-      "submit": "Save"
+      "submit": "Speichern"
     }
   }
 }

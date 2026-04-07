@@ -1,27 +1,27 @@
 {
   "fields": {
-    "transaction_no": "Transaction No",
-    "user": "User",
-    "amount": "Amount",
-    "remaining": "Remaining",
-    "type": "Type",
-    "scene": "Scene",
-    "description": "Description",
-    "created_at": "Created At",
-    "expires_at": "Expires At",
-    "metadata": "Metadata",
-    "action": "Action"
+    "transaction_no": "Transaktions-Nr.",
+    "user": "Benutzer",
+    "amount": "Betrag",
+    "remaining": "Verbleibend",
+    "type": "Typ",
+    "scene": "Szene",
+    "description": "Beschreibung",
+    "created_at": "Erstellt am",
+    "expires_at": "Läuft ab am",
+    "metadata": "Metadaten",
+    "action": "Aktion"
   },
   "list": {
-    "title": "Credits",
+    "title": "Guthaben",
     "crumbs": {
       "admin": "Admin",
-      "credits": "Credits"
+      "credits": "Guthaben"
     },
     "tabs": {
-      "all": "All",
-      "grant": "Grant",
-      "consume": "Consume"
+      "all": "Alle",
+      "grant": "Zuschuss",
+      "consume": "Verbrauch"
     }
   }
 }

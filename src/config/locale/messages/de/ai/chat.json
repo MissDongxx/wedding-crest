@@ -2,10 +2,10 @@
   "sidebar": {
     "header": {
       "brand": {
-        "title": "RemoveGeminiWatermark Chat",
+        "title": "Gemini Wasserzeichen entfernen Chat",
         "logo": {
           "src": "/logo.png",
-          "alt": "RemoveGeminiWatermark Chat"
+          "alt": "Gemini Wasserzeichen entfernen Chat"
         },
         "url": "/chat"
       },
@@ -13,7 +13,7 @@
     },
     "buttons": [
       {
-        "title": "New Chat",
+        "title": "Neuer Chat",
         "icon": "Plus",
         "url": "/chat",
         "variant": "outline"
@@ -23,7 +23,7 @@
       {
         "items": [
           {
-            "title": "History",
+            "title": "Verlauf",
             "icon": "History",
             "url": "/chat/history"
           }
@@ -37,7 +37,7 @@
       "nav": {
         "items": [
           {
-            "title": "Profile",
+            "title": "Profil",
             "url": "/settings/profile",
             "icon": "User",
             "target": "_blank"
@@ -53,7 +53,7 @@
       "nav": {
         "items": [
           {
-            "title": "Home",
+            "title": "Startseite",
             "url": "/",
             "icon": "Home",
             "target": "_blank"
@@ -77,7 +77,7 @@
             "target": "_blank"
           },
           {
-            "title": "Email",
+            "title": "E-Mail",
             "url": "mailto:support@your-domain.com",
             "icon": "Mail",
             "target": "_blank"
@@ -90,32 +90,32 @@
     "variant": "sidebar"
   },
   "library": {
-    "title": "Library",
+    "title": "Bibliothek",
     "icon": "History",
     "url": "/chat/history",
-    "more": "More",
+    "more": "Mehr",
     "actions": {
-      "edit_title": "Edit Title",
-      "share": "Share",
-      "delete": "Delete"
+      "edit_title": "Titel bearbeiten",
+      "share": "Teilen",
+      "delete": "Löschen"
     }
   },
   "generator": {
-    "title": "What can I help you today?",
-    "input_placeholder": "You can ask me anything"
+    "title": "Wie kann ich Ihnen heute helfen?",
+    "input_placeholder": "Sie können mich alles fragen"
   },
   "history": {
-    "title": "Chat history",
-    "description": "Review and revisit your previous conversations.",
-    "empty": "No conversations yet.",
-    "error": "Failed to load conversations.",
-    "retry": "Try again",
-    "signin": "Sign in to view your chat history.",
-    "summary": "Showing {from}-{to} of {total}",
-    "perPage": "Per page",
-    "prev": "Previous",
-    "next": "Next",
-    "open": "Open chat",
-    "untitled": "Untitled conversation"
+    "title": "Chat-Verlauf",
+    "description": "Überprüfen und laden Sie Ihre früheren Gespräche.",
+    "empty": "Noch keine Gespräche.",
+    "error": "Gespräche konnten nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "signin": "Melden Sie sich an, um Ihren Chat-Verlauf zu sehen.",
+    "summary": "Anzeige {from}-{to} von {total}",
+    "perPage": "Pro Seite",
+    "prev": "Zurück",
+    "next": "Weiter",
+    "open": "Chat öffnen",
+    "untitled": "Unbenanntes Gespräch"
   }
 }

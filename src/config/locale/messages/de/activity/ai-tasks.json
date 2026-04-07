@@ -1,31 +1,31 @@
 {
   "fields": {
-    "title": "Title",
-    "media_type": "Media Type",
-    "provider": "Provider",
-    "model": "Model",
+    "title": "Titel",
+    "media_type": "Medientyp",
+    "provider": "Anbieter",
+    "model": "Modell",
     "prompt": "Prompt",
-    "options": "Options",
+    "options": "Optionen",
     "status": "Status",
-    "result": "Result",
-    "cost_credits": "Cost Credits",
-    "created_at": "Created At",
-    "action": "Action"
+    "result": "Ergebnis",
+    "cost_credits": "Kosten-Guthaben",
+    "created_at": "Erstellt am",
+    "action": "Aktion"
   },
   "list": {
-    "title": "AI Tasks",
+    "title": "KI-Aufgaben",
     "tabs": {
-      "all": "All",
-      "music": "Music",
-      "image": "Image",
+      "all": "Alle",
+      "music": "Musik",
+      "image": "Bild",
       "video": "Video",
       "audio": "Audio",
       "text": "Text"
     },
     "buttons": {
-      "view": "View Task",
-      "refresh": "Refresh Task"
+      "view": "Aufgabe anzeigen",
+      "refresh": "Aufgabe aktualisieren"
     },
-    "empty_message": "No tasks found"
+    "empty_message": "Keine Aufgaben gefunden"
   }
 }

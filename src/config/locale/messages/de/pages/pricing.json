@@ -1,64 +1,64 @@
 {
   "metadata": {
-    "title": "Pricing — RemoveGeminiWatermark",
-    "description": "Remove AI watermarks for free. Upgrade to Lifetime for unlimited processing."
+    "title": "Preise — Gemini Wasserzeichen entfernen",
+    "description": "KI-Wasserzeichen kostenlos entfernen. Upgraden Sie auf Lifetime für unbegrenzte Verarbeitung."
   },
   "page": {
-    "title": "RemoveGeminiWatermark Pricing",
+    "title": "Gemini Wasserzeichen entfernen Preise",
     "sections": {
       "pricing": {
         "id": "pricing",
-        "title": "Simple, Transparent Pricing",
-        "description": "Start free. Upgrade when you need more.",
+        "title": "Einfache, transparente Preise",
+        "description": "Kostenlos starten. Upgraden, wenn Sie mehr brauchen.",
         "groups": [
           {
             "name": "one-time",
-            "title": "Pay Once",
+            "title": "Einmal zahlen",
             "is_featured": true
           }
         ],
         "items": [
           {
-            "title": "Free",
-            "description": "Try AI watermark removal risk-free.",
-            "features_title": "Includes",
+            "title": "Kostenlos",
+            "description": "KI-Wasserzeichen-Entfernung risikofrei testen.",
+            "features_title": "Enthalten",
             "features": [
-              "5 images per day",
-              "Gemini watermark removal",
-              "100% local processing",
-              "PNG, JPG, WebP support",
-              "No signup required"
+              "5 Bilder pro Tag",
+              "Gemini Wasserzeichen-Entfernung",
+              "100% lokale Verarbeitung",
+              "PNG, JPG, WebP Support",
+              "Keine Registrierung erforderlich"
             ],
             "interval": "one-time",
             "amount": 0,
             "currency": "USD",
-            "price": "$0",
-            "unit": "forever",
+            "price": "0€",
+            "unit": "für immer",
             "is_featured": false,
-            "tip": "No credit card required",
+            "tip": "Keine Kreditkarte erforderlich",
             "button": {
-              "title": "Start Free",
+              "title": "Kostenlos starten",
               "url": "/tools/gemini",
               "icon": "RiFlashlightFill"
             },
             "product_id": "free",
-            "product_name": "RemoveGeminiWatermark Free",
+            "product_name": "Gemini Wasserzeichen entfernen Kostenlos",
             "credits": 0,
             "valid_days": 0,
             "group": "one-time"
           },
           {
             "title": "Lifetime",
-            "description": "Unlimited watermark removal for professionals. Pay once, use forever.",
-            "label": "Best Value",
-            "features_title": "Everything in Free, plus",
+            "description": "Unbegrenzte Wasserzeichen-Entfernung für Profis. Einmal zahlen, für immer nutzen.",
+            "label": "Bestes Preis-Leistungs-Verhältnis",
+            "features_title": "Alles im Kostenlos-Paket, plus",
             "features": [
-              "Unlimited images",
-              "All AI platforms supported",
-              "Batch processing (up to 100)",
-              "C2PA/Exif metadata removal",
-              "Priority support",
-              "API access"
+              "Unbegrenzte Bilder",
+              "Alle KI-Plattformen unterstützt",
+              "Stapelverarbeitung (bis zu 100)",
+              "C2PA/Exif Metadaten-Entfernung",
+              "Prioritäts-Support",
+              "API-Zugang"
             ],
             "interval": "one-time",
             "amount": 990,
@@ -66,14 +66,14 @@
             "price": "$9.9",
             "unit": "",
             "is_featured": true,
-            "tip": "Pay once, use forever",
+            "tip": "Einmal zahlen, für immer nutzen",
             "button": {
-              "title": "Get Lifetime Access",
+              "title": "Lifetime-Zugang sichern",
               "url": "/#pricing",
               "icon": "RiFlashlightFill"
             },
             "product_id": "pro-lifetime",
-            "product_name": "RemoveGeminiWatermark Lifetime Pro",
+            "product_name": "Gemini Wasserzeichen entfernen Lifetime Pro",
             "credits": 999999,
             "valid_days": 36500,
             "group": "one-time",
@@ -84,7 +84,7 @@
     }
   },
   "messages": {
-    "current_plan": "Current Plan",
-    "processing": "Processing"
+    "current_plan": "Aktueller Tarif",
+    "processing": "Verarbeitung"
   }
 }

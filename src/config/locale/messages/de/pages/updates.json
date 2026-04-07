@@ -1,14 +1,14 @@
 {
   "metadata": {
-    "title": "Update Logs",
-    "description": "View product update logs, including latest features and improvements."
+    "title": "Update-Protokoll",
+    "description": "Produkt-Update-Protokoll anzeigen, einschließlich neuester Funktionen und Verbesserungen."
   },
   "page": {
     "sections": {
       "updates": {
         "id": "updates",
-        "title": "Update Logs",
-        "description": "View product update logs, including latest features and improvements."
+        "title": "Update-Protokoll",
+        "description": "Produkt-Update-Protokoll anzeigen, einschließlich neuester Funktionen und Verbesserungen."
       }
     }
   }

@@ -1,41 +1,41 @@
 {
   "fields": {
-    "order_no": "Order No",
-    "user": "User",
-    "amount": "Amount",
-    "product": "Product",
-    "description": "Description",
-    "type": "Type",
-    "provider": "Provider",
-    "created_at": "Created At",
+    "order_no": "Bestellnummer",
+    "user": "Benutzer",
+    "amount": "Betrag",
+    "product": "Produkt",
+    "description": "Beschreibung",
+    "type": "Typ",
+    "provider": "Anbieter",
+    "created_at": "Erstellt am",
     "status": "Status",
-    "action": "Action"
+    "action": "Aktion"
   },
   "list": {
-    "title": "Payments",
+    "title": "Zahlungen",
     "crumbs": {
       "admin": "Admin",
-      "payments": "Payments"
+      "payments": "Zahlungen"
     },
     "tabs": {
-      "all": "All",
-      "subscription": "Subscription",
-      "one-time": "One-Time"
+      "all": "Alle",
+      "subscription": "Abonnement",
+      "one-time": "Einmalig"
     },
     "filters": {
       "status": {
         "title": "Status",
         "options": {
-          "all": "All",
-          "paid": "Paid",
-          "created": "Created",
-          "failed": "Failed"
+          "all": "Alle",
+          "paid": "Bezahlt",
+          "created": "Erstellt",
+          "failed": "Fehlgeschlagen"
         }
       },
       "provider": {
-        "title": "Provider",
+        "title": "Anbieter",
         "options": {
-          "all": "All",
+          "all": "Alle",
           "stripe": "Stripe",
           "creem": "Creem",
           "lemonsqueezy": "Lemonsqueezy",
@@ -45,8 +45,8 @@
     },
     "search": {
       "order_no": {
-        "title": "Order No",
-        "placeholder": "Order No"
+        "title": "Bestellnummer",
+        "placeholder": "Bestellnummer"
       }
     }
   }

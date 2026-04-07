@@ -1,52 +1,52 @@
 {
   "fields": {
     "slug": "Slug",
-    "title": "Title",
-    "description": "Description",
+    "title": "Titel",
+    "description": "Beschreibung",
     "status": "Status",
-    "created_at": "Created At",
-    "updated_at": "Updated At"
+    "created_at": "Erstellt am",
+    "updated_at": "Aktualisiert am"
   },
   "list": {
-    "title": "Categories",
+    "title": "Kategorien",
     "crumbs": {
       "admin": "Admin",
-      "categories": "Categories"
+      "categories": "Kategorien"
     },
     "buttons": {
-      "add": "Add Category",
-      "edit": "Edit Category",
-      "view": "View Category",
-      "delete": "Delete Category"
+      "add": "Kategorie hinzufügen",
+      "edit": "Kategorie bearbeiten",
+      "view": "Kategorie anzeigen",
+      "delete": "Kategorie löschen"
     },
     "tabs": {
-      "all": "All",
-      "published": "Published",
-      "pending": "Pending",
-      "draft": "Draft",
-      "archived": "Archived"
+      "all": "Alle",
+      "published": "Veröffentlicht",
+      "pending": "Ausstehend",
+      "draft": "Entwurf",
+      "archived": "Archiviert"
     }
   },
   "add": {
-    "title": "Add Category",
+    "title": "Kategorie hinzufügen",
     "crumbs": {
       "admin": "Admin",
-      "categories": "Categories",
-      "add": "Add Category"
+      "categories": "Kategorien",
+      "add": "Kategorie hinzufügen"
     },
     "buttons": {
-      "submit": "Add Category"
+      "submit": "Kategorie hinzufügen"
     }
   },
   "edit": {
-    "title": "Edit Category",
+    "title": "Kategorie bearbeiten",
     "crumbs": {
       "admin": "Admin",
-      "categories": "Categories",
-      "edit": "Edit Category"
+      "categories": "Kategorien",
+      "edit": "Kategorie bearbeiten"
     },
     "buttons": {
-      "submit": "Edit Category"
+      "submit": "Kategorie bearbeiten"
     }
   }
 }

@@ -1,22 +1,22 @@
 {
   "metadata": {
     "title": "Blog",
-    "description": "Read latest product features, solutions, and updates."
+    "description": "Lesen Sie die neuesten Produktfunktionen, Lösungen und Updates."
   },
   "page": {
-    "title": "RemoveGeminiWatermark Blog",
+    "title": "Gemini Wasserzeichen entfernen Blog",
     "sections": {
       "blog": {
         "id": "blog",
         "title": "Blog",
-        "description": "Read latest product features, solutions, and updates."
+        "description": "Lesen Sie die neuesten Produktfunktionen, Lösungen und Updates."
       }
     }
   },
   "messages": {
-    "all": "All",
-    "no_content": "No Content",
+    "all": "Alle",
+    "no_content": "Kein Inhalt",
     "crumb": "Blog",
-    "toc": "Table of Contents"
+    "toc": "Inhaltsverzeichnis"
   }
 }
