@@ -52,5 +52,12 @@
   "locale_detector": {
     "title": "Wir haben festgestellt, dass Ihre Browsersprache {locale} ist. Möchten Sie wechseln?",
     "switch_to": "Wechseln zu {locale}"
+  },
+  "watermark": {
+    "trust_badges": {
+      "local": "100% lokale Verarbeitung",
+      "metadata": "Metadaten automatisch entfernt",
+      "free_today": "{remaining}/{limit} heute kostenlos"
+    }
   }
 }

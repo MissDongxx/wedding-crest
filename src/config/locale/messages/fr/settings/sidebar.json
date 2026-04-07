@@ -1,46 +1,18 @@
 {
-  "title": "Settings",
+  "title": "Paramètres",
   "nav": {
     "items": [
-      {
-        "title": "Profile",
-        "url": "/settings/profile",
-        "icon": "User"
-      },
-      {
-        "title": "Billing",
-        "url": "/settings/billing",
-        "icon": "CreditCard"
-      },
-      {
-        "title": "Payments",
-        "url": "/settings/payments",
-        "icon": "DollarSign"
-      },
-      {
-        "title": "Credits",
-        "url": "/settings/credits",
-        "icon": "Coins"
-      },
-      {
-        "title": "API Keys",
-        "url": "/settings/apikeys",
-        "icon": "RiKeyLine"
-      }
+      { "title": "Profil", "url": "/settings/profile", "icon": "User" },
+      { "title": "Facturation", "url": "/settings/billing", "icon": "CreditCard" },
+      { "title": "Paiements", "url": "/settings/payments", "icon": "DollarSign" },
+      { "title": "Crédits", "url": "/settings/credits", "icon": "Coins" },
+      { "title": "Clés API", "url": "/settings/apikeys", "icon": "RiKeyLine" }
     ]
   },
   "top_nav": {
     "items": [
-      {
-        "title": "Activity",
-        "url": "/activity",
-        "icon": "Activity"
-      },
-      {
-        "title": "Settings",
-        "url": "/settings",
-        "icon": "Settings"
-      }
+      { "title": "Activité", "url": "/activity", "icon": "Activity" },
+      { "title": "Paramètres", "url": "/settings", "icon": "Settings" }
     ]
   }
 }

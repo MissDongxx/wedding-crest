@@ -1,76 +1,41 @@
 {
   "header": {
     "brand": {
-      "title": "RemoveGeminiWatermark",
-      "logo": {
-        "src": "/logo.png",
-        "alt": "RemoveGeminiWatermark"
-      },
+      "title": "Supprimer le Watermark Gemini",
+      "logo": { "src": "/logo.png", "alt": "Supprimer le Watermark Gemini" },
       "url": "/admin"
     },
     "show_trigger": false
   },
   "main_navs": [
     {
-      "title": "System",
+      "title": "Système",
       "items": [
         {
-          "title": "Users & Permissions",
+          "title": "Utilisateurs & Permissions",
           "icon": "User",
           "is_expand": true,
           "children": [
-            {
-              "title": "Users",
-              "url": "/admin/users",
-              "icon": "User"
-            },
-            {
-              "title": "Roles",
-              "url": "/admin/roles",
-              "icon": "Users"
-            },
-            {
-              "title": "Permissions",
-              "url": "/admin/permissions",
-              "icon": "ShieldCheck"
-            }
+            { "title": "Utilisateurs", "url": "/admin/users", "icon": "User" },
+            { "title": "Rôles", "url": "/admin/roles", "icon": "Users" },
+            { "title": "Permissions", "url": "/admin/permissions", "icon": "ShieldCheck" }
           ]
         },
         {
-          "title": "Pages & Content",
+          "title": "Pages & Contenus",
           "icon": "FileText",
           "children": [
-            {
-              "title": "Categories",
-              "icon": "Folder",
-              "url": "/admin/categories"
-            },
-            {
-              "title": "Posts",
-              "icon": "FileText",
-              "url": "/admin/posts"
-            }
+            { "title": "Catégories", "icon": "Folder", "url": "/admin/categories" },
+            { "title": "Articles", "icon": "FileText", "url": "/admin/posts" }
           ]
         },
         {
-          "title": "Payments & Credits",
+          "title": "Paiements & Crédits",
           "icon": "DollarSign",
           "children": [
-            {
-              "title": "Payments",
-              "url": "/admin/payments",
-              "icon": "DollarSign"
-            },
-            {
-              "title": "Subscriptions",
-              "url": "/admin/subscriptions",
-              "icon": "CreditCard"
-            },
-            {
-              "title": "Credits",
-              "url": "/admin/credits",
-              "icon": "Coins"
-            }
+            { "title": "Paiements", "url": "/admin/payments", "icon": "DollarSign" },
+            { "title": "Abonnements", "url": "/admin/subscriptions", "icon": "CreditCard" },
+            { "title": "Crédits", "url": "/admin/credits", "icon": "Coins" }
           ]
         }
       ]
@@ -78,42 +43,21 @@
     {
       "title": "Business",
       "items": [
-        {
-          "title": "AI Tasks",
-          "url": "/admin/ai-tasks",
-          "icon": "Brain"
-        },
-        {
-          "title": "AI Chats",
-          "url": "/admin/chats",
-          "icon": "MessageCircle"
-        }
+        { "title": "Tâches IA", "url": "/admin/ai-tasks", "icon": "Brain" },
+        { "title": "Chats IA", "url": "/admin/chats", "icon": "MessageCircle" }
       ]
     }
   ],
   "bottom_nav": {
     "items": [
-      {
-        "title": "Settings",
-        "url": "/admin/settings/general",
-        "icon": "Settings"
-      },
-      {
-        "title": "API Keys",
-        "url": "/admin/apikeys",
-        "icon": "Key"
-      }
+      { "title": "Paramètres", "url": "/admin/settings/general", "icon": "Settings" },
+      { "title": "Clés API", "url": "/admin/apikeys", "icon": "Key" }
     ]
   },
   "user": {
     "nav": {
       "items": [
-        {
-          "title": "Profile",
-          "url": "/settings/profile",
-          "icon": "User",
-          "target": "_blank"
-        }
+        { "title": "Profil", "url": "/settings/profile", "icon": "User", "target": "_blank" }
       ]
     },
     "show_email": false,
@@ -123,36 +67,11 @@
   "footer": {
     "nav": {
       "items": [
-        {
-          "title": "Home",
-          "url": "/",
-          "icon": "Home",
-          "target": "_blank"
-        },
-        {
-          "title": "GitHub",
-          "url": "https://github.com/your-app-name",
-          "icon": "Github",
-          "target": "_blank"
-        },
-        {
-          "title": "Twitter",
-          "url": "https://twitter.com/your-app-name",
-          "icon": "RiTwitterXFill",
-          "target": "_blank"
-        },
-        {
-          "title": "Discord",
-          "url": "https://discord.gg/your-app-name",
-          "icon": "RiDiscordFill",
-          "target": "_blank"
-        },
-        {
-          "title": "Email",
-          "url": "mailto:support@your-domain.com",
-          "icon": "Mail",
-          "target": "_blank"
-        }
+        { "title": "Accueil", "url": "/", "icon": "Home", "target": "_blank" },
+        { "title": "GitHub", "url": "https://github.com/your-app-name", "icon": "Github", "target": "_blank" },
+        { "title": "Twitter", "url": "https://twitter.com/your-app-name", "icon": "RiTwitterXFill", "target": "_blank" },
+        { "title": "Discord", "url": "https://discord.gg/your-app-name", "icon": "RiDiscordFill", "target": "_blank" },
+        { "title": "E-mail", "url": "mailto:support@your-domain.com", "icon": "Mail", "target": "_blank" }
       ]
     },
     "show_theme": true,

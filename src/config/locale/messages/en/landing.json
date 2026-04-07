@@ -89,6 +89,11 @@
               "title": "Blog",
               "url": "/blog",
               "target": "_self"
+            },
+            {
+              "title": "iOS Shortcut",
+              "url": "/shortcuts",
+              "target": "_self"
             }
           ]
         },

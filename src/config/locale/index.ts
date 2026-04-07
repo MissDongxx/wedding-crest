@@ -59,4 +59,5 @@ export const localeMessagesPaths = [
   'pages/showcases',
   'pages/blog',
   'pages/updates',
+  'shortcuts',
 ];

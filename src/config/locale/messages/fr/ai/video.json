@@ -1,47 +1,46 @@
 {
   "metadata": {
-    "title": "AI Video Generator",
-    "description": "Generate videos with AI models, support text-to-video, image-to-video and video-to-video."
+    "title": "Générateur de Vidéos IA",
+    "description": "Générez des vidéos avec des modèles IA, supporte texte-vers-vidéo, image-vers-vidéo et vidéo-vers-vidéo."
   },
   "page": {
-    "title": "AI Video Generator",
-    "description": "Generate videos with AI models, support text-to-video, image-to-video and video-to-video."
+    "title": "Générateur de Vidéos IA",
+    "description": "Générez des vidéos avec des modèles IA, supporte texte-vers-vidéo, image-vers-vidéo et vidéo-vers-vidéo."
   },
   "generator": {
-    "title": "Video Generator",
-    "description": "Generate videos with AI models, support text-to-video, image-to-video and video-to-video.",
+    "title": "Générateur de Vidéos",
+    "description": "Générez des vidéos avec des modèles IA, supporte texte-vers-vidéo, image-vers-vidéo et vidéo-vers-vidéo.",
     "tabs": {
-      "text-to-video": "Text to Video",
-      "image-to-video": "Image to Video",
-      "video-to-video": "Video to Video"
+      "text-to-video": "Texte → Vidéo",
+      "image-to-video": "Image → Vidéo",
+      "video-to-video": "Vidéo → Vidéo"
     },
     "form": {
-      "provider": "Provider",
-      "model": "Model",
-      "select_provider": "Select Provider",
-      "select_model": "Select Model",
+      "provider": "Fournisseur",
+      "model": "Modèle",
+      "select_provider": "Sélectionner le Fournisseur",
+      "select_model": "Sélectionner le Modèle",
       "prompt": "Prompt",
-      "prompt_placeholder": "Describe the video content, such as scene, action, style, etc.",
-      "reference_image": "Reference Image",
-      "reference_image_placeholder": "Upload a reference image for video generation",
-      "reference_video": "Reference Video URL",
-      "reference_video_placeholder": "Enter the URL of the reference video",
-      "some_images_failed_to_upload": "Image failed to upload, please delete and re-upload",
-      "prompt_too_long": "Prompt is too long, please delete some content"
+      "prompt_placeholder": "Décrivez le contenu de la vidéo, comme la scène, l'action, le style, etc.",
+      "reference_image": "Image de Référence",
+      "reference_image_placeholder": "Téléchargez une image de référence pour la génération vidéo",
+      "reference_video": "URL de la Vidéo de Référence",
+      "reference_video_placeholder": "Entrez l'URL de la vidéo de référence",
+      "some_images_failed_to_upload": "L'image n'a pas pu être téléchargée, veuillez la supprimer et retélécharger",
+      "prompt_too_long": "Le prompt est trop long, veuillez supprimer du contenu"
     },
-    "generate": "Generate Video",
-    "checking_account": "Checking Account...",
-    "loading": "Loading...",
-    "generating": "Generating...",
-    "sign_in_to_generate": "Sign In to Generate Video",
-    "credits_cost": "Cost {credits} credits",
-    "credits_remaining": "Remaining {credits} credits",
-    "buy_credits": "Buy Credits",
-    "progress": "Progress",
-    "generated_videos": "Video Preview",
-    "ready_to_generate": "Ready to Generate",
-    "ready_for_generating": "Ready for Generating",
-    "no_videos_generated": "No Videos Generated"
+    "generate": "Générer la Vidéo",
+    "checking_account": "Vérification du Compte...",
+    "loading": "Chargement...",
+    "generating": "Génération...",
+    "sign_in_to_generate": "Connectez-vous pour Générer des Vidéos",
+    "credits_cost": "Coût {credits} crédits",
+    "credits_remaining": "Restants {credits} crédits",
+    "buy_credits": "Acheter des Crédits",
+    "progress": "Progression",
+    "generated_videos": "Aperçu des Vidéos",
+    "ready_to_generate": "Prêt à Générer",
+    "ready_for_generating": "Prêt pour la Génération",
+    "no_videos_generated": "Aucune Vidéo Générée"
   }
 }
-

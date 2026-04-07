@@ -52,5 +52,12 @@
   "locale_detector": {
     "title": "Abbiamo rilevato che la lingua del tuo browser è {locale}. Vuoi passare a questa lingua?",
     "switch_to": "Passa a {locale}"
+  },
+  "watermark": {
+    "trust_badges": {
+      "local": "Elaborazione 100% Locale",
+      "metadata": "Metadati rimossi automaticamente",
+      "free_today": "{remaining}/{limit} gratis oggi"
+    }
   }
 }

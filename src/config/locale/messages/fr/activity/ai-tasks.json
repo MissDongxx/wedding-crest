@@ -1,31 +1,31 @@
 {
   "fields": {
-    "title": "Title",
-    "media_type": "Media Type",
-    "provider": "Provider",
-    "model": "Model",
+    "title": "Titre",
+    "media_type": "Type de Média",
+    "provider": "Fournisseur",
+    "model": "Modèle",
     "prompt": "Prompt",
     "options": "Options",
-    "status": "Status",
-    "result": "Result",
-    "cost_credits": "Cost Credits",
-    "created_at": "Created At",
+    "status": "Statut",
+    "result": "Résultat",
+    "cost_credits": "Crédits Consommés",
+    "created_at": "Date de Création",
     "action": "Action"
   },
   "list": {
-    "title": "AI Tasks",
+    "title": "Tâches IA",
     "tabs": {
-      "all": "All",
-      "music": "Music",
+      "all": "Toutes",
+      "music": "Musique",
       "image": "Image",
-      "video": "Video",
+      "video": "Vidéo",
       "audio": "Audio",
-      "text": "Text"
+      "text": "Texte"
     },
     "buttons": {
-      "view": "View Task",
-      "refresh": "Refresh Task"
+      "view": "Voir la Tâche",
+      "refresh": "Actualiser la Tâche"
     },
-    "empty_message": "No tasks found"
+    "empty_message": "Aucune tâche trouvée"
   }
 }

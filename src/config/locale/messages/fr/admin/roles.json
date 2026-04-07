@@ -1,49 +1,34 @@
 {
   "fields": {
     "id": "ID",
-    "name": "Name",
-    "title": "Title",
+    "name": "Nom",
+    "title": "Titre",
     "description": "Description",
-    "status": "Status",
-    "sort": "Sort",
-    "created_at": "Created At",
-    "updated_at": "Updated At",
+    "status": "Statut",
+    "sort": "Ordre",
+    "created_at": "Date de Création",
+    "updated_at": "Date de Mise à Jour",
     "permissions": "Permissions",
     "actions": "Actions"
   },
   "list": {
-    "title": "Roles",
-    "crumbs": {
-      "admin": "Admin",
-      "roles": "Roles"
-    },
+    "title": "Rôles",
+    "crumbs": { "admin": "Admin", "roles": "Rôles" },
     "buttons": {
-      "create": "Create Role",
-      "edit": "Edit Role",
-      "edit_permissions": "Edit Permissions",
-      "delete": "Delete Role"
+      "create": "Créer un Rôle",
+      "edit": "Modifier le Rôle",
+      "edit_permissions": "Modifier les Permissions",
+      "delete": "Supprimer le Rôle"
     }
   },
   "edit": {
-    "title": "Edit Role",
-    "crumbs": {
-      "admin": "Admin",
-      "roles": "Roles",
-      "edit": "Edit Role"
-    },
-    "buttons": {
-      "submit": "Update"
-    }
+    "title": "Modifier le Rôle",
+    "crumbs": { "admin": "Admin", "roles": "Rôles", "edit": "Modifier le Rôle" },
+    "buttons": { "submit": "Mettre à Jour" }
   },
   "edit_permissions": {
-    "title": "Edit Permissions",
-    "crumbs": {
-      "admin": "Admin",
-      "roles": "Roles",
-      "edit_permissions": "Edit Permissions"
-    },
-    "buttons": {
-      "submit": "Update"
-    }
+    "title": "Modifier les Permissions",
+    "crumbs": { "admin": "Admin", "roles": "Rôles", "edit_permissions": "Modifier les Permissions" },
+    "buttons": { "submit": "Mettre à Jour" }
   }
 }

@@ -1,14 +1,14 @@
 {
   "metadata": {
-    "title": "Update Logs",
-    "description": "View product update logs, including latest features and improvements."
+    "title": "Journal des Mises à Jour",
+    "description": "Consultez le journal des mises à jour du produit, incluant les dernières fonctionnalités et améliorations."
   },
   "page": {
     "sections": {
       "updates": {
         "id": "updates",
-        "title": "Update Logs",
-        "description": "View product update logs, including latest features and improvements."
+        "title": "Journal des Mises à Jour",
+        "description": "Consultez le journal des mises à jour du produit, incluant les dernières fonctionnalités et améliorations."
       }
     }
   }

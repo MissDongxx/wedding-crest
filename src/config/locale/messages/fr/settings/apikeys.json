@@ -1,47 +1,47 @@
 {
   "fields": {
-    "title": "Title",
-    "key": "Key",
-    "created_at": "Created At",
+    "title": "Titre",
+    "key": "Clé",
+    "created_at": "Date de Création",
     "action": "Action"
   },
   "list": {
-    "title": "API Keys",
-    "empty_message": "No API Keys",
+    "title": "Clés API",
+    "empty_message": "Aucune Clé API",
     "buttons": {
-      "add": "Create API Key",
-      "edit": "Edit",
-      "delete": "Delete"
+      "add": "Créer une Clé API",
+      "edit": "Modifier",
+      "delete": "Supprimer"
     }
   },
   "add": {
-    "title": "Create API Key",
+    "title": "Créer une Clé API",
     "crumbs": {
-      "apikeys": "API Keys",
-      "add": "Create API Key"
+      "apikeys": "Clés API",
+      "add": "Créer une Clé API"
     },
     "buttons": {
-      "submit": "Create"
+      "submit": "Créer"
     }
   },
   "edit": {
-    "title": "Edit API Key",
+    "title": "Modifier la Clé API",
     "crumbs": {
-      "apikeys": "API Keys",
-      "edit": "Edit API Key"
+      "apikeys": "Clés API",
+      "edit": "Modifier la Clé API"
     },
     "buttons": {
-      "submit": "Update"
+      "submit": "Mettre à Jour"
     }
   },
   "delete": {
-    "title": "Delete API Key",
+    "title": "Supprimer la Clé API",
     "crumbs": {
-      "apikeys": "API Keys",
-      "delete": "Delete API Key"
+      "apikeys": "Clés API",
+      "delete": "Supprimer la Clé API"
     },
     "buttons": {
-      "submit": "Confirm Delete"
+      "submit": "Confirmer la Suppression"
     }
   }
 }

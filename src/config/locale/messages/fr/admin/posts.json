@@ -1,60 +1,45 @@
 {
   "fields": {
     "slug": "Slug",
-    "title": "Title",
+    "title": "Titre",
     "description": "Description",
     "image": "Image",
-    "content": "Content",
-    "categories": "Categories",
+    "content": "Contenu",
+    "categories": "Catégories",
     "tags": "Tags",
-    "author_name": "Author Name",
-    "author_role": "Author Role",
-    "author_image": "Author Image",
-    "status": "Status",
-    "created_at": "Created At",
-    "updated_at": "Updated At",
-    "deleted_at": "Deleted At"
+    "author_name": "Nom de l'Auteur",
+    "author_role": "Rôle de l'Auteur",
+    "author_image": "Image de l'Auteur",
+    "status": "Statut",
+    "created_at": "Date de Création",
+    "updated_at": "Date de Mise à Jour",
+    "deleted_at": "Date de Suppression"
   },
   "list": {
-    "title": "Posts",
-    "crumbs": {
-      "admin": "Admin",
-      "posts": "Posts"
-    },
+    "title": "Articles",
+    "crumbs": { "admin": "Admin", "posts": "Articles" },
     "buttons": {
-      "add": "Add Post",
-      "edit": "Edit Post",
-      "view": "View Post",
-      "delete": "Delete Post"
+      "add": "Ajouter un Article",
+      "edit": "Modifier l'Article",
+      "view": "Voir l'Article",
+      "delete": "Supprimer l'Article"
     },
     "tabs": {
-      "all": "All",
-      "published": "Published",
-      "pending": "Pending",
-      "draft": "Draft",
-      "archived": "Archived"
+      "all": "Tous",
+      "published": "Publiés",
+      "pending": "En Attente",
+      "draft": "Brouillon",
+      "archived": "Archivés"
     }
   },
   "add": {
-    "title": "Add Post",
-    "crumbs": {
-      "admin": "Admin",
-      "posts": "Posts",
-      "add": "Add Post"
-    },
-    "buttons": {
-      "submit": "Add Post"
-    }
+    "title": "Ajouter un Article",
+    "crumbs": { "admin": "Admin", "posts": "Articles", "add": "Ajouter" },
+    "buttons": { "submit": "Ajouter l'Article" }
   },
   "edit": {
-    "title": "Edit Post",
-    "crumbs": {
-      "admin": "Admin",
-      "posts": "Posts",
-      "edit": "Edit Post"
-    },
-    "buttons": {
-      "submit": "Edit Post"
-    }
+    "title": "Modifier l'Article",
+    "crumbs": { "admin": "Admin", "posts": "Articles", "edit": "Modifier" },
+    "buttons": { "submit": "Modifier l'Article" }
   }
 }

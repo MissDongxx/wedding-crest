@@ -1,52 +1,37 @@
 {
   "fields": {
     "slug": "Slug",
-    "title": "Title",
+    "title": "Titre",
     "description": "Description",
-    "status": "Status",
-    "created_at": "Created At",
-    "updated_at": "Updated At"
+    "status": "Statut",
+    "created_at": "Date de Création",
+    "updated_at": "Date de Mise à Jour"
   },
   "list": {
-    "title": "Categories",
-    "crumbs": {
-      "admin": "Admin",
-      "categories": "Categories"
-    },
+    "title": "Catégories",
+    "crumbs": { "admin": "Admin", "categories": "Catégories" },
     "buttons": {
-      "add": "Add Category",
-      "edit": "Edit Category",
-      "view": "View Category",
-      "delete": "Delete Category"
+      "add": "Ajouter une Catégorie",
+      "edit": "Modifier la Catégorie",
+      "view": "Voir la Catégorie",
+      "delete": "Supprimer la Catégorie"
     },
     "tabs": {
-      "all": "All",
-      "published": "Published",
-      "pending": "Pending",
-      "draft": "Draft",
-      "archived": "Archived"
+      "all": "Toutes",
+      "published": "Publiées",
+      "pending": "En Attente",
+      "draft": "Brouillon",
+      "archived": "Archivées"
     }
   },
   "add": {
-    "title": "Add Category",
-    "crumbs": {
-      "admin": "Admin",
-      "categories": "Categories",
-      "add": "Add Category"
-    },
-    "buttons": {
-      "submit": "Add Category"
-    }
+    "title": "Ajouter une Catégorie",
+    "crumbs": { "admin": "Admin", "categories": "Catégories", "add": "Ajouter" },
+    "buttons": { "submit": "Ajouter la Catégorie" }
   },
   "edit": {
-    "title": "Edit Category",
-    "crumbs": {
-      "admin": "Admin",
-      "categories": "Categories",
-      "edit": "Edit Category"
-    },
-    "buttons": {
-      "submit": "Edit Category"
-    }
+    "title": "Modifier la Catégorie",
+    "crumbs": { "admin": "Admin", "categories": "Catégories", "edit": "Modifier" },
+    "buttons": { "submit": "Modifier la Catégorie" }
   }
 }

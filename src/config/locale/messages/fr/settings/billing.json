@@ -1,59 +1,59 @@
 {
   "fields": {
-    "subscription_no": "Subscription No",
-    "interval": "Interval",
-    "provider": "Provider",
-    "current_period": "Current Period",
-    "plan": "Plan",
-    "status": "Status",
-    "amount": "Amount",
-    "created_at": "Created At",
-    "end_time": "End Time",
+    "subscription_no": "N° d'Abonnement",
+    "interval": "Intervalle",
+    "provider": "Fournisseur",
+    "current_period": "Période Actuelle",
+    "plan": "Formule",
+    "status": "Statut",
+    "amount": "Montant",
+    "created_at": "Date de Création",
+    "end_time": "Date de Fin",
     "action": "Action"
   },
   "view": {
-    "title": "Current Plan",
-    "tip": "Your subscription will auto renew on {date}",
-    "end_tip": "Your subscription will be auto canceled on {date}",
-    "no_subscription": "No plan",
+    "title": "Formule Actuelle",
+    "tip": "Votre abonnement sera renouvelé automatiquement le {date}",
+    "end_tip": "Votre abonnement sera annulé automatiquement le {date}",
+    "no_subscription": "Aucune formule",
     "buttons": {
-      "adjust": "Adjust Plan",
-      "subscribe": "Subscribe",
-      "manage": "Manage Subscription",
-      "cancel": "Cancel Subscription"
+      "adjust": "Modifier la Formule",
+      "subscribe": "S'abonner",
+      "manage": "Gérer l'Abonnement",
+      "cancel": "Résilier l'Abonnement"
     }
   },
   "list": {
-    "title": "Subscriptions History",
+    "title": "Historique des Abonnements",
     "tabs": {
-      "all": "All",
-      "active": "Active",
-      "pending_cancel": "Pending Cancel",
-      "canceled": "Canceled",
-      "trialing": "Trialing",
-      "paused": "Paused",
-      "expired": "Expired"
+      "all": "Tous",
+      "active": "Actifs",
+      "pending_cancel": "Résiliation en Attente",
+      "canceled": "Résiliés",
+      "trialing": "Période d'Essai",
+      "paused": "Suspendus",
+      "expired": "Expirés"
     }
   },
   "cancel": {
-    "title": "Cancel Subscription",
-    "description": "Are you sure you want to cancel your subscription?",
+    "title": "Résilier l'Abonnement",
+    "description": "Êtes-vous sûr de vouloir résilier votre abonnement ?",
     "fields": {
-      "subscription_no": "Subscription No",
-      "subscription_amount": "Subscription Amount",
-      "interval_cycle": "Interval Cycle",
-      "subscription_created_at": "Subscription Created At",
-      "current_period": "Current Period",
-      "start_at": "Start At",
-      "end_at": "End At"
+      "subscription_no": "N° d'Abonnement",
+      "subscription_amount": "Montant de l'Abonnement",
+      "interval_cycle": "Cycle de Facturation",
+      "subscription_created_at": "Abonnement Créé Le",
+      "current_period": "Période Actuelle",
+      "start_at": "Début",
+      "end_at": "Fin"
     },
     "crumbs": {
-      "settings": "Settings",
-      "billing": "Billing",
-      "cancel": "Cancel Subscription"
+      "settings": "Paramètres",
+      "billing": "Facturation",
+      "cancel": "Résilier l'Abonnement"
     },
     "buttons": {
-      "confirm_cancel": "Confirm Cancel"
+      "confirm_cancel": "Confirmer la Résiliation"
     }
   }
 }

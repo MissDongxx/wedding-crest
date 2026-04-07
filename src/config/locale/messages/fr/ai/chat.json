@@ -2,10 +2,10 @@
   "sidebar": {
     "header": {
       "brand": {
-        "title": "RemoveGeminiWatermark Chat",
+        "title": "Chat Supprimer le Watermark Gemini",
         "logo": {
           "src": "/logo.png",
-          "alt": "RemoveGeminiWatermark Chat"
+          "alt": "Chat Supprimer le Watermark Gemini"
         },
         "url": "/chat"
       },
@@ -13,7 +13,7 @@
     },
     "buttons": [
       {
-        "title": "New Chat",
+        "title": "Nouveau Chat",
         "icon": "Plus",
         "url": "/chat",
         "variant": "outline"
@@ -23,7 +23,7 @@
       {
         "items": [
           {
-            "title": "History",
+            "title": "Historique",
             "icon": "History",
             "url": "/chat/history"
           }
@@ -37,7 +37,7 @@
       "nav": {
         "items": [
           {
-            "title": "Profile",
+            "title": "Profil",
             "url": "/settings/profile",
             "icon": "User",
             "target": "_blank"
@@ -52,36 +52,11 @@
     "footer": {
       "nav": {
         "items": [
-          {
-            "title": "Home",
-            "url": "/",
-            "icon": "Home",
-            "target": "_blank"
-          },
-          {
-            "title": "GitHub",
-            "url": "https://github.com/your-app-name",
-            "icon": "Github",
-            "target": "_blank"
-          },
-          {
-            "title": "Twitter",
-            "url": "https://twitter.com/your-app-name",
-            "icon": "RiTwitterXFill",
-            "target": "_blank"
-          },
-          {
-            "title": "Discord",
-            "url": "https://discord.gg/your-app-name",
-            "icon": "RiDiscordFill",
-            "target": "_blank"
-          },
-          {
-            "title": "Email",
-            "url": "mailto:support@your-domain.com",
-            "icon": "Mail",
-            "target": "_blank"
-          }
+          { "title": "Accueil", "url": "/", "icon": "Home", "target": "_blank" },
+          { "title": "GitHub", "url": "https://github.com/your-app-name", "icon": "Github", "target": "_blank" },
+          { "title": "Twitter", "url": "https://twitter.com/your-app-name", "icon": "RiTwitterXFill", "target": "_blank" },
+          { "title": "Discord", "url": "https://discord.gg/your-app-name", "icon": "RiDiscordFill", "target": "_blank" },
+          { "title": "E-mail", "url": "mailto:support@your-domain.com", "icon": "Mail", "target": "_blank" }
         ]
       },
       "show_theme": true,
@@ -90,32 +65,32 @@
     "variant": "sidebar"
   },
   "library": {
-    "title": "Library",
+    "title": "Bibliothèque",
     "icon": "History",
     "url": "/chat/history",
-    "more": "More",
+    "more": "Plus",
     "actions": {
-      "edit_title": "Edit Title",
-      "share": "Share",
-      "delete": "Delete"
+      "edit_title": "Modifier le Titre",
+      "share": "Partager",
+      "delete": "Supprimer"
     }
   },
   "generator": {
-    "title": "What can I help you today?",
-    "input_placeholder": "You can ask me anything"
+    "title": "Comment puis-je vous aider aujourd'hui ?",
+    "input_placeholder": "Vous pouvez me demander n'importe quoi"
   },
   "history": {
-    "title": "Chat history",
-    "description": "Review and revisit your previous conversations.",
-    "empty": "No conversations yet.",
-    "error": "Failed to load conversations.",
-    "retry": "Try again",
-    "signin": "Sign in to view your chat history.",
-    "summary": "Showing {from}-{to} of {total}",
-    "perPage": "Per page",
-    "prev": "Previous",
-    "next": "Next",
-    "open": "Open chat",
-    "untitled": "Untitled conversation"
+    "title": "Historique des conversations",
+    "description": "Consultez et retrouvez vos conversations précédentes.",
+    "empty": "Aucune conversation pour le moment.",
+    "error": "Impossible de charger les conversations.",
+    "retry": "Réessayer",
+    "signin": "Connectez-vous pour voir votre historique de chat.",
+    "summary": "Affichage {from}-{to} sur {total}",
+    "perPage": "Par page",
+    "prev": "Précédent",
+    "next": "Suivant",
+    "open": "Ouvrir le chat",
+    "untitled": "Conversation sans titre"
   }
 }

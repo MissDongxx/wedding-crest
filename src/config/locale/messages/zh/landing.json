@@ -162,6 +162,11 @@
               "title": "对话",
               "url": "/chat",
               "target": "_blank"
+            },
+            {
+              "title": "iOS 快捷指令",
+              "url": "/shortcuts",
+              "target": "_self"
             }
           ]
         },

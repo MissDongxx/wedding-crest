@@ -1,32 +1,32 @@
 {
   "fields": {
-    "email": "Email",
-    "password": "Password",
-    "new_password": "New Password",
-    "confirm_password": "Confirm Password"
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "new_password": "Nouveau Mot de Passe",
+    "confirm_password": "Confirmer le Mot de Passe"
   },
   "reset_password": {
-    "title": "Reset Password",
-    "description": "Reset your password",
-    "tip": "We will send you an email to reset your password.",
+    "title": "Réinitialiser le Mot de Passe",
+    "description": "Réinitialisez votre mot de passe",
+    "tip": "Nous vous enverrons un e-mail pour réinitialiser votre mot de passe.",
     "crumbs": {
-      "settings": "Settings",
-      "security": "Security"
+      "settings": "Paramètres",
+      "security": "Sécurité"
     },
     "buttons": {
-      "submit": "Save"
+      "submit": "Enregistrer"
     }
   },
   "delete_account": {
-    "title": "Delete Account",
-    "description": "Delete your account",
-    "tip": "Are you sure you want to delete your account? This action cannot be undone.",
+    "title": "Supprimer le Compte",
+    "description": "Supprimer votre compte",
+    "tip": "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.",
     "crumbs": {
-      "settings": "Settings",
-      "security": "Security"
+      "settings": "Paramètres",
+      "security": "Sécurité"
     },
     "buttons": {
-      "submit": "Delete"
+      "submit": "Supprimer"
     }
   }
 }

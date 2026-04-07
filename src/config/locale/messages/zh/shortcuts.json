@@ -1,0 +1,41 @@
+{
+  "metadata": {
+    "title": "iOS 快捷指令配置指南 - RemoveGeminiWatermark",
+    "description": "了解如何创建 iOS 快捷指令，通过移动端分享菜单一键移除 Gemini 生成图片的 AI 水印。"
+  },
+  "title": "iOS 快捷指令指南",
+  "description": "通过将我们的 API 集成到 iOS 快捷指令中，您可以直接从相册分享菜单一键移除水印。无需打开浏览器，随时随地极速处理。",
+  "steps": {
+    "step1": {
+      "title": "开启共享表单设置",
+      "description": "在快捷指令 Details (详情) 页面，勾选「在共享表单中显示」(Show in Share Sheet)。",
+      "details": "将「接受类型」限制为「图像」(Images)，这样在分享文字或链接时不会出现该指令，保持菜单简洁。"
+    },
+    "step2": {
+      "title": "处理输入源逻辑",
+      "description": "添加逻辑判断，确保快捷指令既支持从分享进入，也支持直接从相册选取。",
+      "details": "使用「获取共享表单输入」作为第一步。添加 If 判断：如果 Shortcut Input 无值，则执行「选择照片」操作。"
+    },
+    "step3": {
+      "title": "配置 API 传输",
+      "description": "添加「获取 URL 内容」(Get Contents of URL) 操作，配置如下核心参数：",
+      "details": [
+        { "label": "URL", "value": "{baseUrl}/api/v1/remove-watermark" },
+        { "label": "方法 (Method)", "value": "POST" },
+        { "label": "正文 (Request Body)", "value": "Form 或 File" },
+        { "label": "键 (Key)", "value": "image" }
+      ]
+    },
+    "step4": {
+      "title": "保存与显示结果",
+      "description": "服务器处理并返回 cleaned 图片后，添加后续保存逻辑。",
+      "details": "添加操作：「保存到相册」(Save to Photo Album) 以及「显示结果」(Show Result) 以完成流程。"
+    }
+  },
+  "tips_title": "使用小贴士",
+  "tips": {
+    "tip1": "如果您是 Pro 用户，通过 iOS 快捷指令处理不计入匿名额度且无频率限制（需在 URL 中传递授权 token）。",
+    "tip2": "目前仅支持 Gemini 原版生成的图片，非 Gemini 图片可能无法检测到水印。"
+  },
+  "back_to_home": "返回首页"
+}

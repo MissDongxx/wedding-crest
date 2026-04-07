@@ -1,31 +1,15 @@
 {
-  "title": "Activity",
+  "title": "Activité",
   "nav": {
     "items": [
-      {
-        "title": "AI Tasks",
-        "url": "/activity/ai-tasks",
-        "icon": "RiTaskLine"
-      },
-      {
-        "title": "AI Chats",
-        "url": "/activity/chats",
-        "icon": "RiChat2Line"
-      }
+      { "title": "Tâches IA", "url": "/activity/ai-tasks", "icon": "RiTaskLine" },
+      { "title": "Chats IA", "url": "/activity/chats", "icon": "RiChat2Line" }
     ]
   },
   "top_nav": {
     "items": [
-      {
-        "title": "Activity",
-        "url": "/activity",
-        "icon": "Activity"
-      },
-      {
-        "title": "Settings",
-        "url": "/settings",
-        "icon": "Settings"
-      }
+      { "title": "Activité", "url": "/activity", "icon": "Activity" },
+      { "title": "Paramètres", "url": "/settings", "icon": "Settings" }
     ]
   }
 }

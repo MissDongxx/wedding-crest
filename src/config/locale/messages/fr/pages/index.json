@@ -15,32 +15,32 @@
       "tool": {
         "block": "upload-zone-block",
         "id": "tool",
-        "title": "Remove Gemini Watermark Now",
-        "label": "Free Online Tool",
-        "description": "Upload your AI-generated image and remove the Gemini watermark instantly. 100% local processing — your images never leave your device.",
+        "title": "Supprimer le Watermark Gemini Maintenant",
+        "label": "Outil en Ligne Gratuit",
+        "description": "Téléchargez votre image générée par IA et supprimez le filigrane Gemini instantanément. Traitement 100% local — vos images ne quittent jamais votre appareil.",
         "comparison_tip": "Maintenez pour voir le résultat"
       },
       "hero": {
         "id": "hero",
-        "title": "Remove AI Watermarks from Any Image",
-        "highlight_text": "Any Image",
-        "description": "Free browser-based tool to remove watermarks from Gemini, DALL-E, Midjourney and other AI-generated images.<br/>100% local processing — your images never leave your device.",
+        "title": "Supprimer les Filigranes IA de N'Importe Quelle Image",
+        "highlight_text": "N'Importe Quelle Image",
+        "description": "Outil gratuit basé sur le navigateur pour supprimer les filigranes de Gemini, DALL-E, Midjourney et d'autres images générées par IA.<br/>Traitement 100% local — vos images ne quittent jamais votre appareil.",
         "announcement": {
-          "badge": "Free",
-          "title": "✦ Remove Gemini Watermarks Instantly",
+          "badge": "Gratuit",
+          "title": "✦ Supprimer les Filigranes Gemini Instantanément",
           "url": "/tools/gemini"
         },
-        "tip": "🔒 100% private • no upload • works offline",
+        "tip": "🔒 100% privé • aucun téléchargement • fonctionne hors ligne",
         "buttons": [
           {
-            "title": "Remove Watermark Free",
+            "title": "Supprimer le Filigrane Gratuitement",
             "icon": "Sparkles",
             "url": "/tools/gemini",
             "target": "_self",
             "variant": "default"
           },
           {
-            "title": "View Pricing",
+            "title": "Voir les Tarifs",
             "icon": "DollarSign",
             "url": "/#pricing",
             "target": "_self",
@@ -53,25 +53,25 @@
       "introduce": {
         "block": "features-step",
         "id": "introduce",
-        "title": "How It Works",
-        "label": "3 Simple Steps",
-        "description": "Remove AI watermarks in seconds — no signup, no software download.",
+        "title": "Comment Ça Marche",
+        "label": "3 Étapes Simples",
+        "description": "Supprimez les filigranes IA en quelques secondes — sans inscription, sans téléchargement de logiciel.",
         "image_position": "left",
         "text_align": "center",
         "items": [
           {
-            "title": "Upload Your Image",
-            "description": "Drag & drop or click to upload your AI-generated image. Supports PNG, JPG, and WebP up to 20MB.",
+            "title": "Téléchargez Votre Image",
+            "description": "Glissez-déposez ou cliquez pour télécharger votre image générée par IA. Supporte PNG, JPG et WebP jusqu'à 20 Mo.",
             "icon": "RiUploadCloud2Line"
           },
           {
-            "title": "Auto-Remove Watermark",
-            "description": "Our algorithm detects and removes the watermark using reverse alpha blending — 100% in your browser.",
+            "title": "Suppression Automatique du Filigrane",
+            "description": "Notre algorithme détecte et supprime le filigrane par fusion alpha inverse — 100% dans votre navigateur.",
             "icon": "RiMagicLine"
           },
           {
-            "title": "Download Clean Image",
-            "description": "Get your clean image instantly in PNG format. Original quality preserved with zero artifacts.",
+            "title": "Téléchargez l'Image Propre",
+            "description": "Obtenez votre image propre instantanément au format PNG. Qualité originale préservée sans artefacts.",
             "icon": "RiDownloadLine"
           }
         ],
@@ -80,128 +80,128 @@
       "benefits": {
         "block": "features-accordion",
         "id": "benefits",
-        "title": "Why Choose RemoveGeminiWatermark",
-        "label": "Benefits",
-        "description": "The most private and highest-quality AI watermark removal tool available.",
+        "title": "Pourquoi Choisir Supprimer le Watermark Gemini",
+        "label": "Avantages",
+        "description": "L'outil de suppression de filigranes IA le plus privé et de la plus haute qualité disponible.",
         "items": [
           {
-            "title": "100% Private — No Upload Required",
-            "description": "Unlike other tools, your images are processed entirely in your browser. No data is sent to any server, ever. Your creative work stays private.",
+            "title": "100% Privé — Aucun Téléchargement Requis",
+            "description": "Contrairement aux autres outils, vos images sont traitées entièrement dans votre navigateur. Aucune donnée n'est envoyée à un serveur. Votre travail créatif reste privé.",
             "icon": "RiShieldCheckLine"
           },
           {
-            "title": "Zero Quality Loss",
-            "description": "Our reverse alpha blending algorithm mathematically recovers the original pixels under the watermark. No blurring, no artifacts, no quality degradation.",
+            "title": "Zéro Perte de Qualité",
+            "description": "Notre algorithme de fusion alpha inverse récupère mathématiquement les pixels originaux sous le filigrane. Pas de flou, pas d'artefacts, aucune dégradation.",
             "icon": "RiImageEditLine"
           },
           {
-            "title": "Lightning Fast Processing",
-            "description": "Process images in under 500ms using the Canvas API. No waiting for server responses or processing queues.",
+            "title": "Traitement Ultra Rapide",
+            "description": "Traitez des images en moins de 500 ms avec l'API Canvas. Pas d'attente de réponses serveur ou de files de traitement.",
             "icon": "RiFlashlightLine"
           }
         ]
       },
       "features": {
         "id": "features",
-        "title": "Powerful Features",
-        "description": "Everything you need to clean AI-generated images.",
+        "title": "Fonctionnalités Puissantes",
+        "description": "Tout ce dont vous avez besoin pour nettoyer les images générées par IA.",
         "items": [
           {
-            "title": "Multi-Platform Support",
-            "description": "Remove watermarks from Gemini, DALL-E, Midjourney, Stable Diffusion, and Adobe Firefly.",
+            "title": "Support Multi-Plateforme",
+            "description": "Supprimez les filigranes de Gemini, DALL-E, Midjourney, Stable Diffusion et Adobe Firefly.",
             "icon": "RiRobot2Line"
           },
           {
-            "title": "Double-Layer Cleaning",
-            "description": "Remove both visible watermarks (logos, stars) and invisible metadata (C2PA, EXIF AI tags).",
+            "title": "Nettoyage Double Couche",
+            "description": "Supprimez à la fois les filigranes visibles (logos, étoiles) et les métadonnées invisibles (balises C2PA, EXIF IA).",
             "icon": "RiStackLine"
           },
           {
-            "title": "Browser-Based Processing",
-            "description": "All processing happens locally in your browser using the Canvas API. Works offline too.",
+            "title": "Traitement dans le Navigateur",
+            "description": "Tout le traitement se fait localement dans votre navigateur avec l'API Canvas. Fonctionne aussi hors ligne.",
             "icon": "RiGlobalLine"
           },
           {
-            "title": "Batch Processing",
-            "description": "Pro users can process up to 100 images at once with drag & drop batch upload.",
+            "title": "Traitement par Lot",
+            "description": "Les utilisateurs Pro peuvent traiter jusqu'à 100 images à la fois par glisser-déposer.",
             "icon": "RiFileCopyLine"
           },
           {
-            "title": "Instant Download",
-            "description": "Download your clean images immediately in high-quality PNG format. No waiting, no email required.",
+            "title": "Téléchargement Instantané",
+            "description": "Téléchargez vos images propres immédiatement en PNG haute qualité. Pas d'attente, pas d'e-mail requis.",
             "icon": "RiDownloadLine"
           },
           {
-            "title": "Free Forever Plan",
-            "description": "Process 5 images per day completely free. No signup, no credit card, no strings attached.",
+            "title": "Plan Gratuit Pour Toujours",
+            "description": "Traitez 5 images par jour complètement gratuitement. Sans inscription, sans carte bancaire, sans engagement.",
             "icon": "RiGiftLine"
           }
         ]
       },
       "stats": {
         "id": "stats",
-        "title": "Trusted by Creators Worldwide",
-        "description": "Join thousands of creators who use RemoveGeminiWatermark every day.",
+        "title": "La Confiance des Créateurs du Monde Entier",
+        "description": "Rejoignez des milliers de créateurs qui utilisent Supprimer le Watermark Gemini chaque jour.",
         "items": [
           {
-            "title": "50,000+",
-            "description": "Images Cleaned"
+            "title": "50 000+",
+            "description": "Images Nettoyées"
           },
           {
             "title": "5+",
-            "description": "AI Platforms"
+            "description": "Plateformes IA"
           },
           {
             "title": "100%",
-            "description": "Local Processing"
+            "description": "Traitement Local"
           }
         ],
         "className": "bg-muted"
       },
       "faq": {
         "id": "faq",
-        "title": "Frequently Asked Questions",
-        "description": "Everything you need to know about removing AI watermarks.",
+        "title": "Questions Fréquentes",
+        "description": "Tout ce que vous devez savoir sur la suppression des filigranes IA.",
         "items": [
           {
-            "question": "Is it legal to remove AI watermarks?",
-            "answer": "Removing watermarks for personal use is generally legal in most jurisdictions. However, we recommend checking the terms of service of the specific AI platform and your local laws. Our tool is designed for legitimate use cases such as personal projects and portfolio work."
+            "question": "Est-il légal de supprimer les filigranes IA ?",
+            "answer": "La suppression des filigranes pour un usage personnel est généralement légale dans la plupart des juridictions. Cependant, nous vous recommandons de vérifier les conditions d'utilisation de la plateforme IA spécifique et vos lois locales. Notre outil est conçu pour des cas d'usage légitimes tels que les projets personnels et le travail de portfolio."
           },
           {
-            "question": "Does this tool upload my images to a server?",
-            "answer": "No. All image processing happens 100% locally in your web browser using the Canvas API. Your image data never leaves your device. We don't store, transmit, or have access to any of your images."
+            "question": "Cet outil télécharge-t-il mes images sur un serveur ?",
+            "answer": "Non. Tout le traitement des images se fait à 100% localement dans votre navigateur web avec l'API Canvas. Les données de vos images ne quittent jamais votre appareil. Nous ne stockons, ne transmettons ni n'avons accès à aucune de vos images."
           },
           {
-            "question": "Which AI watermarks can be removed?",
-            "answer": "Currently, we support removing visible watermarks from Google Gemini (the ✦ star logo). Support for DALL-E, Midjourney, Stable Diffusion, and Adobe Firefly watermarks is coming in upcoming updates."
+            "question": "Quels filigranes IA peuvent être supprimés ?",
+            "answer": "Actuellement, nous supportons la suppression des filigranes visibles de Google Gemini (le logo étoile ✦). Le support pour les filigranes DALL-E, Midjourney, Stable Diffusion et Adobe Firefly sera disponible dans les prochaines mises à jour."
           },
           {
-            "question": "Will removing the watermark affect image quality?",
-            "answer": "Our reverse alpha blending algorithm mathematically recovers the original pixel values, resulting in virtually zero quality loss in the watermark region. The rest of the image remains completely untouched."
+            "question": "La suppression du filigrane affectera-t-elle la qualité de l'image ?",
+            "answer": "Notre algorithme de fusion alpha inverse récupère mathématiquement les valeurs de pixels originales, entraînant une perte de qualité pratiquement nulle dans la zone du filigrane. Le reste de l'image reste complètement intact."
           },
           {
-            "question": "How many images can I process for free?",
-            "answer": "You can process up to 5 images per day completely free. No signup or credit card required. For unlimited processing, our Pro plan starts at just $9/month."
+            "question": "Combien d'images puis-je traiter gratuitement ?",
+            "answer": "Vous pouvez traiter jusqu'à 5 images par jour complètement gratuitement. Sans inscription ni carte bancaire requise. Pour un traitement illimité, notre plan Pro commence à seulement 9 $/mois."
           },
           {
-            "question": "Does it work on mobile devices?",
-            "answer": "Yes! Our tool works in any modern web browser, including mobile browsers on iOS and Android. The processing is lightweight enough to run smoothly on most smartphones."
+            "question": "Fonctionne-t-il sur les appareils mobiles ?",
+            "answer": "Oui ! Notre outil fonctionne dans tout navigateur web moderne, y compris les navigateurs mobiles sur iOS et Android. Le traitement est suffisamment léger pour fonctionner fluidement sur la plupart des smartphones."
           }
         ]
       },
       "cta": {
         "id": "cta",
-        "title": "Start Removing AI Watermarks — It's Free",
-        "description": "No signup required. Process up to 5 images daily for free.",
+        "title": "Commencez à Supprimer les Filigranes IA — C'est Gratuit",
+        "description": "Aucune inscription requise. Traitez jusqu'à 5 images par jour gratuitement.",
         "buttons": [
           {
-            "title": "Remove Watermark Now",
+            "title": "Supprimer le Filigrane Maintenant",
             "url": "#tool",
             "target": "_self",
             "icon": "Sparkles"
           },
           {
-            "title": "View Pricing",
+            "title": "Voir les Tarifs",
             "url": "/#pricing",
             "target": "_self",
             "variant": "outline",
