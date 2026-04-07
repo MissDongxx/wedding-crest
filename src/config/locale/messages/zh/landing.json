@@ -5,7 +5,7 @@
       "title": "Remove Gemini Watermark",
       "logo": {
         "src": "/logo.png",
-        "alt": "RemoveGeminiWatermark",
+        "alt": "RemoveGeminiWatermark - 免费 Gemini 水印移除工具",
         "width": 100,
         "height": 100
       },
@@ -19,69 +19,14 @@
           "icon": "Sparkles"
         },
         {
-          "title": "案例展示",
-          "url": "/showcases",
-          "icon": "Box"
-        },
-        {
           "title": "价格",
           "url": "/#pricing",
           "icon": "DollarSign"
         },
         {
-          "title": "AI",
-          "icon": "RiRobot2Line",
-          "children": [
-            {
-              "title": "AI 图片生成器",
-              "description": "使用 AI 生成图片",
-              "url": "/ai-image-generator",
-              "icon": "RiImage2Line"
-            },
-            {
-              "title": "AI 音乐生成器",
-              "description": "使用 AI 生成美妙的音乐",
-              "url": "/ai-music-generator",
-              "icon": "RiMusic2Line"
-            },
-            {
-              "title": "AI 视频生成器",
-              "description": "使用 AI 生成视频",
-              "url": "/ai-video-generator",
-              "icon": "RiVideoLine"
-            },
-            {
-              "title": "AI 聊天机器人",
-              "description": "与 AI 聊天机器人对话",
-              "url": "/chat",
-              "icon": "RiMessage2Line"
-            }
-          ]
-        },
-        {
-          "title": "内容",
-          "icon": "FileText",
-          "children": [
-            {
-              "title": "博客",
-              "description": "阅读博客文章",
-              "url": "/blog",
-              "icon": "Newspaper"
-            },
-            {
-              "title": "更新日志",
-              "description": "阅读更新日志",
-              "url": "/updates",
-              "icon": "Clock"
-            },
-            {
-              "title": "文档",
-              "description": "阅读文档",
-              "url": "/docs",
-              "target": "_blank",
-              "icon": "BookOpenText"
-            }
-          ]
+          "title": "博客",
+          "url": "/blog",
+          "icon": "Newspaper"
         }
       ]
     },
@@ -95,73 +40,55 @@
           "title": "账单",
           "url": "/settings/billing",
           "icon": "CreditCard"
-        },
-        {
-          "title": "活动",
-          "url": "/activity",
-          "icon": "Activity"
         }
       ]
     },
     "show_sign": true,
     "show_theme": true,
-    "show_locale": true,
-    "topbanner": {
-      "text": "此网站是 RemoveGeminiWatermark 模板的演示站点，购买 RemoveGeminiWatermark 模板，请访问 <a href='https://remove-gemini-watermark.ai/zh/pricing' class='text-orange-300' target='_blank'>RemoveGeminiWatermark 官网</a>"
-    }
+    "show_locale": true
   },
   "footer": {
     "id": "footer",
     "brand": {
       "title": "Remove Gemini Watermark",
-      "description": "RemoveGeminiWatermark 是专为 AI SaaS 创业项目打造的 NextJS 模板。丰富模板与组件，极速交付你的产品。",
+      "description": "免费浏览器工具，移除 Gemini、DALL-E、Midjourney 等 AI 生成图片的水印。100% 本地处理。",
       "logo": {
         "src": "/logo.png",
-        "alt": "RemoveGeminiWatermark Two",
-        "width": 100,
-        "height": 100
+        "alt": "RemoveGeminiWatermark - 免费 Gemini 水印移除工具",
+        "width": 1024,
+        "height": 1024
       },
       "url": "/"
     },
     "nav": {
       "items": [
         {
-          "title": "关于我们",
+          "title": "工具",
           "children": [
             {
-              "title": "功能亮点",
+              "title": "Gemini 水印移除",
+              "url": "/tools/gemini",
+              "target": "_self"
+            },
+            {
+              "title": "全部功能",
               "url": "/#features",
-              "target": "_self"
-            },
-            {
-              "title": "案例展示",
-              "url": "/showcases",
-              "target": "_self"
-            },
-            {
-              "title": "价格",
-              "url": "/#pricing",
               "target": "_self"
             }
           ]
         },
         {
-          "title": "资源",
+          "title": "产品",
           "children": [
             {
-              "title": "文档",
-              "url": "/docs",
+              "title": "价格",
+              "url": "/#pricing",
               "target": "_self"
             },
             {
               "title": "博客",
               "url": "/blog",
               "target": "_self"
-            },
-            {
-              "title": "对话",
-              "url": "/chat",
-              "target": "_blank"
             },
             {
               "title": "iOS 快捷指令",
@@ -171,22 +98,17 @@
           ]
         },
         {
-          "title": "合作伙伴",
+          "title": "法律",
           "children": [
             {
-              "title": "Remove Gemini Watermark",
-              "url": "https://remove-gemini-watermark.ai",
-              "target": "_blank"
+              "title": "隐私政策",
+              "url": "/privacy-policy",
+              "target": "_self"
             },
             {
-              "title": "ThinkAny",
-              "url": "https://thinkany.ai",
-              "target": "_blank"
-            },
-            {
-              "title": "MCP.so",
-              "url": "https://mcp.so",
-              "target": "_blank"
+              "title": "服务条款",
+              "url": "/terms-of-service",
+              "target": "_self"
             }
           ]
         }
@@ -197,25 +119,13 @@
         {
           "title": "X",
           "icon": "RiTwitterXFill",
-          "url": "https://x.com/your-app-name",
-          "target": "_blank"
-        },
-        {
-          "title": "Github",
-          "icon": "Github",
-          "url": "https://github.com/your-app-name",
-          "target": "_blank"
-        },
-        {
-          "title": "Discord",
-          "icon": "RiDiscordFill",
-          "url": "https://discord.gg/your-app-name",
+          "url": "https://x.com/RemoveGeminiWM",
           "target": "_blank"
         },
         {
           "title": "邮箱",
           "icon": "Mail",
-          "url": "mailto:support@your-domain.com",
+          "url": "mailto:support@removegeminiwatermark.org",
           "target": "_self"
         }
       ]

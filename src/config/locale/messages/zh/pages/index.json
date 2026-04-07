@@ -4,14 +4,11 @@
       "tool",
       "comparison",
       "hero",
-      "logos",
       "introduce",
       "benefits",
-      "usage",
       "features",
       "pricing",
       "stats",
-      "testimonials",
       "faq",
       "cta"
     ],
@@ -26,28 +23,28 @@
       },
       "hero": {
         "id": "hero",
-        "title": "一小时快速上线你的 AI 创业项目",
-        "highlight_text": "一小时",
-        "description": "RemoveGeminiWatermark 是用于构建 AI SaaS 创业项目的 NextJS 项目模板。<br/>集成常用功能，快速上线你的产品。",
+        "title": "移除任意图片的 AI 水印",
+        "highlight_text": "任意图片",
+        "description": "免费浏览器工具，移除 Gemini、DALL-E、Midjourney 等 AI 生成图片的水印。<br/>100% 本地处理 — 你的图片不会离开你的设备。",
         "announcement": {
-          "badge": "全新",
-          "title": "🎉 RemoveGeminiWatermark 模板二已发布",
-          "url": "/#pricing"
+          "badge": "免费",
+          "title": "✦ 即时移除 Gemini 水印",
+          "url": "/tools/gemini"
         },
-        "tip": "🎁 前 1000 名用户特价优惠",
+        "tip": "🔒 100% 隐私安全 • 无需上传 • 离线可用",
         "buttons": [
           {
-            "title": "立即开始",
-            "icon": "Zap",
-            "url": "/#pricing",
+            "title": "免费移除水印",
+            "icon": "Sparkles",
+            "url": "/tools/gemini",
             "target": "_self",
             "variant": "default"
           },
           {
-            "title": "阅读文档",
-            "icon": "BookOpenText",
-            "url": "/docs",
-            "target": "_blank",
+            "title": "查看价格",
+            "icon": "DollarSign",
+            "url": "/#pricing",
+            "target": "_self",
             "variant": "outline"
           }
         ],
@@ -59,101 +56,40 @@
         "id": "comparison",
         "title": "专业级处理效果",
         "label": "效果对比",
-        "description": "查看我们的浏览器处理工具如何在保持画质的前提下移除 AI 水印。",
+        "description": "查看我们的浏览器处理工具如何在零画质损耗的前提下移除 AI 水印。",
         "before_after": {
           "before_image": "/images/examples/castle-before.jpg",
           "after_image": "/images/examples/castle-after.jpg",
-          "before_label": "Before",
-          "after_label": "After",
+          "before_label": "处理前",
+          "after_label": "处理后",
+          "before_alt": "带有 Gemini 水印的 AI 生成图片",
+          "after_alt": "移除 Gemini 水印后零画质损耗的图片",
           "layout": "side-by-side"
         }
       },
-      "logos": {
-        "title": "RemoveGeminiWatermark 使用以下技术栈构建",
-        "items": [
-          {
-            "title": "Next.js",
-            "image": {
-              "src": "/imgs/logos/nextjs.svg",
-              "alt": "Next.js"
-            }
-          },
-          {
-            "title": "React",
-            "image": {
-              "src": "/imgs/logos/react.svg",
-              "alt": "React"
-            }
-          },
-          {
-            "title": "TailwindCSS",
-            "image": {
-              "src": "/imgs/logos/tailwindcss.svg",
-              "alt": "TailwindCSS"
-            }
-          },
-          {
-            "title": "Shadcn/UI",
-            "image": {
-              "src": "/imgs/logos/shadcn.svg",
-              "alt": "Shadcn/UI"
-            }
-          },
-          {
-            "title": "Vercel",
-            "image": {
-              "src": "/imgs/logos/vercel.svg",
-              "alt": "Vercel"
-            }
-          }
-        ]
-      },
       "introduce": {
-        "block": "features-list",
+        "block": "features-step",
         "id": "introduce",
-        "title": "RemoveGeminiWatermark 是什么？",
-        "label": "产品简介",
-        "description": "RemoveGeminiWatermark 是专为 AI SaaS 创业项目打造的 NextJS 脚手架，包括丰富模板、组件及文档。",
-        "image": {
-          "src": "/imgs/features/landing-page.png",
-          "alt": "introduce"
-        },
+        "title": "使用方法",
+        "label": "三步搞定",
+        "description": "几秒内移除 AI 水印 — 无需注册，无需下载软件。",
+        "image_position": "left",
+        "text_align": "center",
         "items": [
           {
-            "title": "开箱即用的模板",
-            "description": "从数十款生产级 AI SaaS 模板中选择，快速开启你的项目。",
-            "icon": "RiNextjsFill",
-            "image": {
-              "src": "/imgs/features/1.png",
-              "alt": "introduce"
-            }
+            "title": "上传图片",
+            "description": "拖拽或点击上传 AI 生成的图片。支持 PNG、JPG 和 WebP 格式，最大 20MB。",
+            "icon": "RiUploadCloud2Line"
           },
           {
-            "title": "基础设施搭建",
-            "description": "内置最佳实践，即刻拥有可扩展的基础设施。",
-            "icon": "RiDatabase2Line",
-            "image": {
-              "src": "/imgs/features/2.png",
-              "alt": "introduce"
-            }
+            "title": "自动移除水印",
+            "description": "我们的算法通过反向 Alpha 混合检测并移除水印 — 100% 在浏览器中完成。",
+            "icon": "RiMagicLine"
           },
           {
-            "title": "极速部署",
-            "description": "AI SaaS 产品快速上线，助力小时级交付。",
-            "icon": "RiCloudyFill",
-            "image": {
-              "src": "/imgs/features/3.png",
-              "alt": "introduce"
-            }
-          },
-          {
-            "title": "AI 集成",
-            "description": "通过内置的 AI SDK，轻松为你的项目集成 AI 能力。",
-            "icon": "RiRobot2Line",
-            "image": {
-              "src": "/imgs/features/4.png",
-              "alt": "introduce"
-            }
+            "title": "下载干净图片",
+            "description": "立即获取 PNG 格式的干净图片。原始画质完整保留，零伪影。",
+            "icon": "RiDownloadLine"
           }
         ],
         "className": "bg-muted"
@@ -161,21 +97,21 @@
       "benefits": {
         "block": "features-accordion",
         "id": "benefits",
-        "title": "为何选择 RemoveGeminiWatermark",
+        "title": "为何选择 RemoveGeminiWatermark 移除 Gemini 水印",
         "label": "产品优势",
-        "description": "你获得一切 AI 创业所需——从开箱即用的模板到专业技术支持。",
+        "description": "最安全、最高质量的 AI 水印移除工具。",
         "items": [
           {
             "title": "100% 隐私安全 — 无需上传",
-            "description": "不同于其他工具，您的图片完全在浏览器中处理。数据绝不会发送到服务器。您的创作始终私密。",
+            "description": "与其他工具不同，您的图片完全在浏览器中处理。数据绝不会发送到任何服务器。您的创作始终私密。",
             "icon": "RiShieldCheckLine",
             "before_after": {
               "before_image": "/images/examples/woman-after.jpg",
               "after_image": "/images/examples/woman-before.jpg",
-              "before_label": "Clean",
-              "after_label": "Watermarked",
-              "before_alt": "Clean AI image with watermark removed",
-              "after_alt": "Original AI image with Gemini watermark"
+              "before_label": "已清理",
+              "after_label": "含水印",
+              "before_alt": "移除水印后的干净 AI 图片",
+              "after_alt": "带有 Gemini 水印的原始 AI 图片"
             }
           },
           {
@@ -185,10 +121,10 @@
             "before_after": {
               "before_image": "/images/examples/dog-before.jpg",
               "after_image": "/images/examples/dog-after.jpg",
-              "before_label": "Watermarked",
-              "after_label": "Clean",
-              "before_alt": "Original AI image of a dog with Gemini watermark",
-              "after_alt": "Processed image with watermark removed with zero quality loss"
+              "before_label": "含水印",
+              "after_label": "已清理",
+              "before_alt": "带有 Gemini 水印的 AI 狗狗图片",
+              "after_alt": "移除水印后零画质损耗的图片"
             }
           },
           {
@@ -198,244 +134,121 @@
             "before_after": {
               "before_image": "/images/examples/skater-before.jpg",
               "after_image": "/images/examples/skater-after.jpg",
-              "before_label": "Watermarked",
-              "after_label": "Clean",
-              "before_alt": "Original AI image of a skater with Gemini watermark",
-              "after_alt": "Processed image with watermark removed with zero quality loss"
+              "before_label": "含水印",
+              "after_label": "已清理",
+              "before_alt": "带有 Gemini 水印的 AI 滑板者图片",
+              "after_alt": "移除水印后零画质损耗的图片"
             }
           }
         ]
       },
-      "usage": {
-        "block": "features-step",
-        "id": "usage",
-        "title": "三步使用 RemoveGeminiWatermark 极速上线",
-        "description": "只需三步，快速开启你的 AI SaaS 创业之路：",
-        "image": {
-          "src": "/imgs/features/1.png",
-          "alt": "usage"
-        },
-        "image_position": "left",
-        "text_align": "center",
-        "items": [
-          {
-            "title": "获取 RemoveGeminiWatermark",
-            "description": "一次性购买 RemoveGeminiWatermark，查收邮件获取代码与文档。",
-            "image": {
-              "src": "/imgs/features/5.png",
-              "alt": "usage"
-            }
-          },
-          {
-            "title": "启动你的项目",
-            "description": "阅读说明文档，克隆 RemoveGeminiWatermark 代码，开始开发你的 AI SaaS 项目。",
-            "image": {
-              "src": "/imgs/features/6.png",
-              "alt": "usage"
-            }
-          },
-          {
-            "title": "个性化定制",
-            "description": "根据需求修改模板内容和数据，配置专属 AI 能力。",
-            "image": {
-              "src": "/imgs/features/7.png",
-              "alt": "usage"
-            }
-          },
-          {
-            "title": "部署上线",
-            "description": "简单几步将你的项目推向生产环境，立刻为客户提供服务。",
-            "image": {
-              "src": "/imgs/features/8.png",
-              "alt": "usage"
-            }
-          }
-        ],
-        "className": "bg-muted"
-      },
       "features": {
         "id": "features",
-        "title": "RemoveGeminiWatermark 核心功能",
-        "description": "一切你需要的工具，助力 AI SaaS 项目高效上线。",
+        "title": "移除 Gemini 水印的强大功能",
+        "description": "清理 AI 生成图片所需的一切工具。",
         "items": [
           {
-            "title": "Next.js 项目模板",
-            "description": "生产就绪、支持 SEO 与多语言的 Next.js 脚手架。",
-            "icon": "RiNextjsFill"
-          },
-          {
-            "title": "身份认证与支付",
-            "description": "集成谷歌 OAuth、一键登录，以及 Stripe 支付。",
-            "icon": "RiKey2Fill"
-          },
-          {
-            "title": "数据基础设施",
-            "description": "内置 Supabase，稳定可靠的数据存储。",
-            "icon": "RiDatabase2Line"
-          },
-          {
-            "title": "一键部署",
-            "description": "自动化部署到 Vercel 或 Cloudflare，极速上线。",
-            "icon": "RiCloudy2Fill"
-          },
-          {
-            "title": "商业分析",
-            "description": "集成 Google Analytics、Search Console，助力业务增长。",
-            "icon": "RiBarChart2Line"
-          },
-          {
-            "title": "AI 原生基础设施",
-            "description": "预置 AI 集成、积分系统和 API 售卖能力。",
+            "title": "多平台支持",
+            "description": "移除 Gemini、DALL-E、Midjourney、Stable Diffusion 和 Adobe Firefly 的水印。",
             "icon": "RiRobot2Line"
+          },
+          {
+            "title": "双层清理",
+            "description": "同时移除可见水印（Logo、星标）和不可见元数据（C2PA、EXIF AI 标签）。",
+            "icon": "RiStackLine"
+          },
+          {
+            "title": "浏览器端处理",
+            "description": "所有处理均在浏览器中通过 Canvas API 本地完成，支持离线使用。",
+            "icon": "RiGlobalLine"
+          },
+          {
+            "title": "批量处理",
+            "description": "专业版用户支持拖拽批量上传，一次最多处理 100 张图片。",
+            "icon": "RiFileCopyLine"
+          },
+          {
+            "title": "即时下载",
+            "description": "立即下载高质量的 PNG 格式干净图片，无需等待，无需邮箱。",
+            "icon": "RiDownloadLine"
+          },
+          {
+            "title": "永久免费方案",
+            "description": "每天免费处理 5 张图片，无需注册、无需信用卡、没有任何附加条件。",
+            "icon": "RiGiftLine"
           }
         ]
       },
       "stats": {
         "id": "stats",
-        "title": "用户喜爱 RemoveGeminiWatermark",
-        "description": "因其易用且上线飞快。",
+        "title": "全球创作者信赖之选",
+        "description": "加入每天使用 RemoveGeminiWatermark 的数千名创作者。",
         "items": [
           {
-            "title": "999+",
-            "description": "位用户"
+            "title": "50,000+",
+            "description": "已处理图片"
           },
           {
-            "title": "200+",
-            "description": "组件块"
+            "title": "5+",
+            "description": "AI 平台支持"
           },
           {
-            "title": "50+",
-            "description": "专业模板"
+            "title": "100%",
+            "description": "本地处理"
           }
         ],
         "className": "bg-muted"
       },
-      "testimonials": {
-        "id": "testimonials",
-        "title": "用户对 RemoveGeminiWatermark 的评价",
-        "description": "听听开发者与创始人用 RemoveGeminiWatermark 快速上线 AI 创业项目的故事。",
-        "items": [
-          {
-            "name": "David Chen",
-            "role": "AIWallpaper.shop 创始人",
-            "quote": "RemoveGeminiWatermark 为我们节省了数月开发时间。2 天上线 AI 壁纸业务，一周内就收到了第一笔付费订单！",
-            "image": {
-              "src": "/imgs/avatars/1.png",
-              "alt": "david"
-            }
-          },
-          {
-            "name": "Rachel Kim",
-            "role": "HeyBeauty.ai CTO",
-            "quote": "内置 AI 基础设施颠覆了开发体验，无需担心架构，只需专注核心功能，极快落地。",
-            "image": {
-              "src": "/imgs/avatars/2.png",
-              "alt": "rachel"
-            }
-          },
-          {
-            "name": "Marcus Thompson",
-            "role": "独立开发者",
-            "quote": "作为独立开发者，RemoveGeminiWatermark 满足了全部需求——认证、支付、AI 集成、美观界面，一个周末上线 SaaS！",
-            "image": {
-              "src": "/imgs/avatars/3.png",
-              "alt": "marcus"
-            }
-          },
-          {
-            "name": "Sofia Garcia",
-            "role": "Melodisco CEO",
-            "quote": "模板高度可定制且生产级。我们几小时内搭建出了 AI 音乐平台，上市周期大大缩短！",
-            "image": {
-              "src": "/imgs/avatars/4.png",
-              "alt": "sofia"
-            }
-          },
-          {
-            "name": "James Wilson",
-            "role": "GPTs.works 技术负责人",
-            "quote": "RemoveGeminiWatermark 基础设施极其稳定。我们从 0 到 1 万用户，无需关心后端维护，是最棒的 AI 创业投资。",
-            "image": {
-              "src": "/imgs/avatars/5.png",
-              "alt": "james"
-            }
-          },
-          {
-            "name": "Anna Zhang",
-            "role": "创业者",
-            "quote": "从想法到上线，仅用 3 天！RemoveGeminiWatermark 模板和部署工具让我们极快验证 AI 商业创意。",
-            "image": {
-              "src": "/imgs/avatars/6.png",
-              "alt": "anna"
-            }
-          }
-        ]
-      },
       "faq": {
         "id": "faq",
-        "title": "关于 RemoveGeminiWatermark 的常见问题",
-        "description": "还有其他问题？欢迎加入 Discord 或发邮件联系我们。",
+        "title": "常见问题",
+        "description": "关于移除 AI 水印你需要了解的一切。",
         "items": [
           {
-            "question": "RemoveGeminiWatermark 是什么？怎么帮到我？",
-            "answer": "RemoveGeminiWatermark 是专为 AI SaaS 创业设计的 NextJS 全套脚手架，内含开箱即用的模板、基础设施搭建和部署工具，让你数小时内上线 AI 产品。"
+            "question": "移除 AI 水印是否合法？",
+            "answer": "在大多数司法管辖区，出于个人使用目的移除水印通常是合法的。但我们建议您查看特定 AI 平台的服务条款以及当地法律。本工具旨在服务于个人项目和作品集等合法用途。"
           },
           {
-            "question": "使用 RemoveGeminiWatermark 需要很高的技术水平吗？",
-            "answer": "有基础编程知识即可上手。RemoveGeminiWatermark 面向开发者友好，详细文档和模板让初学者也能轻松起步，不需深厚 AI 或云计算背景。"
+            "question": "这个工具会将我的图片上传到服务器吗？",
+            "answer": "不会。所有图片处理完全在您的浏览器中通过 Canvas API 进行。您的图片数据绝不会离开您的设备。我们不存储、传输或访问您的任何图片。"
           },
           {
-            "question": "RemoveGeminiWatermark 支持哪些类型的 AI SaaS 项目？",
-            "answer": "RemoveGeminiWatermark 支持内容生成、数据分析、AI 聊天机器人、图片/内容生成器等多种主流 AI 应用场景。"
+            "question": "支持哪些 AI 水印？",
+            "answer": "目前支持移除 Google Gemini 的可见水印（✦ 星标 Logo）。对 DALL-E、Midjourney、Stable Diffusion 和 Adobe Firefly 水印的支持将在后续更新中推出。"
           },
           {
-            "question": "用 RemoveGeminiWatermark 一般多久能上线？",
-            "answer": "借助 RemoveGeminiWatermark，可在数小时内拿到产品原型并上线生产环境，预配置的一键部署大幅缩短开发周期。"
+            "question": "移除水印会影响图片质量吗？",
+            "answer": "我们的反向 Alpha 混合算法从数学上恢复原始像素值，在水印区域实现几乎零画质损耗。图片的其余部分完全不受影响。"
           },
           {
-            "question": "RemoveGeminiWatermark 的基础设施包括哪些内容？",
-            "answer": "包含认证、数据库、API 集成、支付、云端部署等全栈解决方案，全部遵循业界最佳实践预配置。"
+            "question": "每天可以免费处理多少张图片？",
+            "answer": "每天可以免费处理最多 5 张图片，无需注册或信用卡。如需无限处理，专业版方案仅需 $9/月。"
           },
           {
-            "question": "模板是否支持定制自己的品牌？",
-            "answer": "当然支持！所有模板均可自定义设计、功能和品牌，既保持基础架构稳定，又能满足个性扩展需求。"
+            "question": "支持移动设备吗？",
+            "answer": "支持！本工具可在任何现代浏览器中运行，包括 iOS 和 Android 的移动浏览器。处理过程足够轻量，在大多数智能手机上都能流畅运行。"
           }
         ]
       },
       "cta": {
         "id": "cta",
-        "title": "发布你的第一个 AI SaaS 项目",
-        "description": "从这里出发，用 RemoveGeminiWatermark 极速交付。",
+        "title": "立即开始移除 AI 水印 — 完全免费",
+        "description": "无需注册。每天免费处理最多 5 张图片。",
         "buttons": [
           {
-            "title": "获取 RemoveGeminiWatermark",
-            "url": "https://remove-gemini-watermark.ai",
-            "target": "_blank",
-            "icon": "Zap"
+            "title": "立即移除水印",
+            "url": "#tool",
+            "target": "_self",
+            "icon": "Sparkles"
           },
           {
-            "title": "阅读文档",
-            "url": "/docs",
-            "target": "_blank",
+            "title": "查看价格",
+            "url": "/#pricing",
+            "target": "_self",
             "variant": "outline",
-            "icon": "BookOpenText"
+            "icon": "DollarSign"
           }
         ],
-        "className": "bg-muted"
-      },
-      "subscribe": {
-        "id": "subscribe",
-        "title": "订阅我们的邮件通知",
-        "description": "获取 RemoveGeminiWatermark 最新资讯与产品动态。",
-        "submit": {
-          "input": {
-            "placeholder": "输入邮箱"
-          },
-          "button": {
-            "title": "订阅"
-          },
-          "action": "/api/subscribe"
-        },
         "className": "bg-muted"
       }
     }
