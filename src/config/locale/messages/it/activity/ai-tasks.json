@@ -1,31 +1,31 @@
 {
   "fields": {
-    "title": "Title",
-    "media_type": "Media Type",
+    "title": "Titolo",
+    "media_type": "Tipo Media",
     "provider": "Provider",
-    "model": "Model",
+    "model": "Modello",
     "prompt": "Prompt",
-    "options": "Options",
-    "status": "Status",
-    "result": "Result",
-    "cost_credits": "Cost Credits",
-    "created_at": "Created At",
-    "action": "Action"
+    "options": "Opzioni",
+    "status": "Stato",
+    "result": "Risultato",
+    "cost_credits": "Crediti Utilizzati",
+    "created_at": "Data Creazione",
+    "action": "Azione"
   },
   "list": {
-    "title": "AI Tasks",
+    "title": "Attività AI",
     "tabs": {
-      "all": "All",
-      "music": "Music",
-      "image": "Image",
+      "all": "Tutte",
+      "music": "Musica",
+      "image": "Immagine",
       "video": "Video",
       "audio": "Audio",
-      "text": "Text"
+      "text": "Testo"
     },
     "buttons": {
-      "view": "View Task",
-      "refresh": "Refresh Task"
+      "view": "Visualizza Attività",
+      "refresh": "Aggiorna Attività"
     },
-    "empty_message": "No tasks found"
+    "empty_message": "Nessuna attività trovata"
   }
 }

@@ -1,146 +1,146 @@
 {
   "metadata": {
-    "title": "Showcases",
-    "description": "Awesome projects built with RemoveGeminiWatermark"
+    "title": "Showcase",
+    "description": "Progetti fantastici realizzati con Rimuovere Watermark Gemini"
   },
   "page": {
-    "title": "Showcases",
+    "title": "Showcase",
     "sections": {
       "showcases": {
         "id": "showcases",
-        "title": "AI SaaS Startups built with RemoveGeminiWatermark",
-        "description": "Easy to use and fast to ship.",
+        "title": "Startup AI SaaS realizzate con Rimuovere Watermark Gemini",
+        "description": "Facile da usare e veloce da lanciare.",
         "groups": [
           {
             "name": "all",
-            "title": "All"
+            "title": "Tutti"
           },
           {
             "name": "ai-chatbot",
-            "title": "AI Chatbot"
+            "title": "Chatbot AI"
           },
           {
             "name": "ai-image",
-            "title": "AI Image"
+            "title": "Immagini AI"
           },
           {
             "name": "ai-video",
-            "title": "AI Video"
+            "title": "Video AI"
           },
           {
             "name": "ai-audio",
-            "title": "AI Audio"
+            "title": "Audio AI"
           },
           {
             "name": "ai-music",
-            "title": "AI Music"
+            "title": "Musica AI"
           },
           {
             "name": "ai-coding",
-            "title": "AI Coding"
+            "title": "Programmazione AI"
           },
           {
             "name": "other",
-            "title": "Other"
+            "title": "Altro"
           }
         ],
         "items": [
           {
             "title": "ThinkAny",
-            "description": "AI Search Engine",
+            "description": "Motore di Ricerca AI",
             "url": "https://thinkany.ai",
             "target": "_blank",
             "image": {
               "src": "/imgs/cases/7.png",
-              "alt": "showcases"
+              "alt": "showcase"
             },
             "group": "ai-chatbot"
           },
           {
             "title": "HeyBeauty",
-            "description": "AI Virtual Try On",
+            "description": "Prova Virtuale AI",
             "url": "https://heybeauty.ai",
             "target": "_blank",
             "image": {
               "src": "/imgs/cases/5.png",
-              "alt": "showcases"
+              "alt": "showcase"
             },
             "group": "ai-image"
           },
           {
             "title": "AI Wallpaper",
-            "description": "AI Wallpaper Generator",
+            "description": "Generatore di Sfondi AI",
             "url": "https://aiwallpaper.shop",
             "target": "_blank",
             "image": {
               "src": "/imgs/cases/1.png",
-              "alt": "showcases"
+              "alt": "showcase"
             },
             "group": "ai-image"
           },
           {
             "title": "AI Cover",
-            "description": "AI Cover Generator",
+            "description": "Generatore di Copertine AI",
             "url": "https://aicover.design",
             "target": "_blank",
             "image": {
               "src": "/imgs/cases/2.png",
-              "alt": "showcases"
+              "alt": "showcase"
             },
             "group": "ai-image"
           },
           {
             "title": "GPTs Works",
-            "description": "GPTs Directory",
+            "description": "Directory GPTs",
             "url": "https://gpts.works",
             "target": "_blank",
             "image": {
               "src": "/imgs/cases/3.png",
-              "alt": "showcases"
+              "alt": "showcase"
             },
             "group": "other"
           },
           {
             "title": "Melodisco",
-            "description": "AI Music Player",
+            "description": "Lettore Musicale AI",
             "url": "https://melodis.co",
             "target": "_blank",
             "image": {
               "src": "/imgs/cases/4.png",
-              "alt": "showcases"
+              "alt": "showcase"
             },
             "group": "ai-music"
           },
           {
             "title": "Pagen",
-            "description": "AI Landing Page Generator",
+            "description": "Generatore di Landing Page AI",
             "url": "https://pagen.so",
             "target": "_blank",
             "image": {
               "src": "/imgs/cases/6.png",
-              "alt": "showcases"
+              "alt": "showcase"
             },
             "group": "ai-coding"
           },
           {
             "title": "SoraFM",
-            "description": "AI Video Generator",
+            "description": "Generatore di Video AI",
             "url": "https://sorafm.trys.ai",
             "target": "_blank",
             "image": {
               "src": "/imgs/cases/8.png",
-              "alt": "showcases"
+              "alt": "showcase"
             },
             "group": "ai-video"
           },
           {
             "title": "PodLM",
-            "description": "AI Podcast Generator",
+            "description": "Generatore di Podcast AI",
             "url": "https://podlm.ai",
             "target": "_blank",
             "image": {
               "src": "/imgs/cases/9.png",
-              "alt": "showcases"
+              "alt": "showcase"
             },
             "group": "ai-audio"
           }

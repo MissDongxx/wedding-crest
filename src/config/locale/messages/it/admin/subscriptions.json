@@ -1,27 +1,27 @@
 {
   "fields": {
-    "subscription_no": "Subscription No",
-    "user": "User",
-    "amount": "Amount",
-    "interval": "Interval",
+    "subscription_no": "N° Abbonamento",
+    "user": "Utente",
+    "amount": "Importo",
+    "interval": "Intervallo",
     "provider": "Provider",
-    "created_at": "Created At",
-    "current_period_start": "Current Period Start",
-    "current_period_end": "Current Period End",
-    "status": "Status",
-    "description": "Description",
-    "action": "Action"
+    "created_at": "Data Creazione",
+    "current_period_start": "Inizio Periodo Corrente",
+    "current_period_end": "Fine Periodo Corrente",
+    "status": "Stato",
+    "description": "Descrizione",
+    "action": "Azione"
   },
   "list": {
-    "title": "Subscriptions",
+    "title": "Abbonamenti",
     "crumbs": {
       "admin": "Admin",
-      "subscriptions": "Subscriptions"
+      "subscriptions": "Abbonamenti"
     },
     "tabs": {
-      "all": "All",
-      "month": "Month",
-      "year": "Year"
+      "all": "Tutti",
+      "month": "Mensile",
+      "year": "Annuale"
     }
   }
 }

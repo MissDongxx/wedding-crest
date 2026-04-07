@@ -1,22 +1,22 @@
 {
   "metadata": {
     "title": "Blog",
-    "description": "Read latest product features, solutions, and updates."
+    "description": "Leggi le ultime funzionalità del prodotto, soluzioni e aggiornamenti."
   },
   "page": {
-    "title": "RemoveGeminiWatermark Blog",
+    "title": "Blog Rimuovere Watermark Gemini",
     "sections": {
       "blog": {
         "id": "blog",
         "title": "Blog",
-        "description": "Read latest product features, solutions, and updates."
+        "description": "Leggi le ultime funzionalità del prodotto, soluzioni e aggiornamenti."
       }
     }
   },
   "messages": {
-    "all": "All",
-    "no_content": "No Content",
+    "all": "Tutti",
+    "no_content": "Nessun Contenuto",
     "crumb": "Blog",
-    "toc": "Table of Contents"
+    "toc": "Indice"
   }
 }

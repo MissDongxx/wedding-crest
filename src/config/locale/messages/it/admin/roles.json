@@ -1,49 +1,49 @@
 {
   "fields": {
     "id": "ID",
-    "name": "Name",
-    "title": "Title",
-    "description": "Description",
-    "status": "Status",
-    "sort": "Sort",
-    "created_at": "Created At",
-    "updated_at": "Updated At",
-    "permissions": "Permissions",
-    "actions": "Actions"
+    "name": "Nome",
+    "title": "Titolo",
+    "description": "Descrizione",
+    "status": "Stato",
+    "sort": "Ordine",
+    "created_at": "Data Creazione",
+    "updated_at": "Data Aggiornamento",
+    "permissions": "Permessi",
+    "actions": "Azioni"
   },
   "list": {
-    "title": "Roles",
+    "title": "Ruoli",
     "crumbs": {
       "admin": "Admin",
-      "roles": "Roles"
+      "roles": "Ruoli"
     },
     "buttons": {
-      "create": "Create Role",
-      "edit": "Edit Role",
-      "edit_permissions": "Edit Permissions",
-      "delete": "Delete Role"
+      "create": "Crea Ruolo",
+      "edit": "Modifica Ruolo",
+      "edit_permissions": "Modifica Permessi",
+      "delete": "Elimina Ruolo"
     }
   },
   "edit": {
-    "title": "Edit Role",
+    "title": "Modifica Ruolo",
     "crumbs": {
       "admin": "Admin",
-      "roles": "Roles",
-      "edit": "Edit Role"
+      "roles": "Ruoli",
+      "edit": "Modifica Ruolo"
     },
     "buttons": {
-      "submit": "Update"
+      "submit": "Aggiorna"
     }
   },
   "edit_permissions": {
-    "title": "Edit Permissions",
+    "title": "Modifica Permessi",
     "crumbs": {
       "admin": "Admin",
-      "roles": "Roles",
-      "edit_permissions": "Edit Permissions"
+      "roles": "Ruoli",
+      "edit_permissions": "Modifica Permessi"
     },
     "buttons": {
-      "submit": "Update"
+      "submit": "Aggiorna"
     }
   }
 }

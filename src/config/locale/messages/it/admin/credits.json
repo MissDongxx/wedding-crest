@@ -1,27 +1,27 @@
 {
   "fields": {
-    "transaction_no": "Transaction No",
-    "user": "User",
-    "amount": "Amount",
-    "remaining": "Remaining",
-    "type": "Type",
-    "scene": "Scene",
-    "description": "Description",
-    "created_at": "Created At",
-    "expires_at": "Expires At",
-    "metadata": "Metadata",
-    "action": "Action"
+    "transaction_no": "N° Transazione",
+    "user": "Utente",
+    "amount": "Importo",
+    "remaining": "Rimanente",
+    "type": "Tipo",
+    "scene": "Scenario",
+    "description": "Descrizione",
+    "created_at": "Data Creazione",
+    "expires_at": "Scadenza",
+    "metadata": "Metadati",
+    "action": "Azione"
   },
   "list": {
-    "title": "Credits",
+    "title": "Crediti",
     "crumbs": {
       "admin": "Admin",
-      "credits": "Credits"
+      "credits": "Crediti"
     },
     "tabs": {
-      "all": "All",
-      "grant": "Grant",
-      "consume": "Consume"
+      "all": "Tutti",
+      "grant": "Accreditamento",
+      "consume": "Utilizzo"
     }
   }
 }

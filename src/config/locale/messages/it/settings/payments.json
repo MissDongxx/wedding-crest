@@ -1,30 +1,30 @@
 {
   "fields": {
-    "order_no": "Order No",
-    "user": "User",
-    "amount": "Amount",
-    "product_name": "Product Name",
-    "price": "Price",
-    "paid_amount": "Paid Amount",
-    "discount_amount": "Discount Amount",
-    "description": "Description",
-    "type": "Type",
+    "order_no": "N° Ordine",
+    "user": "Utente",
+    "amount": "Importo",
+    "product_name": "Nome Prodotto",
+    "price": "Prezzo",
+    "paid_amount": "Importo Pagato",
+    "discount_amount": "Importo Sconto",
+    "description": "Descrizione",
+    "type": "Tipo",
     "provider": "Provider",
-    "created_at": "Created At",
-    "status": "Status",
-    "action": "Action",
+    "created_at": "Data Creazione",
+    "status": "Stato",
+    "action": "Azione",
     "actions": {
-      "view_invoice": "View Invoice"
+      "view_invoice": "Visualizza Fattura"
     }
   },
   "list": {
-    "title": "Payments",
-    "description": "View your payments",
+    "title": "Pagamenti",
+    "description": "Visualizza i tuoi pagamenti",
     "tabs": {
-      "all": "All",
-      "one-time": "One-Time",
-      "subscription": "Subscription",
-      "renew": "Renew"
+      "all": "Tutti",
+      "one-time": "Una Tantum",
+      "subscription": "Abbonamento",
+      "renew": "Rinnovo"
     }
   }
 }

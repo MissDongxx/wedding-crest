@@ -1,59 +1,59 @@
 {
   "fields": {
-    "subscription_no": "Subscription No",
-    "interval": "Interval",
+    "subscription_no": "N° Abbonamento",
+    "interval": "Intervallo",
     "provider": "Provider",
-    "current_period": "Current Period",
-    "plan": "Plan",
-    "status": "Status",
-    "amount": "Amount",
-    "created_at": "Created At",
-    "end_time": "End Time",
-    "action": "Action"
+    "current_period": "Periodo Corrente",
+    "plan": "Piano",
+    "status": "Stato",
+    "amount": "Importo",
+    "created_at": "Data Creazione",
+    "end_time": "Data Fine",
+    "action": "Azione"
   },
   "view": {
-    "title": "Current Plan",
-    "tip": "Your subscription will auto renew on {date}",
-    "end_tip": "Your subscription will be auto canceled on {date}",
-    "no_subscription": "No plan",
+    "title": "Piano Corrente",
+    "tip": "Il tuo abbonamento si rinnoverà automaticamente il {date}",
+    "end_tip": "Il tuo abbonamento verrà cancellato automaticamente il {date}",
+    "no_subscription": "Nessun piano",
     "buttons": {
-      "adjust": "Adjust Plan",
-      "subscribe": "Subscribe",
-      "manage": "Manage Subscription",
-      "cancel": "Cancel Subscription"
+      "adjust": "Modifica Piano",
+      "subscribe": "Abbonati",
+      "manage": "Gestisci Abbonamento",
+      "cancel": "Cancella Abbonamento"
     }
   },
   "list": {
-    "title": "Subscriptions History",
+    "title": "Cronologia Abbonamenti",
     "tabs": {
-      "all": "All",
-      "active": "Active",
-      "pending_cancel": "Pending Cancel",
-      "canceled": "Canceled",
-      "trialing": "Trialing",
-      "paused": "Paused",
-      "expired": "Expired"
+      "all": "Tutti",
+      "active": "Attivi",
+      "pending_cancel": "Cancellazione in Sospeso",
+      "canceled": "Cancellati",
+      "trialing": "In Prova",
+      "paused": "In Pausa",
+      "expired": "Scaduti"
     }
   },
   "cancel": {
-    "title": "Cancel Subscription",
-    "description": "Are you sure you want to cancel your subscription?",
+    "title": "Cancella Abbonamento",
+    "description": "Sei sicuro di voler cancellare il tuo abbonamento?",
     "fields": {
-      "subscription_no": "Subscription No",
-      "subscription_amount": "Subscription Amount",
-      "interval_cycle": "Interval Cycle",
-      "subscription_created_at": "Subscription Created At",
-      "current_period": "Current Period",
-      "start_at": "Start At",
-      "end_at": "End At"
+      "subscription_no": "N° Abbonamento",
+      "subscription_amount": "Importo Abbonamento",
+      "interval_cycle": "Ciclo di Fatturazione",
+      "subscription_created_at": "Abbonamento Creato Il",
+      "current_period": "Periodo Corrente",
+      "start_at": "Inizio",
+      "end_at": "Fine"
     },
     "crumbs": {
-      "settings": "Settings",
-      "billing": "Billing",
-      "cancel": "Cancel Subscription"
+      "settings": "Impostazioni",
+      "billing": "Fatturazione",
+      "cancel": "Cancella Abbonamento"
     },
     "buttons": {
-      "confirm_cancel": "Confirm Cancel"
+      "confirm_cancel": "Conferma Cancellazione"
     }
   }
 }

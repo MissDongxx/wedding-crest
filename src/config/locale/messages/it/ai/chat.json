@@ -2,10 +2,10 @@
   "sidebar": {
     "header": {
       "brand": {
-        "title": "RemoveGeminiWatermark Chat",
+        "title": "Chat Rimuovere Watermark Gemini",
         "logo": {
           "src": "/logo.png",
-          "alt": "RemoveGeminiWatermark Chat"
+          "alt": "Chat Rimuovere Watermark Gemini"
         },
         "url": "/chat"
       },
@@ -13,7 +13,7 @@
     },
     "buttons": [
       {
-        "title": "New Chat",
+        "title": "Nuova Chat",
         "icon": "Plus",
         "url": "/chat",
         "variant": "outline"
@@ -23,7 +23,7 @@
       {
         "items": [
           {
-            "title": "History",
+            "title": "Cronologia",
             "icon": "History",
             "url": "/chat/history"
           }
@@ -37,7 +37,7 @@
       "nav": {
         "items": [
           {
-            "title": "Profile",
+            "title": "Profilo",
             "url": "/settings/profile",
             "icon": "User",
             "target": "_blank"
@@ -90,32 +90,32 @@
     "variant": "sidebar"
   },
   "library": {
-    "title": "Library",
+    "title": "Libreria",
     "icon": "History",
     "url": "/chat/history",
-    "more": "More",
+    "more": "Altro",
     "actions": {
-      "edit_title": "Edit Title",
-      "share": "Share",
-      "delete": "Delete"
+      "edit_title": "Modifica Titolo",
+      "share": "Condividi",
+      "delete": "Elimina"
     }
   },
   "generator": {
-    "title": "What can I help you today?",
-    "input_placeholder": "You can ask me anything"
+    "title": "Come posso aiutarti oggi?",
+    "input_placeholder": "Puoi chiedermi qualsiasi cosa"
   },
   "history": {
-    "title": "Chat history",
-    "description": "Review and revisit your previous conversations.",
-    "empty": "No conversations yet.",
-    "error": "Failed to load conversations.",
-    "retry": "Try again",
-    "signin": "Sign in to view your chat history.",
-    "summary": "Showing {from}-{to} of {total}",
-    "perPage": "Per page",
-    "prev": "Previous",
-    "next": "Next",
-    "open": "Open chat",
-    "untitled": "Untitled conversation"
+    "title": "Cronologia chat",
+    "description": "Rivedi e rileggi le tue conversazioni precedenti.",
+    "empty": "Nessuna conversazione ancora.",
+    "error": "Impossibile caricare le conversazioni.",
+    "retry": "Riprova",
+    "signin": "Accedi per visualizzare la cronologia delle chat.",
+    "summary": "Visualizzazione {from}-{to} di {total}",
+    "perPage": "Per pagina",
+    "prev": "Precedente",
+    "next": "Successivo",
+    "open": "Apri chat",
+    "untitled": "Conversazione senza titolo"
   }
 }

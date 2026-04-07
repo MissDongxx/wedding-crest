@@ -1,60 +1,60 @@
 {
   "fields": {
     "slug": "Slug",
-    "title": "Title",
-    "description": "Description",
-    "image": "Image",
-    "content": "Content",
-    "categories": "Categories",
-    "tags": "Tags",
-    "author_name": "Author Name",
-    "author_role": "Author Role",
-    "author_image": "Author Image",
-    "status": "Status",
-    "created_at": "Created At",
-    "updated_at": "Updated At",
-    "deleted_at": "Deleted At"
+    "title": "Titolo",
+    "description": "Descrizione",
+    "image": "Immagine",
+    "content": "Contenuto",
+    "categories": "Categorie",
+    "tags": "Tag",
+    "author_name": "Nome Autore",
+    "author_role": "Ruolo Autore",
+    "author_image": "Immagine Autore",
+    "status": "Stato",
+    "created_at": "Data Creazione",
+    "updated_at": "Data Aggiornamento",
+    "deleted_at": "Data Eliminazione"
   },
   "list": {
-    "title": "Posts",
+    "title": "Articoli",
     "crumbs": {
       "admin": "Admin",
-      "posts": "Posts"
+      "posts": "Articoli"
     },
     "buttons": {
-      "add": "Add Post",
-      "edit": "Edit Post",
-      "view": "View Post",
-      "delete": "Delete Post"
+      "add": "Aggiungi Articolo",
+      "edit": "Modifica Articolo",
+      "view": "Visualizza Articolo",
+      "delete": "Elimina Articolo"
     },
     "tabs": {
-      "all": "All",
-      "published": "Published",
-      "pending": "Pending",
-      "draft": "Draft",
-      "archived": "Archived"
+      "all": "Tutti",
+      "published": "Pubblicati",
+      "pending": "In Attesa",
+      "draft": "Bozza",
+      "archived": "Archiviati"
     }
   },
   "add": {
-    "title": "Add Post",
+    "title": "Aggiungi Articolo",
     "crumbs": {
       "admin": "Admin",
-      "posts": "Posts",
-      "add": "Add Post"
+      "posts": "Articoli",
+      "add": "Aggiungi Articolo"
     },
     "buttons": {
-      "submit": "Add Post"
+      "submit": "Aggiungi Articolo"
     }
   },
   "edit": {
-    "title": "Edit Post",
+    "title": "Modifica Articolo",
     "crumbs": {
       "admin": "Admin",
-      "posts": "Posts",
-      "edit": "Edit Post"
+      "posts": "Articoli",
+      "edit": "Modifica Articolo"
     },
     "buttons": {
-      "submit": "Edit Post"
+      "submit": "Modifica Articolo"
     }
   }
 }

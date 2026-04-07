@@ -1,14 +1,14 @@
 {
   "metadata": {
-    "title": "Update Logs",
-    "description": "View product update logs, including latest features and improvements."
+    "title": "Registro Aggiornamenti",
+    "description": "Visualizza il registro degli aggiornamenti del prodotto, incluse le ultime funzionalità e migliorie."
   },
   "page": {
     "sections": {
       "updates": {
         "id": "updates",
-        "title": "Update Logs",
-        "description": "View product update logs, including latest features and improvements."
+        "title": "Registro Aggiornamenti",
+        "description": "Visualizza il registro degli aggiornamenti del prodotto, incluse le ultime funzionalità e migliorie."
       }
     }
   }
