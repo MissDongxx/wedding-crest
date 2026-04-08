@@ -14,6 +14,11 @@
     "nav": {
       "items": [
         {
+          "title": "단축어",
+          "url": "/shortcuts",
+          "icon": "Command"
+        },
+        {
           "title": "기능",
           "url": "/#features",
           "icon": "Sparkles"

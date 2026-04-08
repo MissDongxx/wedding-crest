@@ -195,40 +195,31 @@ export async function getPost({
   return localPost;
 }
 
-export async function getLocalPost({
-  slug,
-  locale,
-  postPrefix = '/blog/',
-}: {
-  slug: string;
-  locale: string;
-  postPrefix?: string;
-}): Promise<BlogPostType | null> {
-  const localPost = await postsSource.getPage([slug], locale);
-  if (!localPost) {
-    return null;
-  }
-
-  const MDXContent = localPost.data.body;
+function buildLocalPost(
+  localPost: Awaited<ReturnType<typeof postsSource.getPage>>,
+  slug: string,
+  postPrefix: string,
+  locale: string,
+): BlogPostType {
+  const MDXContent = localPost!.data.body;
   const body = (
     <MDXContent
       components={getMDXComponents({
-        // this allows you to link to other pages with relative file paths
-        a: createRelativeLink(postsSource, localPost),
+        a: createRelativeLink(postsSource, localPost!),
       })}
     />
   );
 
-  const frontmatter = localPost.data as any;
+  const frontmatter = localPost!.data as any;
 
-  const post: BlogPostType = {
-    id: localPost.path,
-    slug: slug,
-    title: localPost.data.title || '',
-    description: localPost.data.description || '',
+  return {
+    id: localPost!.path,
+    slug,
+    title: localPost!.data.title || '',
+    description: localPost!.data.description || '',
     content: '',
-    body: body,
-    toc: localPost.data.toc, // Use fumadocs auto-generated TOC
+    body,
+    toc: localPost!.data.toc,
     created_at: frontmatter.created_at
       ? getPostDate({
           created_at: frontmatter.created_at,
@@ -240,8 +231,31 @@ export async function getLocalPost({
     author_role: '',
     url: `${postPrefix}${slug}`,
   };
+}
 
-  return post;
+export async function getLocalPost({
+  slug,
+  locale,
+  postPrefix = '/blog/',
+}: {
+  slug: string;
+  locale: string;
+  postPrefix?: string;
+}): Promise<BlogPostType | null> {
+  let localPost = await postsSource.getPage([slug], locale);
+  let resolvedLocale = locale;
+
+  if (!localPost) {
+    // fallback to English if post not found for this locale
+    localPost = await postsSource.getPage([slug], 'en');
+    resolvedLocale = 'en';
+  }
+
+  if (!localPost) {
+    return null;
+  }
+
+  return buildLocalPost(localPost, slug, postPrefix, resolvedLocale);
 }
 
 // get local page from: content/pages/*.md
@@ -459,13 +473,21 @@ export async function getLocalPostsAndCategories({
 }) {
   const localPostsList: BlogPostType[] = [];
 
-  // get posts from local files
+  // get posts from local files, fallback to English if no posts found for the locale
   let localPosts = postsSource.getPages(locale);
   if (type === PostType.LOG) {
     localPosts = logsSource.getPages(locale);
   }
 
-  // no local posts
+  // fallback to English if no local posts for this locale
+  if (!localPosts || localPosts.length === 0) {
+    localPosts = postsSource.getPages('en');
+    if (type === PostType.LOG) {
+      localPosts = logsSource.getPages('en');
+    }
+  }
+
+  // still no local posts
   if (!localPosts || localPosts.length === 0) {
     return {
       posts: [],

@@ -5,48 +5,57 @@
   },
   "title": "iOS Shortcut",
   "description": "Install this shortcut to remove Gemini watermarks directly from the share menu in Photos, X, or any app. No browser needed — process images anytime, anywhere.",
+  "step_label": "Step {number}",
   "install_title": "Get the Shortcut",
   "install_description": "Tap the button below to install directly on your iPhone, or download the file and import it manually.",
   "install_button": "Install on iPhone",
   "download_button": "Download File",
   "or_text": "or",
+  "api_key_title": "Get Your API Key",
+  "api_key_description": "Sign in, purchase credits, and generate an API Key for unlimited use.",
+  "api_key_skip_hint": "Free users get 5 images/day.",
+  "api_key_button": "Go to API Keys",
+  "sign_in_button": "Sign In",
+  "personal_url_title": "Your Personal URL",
+  "personal_url_description": "Copy the URL below and paste it into the shortcut's URL field. Your API Key is already embedded — no extra setup needed!",
+  "personal_url_hint": "Open the shortcut in Shortcuts app → find the URL field → paste this URL",
+  "copy_button": "Copy",
+  "copied_button": "Copied!",
+  "step3_title": "Use the Shortcut",
+  "step3_instruction1": "Open a Gemini-generated image — it can be from your Photos, X (Twitter), or any other app.",
+  "step3_instruction2": "Tap the Share button, then select the shortcut \"RemoveGeminiWatermark.org\" from the share menu.",
+  "step3_instruction3": "Tap to run the shortcut. The image will be uploaded and processed automatically.",
+  "step3_instruction4": "The processed image without the watermark will be saved to your Photos automatically!",
   "how_it_works": "How It Works",
-  "steps": {
+  "how_steps": {
     "step1": {
-      "title": "Share an Image",
-      "description": "In Photos, X (Twitter), or any app that supports sharing, select an image and tap the Share button.",
-      "details": "Choose this shortcut from the share menu. The image is automatically passed to the next step."
+      "title": "Select Image",
+      "description": "Open a Gemini-generated image in Photos, X, or any app."
     },
     "step2": {
-      "title": "Automatic Processing",
-      "description": "The shortcut uploads the image to our server, removes the Gemini watermark, and returns the clean result.",
-      "details": "The entire process is fully automatic and typically completes in 2-3 seconds. Supports PNG, JPEG, and WebP."
+      "title": "Share to Shortcut",
+      "description": "Tap Share and choose RemoveGeminiWatermark.org."
     },
     "step3": {
-      "title": "API Configuration",
-      "description": "The shortcut communicates with our server using these settings:",
-      "details": [
-        { "label": "URL", "value": "{baseUrl}/api/v1/remove-watermark" },
-        { "label": "Method", "value": "POST" },
-        { "label": "Request Body", "value": "Form / File" },
-        { "label": "Key", "value": "image" }
-      ]
+      "title": "Auto Process",
+      "description": "Image is uploaded, watermark removed in 2-3 seconds. Supports PNG, JPEG, WebP."
     },
     "step4": {
-      "title": "Save to Photos",
-      "description": "The processed image is automatically saved to your iPhone's photo library.",
-      "details": "Images are saved as PNG for best quality. The original image is never modified."
+      "title": "Save Result",
+      "description": "Clean image saved to Photos as PNG. Original is never modified."
     }
   },
   "notes_title": "Important Notes",
   "notes": {
-    "note1": "Authentication is required. Go to Settings > API Keys on our website to generate an API Key, then add it in the shortcut configuration.",
+    "note1_before": "Free users get 5 images/day. ",
+    "note1_link": "Purchase credits",
+    "note1_after": " for unlimited processing.",
     "note2": "Only supports original Gemini-generated images. Non-Gemini images will not have watermarks detected.",
-    "note3": "Each image processing consumes 1 credit. Insufficient credits will result in a failed request."
+    "note3": "Works entirely via the share menu — no need to open a browser or visit a website."
   },
   "tips_title": "Usage Tips",
   "tips": {
-    "tip1": "Generate your API Key from Settings > API Keys on our website and paste it into the shortcut's Authorization field.",
+    "tip1": "Generate your API Key from Settings > API Keys to get your personal URL, then paste it into the shortcut for unlimited use.",
     "tip2": "Batch processing is supported: select multiple images in Photos and share them all at once."
   },
   "back_to_home": "Back to Home"

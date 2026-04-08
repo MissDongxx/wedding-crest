@@ -14,6 +14,11 @@
     "nav": {
       "items": [
         {
+          "title": "Shortcuts",
+          "url": "/shortcuts",
+          "icon": "Command"
+        },
+        {
           "title": "Features",
           "url": "/#features",
           "icon": "Sparkles"

@@ -5,49 +5,57 @@
   },
   "title": "iOS-Kurzbefehl",
   "description": "Installieren Sie diesen Kurzbefehl, um Gemini-Wasserzeichen direkt über das Teilen-Menü in Fotos, X oder einer anderen App zu entfernen. Kein Browser nötig — Bilder jederzeit und überall bearbeiten.",
+  "step_label": "Schritt {number}",
   "install_title": "Kurzbefehl laden",
   "install_description": "Tippen Sie auf den Button, um den Kurzbefehl direkt auf Ihrem iPhone zu installieren, oder laden Sie die Datei herunter und importieren Sie sie manuell.",
   "install_button": "Auf iPhone installieren",
   "download_button": "Datei herunterladen",
   "or_text": "oder",
+  "api_key_title": "API-Schlüssel erhalten",
+  "api_key_description": "Melden Sie sich an, laden Sie Guthaben auf und generieren Sie einen API-Schlüssel für unbegrenzte Nutzung.",
+  "api_key_skip_hint": "Kostenlose Nutzer erhalten 5 Bilder/Tag.",
+  "api_key_button": "Zu API-Schlüsseln",
+  "sign_in_button": "Anmelden",
+  "personal_url_title": "Ihre persönliche URL",
+  "personal_url_description": "Kopieren Sie die URL unten und fügen Sie sie in das URL-Feld des Kurzbefehls ein. Ihr API-Schlüssel ist bereits eingebettet — keine zusätzliche Konfiguration nötig!",
+  "personal_url_hint": "Öffnen Sie den Kurzbefehl in der Kurzbefehle-App → finden Sie das URL-Feld → fügen Sie diese URL ein",
+  "copy_button": "Kopieren",
+  "copied_button": "Kopiert!",
+  "step3_title": "Kurzbefehl verwenden",
+  "step3_instruction1": "Öffnen Sie ein Gemini-generiertes Bild — aus Fotos, X (Twitter) oder einer anderen App.",
+  "step3_instruction2": "Tippen Sie auf „Teilen\" und wählen Sie den Kurzbefehl „RemoveGeminiWatermark.org\" aus dem Teilen-Menü.",
+  "step3_instruction3": "Tippen Sie, um den Kurzbefehl auszuführen. Das Bild wird automatisch hochgeladen und verarbeitet.",
+  "step3_instruction4": "Das bearbeitete Bild ohne Wasserzeichen wird automatisch in Ihren Fotos gespeichert!",
   "how_it_works": "So funktioniert's",
-  "steps": {
+  "how_steps": {
     "step1": {
-      "title": "Bild teilen",
-      "description": "Wählen Sie in Fotos, X (Twitter) oder einer anderen App ein Bild aus und tippen Sie auf „Teilen\".",
-      "details": "Wählen Sie diesen Kurzbefehl aus dem Teilen-Menü. Das Bild wird automatisch an den nächsten Schritt übergeben."
+      "title": "Bild auswählen",
+      "description": "Gemini-generiertes Bild in Fotos, X oder einer anderen App öffnen."
     },
     "step2": {
-      "title": "Automatische Verarbeitung",
-      "description": "Der Kurzbefehl lädt das Bild auf unseren Server hoch, entfernt das Gemini-Wasserzeichen und gibt das Ergebnis zurück.",
-      "details": "Der gesamte Prozess läuft automatisch ab und dauert in der Regel 2-3 Sekunden. Unterstützt PNG, JPEG und WebP."
+      "title": "An Kurzbefehl teilen",
+      "description": "Auf „Teilen\" tippen und RemoveGeminiWatermark.org auswählen."
     },
     "step3": {
-      "title": "API-Konfiguration",
-      "description": "Der Kurzbefehl kommuniziert mit unserem Server über diese Einstellungen:",
-      "details": [
-        { "label": "URL", "value": "{baseUrl}/api/v1/remove-watermark" },
-        { "label": "Methode", "value": "POST" },
-        { "label": "Request Body", "value": "Form / File" },
-        { "label": "Schlüssel", "value": "image" },
-        { "label": "Authorization", "value": "Bearer <API Key>" }
-      ]
+      "title": "Automatische Verarbeitung",
+      "description": "Bild wird hochgeladen, Wasserzeichen in 2-3 Sek. entfernt. PNG, JPEG, WebP."
     },
     "step4": {
-      "title": "In Fotos speichern",
-      "description": "Das bearbeitete Bild wird automatisch in Ihrer iPhone-Fotomediathek gespeichert.",
-      "details": "Bilder werden als PNG in bester Qualität gespeichert. Das Originalbild wird nie verändert."
+      "title": "Ergebnis speichern",
+      "description": "Bearbeitetes Bild als PNG in Fotos gespeichert. Original bleibt unverändert."
     }
   },
   "notes_title": "Wichtige Hinweise",
   "notes": {
-    "note1": "Authentifizierung erforderlich. Gehen Sie auf unserer Website zu Einstellungen > API-Schlüssel, um einen API-Schlüssel zu generieren, und fügen Sie ihn in der Kurzbefehl-Konfiguration hinzu.",
+    "note1_before": "Kostenlose Nutzer erhalten 5 Bilder/Tag. ",
+    "note1_link": "Guthaben aufladen",
+    "note1_after": " für unbegrenzte Nutzung.",
     "note2": "Es werden nur originale Gemini-Bilder unterstützt. Bei Nicht-Gemini-Bildern wird kein Wasserzeichen erkannt.",
-    "note3": "Jede Bildverarbeitung verbraucht 1 Guthaben. Bei unzureichendem Guthaben schlägt die Anfrage fehl."
+    "note3": "Funktioniert vollständig über das Teilen-Menü — kein Browser oder Website nötig."
   },
   "tips_title": "Tipps zur Nutzung",
   "tips": {
-    "tip1": "Generieren Sie Ihren API-Schlüssel unter Einstellungen > API-Schlüssel auf unserer Website und fügen Sie ihn in das Authorization-Feld des Kurzbefehls ein.",
+    "tip1": "Generieren Sie Ihren API-Schlüssel unter Einstellungen > API-Schlüssel, um Ihre persönliche URL zu erhalten, und fügen Sie sie in den Kurzbefehl für unbegrenzte Nutzung ein.",
     "tip2": "Stapelverarbeitung wird unterstützt: Wählen Sie mehrere Bilder in Fotos aus und teilen Sie sie alle gleichzeitig."
   },
   "back_to_home": "Zurück zur Startseite"

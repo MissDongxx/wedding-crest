@@ -61,7 +61,14 @@
             "icon": "DollarSign",
             "url": "/#pricing",
             "target": "_self",
-            "variant": "outline"
+            "variant": "blue"
+          },
+          {
+            "title": "Scorciatoia iOS",
+            "icon": "Command",
+            "url": "/shortcuts",
+            "target": "_self",
+            "variant": "emerald"
           }
         ],
         "show_avatars": false,
@@ -245,8 +252,15 @@
             "title": "Vedi Prezzi",
             "url": "/#pricing",
             "target": "_self",
-            "variant": "outline",
+            "variant": "blue",
             "icon": "DollarSign"
+          },
+          {
+            "title": "Scorciatoia iOS",
+            "url": "/shortcuts",
+            "target": "_self",
+            "variant": "emerald",
+            "icon": "Command"
           }
         ],
         "className": "bg-muted"

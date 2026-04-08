@@ -5,50 +5,58 @@
   },
   "title": "Atalho iOS",
   "description": "Instale este atalho para remover marcas d'água do Gemini diretamente pelo menu de compartilhamento no Fotos, X ou qualquer app. Sem precisar de navegador — processe imagens em qualquer lugar e a qualquer momento.",
+  "step_label": "Passo {number}",
   "install_title": "Obter o Atalho",
   "install_description": "Toque no botão abaixo para instalar diretamente no seu iPhone, ou baixe o arquivo e importe manualmente.",
   "install_button": "Instalar no iPhone",
   "download_button": "Baixar arquivo",
   "or_text": "ou",
+  "api_key_title": "Obtenha sua chave API",
+  "api_key_description": "Faça login, compre créditos e gere uma chave API para uso ilimitado.",
+  "api_key_skip_hint": "Usuários gratuitos têm 5 imagens/dia.",
+  "api_key_button": "Ir para Chaves API",
+  "sign_in_button": "Entrar",
+  "personal_url_title": "Sua URL pessoal",
+  "personal_url_description": "Copie a URL abaixo e cole no campo URL do atalho. Sua chave API já está incorporada — sem configuração adicional!",
+  "personal_url_hint": "Abra o atalho no app Atalhos → encontre o campo URL → cole esta URL",
+  "copy_button": "Copiar",
+  "copied_button": "Copiado!",
+  "step3_title": "Usar o atalho",
+  "step3_instruction1": "Abra uma imagem gerada pelo Gemini — pode ser do Fotos, X (Twitter) ou qualquer outro app.",
+  "step3_instruction2": "Toque em Compartilhar e selecione o atalho «RemoveGeminiWatermark.org» no menu de compartilhamento.",
+  "step3_instruction3": "Toque para executar o atalho. A imagem será enviada e processada automaticamente.",
+  "step3_instruction4": "A imagem processada sem marca d'água será salva automaticamente no seu Fotos!",
   "how_it_works": "Como funciona",
-  "steps": {
+  "how_steps": {
     "step1": {
-      "title": "Compartilhar imagem",
-      "description": "No Fotos, X (Twitter) ou qualquer app que suporte compartilhamento, selecione uma imagem e toque em Compartilhar.",
-      "details": "Escolha este atalho no menu de compartilhamento. A imagem será automaticamente enviada para a próxima etapa."
+      "title": "Selecionar imagem",
+      "description": "Abra uma imagem Gemini no Fotos, X ou qualquer app."
     },
     "step2": {
-      "title": "Processamento automático",
-      "description": "O atalho envia a imagem para nosso servidor, remove a marca d'água Gemini e retorna o resultado limpo.",
-      "details": "O processo é totalmente automático e geralmente leva 2-3 segundos. Suporta PNG, JPEG e WebP."
+      "title": "Compartilhar ao atalho",
+      "description": "Toque em Compartilhar e escolha RemoveGeminiWatermark.org."
     },
     "step3": {
-      "title": "Configuração da API",
-      "description": "O atalho se comunica com nosso servidor usando estas configurações:",
-      "details": [
-        { "label": "URL", "value": "{baseUrl}/api/v1/remove-watermark" },
-        { "label": "Método", "value": "POST" },
-        { "label": "Corpo da requisição", "value": "Form / File" },
-        { "label": "Chave", "value": "image" },
-        { "label": "Authorization", "value": "Bearer <API Key>" }
-      ]
+      "title": "Processamento auto",
+      "description": "Imagem enviada, marca d'água removida em 2-3 seg. PNG, JPEG, WebP."
     },
     "step4": {
-      "title": "Salvar no Fotos",
-      "description": "A imagem processada é salva automaticamente na biblioteca de fotos do seu iPhone.",
-      "details": "As imagens são salvas em PNG para melhor qualidade. A imagem original nunca é modificada."
+      "title": "Salvar resultado",
+      "description": "Imagem limpa salva em PNG. A original nunca é modificada."
     }
   },
   "notes_title": "Observações importantes",
   "notes": {
-    "note1": "Autenticação obrigatória. Acesse Configurações > Chaves API no nosso site para gerar uma chave API e adicione-a na configuração do atalho.",
+    "note1_before": "Usuários gratuitos têm 5 imagens/dia. ",
+    "note1_link": "Compre créditos",
+    "note1_after": " para uso ilimitado.",
     "note2": "Suporta apenas imagens originais geradas pelo Gemini. Imagens não-Gemini não terão marcas d'água detectadas.",
-    "note3": "Cada processamento de imagem consome 1 crédito. Créditos insuficientes causarão falha na requisição."
+    "note3": "Funciona inteiramente pelo menu de compartilhamento — sem precisar abrir navegador ou site."
   },
   "tips_title": "Dicas de uso",
   "tips": {
-    "tip1": "Gere sua chave API em Configurações > Chaves API no nosso site e cole no campo Authorization do atalho.",
-    "tip2": "O processamento em lote é suportado: selecione várias imagens no Fotos e compartilhe todas de uma vez."
+    "tip1": "Gere sua chave API em Configurações > Chaves API para obter sua URL pessoal e cole no atalho para uso ilimitado.",
+    "tip2": "Processamento em lote é suportado: selecione várias imagens no Fotos e compartilhe todas de uma vez."
   },
   "back_to_home": "Voltar ao Início"
 }

@@ -45,7 +45,14 @@
             "icon": "DollarSign",
             "url": "/#pricing",
             "target": "_self",
-            "variant": "outline"
+            "variant": "blue"
+          },
+          {
+            "title": "iOS 快捷指令",
+            "icon": "Command",
+            "url": "/shortcuts",
+            "target": "_self",
+            "variant": "emerald"
           }
         ],
         "show_avatars": false,
@@ -245,8 +252,15 @@
             "title": "查看价格",
             "url": "/#pricing",
             "target": "_self",
-            "variant": "outline",
+            "variant": "blue",
             "icon": "DollarSign"
+          },
+          {
+            "title": "iOS 快捷指令",
+            "url": "/shortcuts",
+            "target": "_self",
+            "variant": "emerald",
+            "icon": "Command"
           }
         ],
         "className": "bg-muted"

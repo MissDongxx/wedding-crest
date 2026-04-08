@@ -5,49 +5,57 @@
   },
   "title": "iOS 快捷指令",
   "description": "安装快捷指令后，在相册或 X 等应用中分享图片即可一键去除 Gemini 水印，无需打开浏览器，随时随地极速处理。",
+  "step_label": "步骤 {number}",
   "install_title": "获取快捷指令",
   "install_description": "点击下方按钮在 iPhone 上直接安装，或下载快捷指令文件后手动导入。",
   "install_button": "一键安装到 iPhone",
   "download_button": "下载文件",
   "or_text": "或",
+  "api_key_title": "获取 API Key",
+  "api_key_description": "登录充值后获取 API Key 即可无限使用。",
+  "api_key_skip_hint": "免费用户每日有 5 张额度。",
+  "api_key_button": "前往 API 密钥页面",
+  "sign_in_button": "登录",
+  "personal_url_title": "你的专属 URL",
+  "personal_url_description": "复制下方 URL 并粘贴到快捷指令的 URL 字段中，API Key 已自动嵌入，无需额外配置！",
+  "personal_url_hint": "在快捷指令 app 中打开指令 → 找到 URL 字段 → 粘贴此 URL",
+  "copy_button": "复制",
+  "copied_button": "已复制！",
+  "step3_title": "使用快捷指令",
+  "step3_instruction1": "打开一张 Gemini 生成的图片，可以是相册中的，也可以是 X（推特）等 APP 中的。",
+  "step3_instruction2": "点击「分享」按钮，在分享菜单中选择快捷指令「RemoveGeminiWatermark.org」。",
+  "step3_instruction3": "点击运行快捷指令，图片将自动上传并处理。",
+  "step3_instruction4": "处理完成！去除水印后的图片将自动保存到你的相册中。",
   "how_it_works": "工作原理",
-  "steps": {
+  "how_steps": {
     "step1": {
-      "title": "分享图片",
-      "description": "在相册、X (Twitter) 或任何支持分享的应用中，选择图片后点击「分享」按钮。",
-      "details": "在分享菜单中选择本快捷指令，图片将自动传递给下一步处理。"
+      "title": "选择图片",
+      "description": "在相册、X 等应用中打开 Gemini 生成的图片。"
     },
     "step2": {
-      "title": "自动上传处理",
-      "description": "快捷指令自动将图片上传至服务器，去除 Gemini 水印后返回处理结果。",
-      "details": "整个过程全自动，通常在 2-3 秒内完成。支持 PNG、JPEG、WebP 格式。"
+      "title": "分享到快捷指令",
+      "description": "点击分享，选择 RemoveGeminiWatermark.org。"
     },
     "step3": {
-      "title": "API 参数",
-      "description": "快捷指令通过以下配置与服务端通信：",
-      "details": [
-        { "label": "URL", "value": "{baseUrl}/api/v1/remove-watermark" },
-        { "label": "方法", "value": "POST" },
-        { "label": "请求体", "value": "Form / File" },
-        { "label": "字段名", "value": "image" },
-        { "label": "Authorization", "value": "Bearer <API Key>" }
-      ]
+      "title": "自动处理",
+      "description": "图片自动上传，2-3 秒去除水印，支持 PNG、JPEG、WebP。"
     },
     "step4": {
-      "title": "保存到相册",
-      "description": "处理完成的图片自动保存到你的 iPhone 相册中。",
-      "details": "图片以 PNG 格式保存，保留最佳画质。原始图片不会被修改。"
+      "title": "保存结果",
+      "description": "处理后图片以 PNG 格式保存到相册，原图不会被修改。"
     }
   },
   "notes_title": "注意事项",
   "notes": {
-    "note1": "需要身份验证。请前往网站「设置 > API 密钥」生成 API Key，然后将其添加到快捷指令配置中。",
-    "note2": "目前仅支持 Gemini 原版生成的图片，非 Gemini 图片无法检测到水印。",
-    "note3": "每处理一张图片消耗 1 个积分，积分不足时请求将失败。"
+    "note1_before": "免费用户每日有 5 张额度，",
+    "note1_link": "充值会员",
+    "note1_after": "可无限使用。",
+    "note2": "仅支持 Gemini 原版生成的图片，非 Gemini 图片无法检测到水印。",
+    "note3": "全程通过分享菜单操作，无需打开浏览器或访问网站。"
   },
   "tips_title": "使用小贴士",
   "tips": {
-    "tip1": "在网站「设置 > API 密钥」中生成 API Key，然后粘贴到快捷指令的 Authorization 字段中。",
+    "tip1": "在网站「设置 > API 密钥」中生成 API Key，获取你的专属 URL，粘贴到快捷指令中即可无限使用。",
     "tip2": "支持批量处理：在相册中选中多张图片后一起分享给快捷指令。"
   },
   "back_to_home": "返回首页"

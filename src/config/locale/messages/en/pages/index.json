@@ -3,6 +3,7 @@
     "show_sections": [
       "tool",
       "comparison",
+      "hero",
       "introduce",
       "benefits",
       "features",
@@ -44,7 +45,14 @@
             "icon": "DollarSign",
             "url": "/#pricing",
             "target": "_self",
-            "variant": "outline"
+            "variant": "blue"
+          },
+          {
+            "title": "iOS Shortcut",
+            "icon": "Command",
+            "url": "/shortcuts",
+            "target": "_self",
+            "variant": "emerald"
           }
         ],
         "show_avatars": false,
@@ -244,8 +252,15 @@
             "title": "View Pricing",
             "url": "/#pricing",
             "target": "_self",
-            "variant": "outline",
+            "variant": "blue",
             "icon": "DollarSign"
+          },
+          {
+            "title": "iOS Shortcut",
+            "url": "/shortcuts",
+            "target": "_self",
+            "variant": "emerald",
+            "icon": "Command"
           }
         ],
         "className": "bg-muted"

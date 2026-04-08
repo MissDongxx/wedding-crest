@@ -5,49 +5,57 @@
   },
   "title": "Raccourci iOS",
   "description": "Installez ce raccourci pour supprimer les filigranes Gemini directement depuis le menu de partage de Photos, X ou toute autre application. Pas besoin de navigateur — traitez vos images partout et à tout moment.",
+  "step_label": "Étape {number}",
   "install_title": "Obtenir le raccourci",
   "install_description": "Appuyez sur le bouton ci-dessous pour installer directement sur votre iPhone, ou téléchargez le fichier et importez-le manuellement.",
   "install_button": "Installer sur iPhone",
   "download_button": "Télécharger le fichier",
   "or_text": "ou",
+  "api_key_title": "Obtenir votre clé API",
+  "api_key_description": "Connectez-vous, achetez des crédits et générez une clé API pour un usage illimité.",
+  "api_key_skip_hint": "Les utilisateurs gratuits ont droit à 5 images/jour.",
+  "api_key_button": "Accéder aux clés API",
+  "sign_in_button": "Se connecter",
+  "personal_url_title": "Votre URL personnelle",
+  "personal_url_description": "Copiez l'URL ci-dessous et collez-la dans le champ URL du raccourci. Votre clé API est déjà intégrée — aucune configuration supplémentaire !",
+  "personal_url_hint": "Ouvrez le raccourci dans l'app Raccourcis → trouvez le champ URL → collez cette URL",
+  "copy_button": "Copier",
+  "copied_button": "Copié !",
+  "step3_title": "Utiliser le raccourci",
+  "step3_instruction1": "Ouvrez une image générée par Gemini — depuis Photos, X (Twitter) ou toute autre application.",
+  "step3_instruction2": "Appuyez sur Partager, puis sélectionnez le raccourci « RemoveGeminiWatermark.org » dans le menu de partage.",
+  "step3_instruction3": "Appuyez pour exécuter le raccourci. L'image sera téléchargée et traitée automatiquement.",
+  "step3_instruction4": "L'image traitée sans filigrane sera automatiquement enregistrée dans vos Photos !",
   "how_it_works": "Comment ça fonctionne",
-  "steps": {
+  "how_steps": {
     "step1": {
-      "title": "Partager une image",
-      "description": "Dans Photos, X (Twitter) ou toute application prenant en charge le partage, sélectionnez une image et appuyez sur Partager.",
-      "details": "Choisissez ce raccourci dans le menu de partage. L'image est automatiquement transmise à l'étape suivante."
+      "title": "Sélectionner une image",
+      "description": "Ouvrez une image Gemini dans Photos, X ou toute app."
     },
     "step2": {
-      "title": "Traitement automatique",
-      "description": "Le raccourci télécharge l'image sur notre serveur, supprime le filigrane Gemini et renvoie le résultat.",
-      "details": "Le processus est entièrement automatique et se termine en 2 à 3 secondes. Prend en charge PNG, JPEG et WebP."
+      "title": "Partager au raccourci",
+      "description": "Appuyez sur Partager et choisissez RemoveGeminiWatermark.org."
     },
     "step3": {
-      "title": "Configuration API",
-      "description": "Le raccourci communique avec notre serveur avec les paramètres suivants :",
-      "details": [
-        { "label": "URL", "value": "{baseUrl}/api/v1/remove-watermark" },
-        { "label": "Méthode", "value": "POST" },
-        { "label": "Corps de requête", "value": "Form / File" },
-        { "label": "Clé", "value": "image" },
-        { "label": "Authorization", "value": "Bearer <API Key>" }
-      ]
+      "title": "Traitement auto",
+      "description": "Image téléchargée, filigrane supprimé en 2-3 sec. PNG, JPEG, WebP."
     },
     "step4": {
-      "title": "Enregistrer dans Photos",
-      "description": "L'image traitée est automatiquement enregistrée dans la photothèque de votre iPhone.",
-      "details": "Les images sont enregistrées en PNG pour une qualité optimale. L'image originale n'est jamais modifiée."
+      "title": "Enregistrer le résultat",
+      "description": "Image propre enregistrée en PNG. L'original n'est jamais modifié."
     }
   },
   "notes_title": "Remarques importantes",
   "notes": {
-    "note1": "Authentification requise. Allez dans Paramètres > Clés API sur notre site pour générer une clé API, puis ajoutez-la dans la configuration du raccourci.",
+    "note1_before": "Les utilisateurs gratuits ont droit à 5 images/jour. ",
+    "note1_link": "Acheter des crédits",
+    "note1_after": " pour un usage illimité.",
     "note2": "Seules les images originales générées par Gemini sont prises en charge. Les images non-Gemini ne seront pas détectées.",
-    "note3": "Chaque traitement d'image consomme 1 crédit. Des crédits insuffisants entraîneront l'échec de la requête."
+    "note3": "Fonctionne entièrement via le menu de partage — pas besoin d'ouvrir un navigateur ou un site web."
   },
   "tips_title": "Conseils d'utilisation",
   "tips": {
-    "tip1": "Générez votre clé API depuis Paramètres > Clés API sur notre site et collez-la dans le champ Authorization du raccourci.",
+    "tip1": "Générez votre clé API depuis Paramètres > Clés API pour obtenir votre URL personnelle, puis collez-la dans le raccourci pour un usage illimité.",
     "tip2": "Le traitement par lot est pris en charge : sélectionnez plusieurs images dans Photos et partagez-les toutes en même temps."
   },
   "back_to_home": "Retour à l'accueil"

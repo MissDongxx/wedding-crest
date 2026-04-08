@@ -12,9 +12,10 @@ import {
   getHeaderValue,
   guessLocaleFromAcceptLanguage,
 } from '@/shared/lib/cookie';
-import { getUuid } from '@/shared/lib/hash';
+import { getNonceStr, getUuid } from '@/shared/lib/hash';
 import { getClientIp } from '@/shared/lib/ip';
 import { grantCreditsForNewUser } from '@/shared/models/credit';
+import { createApikey, ApikeyStatus } from '@/shared/models/apikey';
 import { getEmailService } from '@/shared/services/email';
 import { grantRoleForNewUser } from '@/shared/services/rbac';
 
@@ -150,8 +151,17 @@ export async function getAuthOptions(configs: Record<string, string>) {
 
               // grant role for new user
               await grantRoleForNewUser(user);
+
+              // auto-generate api key for new user
+              await createApikey({
+                id: getUuid(),
+                userId: user.id,
+                title: 'Default API Key',
+                key: `sk-${getNonceStr(32)}`,
+                status: ApikeyStatus.ACTIVE,
+              });
             } catch {
-              // grant credits/role failed, non-critical
+              // grant credits/role/apikey failed, non-critical
             }
           },
         },

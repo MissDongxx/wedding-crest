@@ -14,6 +14,11 @@
     "nav": {
       "items": [
         {
+          "title": "快捷指令",
+          "url": "/shortcuts",
+          "icon": "Command"
+        },
+        {
           "title": "功能亮点",
           "url": "/#features",
           "icon": "Sparkles"

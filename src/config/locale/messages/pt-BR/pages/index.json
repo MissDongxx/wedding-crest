@@ -45,7 +45,14 @@
             "icon": "DollarSign",
             "url": "/#pricing",
             "target": "_self",
-            "variant": "outline"
+            "variant": "blue"
+          },
+          {
+            "title": "Atalho iOS",
+            "icon": "Command",
+            "url": "/shortcuts",
+            "target": "_self",
+            "variant": "emerald"
           }
         ],
         "show_avatars": false,
@@ -245,8 +252,15 @@
             "title": "Ver Preços",
             "url": "/#pricing",
             "target": "_self",
-            "variant": "outline",
+            "variant": "blue",
             "icon": "DollarSign"
+          },
+          {
+            "title": "Atalho iOS",
+            "url": "/shortcuts",
+            "target": "_self",
+            "variant": "emerald",
+            "icon": "Command"
           }
         ],
         "className": "bg-muted"

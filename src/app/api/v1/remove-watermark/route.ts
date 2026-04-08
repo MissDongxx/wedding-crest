@@ -11,6 +11,8 @@ import fs from 'fs';
 // Force nodejs runtime for 'canvas'
 export const runtime = 'nodejs';
 
+const DAILY_FREE_LIMIT = 5;
+
 /**
  * GEMINI WATERMARK PARAMETERS
  */
@@ -62,6 +64,30 @@ async function getServerAlphaMap(size: number): Promise<Float32Array> {
 }
 
 /**
+ * Simple in-memory daily usage tracker for free users.
+ * Resets when the date changes.
+ */
+const dailyUsageMap = new Map<string, { date: string; count: number }>();
+
+function checkDailyFreeUsage(key: string): { allowed: boolean; remaining: number } {
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const usage = dailyUsageMap.get(key);
+
+  if (!usage || usage.date !== today) {
+    // New day or first use
+    dailyUsageMap.set(key, { date: today, count: 1 });
+    return { allowed: true, remaining: DAILY_FREE_LIMIT - 1 };
+  }
+
+  if (usage.count >= DAILY_FREE_LIMIT) {
+    return { allowed: false, remaining: 0 };
+  }
+
+  usage.count += 1;
+  return { allowed: true, remaining: DAILY_FREE_LIMIT - usage.count };
+}
+
+/**
  * Authenticate user via API Key or session.
  * Returns user ID if authenticated, null otherwise.
  */
@@ -78,9 +104,27 @@ async function authenticateUser(request: NextRequest): Promise<string | null> {
     }
   }
 
-  // 2. Fallback to session-based auth (for web users)
+  // 2. Try API Key from URL query parameter (for shortcuts)
+  const urlKey = request.nextUrl.searchParams.get('key');
+  if (urlKey) {
+    const keyRecord = await findApikeyByKey(urlKey);
+    if (keyRecord?.userId) {
+      return keyRecord.userId;
+    }
+  }
+
+  // 3. Fallback to session-based auth (for web users)
   const user = await getUserInfo();
   return user?.id || null;
+}
+
+/**
+ * Get client IP for daily free usage tracking.
+ */
+function getClientIp(request: NextRequest): string {
+  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || request.headers.get('x-real-ip')
+    || 'unknown';
 }
 
 export async function POST(request: NextRequest) {
@@ -94,21 +138,35 @@ export async function POST(request: NextRequest) {
   try {
     // Authenticate user
     const userId = await authenticateUser(request);
+    let isMember = false;
 
-    if (!userId) {
-      return NextResponse.json(
-        { code: -1, message: 'Authentication required. Please provide a valid API Key via Authorization header (Bearer <key>).' },
-        { status: 401 }
-      );
-    }
-
-    // Check remaining credits
-    const remainingCredits = await getRemainingCredits(userId);
-    if (remainingCredits <= 0) {
-      return NextResponse.json(
-        { code: -1, message: 'Insufficient credits. Please purchase credits to continue.', data: { remainingCredits } },
-        { status: 403 }
-      );
+    if (userId) {
+      const remainingCredits = await getRemainingCredits(userId);
+      if (remainingCredits > 0) {
+        // Member with credits: unlimited use
+        isMember = true;
+      } else {
+        // Authenticated but no credits: fall back to daily free limit
+        const freeKey = `user:${userId}`;
+        const { allowed, remaining } = checkDailyFreeUsage(freeKey);
+        if (!allowed) {
+          return NextResponse.json(
+            { code: -1, message: 'Daily free limit reached (5 images/day). Purchase credits for unlimited use.', data: { remaining: 0, plan: 'free' } },
+            { status: 403 }
+          );
+        }
+      }
+    } else {
+      // Anonymous user: daily free limit tracked by IP
+      const clientIp = getClientIp(request);
+      const freeKey = `ip:${clientIp}`;
+      const { allowed, remaining } = checkDailyFreeUsage(freeKey);
+      if (!allowed) {
+        return NextResponse.json(
+          { code: -1, message: 'Daily free limit reached (5 images/day). Sign in and purchase credits for unlimited use.', data: { remaining: 0, plan: 'anonymous' } },
+          { status: 403 }
+        );
+      }
     }
 
     // Parse image from form data
@@ -163,16 +221,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 5. Consume credits after successful processing
-    try {
-      await consumeCredits({
-        userId,
-        credits: 1,
-        scene: 'watermark_removal',
-        description: 'Watermark removal: 1 image (Shortcut API)',
-      });
-    } catch (creditErr) {
-      console.warn('Credit consumption failed:', creditErr);
+    // 5. Consume credits for members only
+    if (isMember && userId) {
+      try {
+        await consumeCredits({
+          userId,
+          credits: 1,
+          scene: 'watermark_removal',
+          description: 'Watermark removal: 1 image (Shortcut API)',
+        });
+      } catch (creditErr) {
+        console.warn('Credit consumption failed:', creditErr);
+      }
     }
 
     // 6. Return the result

@@ -14,6 +14,11 @@
     "nav": {
       "items": [
         {
+          "title": "Scorciatoie",
+          "url": "/shortcuts",
+          "icon": "Command"
+        },
+        {
           "title": "Funzionalità",
           "url": "/#features",
           "icon": "Sparkles"

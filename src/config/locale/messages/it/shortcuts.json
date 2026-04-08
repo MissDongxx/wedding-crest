@@ -5,49 +5,57 @@
   },
   "title": "Scorciatoia iOS",
   "description": "Installa questa scorciatoia per rimuovere le filigrane Gemini direttamente dal menu di condivisione in Foto, X o qualsiasi app. Nessun browser necessario — elabora le immagini ovunque e in qualsiasi momento.",
+  "step_label": "Passaggio {number}",
   "install_title": "Ottieni la scorciatoia",
   "install_description": "Tocca il pulsante per installare direttamente sul tuo iPhone, oppure scarica il file e importalo manualmente.",
   "install_button": "Installa su iPhone",
   "download_button": "Scarica file",
   "or_text": "o",
+  "api_key_title": "Ottieni la tua chiave API",
+  "api_key_description": "Accedi, acquista crediti e genera una chiave API per uso illimitato.",
+  "api_key_skip_hint": "Gli utenti gratuiti ottengono 5 immagini/giorno.",
+  "api_key_button": "Vai alle chiavi API",
+  "sign_in_button": "Accedi",
+  "personal_url_title": "Il tuo URL personale",
+  "personal_url_description": "Copia l'URL qui sotto e incollalo nel campo URL della scorciatoia. La tua chiave API è già integrata — nessuna configurazione aggiuntiva!",
+  "personal_url_hint": "Apri la scorciatoia nell'app Scorciatoie → trova il campo URL → incolla questo URL",
+  "copy_button": "Copia",
+  "copied_button": "Copiato!",
+  "step3_title": "Usa la scorciatoia",
+  "step3_instruction1": "Apri un'immagine generata da Gemini — può essere da Foto, X (Twitter) o qualsiasi altra app.",
+  "step3_instruction2": "Tocca Condividi, poi seleziona la scorciatoia « RemoveGeminiWatermark.org » dal menu di condivisione.",
+  "step3_instruction3": "Tocca per eseguire la scorciatoia. L'immagine sarà caricata ed elaborata automaticamente.",
+  "step3_instruction4": "L'immagine elaborata senza filigrana sarà salvata automaticamente nelle tue Foto!",
   "how_it_works": "Come funziona",
-  "steps": {
+  "how_steps": {
     "step1": {
-      "title": "Condividi un'immagine",
-      "description": "In Foto, X (Twitter) o qualsiasi app che supporta la condivisione, seleziona un'immagine e tocca Condividi.",
-      "details": "Scegli questa scorciatoia dal menu di condivisione. L'immagine viene automaticamente passata al passaggio successivo."
+      "title": "Seleziona immagine",
+      "description": "Apri un'immagine Gemini in Foto, X o qualsiasi app."
     },
     "step2": {
-      "title": "Elaborazione automatica",
-      "description": "La scorciatoia carica l'immagine sul nostro server, rimuove la filigrana Gemini e restituisce il risultato pulito.",
-      "details": "L'intero processo è completamente automatico e si completa in 2-3 secondi. Supporta PNG, JPEG e WebP."
+      "title": "Condividi alla scorciatoia",
+      "description": "Tocca Condividi e scegli RemoveGeminiWatermark.org."
     },
     "step3": {
-      "title": "Configurazione API",
-      "description": "La scorciatoia comunica con il nostro server utilizzando queste impostazioni:",
-      "details": [
-        { "label": "URL", "value": "{baseUrl}/api/v1/remove-watermark" },
-        { "label": "Metodo", "value": "POST" },
-        { "label": "Corpo richiesta", "value": "Form / File" },
-        { "label": "Chiave", "value": "image" },
-        { "label": "Authorization", "value": "Bearer <API Key>" }
-      ]
+      "title": "Elaborazione auto",
+      "description": "Immagine caricata, filigrana rimossa in 2-3 sec. PNG, JPEG, WebP."
     },
     "step4": {
-      "title": "Salva in Foto",
-      "description": "L'immagine elaborata viene salvata automaticamente nella libreria foto del tuo iPhone.",
-      "details": "Le immagini vengono salvate in PNG per la massima qualità. L'immagine originale non viene mai modificata."
+      "title": "Salva risultato",
+      "description": "Immagine pulita salvata in PNG. L'originale non viene mai modificato."
     }
   },
   "notes_title": "Note importanti",
   "notes": {
-    "note1": "Autenticazione richiesta. Vai su Impostazioni > Chiavi API sul nostro sito per generare una chiave API, quindi aggiungila nella configurazione della scorciatoia.",
+    "note1_before": "Gli utenti gratuiti ottengono 5 immagini/giorno. ",
+    "note1_link": "Acquista crediti",
+    "note1_after": " per uso illimitato.",
     "note2": "Supporta solo le immagini originali generate da Gemini. Le immagini non-Gemini non avranno filigrane rilevate.",
-    "note3": "Ogni elaborazione di immagine consuma 1 credito. Crediti insufficienti causeranno il fallimento della richiesta."
+    "note3": "Funziona interamente tramite il menu di condivisione — non è necessario aprire un browser o un sito web."
   },
   "tips_title": "Suggerimenti d'uso",
   "tips": {
-    "tip1": "Genera la tua chiave API da Impostazioni > Chiavi API sul nostro sito e incollala nel campo Authorization della scorciatoia.",
+    "tip1": "Genera la tua chiave API da Impostazioni > Chiavi API per ottenere il tuo URL personale, quindi incollalo nella scorciatoia per uso illimitato.",
     "tip2": "L'elaborazione batch è supportata: seleziona più immagini in Foto e condividile tutte contemporaneamente."
   },
   "back_to_home": "Torna alla Home"
