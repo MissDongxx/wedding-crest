@@ -1,8 +1,9 @@
 {
   "page": {
     "show_sections": [
-      "hero",
       "tool",
+      "comparison",
+      "hero",
       "introduce",
       "benefits",
       "features",
@@ -15,15 +16,31 @@
       "tool": {
         "block": "upload-zone-block",
         "id": "tool",
-        "title": "Rimuovi Watermark Gemini Ora",
+        "title": "Rimuovi Watermark AI dalle Immagini Gemini",
         "label": "Strumento Online Gratuito",
         "description": "Carica la tua immagine generata da AI e rimuovi il watermark Gemini istantaneamente. Elaborazione 100% locale — le tue immagini non lasciano mai il tuo dispositivo.",
         "comparison_tip": "Tieni premuto per vedere il risultato"
       },
+      "comparison": {
+        "block": "comparison-block",
+        "id": "comparison",
+        "title": "Risultati di Qualità Professionale",
+        "label": "Confronto",
+        "description": "Scopri come il nostro strumento basato su browser rimuove i watermark AI senza alcuna perdita di qualità.",
+        "before_after": {
+          "before_image": "/images/examples/castle-before.jpg",
+          "after_image": "/images/examples/castle-after.jpg",
+          "before_label": "Prima",
+          "after_label": "Dopo",
+          "before_alt": "Immagine generata da AI con watermark Gemini visibile nell'angolo",
+          "after_alt": "Stessa immagine dopo la rimozione del watermark Gemini senza perdita di qualità",
+          "layout": "side-by-side"
+        }
+      },
       "hero": {
         "id": "hero",
-        "title": "Rimuovi Watermark AI da Qualsiasi Immagine",
-        "highlight_text": "Qualsiasi Immagine",
+        "title": "Rimuovi Watermark AI dalle Immagini Gemini",
+        "highlight_text": "Immagini Gemini",
         "description": "Strumento gratuito basato su browser per rimuovere watermark da immagini Gemini, DALL-E, Midjourney e altre immagini generate da AI.<br/>Elaborazione 100% locale — le tue immagini non lasciano mai il tuo dispositivo.",
         "announcement": {
           "badge": "Gratis",
@@ -87,17 +104,41 @@
           {
             "title": "100% Privato — Nessun Caricamento Richiesto",
             "description": "A differenza di altri strumenti, le tue immagini vengono elaborate interamente nel tuo browser. Nessun dato viene inviato ad alcun server. Il tuo lavoro creativo rimane privato.",
-            "icon": "RiShieldCheckLine"
+            "icon": "RiShieldCheckLine",
+            "before_after": {
+              "before_image": "/images/examples/woman-after.jpg",
+              "after_image": "/images/examples/woman-before.jpg",
+              "before_label": "Pulita",
+              "after_label": "Con Watermark",
+              "before_alt": "Immagine AI pulita con watermark rimosso",
+              "after_alt": "Immagine AI originale con watermark Gemini"
+            }
           },
           {
             "title": "Zero Perdita di Qualità",
             "description": "Il nostro algoritmo di reverse alpha blending recupera matematicamente i pixel originali sotto il watermark. Nessuna sfocatura, nessun artefatto, nessun degrado di qualità.",
-            "icon": "RiImageEditLine"
+            "icon": "RiImageEditLine",
+            "before_after": {
+              "before_image": "/images/examples/dog-before.jpg",
+              "after_image": "/images/examples/dog-after.jpg",
+              "before_label": "Con Watermark",
+              "after_label": "Pulita",
+              "before_alt": "Immagine AI originale di un cane con watermark Gemini",
+              "after_alt": "Immagine elaborata con watermark rimosso senza perdita di qualità"
+            }
           },
           {
             "title": "Elaborazione Fulminea",
             "description": "Elabora immagini in meno di 500ms utilizzando la Canvas API. Nessuna attesa di risposte server o code di elaborazione.",
-            "icon": "RiFlashlightLine"
+            "icon": "RiFlashlightLine",
+            "before_after": {
+              "before_image": "/images/examples/skater-before.jpg",
+              "after_image": "/images/examples/skater-after.jpg",
+              "before_label": "Con Watermark",
+              "after_label": "Pulita",
+              "before_alt": "Immagine AI originale di uno skater con watermark Gemini",
+              "after_alt": "Immagine elaborata con watermark rimosso senza perdita di qualità"
+            }
           }
         ]
       },

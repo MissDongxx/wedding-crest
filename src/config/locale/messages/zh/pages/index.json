@@ -16,15 +16,15 @@
       "tool": {
         "block": "upload-zone-block",
         "id": "tool",
-        "title": "立即移除 Gemini 水印",
+        "title": "移除 Gemini 图片的 AI 水印",
         "label": "免费在线工具",
         "description": "上传你的 AI 生成图片，立即移除 Gemini 水印。100% 本地处理 — 你的图片不会离开你的设备。",
         "comparison_tip": "按住查看去除水印后效果"
       },
       "hero": {
         "id": "hero",
-        "title": "移除任意图片的 AI 水印",
-        "highlight_text": "任意图片",
+        "title": "移除 Gemini 图片的 AI 水印",
+        "highlight_text": "Gemini 图片",
         "description": "免费浏览器工具，移除 Gemini、DALL-E、Midjourney 等 AI 生成图片的水印。<br/>100% 本地处理 — 你的图片不会离开你的设备。",
         "announcement": {
           "badge": "免费",

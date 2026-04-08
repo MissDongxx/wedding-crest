@@ -1,41 +1,53 @@
 {
   "metadata": {
-    "title": "iOS Shortcut Configuration Guide - RemoveGeminiWatermark",
-    "description": "Learn how to create an iOS shortcut to remove AI watermarks from Gemini-generated images directly from the share menu."
+    "title": "iOS Shortcut — Remove Gemini Watermark in One Tap",
+    "description": "Download the iOS shortcut to instantly remove Gemini AI watermarks from images via the share menu in Photos, X, and other apps."
   },
-  "title": "iOS Shortcut Guide",
-  "description": "By integrating our API into iOS Shortcuts, you can remove watermarks directly from the Photos share menu. No need to open a browser, process images anytime, anywhere.",
+  "title": "iOS Shortcut",
+  "description": "Install this shortcut to remove Gemini watermarks directly from the share menu in Photos, X, or any app. No browser needed — process images anytime, anywhere.",
+  "install_title": "Get the Shortcut",
+  "install_description": "Tap the button below to install directly on your iPhone, or download the file and import it manually.",
+  "install_button": "Install on iPhone",
+  "download_button": "Download File",
+  "or_text": "or",
+  "how_it_works": "How It Works",
   "steps": {
     "step1": {
-      "title": "Setup Share Sheet",
-      "description": "In the Shortcut's Details page, toggle 'Show in Share Sheet'.",
-      "details": "Set 'Receive Types' to 'Images' only. This keeps your share menu clean when sharing text or links."
+      "title": "Share an Image",
+      "description": "In Photos, X (Twitter), or any app that supports sharing, select an image and tap the Share button.",
+      "details": "Choose this shortcut from the share menu. The image is automatically passed to the next step."
     },
     "step2": {
-      "title": "Handle Input Logic",
-      "description": "Add logic to ensure the shortcut works both from the share sheet and directly.",
-      "details": "Use 'Get Shortcut Input' as the first step. Add an 'If' condition: if Shortcut Input has no value, add 'Select Photos' step."
+      "title": "Automatic Processing",
+      "description": "The shortcut uploads the image to our server, removes the Gemini watermark, and returns the clean result.",
+      "details": "The entire process is fully automatic and typically completes in 2-3 seconds. Supports PNG, JPEG, and WebP."
     },
     "step3": {
-      "title": "Configure Data Transfer",
-      "description": "Add the 'Get Contents of URL' action and configure these core settings:",
+      "title": "API Configuration",
+      "description": "The shortcut communicates with our server using these settings:",
       "details": [
         { "label": "URL", "value": "{baseUrl}/api/v1/remove-watermark" },
         { "label": "Method", "value": "POST" },
-        { "label": "Request Body", "value": "Form or File" },
+        { "label": "Request Body", "value": "Form / File" },
         { "label": "Key", "value": "image" }
       ]
     },
     "step4": {
-      "title": "Output and Save",
-      "description": "After the server returns the cleaned image, add saving actions.",
-      "details": "Add 'Save to Photo Album' and 'Show Result' to complete the workflow."
+      "title": "Save to Photos",
+      "description": "The processed image is automatically saved to your iPhone's photo library.",
+      "details": "Images are saved as PNG for best quality. The original image is never modified."
     }
+  },
+  "notes_title": "Important Notes",
+  "notes": {
+    "note1": "Authentication is required. Go to Settings > API Keys on our website to generate an API Key, then add it in the shortcut configuration.",
+    "note2": "Only supports original Gemini-generated images. Non-Gemini images will not have watermarks detected.",
+    "note3": "Each image processing consumes 1 credit. Insufficient credits will result in a failed request."
   },
   "tips_title": "Usage Tips",
   "tips": {
-    "tip1": "Pro users can use the shortcut without rate limits or anonymity counters (requires passing an auth token in the URL).",
-    "tip2": "Currently supports original Gemini-generated images. Non-Gemini images might not be processed correctly."
+    "tip1": "Generate your API Key from Settings > API Keys on our website and paste it into the shortcut's Authorization field.",
+    "tip2": "Batch processing is supported: select multiple images in Photos and share them all at once."
   },
   "back_to_home": "Back to Home"
 }

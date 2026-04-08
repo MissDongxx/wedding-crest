@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { respErr } from '@/shared/lib/resp';
+import { enforceMinIntervalRateLimit } from '@/shared/lib/rate-limit';
+import { getUserInfo } from '@/shared/models/user';
+import { getRemainingCredits, consumeCredits } from '@/shared/models/credit';
+import { findApikeyByKey } from '@/shared/models/apikey';
 import { createCanvas, loadImage } from 'canvas';
 import path from 'path';
 import fs from 'fs';
@@ -31,7 +35,7 @@ async function getServerAlphaMap(size: number): Promise<Float32Array> {
 
   // Resolve path to the public assets
   const assetPath = path.join(process.cwd(), 'public', 'watermark-assets', `bg_${size}.png`);
-  
+
   if (!fs.existsSync(assetPath)) {
     throw new Error(`Watermark asset not found: ${assetPath}`);
   }
@@ -40,7 +44,7 @@ async function getServerAlphaMap(size: number): Promise<Float32Array> {
   const canvas = createCanvas(size, size);
   const ctx = canvas.getContext('2d');
   ctx.drawImage(img, 0, 0);
-  
+
   const imageData = ctx.getImageData(0, 0, size, size);
   const pixels = imageData.data;
 
@@ -50,9 +54,6 @@ async function getServerAlphaMap(size: number): Promise<Float32Array> {
     const r = pixels[idx];
     const g = pixels[idx + 1];
     const b = pixels[idx + 2];
-    // Gemini watermark is white (255, 255, 255) with variable alpha.
-    // On black background: pixel = alpha * 255 + (1 - alpha) * 0 = alpha * 255
-    // So alpha = pixel / 255
     alphaMap[i] = Math.max(r, g, b) / 255.0;
   }
 
@@ -60,17 +61,66 @@ async function getServerAlphaMap(size: number): Promise<Float32Array> {
   return alphaMap;
 }
 
+/**
+ * Authenticate user via API Key or session.
+ * Returns user ID if authenticated, null otherwise.
+ */
+async function authenticateUser(request: NextRequest): Promise<string | null> {
+  // 1. Try API Key from Authorization header
+  const authHeader = request.headers.get('Authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    const apiKey = authHeader.slice(7).trim();
+    if (apiKey) {
+      const keyRecord = await findApikeyByKey(apiKey);
+      if (keyRecord?.userId) {
+        return keyRecord.userId;
+      }
+    }
+  }
+
+  // 2. Fallback to session-based auth (for web users)
+  const user = await getUserInfo();
+  return user?.id || null;
+}
+
 export async function POST(request: NextRequest) {
+  // Rate limit: max 1 request per 2 seconds per client
+  const rateLimitResponse = enforceMinIntervalRateLimit(request, {
+    intervalMs: 2000,
+    keyPrefix: 'remove-watermark',
+  });
+  if (rateLimitResponse) return rateLimitResponse;
+
   try {
+    // Authenticate user
+    const userId = await authenticateUser(request);
+
+    if (!userId) {
+      return NextResponse.json(
+        { code: -1, message: 'Authentication required. Please provide a valid API Key via Authorization header (Bearer <key>).' },
+        { status: 401 }
+      );
+    }
+
+    // Check remaining credits
+    const remainingCredits = await getRemainingCredits(userId);
+    if (remainingCredits <= 0) {
+      return NextResponse.json(
+        { code: -1, message: 'Insufficient credits. Please purchase credits to continue.', data: { remainingCredits } },
+        { status: 403 }
+      );
+    }
+
+    // Parse image from form data
     const formData = await request.formData();
     const imageFile = formData.get('image') as File;
 
     if (!imageFile) {
-      return respErr('No image provided. Please use the "image" key in multipart/form-data.');
+      return respErr('No image provided. Please use the "image" field in multipart/form-data.');
     }
 
     const buffer = Buffer.from(await imageFile.arrayBuffer());
-    
+
     // 1. Load the original image
     const image = await loadImage(buffer);
     const { width, height } = image;
@@ -102,8 +152,6 @@ export async function POST(request: NextRequest) {
         const idx = i * 4;
         for (let c = 0; c < 3; c++) {
           const composed = data[idx + c];
-          // Formula: original = (composed - logo * alpha) / (1 - alpha)
-          // Since logo is white (255):
           const original = (composed - 255 * alpha) / denominator;
           data[idx + c] = Math.max(0, Math.min(255, Math.round(original)));
         }
@@ -115,17 +163,29 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 5. Return the result
+    // 5. Consume credits after successful processing
+    try {
+      await consumeCredits({
+        userId,
+        credits: 1,
+        scene: 'watermark_removal',
+        description: 'Watermark removal: 1 image (Shortcut API)',
+      });
+    } catch (creditErr) {
+      console.warn('Credit consumption failed:', creditErr);
+    }
+
+    // 6. Return the result
     const resultBuffer = canvas.toBuffer('image/png');
 
     return new NextResponse(new Uint8Array(resultBuffer), {
       headers: {
         'Content-Type': 'image/png',
-        'Content-Disposition': 'attachment; filename="clean-image.png"',
+        'Content-Disposition': 'attachment; filename="clean-image-from-remove-gemini-watermark.png"',
       },
     });
   } catch (error) {
     console.error('Server-side watermark removal failed:', error);
-    return respErr('Watermark removal failed: ' + (error instanceof Error ? error.message : String(error)));
+    return respErr('Watermark removal failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
   }
 }

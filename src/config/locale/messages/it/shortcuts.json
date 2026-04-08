@@ -1,41 +1,54 @@
 {
   "metadata": {
-    "title": "iOS Shortcut Configuration Guide - RemoveGeminiWatermark",
-    "description": "Learn how to create an iOS shortcut to remove AI watermarks from Gemini-generated images directly from the share menu."
+    "title": "Scorciatoia iOS — Rimuovi filigrana Gemini con un tap",
+    "description": "Scarica la scorciatoia iOS per rimuovere istantaneamente le filigrane Gemini tramite il menu di condivisione in Foto, X e altre app."
   },
-  "title": "iOS Shortcut Guide",
-  "description": "By integrating our API into iOS Shortcuts, you can remove watermarks directly from the Photos share menu. No need to open a browser, process images anytime, anywhere.",
+  "title": "Scorciatoia iOS",
+  "description": "Installa questa scorciatoia per rimuovere le filigrane Gemini direttamente dal menu di condivisione in Foto, X o qualsiasi app. Nessun browser necessario — elabora le immagini ovunque e in qualsiasi momento.",
+  "install_title": "Ottieni la scorciatoia",
+  "install_description": "Tocca il pulsante per installare direttamente sul tuo iPhone, oppure scarica il file e importalo manualmente.",
+  "install_button": "Installa su iPhone",
+  "download_button": "Scarica file",
+  "or_text": "o",
+  "how_it_works": "Come funziona",
   "steps": {
     "step1": {
-      "title": "Setup Share Sheet",
-      "description": "In the Shortcut's Details page, toggle 'Show in Share Sheet'.",
-      "details": "Set 'Receive Types' to 'Images' only. This keeps your share menu clean when sharing text or links."
+      "title": "Condividi un'immagine",
+      "description": "In Foto, X (Twitter) o qualsiasi app che supporta la condivisione, seleziona un'immagine e tocca Condividi.",
+      "details": "Scegli questa scorciatoia dal menu di condivisione. L'immagine viene automaticamente passata al passaggio successivo."
     },
     "step2": {
-      "title": "Handle Input Logic",
-      "description": "Add logic to ensure the shortcut works both from the share sheet and directly.",
-      "details": "Use 'Get Shortcut Input' as the first step. Add an 'If' condition: if Shortcut Input has no value, add 'Select Photos' step."
+      "title": "Elaborazione automatica",
+      "description": "La scorciatoia carica l'immagine sul nostro server, rimuove la filigrana Gemini e restituisce il risultato pulito.",
+      "details": "L'intero processo è completamente automatico e si completa in 2-3 secondi. Supporta PNG, JPEG e WebP."
     },
     "step3": {
-      "title": "Configure Data Transfer",
-      "description": "Add the 'Get Contents of URL' action and configure these core settings:",
+      "title": "Configurazione API",
+      "description": "La scorciatoia comunica con il nostro server utilizzando queste impostazioni:",
       "details": [
         { "label": "URL", "value": "{baseUrl}/api/v1/remove-watermark" },
-        { "label": "Method", "value": "POST" },
-        { "label": "Request Body", "value": "Form or File" },
-        { "label": "Key", "value": "image" }
+        { "label": "Metodo", "value": "POST" },
+        { "label": "Corpo richiesta", "value": "Form / File" },
+        { "label": "Chiave", "value": "image" },
+        { "label": "Authorization", "value": "Bearer <API Key>" }
       ]
     },
     "step4": {
-      "title": "Output and Save",
-      "description": "After the server returns the cleaned image, add saving actions.",
-      "details": "Add 'Save to Photo Album' and 'Show Result' to complete the workflow."
+      "title": "Salva in Foto",
+      "description": "L'immagine elaborata viene salvata automaticamente nella libreria foto del tuo iPhone.",
+      "details": "Le immagini vengono salvate in PNG per la massima qualità. L'immagine originale non viene mai modificata."
     }
   },
-  "tips_title": "Usage Tips",
-  "tips": {
-    "tip1": "Pro users can use the shortcut without rate limits or anonymity counters (requires passing an auth token in the URL).",
-    "tip2": "Currently supports original Gemini-generated images. Non-Gemini images might not be processed correctly."
+  "notes_title": "Note importanti",
+  "notes": {
+    "note1": "Autenticazione richiesta. Vai su Impostazioni > Chiavi API sul nostro sito per generare una chiave API, quindi aggiungila nella configurazione della scorciatoia.",
+    "note2": "Supporta solo le immagini originali generate da Gemini. Le immagini non-Gemini non avranno filigrane rilevate.",
+    "note3": "Ogni elaborazione di immagine consuma 1 credito. Crediti insufficienti causeranno il fallimento della richiesta."
   },
-  "back_to_home": "Back to Home"
+  "tips_title": "Suggerimenti d'uso",
+  "tips": {
+    "tip1": "Genera la tua chiave API da Impostazioni > Chiavi API sul nostro sito e incollala nel campo Authorization della scorciatoia.",
+    "tip2": "L'elaborazione batch è supportata: seleziona più immagini in Foto e condividile tutte contemporaneamente."
+  },
+  "back_to_home": "Torna alla Home"
 }

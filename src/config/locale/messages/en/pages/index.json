@@ -3,7 +3,6 @@
     "show_sections": [
       "tool",
       "comparison",
-      "hero",
       "introduce",
       "benefits",
       "features",
@@ -16,14 +15,14 @@
       "tool": {
         "block": "upload-zone-block",
         "id": "tool",
-        "title": "Remove Gemini Watermark Now",
+        "title": "Remove AI Watermark from Gemini image",
         "label": "Free Online Tool",
         "description": "Upload your AI-generated image and remove the Gemini watermark instantly. 100% local processing — your images never leave your device.",
         "comparison_tip": "Press & hold to see the result"
       },
       "hero": {
         "id": "hero",
-        "title": "Remove AI Watermarks from Any Image",
+        "title": "Remove AI Watermark from Gemini image",
         "highlight_text": "Any Image",
         "description": "Free browser-based tool to remove watermarks from Gemini, DALL-E, Midjourney and other AI-generated images.<br/>100% local processing — your images never leave your device.",
         "announcement": {

@@ -1,41 +1,54 @@
 {
   "metadata": {
-    "title": "iOS Shortcut Configuration Guide - RemoveGeminiWatermark",
-    "description": "Learn how to create an iOS shortcut to remove AI watermarks from Gemini-generated images directly from the share menu."
+    "title": "Raccourci iOS — Supprimer le filigrane Gemini en un tap",
+    "description": "Téléchargez le raccourci iOS pour supprimer instantanément les filigranes Gemini via le menu de partage dans Photos, X et d'autres applications."
   },
-  "title": "iOS Shortcut Guide",
-  "description": "By integrating our API into iOS Shortcuts, you can remove watermarks directly from the Photos share menu. No need to open a browser, process images anytime, anywhere.",
+  "title": "Raccourci iOS",
+  "description": "Installez ce raccourci pour supprimer les filigranes Gemini directement depuis le menu de partage de Photos, X ou toute autre application. Pas besoin de navigateur — traitez vos images partout et à tout moment.",
+  "install_title": "Obtenir le raccourci",
+  "install_description": "Appuyez sur le bouton ci-dessous pour installer directement sur votre iPhone, ou téléchargez le fichier et importez-le manuellement.",
+  "install_button": "Installer sur iPhone",
+  "download_button": "Télécharger le fichier",
+  "or_text": "ou",
+  "how_it_works": "Comment ça fonctionne",
   "steps": {
     "step1": {
-      "title": "Setup Share Sheet",
-      "description": "In the Shortcut's Details page, toggle 'Show in Share Sheet'.",
-      "details": "Set 'Receive Types' to 'Images' only. This keeps your share menu clean when sharing text or links."
+      "title": "Partager une image",
+      "description": "Dans Photos, X (Twitter) ou toute application prenant en charge le partage, sélectionnez une image et appuyez sur Partager.",
+      "details": "Choisissez ce raccourci dans le menu de partage. L'image est automatiquement transmise à l'étape suivante."
     },
     "step2": {
-      "title": "Handle Input Logic",
-      "description": "Add logic to ensure the shortcut works both from the share sheet and directly.",
-      "details": "Use 'Get Shortcut Input' as the first step. Add an 'If' condition: if Shortcut Input has no value, add 'Select Photos' step."
+      "title": "Traitement automatique",
+      "description": "Le raccourci télécharge l'image sur notre serveur, supprime le filigrane Gemini et renvoie le résultat.",
+      "details": "Le processus est entièrement automatique et se termine en 2 à 3 secondes. Prend en charge PNG, JPEG et WebP."
     },
     "step3": {
-      "title": "Configure Data Transfer",
-      "description": "Add the 'Get Contents of URL' action and configure these core settings:",
+      "title": "Configuration API",
+      "description": "Le raccourci communique avec notre serveur avec les paramètres suivants :",
       "details": [
         { "label": "URL", "value": "{baseUrl}/api/v1/remove-watermark" },
-        { "label": "Method", "value": "POST" },
-        { "label": "Request Body", "value": "Form or File" },
-        { "label": "Key", "value": "image" }
+        { "label": "Méthode", "value": "POST" },
+        { "label": "Corps de requête", "value": "Form / File" },
+        { "label": "Clé", "value": "image" },
+        { "label": "Authorization", "value": "Bearer <API Key>" }
       ]
     },
     "step4": {
-      "title": "Output and Save",
-      "description": "After the server returns the cleaned image, add saving actions.",
-      "details": "Add 'Save to Photo Album' and 'Show Result' to complete the workflow."
+      "title": "Enregistrer dans Photos",
+      "description": "L'image traitée est automatiquement enregistrée dans la photothèque de votre iPhone.",
+      "details": "Les images sont enregistrées en PNG pour une qualité optimale. L'image originale n'est jamais modifiée."
     }
   },
-  "tips_title": "Usage Tips",
-  "tips": {
-    "tip1": "Pro users can use the shortcut without rate limits or anonymity counters (requires passing an auth token in the URL).",
-    "tip2": "Currently supports original Gemini-generated images. Non-Gemini images might not be processed correctly."
+  "notes_title": "Remarques importantes",
+  "notes": {
+    "note1": "Authentification requise. Allez dans Paramètres > Clés API sur notre site pour générer une clé API, puis ajoutez-la dans la configuration du raccourci.",
+    "note2": "Seules les images originales générées par Gemini sont prises en charge. Les images non-Gemini ne seront pas détectées.",
+    "note3": "Chaque traitement d'image consomme 1 crédit. Des crédits insuffisants entraîneront l'échec de la requête."
   },
-  "back_to_home": "Back to Home"
+  "tips_title": "Conseils d'utilisation",
+  "tips": {
+    "tip1": "Générez votre clé API depuis Paramètres > Clés API sur notre site et collez-la dans le champ Authorization du raccourci.",
+    "tip2": "Le traitement par lot est pris en charge : sélectionnez plusieurs images dans Photos et partagez-les toutes en même temps."
+  },
+  "back_to_home": "Retour à l'accueil"
 }

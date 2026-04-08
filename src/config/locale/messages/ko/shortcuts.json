@@ -1,41 +1,54 @@
 {
   "metadata": {
-    "title": "iOS Shortcut Configuration Guide - RemoveGeminiWatermark",
-    "description": "Learn how to create an iOS shortcut to remove AI watermarks from Gemini-generated images directly from the share menu."
+    "title": "iOS 단축어 — 한 번의 탭으로 Gemini 워터마크 제거",
+    "description": "iOS 단축어를 다운로드하여 사진, X 및 기타 앱의 공유 메뉴에서 Gemini AI 워터마크를 즉시 제거하세요."
   },
-  "title": "iOS Shortcut Guide",
-  "description": "By integrating our API into iOS Shortcuts, you can remove watermarks directly from the Photos share menu. No need to open a browser, process images anytime, anywhere.",
+  "title": "iOS 단축어",
+  "description": "이 단축어를 설치하면 사진, X 또는 모든 앱의 공유 메뉴에서 Gemini 워터마크를 바로 제거할 수 있습니다. 브라우저 없이 언제 어디서나 이미지를 처리하세요.",
+  "install_title": "단축어 받기",
+  "install_description": "아래 버튼을 눌러 iPhone에 바로 설치하거나, 파일을 다운로드하여 수동으로 가져오세요.",
+  "install_button": "iPhone에 설치",
+  "download_button": "파일 다운로드",
+  "or_text": "또는",
+  "how_it_works": "작동 방식",
   "steps": {
     "step1": {
-      "title": "Setup Share Sheet",
-      "description": "In the Shortcut's Details page, toggle 'Show in Share Sheet'.",
-      "details": "Set 'Receive Types' to 'Images' only. This keeps your share menu clean when sharing text or links."
+      "title": "이미지 공유",
+      "description": "사진, X (Twitter) 또는 공유를 지원하는 모든 앱에서 이미지를 선택하고 공유 버튼을 누르세요.",
+      "details": "공유 메뉴에서 이 단축어를 선택하면 이미지가 자동으로 다음 단계로 전달됩니다."
     },
     "step2": {
-      "title": "Handle Input Logic",
-      "description": "Add logic to ensure the shortcut works both from the share sheet and directly.",
-      "details": "Use 'Get Shortcut Input' as the first step. Add an 'If' condition: if Shortcut Input has no value, add 'Select Photos' step."
+      "title": "자동 처리",
+      "description": "단축어가 이미지를 서버에 업로드하고 Gemini 워터마크를 제거하여 결과를 반환합니다.",
+      "details": "전체 과정은 완전 자동이며 일반적으로 2-3초 내에 완료됩니다. PNG, JPEG, WebP를 지원합니다."
     },
     "step3": {
-      "title": "Configure Data Transfer",
-      "description": "Add the 'Get Contents of URL' action and configure these core settings:",
+      "title": "API 설정",
+      "description": "단축어는 다음 설정을 사용하여 서버와 통신합니다:",
       "details": [
         { "label": "URL", "value": "{baseUrl}/api/v1/remove-watermark" },
-        { "label": "Method", "value": "POST" },
-        { "label": "Request Body", "value": "Form or File" },
-        { "label": "Key", "value": "image" }
+        { "label": "메서드", "value": "POST" },
+        { "label": "요청 본문", "value": "Form / File" },
+        { "label": "키", "value": "image" },
+        { "label": "Authorization", "value": "Bearer <API Key>" }
       ]
     },
     "step4": {
-      "title": "Output and Save",
-      "description": "After the server returns the cleaned image, add saving actions.",
-      "details": "Add 'Save to Photo Album' and 'Show Result' to complete the workflow."
+      "title": "사진에 저장",
+      "description": "처리된 이미지가 iPhone 사진 라이브러리에 자동으로 저장됩니다.",
+      "details": "이미지는 최고 품질의 PNG로 저장됩니다. 원본 이미지는 수정되지 않습니다."
     }
   },
-  "tips_title": "Usage Tips",
-  "tips": {
-    "tip1": "Pro users can use the shortcut without rate limits or anonymity counters (requires passing an auth token in the URL).",
-    "tip2": "Currently supports original Gemini-generated images. Non-Gemini images might not be processed correctly."
+  "notes_title": "중요 참고 사항",
+  "notes": {
+    "note1": "인증이 필요합니다. 웹사이트의 설정 > API 키에서 API Key를 생성한 후 단축어 설정에 추가하세요.",
+    "note2": "원본 Gemini 생성 이미지만 지원됩니다. 비-Gemini 이미지는 워터마크가 감지되지 않습니다.",
+    "note3": "이미지 1장 처리 시 1크레딧이 소모됩니다. 크레딧이 부족하면 요청이 실패합니다."
   },
-  "back_to_home": "Back to Home"
+  "tips_title": "사용 팁",
+  "tips": {
+    "tip1": "웹사이트의 설정 > API 키에서 API Key를 생성한 후 단축어의 Authorization 필드에 붙여넣으세요.",
+    "tip2": "배치 처리가 지원됩니다: 사진에서 여러 이미지를 선택하고 한 번에 공유하세요."
+  },
+  "back_to_home": "홈으로 돌아가기"
 }

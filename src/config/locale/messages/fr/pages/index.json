@@ -1,8 +1,9 @@
 {
   "page": {
     "show_sections": [
-      "hero",
       "tool",
+      "comparison",
+      "hero",
       "introduce",
       "benefits",
       "features",
@@ -15,15 +16,31 @@
       "tool": {
         "block": "upload-zone-block",
         "id": "tool",
-        "title": "Supprimer le Watermark Gemini Maintenant",
+        "title": "Supprimer le Filigrane IA des Images Gemini",
         "label": "Outil en Ligne Gratuit",
         "description": "Téléchargez votre image générée par IA et supprimez le filigrane Gemini instantanément. Traitement 100% local — vos images ne quittent jamais votre appareil.",
         "comparison_tip": "Maintenez pour voir le résultat"
       },
+      "comparison": {
+        "block": "comparison-block",
+        "id": "comparison",
+        "title": "Résultats de Qualité Professionnelle",
+        "label": "Comparaison",
+        "description": "Découvrez comment notre outil basé sur le navigateur supprime les filigranes IA sans aucune perte de qualité.",
+        "before_after": {
+          "before_image": "/images/examples/castle-before.jpg",
+          "after_image": "/images/examples/castle-after.jpg",
+          "before_label": "Avant",
+          "after_label": "Après",
+          "before_alt": "Image générée par IA avec filigrane Gemini visible dans le coin",
+          "after_alt": "Même image après suppression du filigrane Gemini sans perte de qualité",
+          "layout": "side-by-side"
+        }
+      },
       "hero": {
         "id": "hero",
-        "title": "Supprimer les Filigranes IA de N'Importe Quelle Image",
-        "highlight_text": "N'Importe Quelle Image",
+        "title": "Supprimer le Filigrane IA des Images Gemini",
+        "highlight_text": "Images Gemini",
         "description": "Outil gratuit basé sur le navigateur pour supprimer les filigranes de Gemini, DALL-E, Midjourney et d'autres images générées par IA.<br/>Traitement 100% local — vos images ne quittent jamais votre appareil.",
         "announcement": {
           "badge": "Gratuit",
@@ -87,17 +104,41 @@
           {
             "title": "100% Privé — Aucun Téléchargement Requis",
             "description": "Contrairement aux autres outils, vos images sont traitées entièrement dans votre navigateur. Aucune donnée n'est envoyée à un serveur. Votre travail créatif reste privé.",
-            "icon": "RiShieldCheckLine"
+            "icon": "RiShieldCheckLine",
+            "before_after": {
+              "before_image": "/images/examples/woman-after.jpg",
+              "after_image": "/images/examples/woman-before.jpg",
+              "before_label": "Propre",
+              "after_label": "Filigranée",
+              "before_alt": "Image IA propre avec filigrane supprimé",
+              "after_alt": "Image IA originale avec filigrane Gemini"
+            }
           },
           {
             "title": "Zéro Perte de Qualité",
             "description": "Notre algorithme de fusion alpha inverse récupère mathématiquement les pixels originaux sous le filigrane. Pas de flou, pas d'artefacts, aucune dégradation.",
-            "icon": "RiImageEditLine"
+            "icon": "RiImageEditLine",
+            "before_after": {
+              "before_image": "/images/examples/dog-before.jpg",
+              "after_image": "/images/examples/dog-after.jpg",
+              "before_label": "Filigranée",
+              "after_label": "Propre",
+              "before_alt": "Image IA originale d'un chien avec filigrane Gemini",
+              "after_alt": "Image traitée avec filigrane supprimé sans perte de qualité"
+            }
           },
           {
             "title": "Traitement Ultra Rapide",
             "description": "Traitez des images en moins de 500 ms avec l'API Canvas. Pas d'attente de réponses serveur ou de files de traitement.",
-            "icon": "RiFlashlightLine"
+            "icon": "RiFlashlightLine",
+            "before_after": {
+              "before_image": "/images/examples/skater-before.jpg",
+              "after_image": "/images/examples/skater-after.jpg",
+              "before_label": "Filigranée",
+              "after_label": "Propre",
+              "before_alt": "Image IA originale d'un skateur avec filigrane Gemini",
+              "after_alt": "Image traitée avec filigrane supprimé sans perte de qualité"
+            }
           }
         ]
       },

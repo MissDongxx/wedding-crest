@@ -16,15 +16,15 @@
       "tool": {
         "block": "upload-zone-block",
         "id": "tool",
-        "title": "Remova a Marca d'água do Gemini Agora",
+        "title": "Remova Marca d'água de IA de Imagens do Gemini",
         "label": "Ferramenta Online Grátis",
         "description": "Envie sua imagem gerada por IA e remova a marca d'água do Gemini instantaneamente. Processamento 100% local — suas imagens nunca saem do seu dispositivo.",
         "comparison_tip": "Pressione e segure para ver o resultado"
       },
       "hero": {
         "id": "hero",
-        "title": "Remova Marcas d'água de IA de Qualquer Imagem",
-        "highlight_text": "Qualquer Imagem",
+        "title": "Remova Marca d'água de IA de Imagens do Gemini",
+        "highlight_text": "Imagens do Gemini",
         "description": "Ferramenta gratuita no navegador para remover marcas d'água de imagens geradas por Gemini, DALL-E, Midjourney e outras IAs.<br/>Processamento 100% local — suas imagens nunca saem do seu dispositivo.",
         "announcement": {
           "badge": "Grátis",

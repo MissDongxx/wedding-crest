@@ -1,41 +1,54 @@
 {
   "metadata": {
-    "title": "Guia de Configuração do Atalho iOS - RemoveGeminiWatermark",
-    "description": "Saiba como criar um Atalho iOS para remover marcas d'água de imagens geradas pelo Gemini com um toque através do menu de compartilhamento."
+    "title": "Atalho iOS — Remover marca d'água Gemini com um toque",
+    "description": "Baixe o atalho iOS para remover instantaneamente marcas d'água Gemini pelo menu de compartilhamento no Fotos, X e outros apps."
   },
-  "title": "Guia do Atalho iOS",
-  "description": "Ao integrar nossa API com os Atalhos do iOS, você pode remover marcas d'água diretamente do menu de compartilhamento da galeria. Sem abrir o navegador, processamento rápido em qualquer lugar.",
+  "title": "Atalho iOS",
+  "description": "Instale este atalho para remover marcas d'água do Gemini diretamente pelo menu de compartilhamento no Fotos, X ou qualquer app. Sem precisar de navegador — processe imagens em qualquer lugar e a qualquer momento.",
+  "install_title": "Obter o Atalho",
+  "install_description": "Toque no botão abaixo para instalar diretamente no seu iPhone, ou baixe o arquivo e importe manualmente.",
+  "install_button": "Instalar no iPhone",
+  "download_button": "Baixar arquivo",
+  "or_text": "ou",
+  "how_it_works": "Como funciona",
   "steps": {
     "step1": {
-      "title": "Ativar Configurações da Folha de Compartilhamento",
-      "description": "Na página de Details (Detalhes) do atalho, marque 'Mostrar na Folha de Compartilhamento' (Show in Share Sheet).",
-      "details": "Restrinja os 'Tipos Aceitos' a 'Imagens' (Images), para que o atalho não apareça ao compartilhar texto ou links, mantendo o menu limpo."
+      "title": "Compartilhar imagem",
+      "description": "No Fotos, X (Twitter) ou qualquer app que suporte compartilhamento, selecione uma imagem e toque em Compartilhar.",
+      "details": "Escolha este atalho no menu de compartilhamento. A imagem será automaticamente enviada para a próxima etapa."
     },
     "step2": {
-      "title": "Configurar Lógica de Entrada",
-      "description": "Adicione lógica condicional para garantir que o atalho funcione tanto quando chamado pelo compartilhamento quanto pela seleção na galeria.",
-      "details": "Use 'Obter Entrada da Folha de Compartilhamento' como primeiro passo. Adicione uma condição If: se Shortcut Input estiver vazio, execute a ação 'Selecionar Foto'."
+      "title": "Processamento automático",
+      "description": "O atalho envia a imagem para nosso servidor, remove a marca d'água Gemini e retorna o resultado limpo.",
+      "details": "O processo é totalmente automático e geralmente leva 2-3 segundos. Suporta PNG, JPEG e WebP."
     },
     "step3": {
-      "title": "Configurar Transferência de API",
-      "description": "Adicione a ação 'Obter Conteúdo da URL' (Get Contents of URL) e configure os seguintes parâmetros principais:",
+      "title": "Configuração da API",
+      "description": "O atalho se comunica com nosso servidor usando estas configurações:",
       "details": [
         { "label": "URL", "value": "{baseUrl}/api/v1/remove-watermark" },
-        { "label": "Método (Method)", "value": "POST" },
-        { "label": "Corpo (Request Body)", "value": "Form ou File" },
-        { "label": "Chave (Key)", "value": "image" }
+        { "label": "Método", "value": "POST" },
+        { "label": "Corpo da requisição", "value": "Form / File" },
+        { "label": "Chave", "value": "image" },
+        { "label": "Authorization", "value": "Bearer <API Key>" }
       ]
     },
     "step4": {
-      "title": "Salvar e Exibir Resultado",
-      "description": "Após o servidor processar e retornar a imagem limpa, adicione a lógica de salvamento subsequente.",
-      "details": "Adicione as ações: 'Salvar no Álbum de Fotos' (Save to Photo Album) e 'Mostrar Resultado' (Show Result) para concluir o fluxo."
+      "title": "Salvar no Fotos",
+      "description": "A imagem processada é salva automaticamente na biblioteca de fotos do seu iPhone.",
+      "details": "As imagens são salvas em PNG para melhor qualidade. A imagem original nunca é modificada."
     }
   },
-  "tips_title": "Dicas de Uso",
+  "notes_title": "Observações importantes",
+  "notes": {
+    "note1": "Autenticação obrigatória. Acesse Configurações > Chaves API no nosso site para gerar uma chave API e adicione-a na configuração do atalho.",
+    "note2": "Suporta apenas imagens originais geradas pelo Gemini. Imagens não-Gemini não terão marcas d'água detectadas.",
+    "note3": "Cada processamento de imagem consome 1 crédito. Créditos insuficientes causarão falha na requisição."
+  },
+  "tips_title": "Dicas de uso",
   "tips": {
-    "tip1": "Se você é usuário Pro, o processamento via Atalho iOS não conta para o limite gratuito e não tem restrição de frequência (é necessário passar o token de autorização na URL).",
-    "tip2": "Atualmente, apenas imagens geradas pelo Gemini original são suportadas. Imagens não-Gemini podem não ter a marca d'água detectada."
+    "tip1": "Gere sua chave API em Configurações > Chaves API no nosso site e cole no campo Authorization do atalho.",
+    "tip2": "O processamento em lote é suportado: selecione várias imagens no Fotos e compartilhe todas de uma vez."
   },
   "back_to_home": "Voltar ao Início"
 }

@@ -39,9 +39,9 @@ export function UploadZoneBlock({
                 <span>{section.label}</span>
               </div>
             )}
-            <h2 className="text-foreground mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
+            <h1 className="text-foreground mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
               {section.title}
-            </h2>
+            </h1>
             {section.description && (
               <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
                 {section.description}

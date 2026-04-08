@@ -1,8 +1,9 @@
 {
   "page": {
     "show_sections": [
-      "hero",
       "tool",
+      "comparison",
+      "hero",
       "introduce",
       "benefits",
       "features",
@@ -15,15 +16,31 @@
       "tool": {
         "block": "upload-zone-block",
         "id": "tool",
-        "title": "Gemini Wasserzeichen jetzt entfernen",
+        "title": "KI-Wasserzeichen aus Gemini-Bildern entfernen",
         "label": "Kostenloses Online-Tool",
         "description": "Laden Sie Ihr KI-generiertes Bild hoch und entfernen Sie das Gemini-Wasserzeichen sofort. 100% lokale Verarbeitung — Ihre Bilder verlassen niemals Ihr Gerät.",
         "comparison_tip": "Gedrückt halten, um das Ergebnis zu sehen"
       },
+      "comparison": {
+        "block": "comparison-block",
+        "id": "comparison",
+        "title": "Professionelle Qualitätsergebnisse",
+        "label": "Vergleich",
+        "description": "Sehen Sie, wie unser browserbasiertes Tool KI-Wasserzeichen ohne Qualitätsverlust entfernt.",
+        "before_after": {
+          "before_image": "/images/examples/castle-before.jpg",
+          "after_image": "/images/examples/castle-after.jpg",
+          "before_label": "Vorher",
+          "after_label": "Nachher",
+          "before_alt": "KI-generiertes Bild mit sichtbarem Gemini-Wasserzeichen in der Ecke",
+          "after_alt": "Dasselbe Bild nach Entfernung des Gemini-Wasserzeichens ohne Qualitätsverlust",
+          "layout": "side-by-side"
+        }
+      },
       "hero": {
         "id": "hero",
-        "title": "KI-Wasserzeichen aus jedem Bild entfernen",
-        "highlight_text": "jedem Bild",
+        "title": "KI-Wasserzeichen aus Gemini-Bildern entfernen",
+        "highlight_text": "Gemini-Bildern",
         "description": "Kostenloses Browser-Tool zum Entfernen von Wasserzeichen aus Gemini, DALL-E, Midjourney und anderen KI-generierten Bildern.<br/>100% lokale Verarbeitung — Ihre Bilder verlassen niemals Ihr Gerät.",
         "announcement": {
           "badge": "Kostenlos",
@@ -87,17 +104,41 @@
           {
             "title": "100% Privat — Kein Upload erforderlich",
             "description": "Im Gegensatz zu anderen Tools werden Ihre Bilder vollständig in Ihrem Browser verarbeitet. Es werden niemals Daten an einen Server gesendet. Ihre kreativen Arbeiten bleiben privat.",
-            "icon": "RiShieldCheckLine"
+            "icon": "RiShieldCheckLine",
+            "before_after": {
+              "before_image": "/images/examples/woman-after.jpg",
+              "after_image": "/images/examples/woman-before.jpg",
+              "before_label": "Sauber",
+              "after_label": "Mit Wasserzeichen",
+              "before_alt": "Saubereres KI-Bild mit entferntem Wasserzeichen",
+              "after_alt": "Originales KI-Bild mit Gemini-Wasserzeichen"
+            }
           },
           {
             "title": "Kein Qualitätsverlust",
             "description": "Unser Reverse-Alpha-Blending-Algorithmus stellt die Originalpixel unter dem Wasserzeichen mathematisch wieder her. Keine Unschärfe, keine Artefakte, kein Qualitätsverlust.",
-            "icon": "RiImageEditLine"
+            "icon": "RiImageEditLine",
+            "before_after": {
+              "before_image": "/images/examples/dog-before.jpg",
+              "after_image": "/images/examples/dog-after.jpg",
+              "before_label": "Mit Wasserzeichen",
+              "after_label": "Sauber",
+              "before_alt": "Originales KI-Bild eines Hundes mit Gemini-Wasserzeichen",
+              "after_alt": "Verarbeitetes Bild mit entferntem Wasserzeichen ohne Qualitätsverlust"
+            }
           },
           {
             "title": "Blitzschnelle Verarbeitung",
             "description": "Verarbeiten Sie Bilder in unter 500ms mit der Canvas-API. Kein Warten auf Server-Antworten oder Verarbeitungswarteschlangen.",
-            "icon": "RiFlashlightLine"
+            "icon": "RiFlashlightLine",
+            "before_after": {
+              "before_image": "/images/examples/skater-before.jpg",
+              "after_image": "/images/examples/skater-after.jpg",
+              "before_label": "Mit Wasserzeichen",
+              "after_label": "Sauber",
+              "before_alt": "Originales KI-Bild eines Skaters mit Gemini-Wasserzeichen",
+              "after_alt": "Verarbeitetes Bild mit entferntem Wasserzeichen ohne Qualitätsverlust"
+            }
           }
         ]
       },
