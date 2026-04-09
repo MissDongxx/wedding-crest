@@ -21,7 +21,7 @@ const nextConfig = {
   // OpenNext Cloudflare will copy full packages listed here into the workerd bundle
   // when they expose a "workerd" export condition. `@libsql/client` does, and without
   // this the OpenNext bundler can fail to resolve it.
-  serverExternalPackages: ['@libsql/client', '@libsql/isomorphic-ws'],
+  serverExternalPackages: ['@libsql/client', '@libsql/isomorphic-ws', 'pngjs'],
   images: {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
