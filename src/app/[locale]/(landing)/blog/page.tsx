@@ -63,6 +63,8 @@ export default async function BlogPage({
 
   // build page sections
   const blogSection = t.raw('page.sections.blog');
+  const partnersSection = t.raw('page.sections.partners');
+
   const page: DynamicPage = {
     title: t('page.title'),
     sections: {
@@ -73,6 +75,11 @@ export default async function BlogPage({
           currentCategory,
           posts,
         },
+      },
+      partners: {
+        ...(partnersSection && typeof partnersSection === 'object'
+          ? partnersSection
+          : {}),
       },
     },
   };

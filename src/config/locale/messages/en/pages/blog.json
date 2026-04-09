@@ -10,6 +10,11 @@
         "id": "blog",
         "title": "Blog",
         "description": "Read latest product features, solutions, and updates."
+      },
+      "partners": {
+        "id": "partners",
+        "block": "partners",
+        "title": "Our Partners"
       }
     }
   },
