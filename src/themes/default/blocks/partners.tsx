@@ -23,7 +23,7 @@ export function Partners({
               <a
                 href="https://turbo0.com/item/removegeminiwatermarkr"
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener noreferrer nofollow"
                 className="group relative transition-all duration-300 hover:scale-105"
               >
                 <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
@@ -31,6 +31,21 @@ export function Partners({
                 <img
                   src="https://img.turbo0.com/badge-listed-light.svg"
                   alt="Listed on Turbo0"
+                  style={{ height: '54px', width: 'auto' }}
+                  className="relative dark:brightness-110"
+                />
+              </a>
+              <a
+                href="https://www.toolpilot.ai/"
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="group relative transition-all duration-300 hover:scale-105"
+              >
+                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://www.toolpilot.ai/cdn/shop/files/f-w_690x151_crop_center.png"
+                  alt="Featured on ToolPilot"
                   style={{ height: '54px', width: 'auto' }}
                   className="relative dark:brightness-110"
                 />
