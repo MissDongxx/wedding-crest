@@ -58,7 +58,7 @@
               "Batch processing (up to 100)",
               "C2PA/Exif metadata removal",
               "Priority support",
-              "API access"
+              "iOS shortcuts access"
             ],
             "interval": "one-time",
             "amount": 990,

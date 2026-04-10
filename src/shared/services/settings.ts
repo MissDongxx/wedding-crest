@@ -202,6 +202,12 @@ export async function getSettingGroups() {
       tab: 'email',
     },
     {
+      name: 'brevo',
+      title: t('groups.brevo'),
+      description: 'custom your brevo settings',
+      tab: 'email',
+    },
+    {
       name: 'r2',
       title: t('groups.r2'),
       description: 'custom your cloudflare r2 settings',
@@ -709,6 +715,30 @@ export async function getSettings() {
       tab: 'email',
     },
     {
+      name: 'brevo_api_key',
+      title: 'Brevo API Key',
+      type: 'password',
+      placeholder: '',
+      group: 'brevo',
+      tab: 'email',
+    },
+    {
+      name: 'brevo_sender_email',
+      title: 'Brevo Sender Email',
+      type: 'text',
+      placeholder: 'no-reply@example.com',
+      group: 'brevo',
+      tab: 'email',
+    },
+    {
+      name: 'brevo_sender_name',
+      title: 'Brevo Sender Name',
+      type: 'text',
+      placeholder: 'RemoveGeminiWatermark',
+      group: 'brevo',
+      tab: 'email',
+    },
+    {
       name: 'r2_access_key',
       title: 'Cloudflare Access Key',
       type: 'text',
@@ -937,6 +967,7 @@ export async function getSettings() {
 
 export const publicSettingNames = [
   'email_auth_enabled',
+  'email_verification_enabled',
   'google_auth_enabled',
   'google_one_tap_enabled',
   'google_client_id',

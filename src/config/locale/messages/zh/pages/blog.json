@@ -10,11 +10,6 @@
         "id": "blog",
         "title": "博客",
         "description": "阅读最新的产品功能、解决方案和更新。"
-      },
-      "partners": {
-        "id": "partners",
-        "block": "partners",
-        "title": "合作伙伴"
       }
     }
   },

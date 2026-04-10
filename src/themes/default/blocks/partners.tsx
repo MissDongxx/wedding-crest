@@ -14,7 +14,7 @@ export function Partners({
   return (
     <section
       id={section.id}
-      className={cn('py-12 border-t border-border/40', section.className, className)}
+      className={cn('py-4 border-t border-border/40', section.className, className)}
     >
       <div className="mx-auto max-w-7xl px-6">
         <ScrollAnimation>
@@ -46,6 +46,36 @@ export function Partners({
                 <img
                   src="https://www.toolpilot.ai/cdn/shop/files/f-w_690x151_crop_center.png"
                   alt="Featured on ToolPilot"
+                  style={{ height: '54px', width: 'auto' }}
+                  className="relative dark:brightness-110"
+                />
+              </a>
+              <a
+                href="https://websitelaunches.com/site/removegeminiwatermark.org"
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="group relative transition-all duration-300 hover:scale-105"
+              >
+                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://websitelaunches.com/badge/removegeminiwatermark.org.svg"
+                  alt="Established online - Public launch record"
+                  style={{ height: '55px', width: '255px' }}
+                  className="relative dark:brightness-110"
+                />
+              </a>
+              <a
+                href="https://www.shipit.buzz/products/removegeminiwatermark?ref=badge"
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="group relative transition-all duration-300 hover:scale-105"
+              >
+                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://www.shipit.buzz/api/products/removegeminiwatermark/badge?theme=light"
+                  alt="Featured on Shipit"
                   style={{ height: '54px', width: 'auto' }}
                   className="relative dark:brightness-110"
                 />

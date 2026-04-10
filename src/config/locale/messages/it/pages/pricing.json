@@ -58,7 +58,7 @@
               "Elaborazione batch (fino a 100)",
               "Rimozione metadati C2PA/Exif",
               "Supporto prioritario",
-              "Accesso API"
+              "Accesso Comandi Rapidi iOS"
             ],
             "interval": "one-time",
             "amount": 990,

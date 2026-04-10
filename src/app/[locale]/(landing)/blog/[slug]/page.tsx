@@ -56,9 +56,6 @@ export default async function BlogDetailPage({
   }
 
   // build page sections
-  const tBlog = await getTranslations('pages.blog');
-  const partnersSection = tBlog.raw('page.sections.partners');
-
   const page: DynamicPage = {
     sections: {
       blogDetail: {
@@ -66,11 +63,6 @@ export default async function BlogDetailPage({
         data: {
           post,
         },
-      },
-      partners: {
-        ...(partnersSection && typeof partnersSection === 'object'
-          ? partnersSection
-          : {}),
       },
     },
   };

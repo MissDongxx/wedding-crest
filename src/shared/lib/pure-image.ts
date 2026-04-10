@@ -5,44 +5,12 @@
  * Uses pngjs / jpeg-js for image decode/encode and the same
  * reverse-alpha-blending algorithm as the client-side remover.
  *
- * Loads the SAME pre-captured watermark alpha maps as the client-side
- * code (from public/watermark-assets/) for pixel-perfect accuracy.
+ * Alpha maps are pre-computed and embedded to avoid filesystem reads.
+ * pngjs's broken sync-inflate is replaced via webpack alias.
  */
 import { PNG } from 'pngjs';
 import jpeg from 'jpeg-js';
-import { readFileSync } from 'fs';
-import { join } from 'path';
-
-// ---------------------------------------------------------------------------
-// Alpha map loading from pre-captured watermark images (same as client-side)
-// ---------------------------------------------------------------------------
-
-const ALPHA_MAP_CACHE: Record<number, Float32Array> = {};
-
-/**
- * Load the pre-captured watermark on black background and compute alpha map.
- * This is the exact same algorithm as client-side alpha-map.ts:
- *   alpha = max(R, G, B) / 255
- */
-function getAlphaMap(size: number): Float32Array {
-  if (ALPHA_MAP_CACHE[size]) return ALPHA_MAP_CACHE[size];
-
-  const filePath = join(process.cwd(), 'public', 'watermark-assets', `bg_${size}.png`);
-  const fileBuffer = readFileSync(filePath);
-  const png = PNG.sync.read(fileBuffer);
-
-  const alphaMap = new Float32Array(size * size);
-  for (let i = 0; i < alphaMap.length; i++) {
-    const idx = i * 4;
-    const r = png.data[idx];
-    const g = png.data[idx + 1];
-    const b = png.data[idx + 2];
-    alphaMap[i] = Math.max(r, g, b) / 255.0;
-  }
-
-  ALPHA_MAP_CACHE[size] = alphaMap;
-  return alphaMap;
-}
+import { getEmbeddedAlphaMap } from './alpha-maps';
 
 // ---------------------------------------------------------------------------
 // Watermark size auto-detection (same logic as remover.ts)
@@ -64,7 +32,7 @@ function removeWatermarkFromRGBA(
   height: number,
 ): boolean {
   const { size: wmSize, margin } = getWatermarkParams(width, height);
-  const alphaMap = getAlphaMap(wmSize);
+  const alphaMap = getEmbeddedAlphaMap(wmSize);
 
   const x0 = width - margin - wmSize;
   const y0 = height - margin - wmSize;

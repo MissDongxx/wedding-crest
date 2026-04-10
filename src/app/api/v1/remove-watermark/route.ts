@@ -125,9 +125,11 @@ export async function POST(request: NextRequest) {
     }
 
     const buffer = Buffer.from(await imageFile.arrayBuffer());
+    console.log('[remove-watermark] Input image size:', buffer.length, 'type:', imageFile.type);
 
     // Remove watermark using pure JS (works on Cloudflare Workers)
     const { buffer: resultBuffer, isJPEG } = removeWatermarkPureJS(buffer);
+    console.log('[remove-watermark] Output size:', resultBuffer.length, 'isJPEG:', isJPEG);
 
     // Consume credits for members only
     if (isMember && userId) {
@@ -143,11 +145,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Return the result
-    return new NextResponse(new Uint8Array(resultBuffer), {
+    // Return the result — use Response for maximum compatibility
+    const contentType = isJPEG ? 'image/jpeg' : 'image/png';
+    const body = new Uint8Array(resultBuffer);
+    console.log('[remove-watermark] Responding with', body.length, 'bytes, Content-Type:', contentType);
+
+    return new Response(body, {
+      status: 200,
       headers: {
-        'Content-Type': isJPEG ? 'image/jpeg' : 'image/png',
-        'Content-Disposition': `attachment; filename="clean-image-from-remove-gemini-watermark.${isJPEG ? 'jpg' : 'png'}"`,
+        'Content-Type': contentType,
+        'Content-Length': String(body.length),
       },
     });
   } catch (error) {

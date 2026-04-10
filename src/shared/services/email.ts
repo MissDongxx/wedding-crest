@@ -1,4 +1,4 @@
-import { EmailManager, ResendProvider } from '@/extensions/email';
+import { EmailManager, ResendProvider, BrevoProvider } from '@/extensions/email';
 import { Configs, getAllConfigs } from '@/shared/models/config';
 
 /**
@@ -12,6 +12,16 @@ export function getEmailServiceWithConfigs(configs: Configs) {
       new ResendProvider({
         apiKey: configs.resend_api_key,
         defaultFrom: configs.resend_sender_email,
+      })
+    );
+  }
+
+  if (configs.brevo_api_key) {
+    emailManager.addProvider(
+      new BrevoProvider({
+        apiKey: configs.brevo_api_key,
+        defaultFromEmail: configs.brevo_sender_email,
+        defaultFromName: configs.brevo_sender_name,
       })
     );
   }

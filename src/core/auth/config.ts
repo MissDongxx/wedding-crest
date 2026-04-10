@@ -75,7 +75,8 @@ const authOptions = {
 // get auth options with configs
 export async function getAuthOptions(configs: Record<string, string>) {
   const emailVerificationEnabled =
-    configs.email_verification_enabled === 'true' && !!configs.resend_api_key;
+    configs.email_verification_enabled === 'true' &&
+    !!(configs.resend_api_key || configs.brevo_api_key);
 
   // Use runtime configs to override static authOptions.
   // envConfigs is evaluated at module load time; on Cloudflare Workers,
@@ -176,9 +177,7 @@ export async function getAuthOptions(configs: Record<string, string>) {
     ...(emailVerificationEnabled
       ? {
           emailVerification: {
-            // We explicitly send verification emails from the UI with a callbackURL
-            // (redirecting to /verify-email). Disabling automatic sends avoids duplicates.
-            sendOnSignUp: false,
+            sendOnSignUp: true,
             sendOnSignIn: false,
             // After user clicks the verification link, create session automatically.
             autoSignInAfterVerification: true,
@@ -203,8 +202,7 @@ export async function getAuthOptions(configs: Record<string, string>) {
                 const logoUrl = envConfigs.app_logo?.startsWith('http')
                   ? envConfigs.app_logo
                   : `${envConfigs.app_url}${envConfigs.app_logo?.startsWith('/') ? '' : '/'}${envConfigs.app_logo || ''}`;
-                // Avoid blocking auth response on email sending.
-                await emailService.sendEmail({
+                const result = await emailService.sendEmail({
                   to: user.email,
                   subject: `Verify your email - ${envConfigs.app_name}`,
                   react: VerifyEmail({
@@ -213,8 +211,8 @@ export async function getAuthOptions(configs: Record<string, string>) {
                     url,
                   }),
                 });
-              } catch {
-                // send verification email failed, non-critical
+              } catch (err) {
+                console.error('[sendVerificationEmail] failed:', err);
               }
             },
           },

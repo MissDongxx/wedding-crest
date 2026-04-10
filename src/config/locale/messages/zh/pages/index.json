@@ -8,6 +8,7 @@
       "benefits",
       "features",
       "pricing",
+      "partners",
       "stats",
       "faq",
       "cta"
@@ -264,6 +265,11 @@
           }
         ],
         "className": "bg-muted"
+      },
+      "partners": {
+        "id": "partners",
+        "block": "partners",
+        "title": "合作伙伴"
       }
     }
   }

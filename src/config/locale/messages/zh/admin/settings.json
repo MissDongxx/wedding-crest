@@ -8,6 +8,7 @@
     "creem": "Creem",
     "paypal": "Paypal",
     "resend": "Resend",
+    "brevo": "Brevo",
     "r2": "Cloudflare R2",
     "s3": "AWS S3",
     "openrouter": "OpenRouter",

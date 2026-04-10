@@ -58,7 +58,7 @@
               "批量处理 (最多 100 张)",
               "移除 C2PA/Exif 元数据",
               "优先技术支持",
-              "API 访问权限"
+              "iOS shortcuts 权限"
             ],
             "interval": "one-time",
             "amount": 990,
