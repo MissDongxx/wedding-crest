@@ -8,6 +8,11 @@ import { removeWatermarkPureJS } from '@/shared/lib/pure-image';
 
 export const runtime = 'nodejs';
 
+// Increase max request body size for large images (default is ~1MB in some environments)
+export const config = {
+  maxDuration: 60,
+};
+
 const DAILY_FREE_LIMIT = 5;
 
 /**
@@ -75,6 +80,17 @@ function getClientIp(request: NextRequest): string {
 }
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+  const contentLength = request.headers.get('content-length');
+  const contentType = request.headers.get('content-type');
+  const userAgent = request.headers.get('user-agent');
+  console.log(`[remove-watermark] === Request received ===`);
+  console.log(`[remove-watermark] Time: ${new Date().toISOString()}`);
+  console.log(`[remove-watermark] Content-Length: ${contentLength}`);
+  console.log(`[remove-watermark] Content-Type: ${contentType?.slice(0, 80)}`);
+  console.log(`[remove-watermark] User-Agent: ${userAgent?.slice(0, 100)}`);
+  console.log(`[remove-watermark] URL: ${request.url}`);
+
   // Rate limit: max 1 request per 2 seconds per client
   const rateLimitResponse = enforceMinIntervalRateLimit(request, {
     intervalMs: 2000,
@@ -117,6 +133,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse image from form data
+    console.log(`[remove-watermark] Parsing formData... (+${Date.now() - startTime}ms)`);
     const formData = await request.formData();
     const imageFile = formData.get('image') as File;
 
@@ -124,12 +141,14 @@ export async function POST(request: NextRequest) {
       return respErr('No image provided. Please use the "image" field in multipart/form-data.');
     }
 
+    console.log(`[remove-watermark] formData parsed (+${Date.now() - startTime}ms), reading buffer...`);
     const buffer = Buffer.from(await imageFile.arrayBuffer());
-    console.log('[remove-watermark] Input image size:', buffer.length, 'type:', imageFile.type);
+    console.log(`[remove-watermark] Input image size: ${buffer.length} bytes, type: ${imageFile.type} (+${Date.now() - startTime}ms)`);
 
     // Remove watermark using pure JS (works on Cloudflare Workers)
+    console.log(`[remove-watermark] Starting watermark removal... (+${Date.now() - startTime}ms)`);
     const { buffer: resultBuffer, isJPEG } = removeWatermarkPureJS(buffer);
-    console.log('[remove-watermark] Output size:', resultBuffer.length, 'isJPEG:', isJPEG);
+    console.log(`[remove-watermark] Watermark removed. Output: ${resultBuffer.length} bytes, isJPEG: ${isJPEG} (+${Date.now() - startTime}ms)`);
 
     // Consume credits for members only
     if (isMember && userId) {
@@ -146,19 +165,36 @@ export async function POST(request: NextRequest) {
     }
 
     // Return the result — use Response for maximum compatibility
-    const contentType = isJPEG ? 'image/jpeg' : 'image/png';
+    const respContentType = isJPEG ? 'image/jpeg' : 'image/png';
     const body = new Uint8Array(resultBuffer);
-    console.log('[remove-watermark] Responding with', body.length, 'bytes, Content-Type:', contentType);
+    console.log(`[remove-watermark] Responding with ${body.length} bytes, Content-Type: ${respContentType} (+${Date.now() - startTime}ms)`);
 
     return new Response(body, {
       status: 200,
       headers: {
-        'Content-Type': contentType,
+        'Content-Type': respContentType,
         'Content-Length': String(body.length),
       },
     });
   } catch (error) {
-    console.error('Server-side watermark removal failed:', error);
+    const elapsed = Date.now() - startTime;
+    // Handle client disconnection gracefully
+    const errorCode = (error as any)?.code;
+    const errorMessage = error instanceof Error ? error.message : '';
+    const isDisconnect =
+      errorCode === 'ECONNRESET' ||
+      errorCode === 'ECONNABORTED' ||
+      errorCode === 'ERR_STREAM_PREMATURE_CLOSE' ||
+      errorMessage === 'aborted' ||
+      errorMessage.includes('aborted') ||
+      errorMessage.includes('client disconnected');
+
+    if (isDisconnect) {
+      console.warn(`[remove-watermark] Client disconnected after ${elapsed}ms (code: ${errorCode}, msg: ${errorMessage})`);
+      return new Response(null, { status: 499 }); // Nginx-style: client closed request
+    }
+    console.error(`[remove-watermark] Failed after ${elapsed}ms:`, error);
     return respErr('Watermark removal failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
   }
 }
+

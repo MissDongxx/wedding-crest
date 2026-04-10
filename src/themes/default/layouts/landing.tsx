@@ -4,6 +4,7 @@ import { getThemeBlock } from '@/core/theme';
 import {
   Footer as FooterType,
   Header as HeaderType,
+  Section,
 } from '@/shared/types/blocks/landing';
 
 export default async function LandingLayout({
@@ -17,12 +18,14 @@ export default async function LandingLayout({
 }) {
   const Header = await getThemeBlock('header');
   const Footer = await getThemeBlock('footer');
+  const Partners = await getThemeBlock('partners');
 
   return (
     <div className="h-screen w-screen">
       <Header header={header} />
       {children}
       <Footer footer={footer} />
+      <Partners section={{ id: 'partners' } as Section} />
     </div>
   );
 }

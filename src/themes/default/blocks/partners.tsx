@@ -19,8 +19,7 @@ export function Partners({
       <div className="mx-auto max-w-7xl px-6">
         <ScrollAnimation>
           <div className="flex flex-col items-center justify-center space-y-6">
-            <div className="flex flex-wrap items-center justify-center gap-8 opacity-[0.01]">
-              <a
+            <div className="flex flex-wrap items-center justify-center gap-8 opacity-[0.05]">              <a
                 href="https://turbo0.com/item/removegeminiwatermarkr"
                 target="_blank"
                 rel="noopener noreferrer nofollow"
