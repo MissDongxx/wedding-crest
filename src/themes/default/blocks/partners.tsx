@@ -22,7 +22,7 @@ export function Partners({
             <div className="flex flex-wrap items-center justify-center gap-8 opacity-[0.05]">              <a
                 href="https://turbo0.com/item/removegeminiwatermarkr"
                 target="_blank"
-                rel="noopener noreferrer nofollow"
+                rel="noopener noreferrer"
                 className="group relative transition-all duration-300 hover:scale-105"
               >
                 <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
@@ -37,7 +37,7 @@ export function Partners({
               <a
                 href="https://www.toolpilot.ai/"
                 target="_blank"
-                rel="noopener noreferrer nofollow"
+                rel="noopener noreferrer"
                 className="group relative transition-all duration-300 hover:scale-105"
               >
                 <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
@@ -52,7 +52,7 @@ export function Partners({
               <a
                 href="https://websitelaunches.com/site/removegeminiwatermark.org"
                 target="_blank"
-                rel="noopener noreferrer nofollow"
+                rel="noopener noreferrer"
                 className="group relative transition-all duration-300 hover:scale-105"
               >
                 <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
@@ -67,7 +67,7 @@ export function Partners({
               <a
                 href="https://www.shipit.buzz/products/removegeminiwatermark?ref=badge"
                 target="_blank"
-                rel="noopener noreferrer nofollow"
+                rel="noopener noreferrer"
                 className="group relative transition-all duration-300 hover:scale-105"
               >
                 <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
@@ -78,6 +78,20 @@ export function Partners({
                   style={{ height: '54px', width: 'auto' }}
                   className="relative dark:brightness-110"
                 />
+              </a>
+              <a
+                href="https://z-image.net/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative transition-all duration-300 hover:scale-105"
+              >
+                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                <span
+                  className="relative block text-2xl font-semibold text-foreground dark:brightness-110"
+                  style={{ height: '54px', lineHeight: '54px' }}
+                >
+                  Z-Image
+                </span>
               </a>
             </div>
           </div>
