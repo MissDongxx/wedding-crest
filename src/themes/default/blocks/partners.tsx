@@ -93,6 +93,36 @@ export function Partners({
                   Z-Image
                 </span>
               </a>
+              <a
+                href="https://auraplusplus.com/projects/removegeminiwatermark"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative transition-all duration-300 hover:scale-105"
+              >
+                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://auraplusplus.com/images/badges/featured-on-light.svg"
+                  alt="Featured on Aura++"
+                  style={{ height: '58px', width: '265px' }}
+                  className="relative dark:brightness-110"
+                />
+              </a>
+              <a
+                href="https://launchigniter.com/product/removegeminiwatermark?ref=badge-removegeminiwatermark"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative transition-all duration-300 hover:scale-105"
+              >
+                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://launchigniter.com/api/badge/removegeminiwatermark?theme=neutral"
+                  alt="Featured on LaunchIgniter"
+                  style={{ height: '55px', width: '212px' }}
+                  className="relative dark:brightness-110"
+                />
+              </a>
             </div>
           </div>
         </ScrollAnimation>
