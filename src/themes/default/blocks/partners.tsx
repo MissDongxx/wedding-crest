@@ -109,7 +109,7 @@ export function Partners({
                 />
               </a>
               <a
-                href="https://launchigniter.com/product/removegeminiwatermark?ref=badge-removegeminiwatermark"
+                href="https://dang.ai/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative transition-all duration-300 hover:scale-105"
@@ -117,9 +117,69 @@ export function Partners({
                 <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="https://launchigniter.com/api/badge/removegeminiwatermark?theme=neutral"
-                  alt="Featured on LaunchIgniter"
-                  style={{ height: '55px', width: '212px' }}
+                  src="https://cdn.prod.website-files.com/63d8afd87da01fb58ea3fbcb/6487e2868c6c8f93b4828827_dang-badge.png"
+                  alt="Dang.ai"
+                  style={{ height: '54px', width: '150px' }}
+                  className="relative dark:brightness-110"
+                />
+              </a>
+              <a
+                href="https://trylaunch.ai/launch/removegeminiwatermark"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative transition-all duration-300 hover:scale-105"
+              >
+                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://trylaunch.ai/badges/badge-color.png"
+                  alt="Featured on Launch"
+                  style={{ height: '53px', width: 'auto' }}
+                  className="relative dark:brightness-110"
+                />
+              </a>
+              <a
+                href="https://startupfa.me/s/remove-gemini?utm_source=removegeminiwatermark.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative transition-all duration-300 hover:scale-105"
+              >
+                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://startupfa.me/badges/featured-badge-small.webp"
+                  alt="Featured on Startup Fame"
+                  style={{ height: '36px', width: '224px' }}
+                  className="relative dark:brightness-110"
+                />
+              </a>
+              <a
+                href="https://findly.tools/removegeminiwatermark?utm_source=removegeminiwatermark"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative transition-all duration-300 hover:scale-105"
+              >
+                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://findly.tools/badges/findly-tools-badge-light.svg"
+                  alt="Featured on Findly.tools"
+                  style={{ height: '55px', width: '175px' }}
+                  className="relative dark:brightness-110"
+                />
+              </a>
+              <a
+                href="https://fazier.com/launches/removegeminiwatermark.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative transition-all duration-300 hover:scale-105"
+              >
+                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=featured&theme=neutral"
+                  alt="Fazier badge"
+                  style={{ height: '54px', width: '250px' }}
                   className="relative dark:brightness-110"
                 />
               </a>
