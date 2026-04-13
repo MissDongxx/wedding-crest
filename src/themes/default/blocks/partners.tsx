@@ -30,7 +30,7 @@ export function Partners({
                 <img
                   src="https://img.turbo0.com/badge-listed-light.svg"
                   alt="Listed on Turbo0"
-                  style={{ height: '54px', width: 'auto' }}
+                  style={{ height: '14px', width: 'auto' }}
                   className="relative dark:brightness-110"
                 />
               </a>
@@ -45,7 +45,7 @@ export function Partners({
                 <img
                   src="https://www.toolpilot.ai/cdn/shop/files/f-w_690x151_crop_center.png"
                   alt="Featured on ToolPilot"
-                  style={{ height: '54px', width: 'auto' }}
+                  style={{ height: '14px', width: 'auto' }}
                   className="relative dark:brightness-110"
                 />
               </a>
@@ -60,7 +60,7 @@ export function Partners({
                 <img
                   src="https://websitelaunches.com/badge/removegeminiwatermark.org.svg"
                   alt="Established online - Public launch record"
-                  style={{ height: '55px', width: '255px' }}
+                  style={{ height: '14px', width: '64px' }}
                   className="relative dark:brightness-110"
                 />
               </a>
@@ -75,7 +75,7 @@ export function Partners({
                 <img
                   src="https://www.shipit.buzz/api/products/removegeminiwatermark/badge?theme=light"
                   alt="Featured on Shipit"
-                  style={{ height: '54px', width: 'auto' }}
+                  style={{ height: '14px', width: 'auto' }}
                   className="relative dark:brightness-110"
                 />
               </a>
@@ -87,8 +87,8 @@ export function Partners({
               >
                 <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
                 <span
-                  className="relative block text-2xl font-semibold text-foreground dark:brightness-110"
-                  style={{ height: '54px', lineHeight: '54px' }}
+                  className="relative block text-xs font-semibold text-foreground dark:brightness-110"
+                  style={{ height: '14px', lineHeight: '14px' }}
                 >
                   Z-Image
                 </span>
@@ -104,7 +104,7 @@ export function Partners({
                 <img
                   src="https://auraplusplus.com/images/badges/featured-on-light.svg"
                   alt="Featured on Aura++"
-                  style={{ height: '58px', width: '265px' }}
+                  style={{ height: '15px', width: '66px' }}
                   className="relative dark:brightness-110"
                 />
               </a>
@@ -119,7 +119,7 @@ export function Partners({
                 <img
                   src="https://cdn.prod.website-files.com/63d8afd87da01fb58ea3fbcb/6487e2868c6c8f93b4828827_dang-badge.png"
                   alt="Dang.ai"
-                  style={{ height: '54px', width: '150px' }}
+                  style={{ height: '14px', width: '38px' }}
                   className="relative dark:brightness-110"
                 />
               </a>
@@ -134,7 +134,7 @@ export function Partners({
                 <img
                   src="https://trylaunch.ai/badges/badge-color.png"
                   alt="Featured on Launch"
-                  style={{ height: '53px', width: 'auto' }}
+                  style={{ height: '13px', width: 'auto' }}
                   className="relative dark:brightness-110"
                 />
               </a>
@@ -149,7 +149,7 @@ export function Partners({
                 <img
                   src="https://startupfa.me/badges/featured-badge-small.webp"
                   alt="Featured on Startup Fame"
-                  style={{ height: '36px', width: '224px' }}
+                  style={{ height: '9px', width: '56px' }}
                   className="relative dark:brightness-110"
                 />
               </a>
@@ -164,7 +164,7 @@ export function Partners({
                 <img
                   src="https://findly.tools/badges/findly-tools-badge-light.svg"
                   alt="Featured on Findly.tools"
-                  style={{ height: '55px', width: '175px' }}
+                  style={{ height: '14px', width: '44px' }}
                   className="relative dark:brightness-110"
                 />
               </a>
@@ -179,7 +179,7 @@ export function Partners({
                 <img
                   src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=featured&theme=neutral"
                   alt="Fazier badge"
-                  style={{ height: '54px', width: '250px' }}
+                  style={{ height: '14px', width: '63px' }}
                   className="relative dark:brightness-110"
                 />
               </a>
