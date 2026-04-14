@@ -1,0 +1,27 @@
+{
+  "fields": {
+    "subscription_no": "เลขที่การสมัครสมาชิก",
+    "user": "ผู้ใช้",
+    "amount": "จำนวน",
+    "interval": "รอบการเรียกเก็บเงิน",
+    "provider": "ผู้ให้บริการ",
+    "created_at": "สร้างเมื่อ",
+    "current_period_start": "เริ่มรอบปัจจุบัน",
+    "current_period_end": "สิ้นสุดรอบปัจจุบัน",
+    "status": "สถานะ",
+    "description": "คำอธิบาย",
+    "action": "จัดการ"
+  },
+  "list": {
+    "title": "การสมัครสมาชิก",
+    "crumbs": {
+      "admin": "ผู้ดูแลระบบ",
+      "subscriptions": "การสมัครสมาชิก"
+    },
+    "tabs": {
+      "all": "ทั้งหมด",
+      "month": "รายเดือน",
+      "year": "รายปี"
+    }
+  }
+}

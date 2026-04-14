@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "title": "ตัวสร้างเพลงด้วย AI",
+    "description": "สร้างสรรค์เพลงที่น่าทึ่งด้วย AI"
+  },
+  "page": {
+    "title": "ตัวสร้างเพลงด้วย AI",
+    "description": "สร้างสรรค์เพลงที่น่าทึ่งด้วย AI"
+  },
+  "generator": {
+    "title": "ตัวสร้างเพลง",
+    "prompt": "คำสั่ง (Prompt)",
+    "prompt_placeholder": "เรื่องราวความรักของโรมิโอและจูเลียต",
+    "generate": "สร้างเพลง",
+    "loading": "กำลังโหลด...",
+    "generating": "กำลังสร้าง...",
+    "sign_in_to_generate": "เข้าสู่ระบบเพื่อสร้างเพลง",
+    "credits_cost": "ใช้ {credits} เครดิต",
+    "credits_remaining": "คงเหลือ {credits} เครดิต",
+    "buy_credits": "ซื้อเครดิต",
+    "generation_progress": "ความคืบหน้าการสร้าง",
+    "time_cost": "ขั้นตอนนี้อาจใช้เวลาประมาณ 2-3 นาที...",
+    "generated_song": "เพลงที่สร้างเสร็จแล้ว",
+    "ready_to_play": "พร้อมเล่น",
+    "audio_generating": "กำลังสร้างเสียง...",
+    "generating_song": "กำลังสร้างเพลง...",
+    "waiting_generation": "โปรดรอสักครู่ในระหว่างที่เราสร้างสรรค์ผลงานชิ้นเอกให้คุณ",
+    "no_song_generated": "ยังไม่มีเพลงที่สร้าง",
+    "downloading": "กำลังดาวน์โหลด...",
+    "download_success": "ดาวน์โหลดเสร็จสมบูรณ์",
+    "download_failed": "ดาวน์โหลดเสียงไม่สำเร็จ",
+    "form": {
+      "custom_mode": "โหมดกำหนดเอง",
+      "title": "ชื่อเพลง",
+      "title_placeholder": "The Sound of Silence",
+      "style": "แนวเพลง",
+      "style_placeholder": "indie, electronic, synths, 120bpm, distorted",
+      "instrumental": "บรรเลง (ไม่มีเนื้อร้อง)",
+      "prompt": "คำสั่ง (Prompt)",
+      "prompt_placeholder": "เพลงลุกทุ่งเกี่ยวกับความรัก",
+      "model": "รุ่น (Model)",
+      "lyrics": "เนื้อเพลง",
+      "lyrics_placeholder": "เขียนเนื้อเพลงของคุณเอง แบ่งเป็น 2 บท (8 บรรทัด) เพื่อผลลัพธ์ที่ดีที่สุด"
+    }
+  }
+}

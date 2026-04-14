@@ -1,0 +1,151 @@
+{
+  "metadata": {
+    "title": "ผลงาน",
+    "description": "โปรเจกต์เจ๋งๆ ที่สร้างด้วย RemoveGeminiWatermark"
+  },
+  "page": {
+    "title": "ผลงาน",
+    "sections": {
+      "showcases": {
+        "id": "showcases",
+        "title": "สตาร์ทอัพ AI SaaS ที่สร้างด้วย RemoveGeminiWatermark",
+        "description": "ใช้ง่ายและเปิดตัวได้รวดเร็ว",
+        "groups": [
+          {
+            "name": "all",
+            "title": "ทั้งหมด"
+          },
+          {
+            "name": "ai-chatbot",
+            "title": "แชทบอท AI"
+          },
+          {
+            "name": "ai-image",
+            "title": "รูปภาพ AI"
+          },
+          {
+            "name": "ai-video",
+            "title": "วิดีโอ AI"
+          },
+          {
+            "name": "ai-audio",
+            "title": "เสียง AI"
+          },
+          {
+            "name": "ai-music",
+            "title": "ดนตรี AI"
+          },
+          {
+            "name": "ai-coding",
+            "title": "การเขียนโค้ด AI"
+          },
+          {
+            "name": "other",
+            "title": "อื่นๆ"
+          }
+        ],
+        "items": [
+          {
+            "title": "ThinkAny",
+            "description": "เครื่องมือค้นหา AI",
+            "url": "https://thinkany.ai",
+            "target": "_blank",
+            "image": {
+              "src": "/imgs/cases/7.png",
+              "alt": "showcases"
+            },
+            "group": "ai-chatbot"
+          },
+          {
+            "title": "HeyBeauty",
+            "description": "ลองเสื้อผ้าเสมือนจริงด้วย AI",
+            "url": "https://heybeauty.ai",
+            "target": "_blank",
+            "image": {
+              "src": "/imgs/cases/5.png",
+              "alt": "showcases"
+            },
+            "group": "ai-image"
+          },
+          {
+            "title": "AI Wallpaper",
+            "description": "ตัวสร้างวอลเปเปอร์ AI",
+            "url": "https://aiwallpaper.shop",
+            "target": "_blank",
+            "image": {
+              "src": "/imgs/cases/1.png",
+              "alt": "showcases"
+            },
+            "group": "ai-image"
+          },
+          {
+            "title": "AI Cover",
+            "description": "ตัวสร้างหน้าปก AI",
+            "url": "https://aicover.design",
+            "target": "_blank",
+            "image": {
+              "src": "/imgs/cases/2.png",
+              "alt": "showcases"
+            },
+            "group": "ai-image"
+          },
+          {
+            "title": "GPTs Works",
+            "description": "สารบัญ GPTs",
+            "url": "https://gpts.works",
+            "target": "_blank",
+            "image": {
+              "src": "/imgs/cases/3.png",
+              "alt": "showcases"
+            },
+            "group": "other"
+          },
+          {
+            "title": "Melodisco",
+            "description": "เครื่องเล่นเพลง AI",
+            "url": "https://melodis.co",
+            "target": "_blank",
+            "image": {
+              "src": "/imgs/cases/4.png",
+              "alt": "showcases"
+            },
+            "group": "ai-music"
+          },
+          {
+            "title": "Pagen",
+            "description": "ตัวสร้าง Landing Page ด้วย AI",
+            "url": "https://pagen.so",
+            "target": "_blank",
+            "image": {
+              "src": "/imgs/cases/6.png",
+              "alt": "showcases"
+            },
+            "group": "ai-coding"
+          },
+          {
+            "title": "SoraFM",
+            "description": "ตัวสร้างวิดีโอ AI",
+            "url": "https://sorafm.trys.ai",
+            "target": "_blank",
+            "image": {
+              "src": "/imgs/cases/8.png",
+              "alt": "showcases"
+            },
+            "group": "ai-video"
+          },
+          {
+            "title": "PodLM",
+            "description": "ตัวสร้างพอดแคสต์ AI",
+            "url": "https://podlm.ai",
+            "target": "_blank",
+            "image": {
+              "src": "/imgs/cases/9.png",
+              "alt": "showcases"
+            },
+            "group": "ai-audio"
+          }
+        ]
+      }
+    }
+  }
+}

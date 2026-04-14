@@ -1,0 +1,275 @@
+{
+  "page": {
+    "show_sections": [
+      "tool",
+      "comparison",
+      "hero",
+      "introduce",
+      "benefits",
+      "features",
+      "pricing",
+      "stats",
+      "faq",
+      "cta"
+    ],
+    "sections": {
+      "tool": {
+        "block": "upload-zone-block",
+        "id": "tool",
+        "title": "ลบลายน้ำ AI ออกจากรูปภาพ Gemini",
+        "label": "เครื่องมือออนไลน์ฟรี",
+        "description": "อัปโหลดรูปภาพที่สร้างโดย AI และลบลายน้ำ Gemini ได้ทันที ประมวลผลในเครื่อง 100% รูปภาพของคุณจะไม่ถูกส่งออกไปนอกเครื่อง",
+        "comparison_tip": "กดค้างเพื่อดูผลลัพธ์"
+      },
+      "hero": {
+        "id": "hero",
+        "title": "ลบลายน้ำ AI ออกจากรูปภาพ Gemini",
+        "highlight_text": "ทุกรูปแบบ",
+        "description": "เครื่องมือบนเบราว์เซอร์ฟรีสำหรับลบลายน้ำจาก Gemini, DALL-E, Midjourney และภาพ AI อื่นๆ<br/>ประมวลผลในเครื่อง 100% รูปภาพของคุณจะปลอดภัยและไม่ถูกอัปโหลดขึ้นเซิร์ฟเวอร์",
+        "announcement": {
+          "badge": "ฟรี",
+          "title": "✦ ลบลายน้ำ Gemini ได้ทันที",
+          "url": "/tools/gemini"
+        },
+        "tip": "🔒 เป็นส่วนตัว 100% • ไม่ต้องอัปโหลด • ทำงานออฟไลน์ได้",
+        "buttons": [
+          {
+            "title": "ลบลายน้ำฟรี",
+            "icon": "Sparkles",
+            "url": "/tools/gemini",
+            "target": "_self",
+            "variant": "default"
+          },
+          {
+            "title": "ดูราคา",
+            "icon": "DollarSign",
+            "url": "/#pricing",
+            "target": "_self",
+            "variant": "blue"
+          },
+          {
+            "title": "ทางลัด iOS",
+            "icon": "Command",
+            "url": "/shortcuts",
+            "target": "_self",
+            "variant": "emerald"
+          }
+        ],
+        "show_avatars": false,
+        "show_award": false
+      },
+      "comparison": {
+        "block": "comparison-block",
+        "id": "comparison",
+        "title": "ผลลัพธ์ระดับมืออาชีพ",
+        "label": "การเปรียบเทียบ",
+        "description": "ดูความสามารถของเครื่องมือเราในการลบลายน้ำ AI โดยไม่เสียคุณภาพของภาพ",
+        "before_after": {
+          "before_image": "/images/examples/castle-before.jpg",
+          "after_image": "/images/examples/castle-after.jpg",
+          "before_label": "ก่อน",
+          "after_label": "หลัง",
+          "before_alt": "รูปภาพ AI ที่มีลายน้ำ Gemini ในมุมภาพ",
+          "after_alt": "รูปภาพเดิมหลังลบลายน้ำ Gemini โดยไม่เสียคุณภาพ",
+          "layout": "side-by-side"
+        }
+      },
+      "introduce": {
+        "block": "features-step",
+        "id": "introduce",
+        "title": "วิธีการทำงาน",
+        "label": "3 ขั้นตอนง่ายๆ",
+        "description": "ลบลายน้ำ AI ได้ในไม่กี่วินาที — ไม่ต้องสมัครสมาชิก ไม่ต้องดาวน์โหลดซอฟต์แวร์",
+        "image_position": "left",
+        "text_align": "center",
+        "items": [
+          {
+            "title": "อัปโหลดรูปภาพ",
+            "description": "ลากและวางหรือคลิกเพื่ออัปโหลดรูปภาพ AI ของคุณ รองรับ PNG, JPG และ WebP ขนาดสูงสุด 20MB",
+            "icon": "RiUploadCloud2Line"
+          },
+          {
+            "title": "ลบลายน้ำอัตโนมัติ",
+            "description": "อัลกอริทึมของเราจะตรวจจับและลบลายน้ำโดยใช้เทคนิค Reverse Alpha Blending — ทำงานบนเบราว์เซอร์ของคุณ 100%",
+            "icon": "RiMagicLine"
+          },
+          {
+            "title": "ดาวน์โหลดรูปภาพ",
+            "description": "รับรูปภาพที่สะอาดได้ทันทีในรูปแบบ PNG รักษาคุณภาพต้นฉบับไว้ได้ครบถ้วน",
+            "icon": "RiDownloadLine"
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "benefits": {
+        "block": "features-accordion",
+        "id": "benefits",
+        "title": "ทำไมควรเลือก RemoveGeminiWatermark",
+        "label": "จุดเด่น",
+        "description": "เครื่องมือลบลายน้ำ AI ที่มีความเป็นส่วนตัวสูงที่สุดและคุณภาพดีที่สุด",
+        "items": [
+          {
+            "title": "เป็นส่วนตัว 100% — ไม่ต้องอัปโหลด",
+            "description": "ต่างจากเครื่องมืออื่น รูปภาพของคุณถูกประมวลผลบนเบราว์เซอร์ทั้งหมด ข้อมูลจะไม่ถูกส่งไปยังเซิร์ฟเวอร์ใดๆ ผลงานสร้างสรรค์ของคุณจะเป็นความลับเสมอ",
+            "icon": "RiShieldCheckLine",
+            "before_after": {
+              "before_image": "/images/examples/woman-after.jpg",
+              "after_image": "/images/examples/woman-before.jpg",
+              "before_label": "สะอาด",
+              "after_label": "มีลายน้ำ",
+              "before_alt": "รูปภาพ AI หลังลบลายน้ำแล้ว",
+              "after_alt": "รูปภาพ AI ต้นฉบับที่มีลายน้ำ Gemini"
+            }
+          },
+          {
+            "title": "คุณภาพไม่ลดลง",
+            "description": "อัลกอริทึม Reverse Alpha Blending ของเราคำนวณพิกเซลเดิมกลับมาได้แม่นยำ ไม่มีการเบลอ ไม่มีรอยด่าง และไม่เสียคุณภาพของภาพ",
+            "icon": "RiImageEditLine",
+            "before_after": {
+              "before_image": "/images/examples/dog-before.jpg",
+              "after_image": "/images/examples/dog-after.jpg",
+              "before_label": "มีลายน้ำ",
+              "after_label": "สะอาด",
+              "before_alt": "รูปภาพสุนัขที่มีลายน้ำ Gemini",
+              "after_alt": "รูปภาพหลังลบลายน้ำออกโดยไม่เสียคุณภาพ"
+            }
+          },
+          {
+            "title": "ประมวลผลรวดเร็วปานสายฟ้า",
+            "description": "ประมวลผลรูปภาพในเวลาไม่ถึง 500ms โดยใช้ Canvas API ไม่ต้องรอคิวหรือรอกระบวนการจากเซิร์ฟเวอร์",
+            "icon": "RiFlashlightLine",
+            "before_after": {
+              "before_image": "/images/examples/skater-before.jpg",
+              "after_image": "/images/examples/skater-after.jpg",
+              "before_label": "มีลายน้ำ",
+              "after_label": "สะอาด",
+              "before_alt": "รูปภาพนักสเก็ตที่มีลายน้ำ Gemini",
+              "after_alt": "รูปภาพหลังลบลายน้ำออกโดยไม่เสียคุณภาพ"
+            }
+          }
+        ]
+      },
+      "features": {
+        "id": "features",
+        "title": "คุณสมบัติที่ทรงพลังสำหรับการลบลายน้ำ Gemini",
+        "description": "ทุกสิ่งที่คุณต้องการเพื่อทำความสะอาดรูปภาพ AI",
+        "items": [
+          {
+            "title": "รองรับหลายแพลตฟอร์ม",
+            "description": "ลบลายน้ำจาก Gemini, DALL-E, Midjourney, Stable Diffusion และ Adobe Firefly",
+            "icon": "RiRobot2Line"
+          },
+          {
+            "title": "การทำความสะอาดสองชั้น",
+            "description": "ลบทั้งลายน้ำที่มองเห็นได้ (โลโก้, ดาว) และข้อมูลเมตาที่มองไม่เห็น (C2PA, EXIF AI tags)",
+            "icon": "RiStackLine"
+          },
+          {
+            "title": "ประมวลผลบนเบราว์เซอร์",
+            "description": "การประมวลผลทั้งหมดเกิดขึ้นในเบราว์เซอร์ของคุณโดยใช้ Canvas API ทำงานออฟไลน์ได้ด้วย",
+            "icon": "RiGlobalLine"
+          },
+          {
+            "title": "การประมวลผลแบบกลุ่ม",
+            "description": "ผู้ใช้ระดับ Pro สามารถประมวลผลรูปภาพได้สูงสุด 100 รูปพร้อมกันด้วยการลากวาง",
+            "icon": "RiFileCopyLine"
+          },
+          {
+            "title": "ดาวน์โหลดทันที",
+            "description": "ดาวน์โหลดรูปภาพที่สะอาดได้ทันทีในรูปแบบ PNG คุณภาพสูง ไม่ต้องรอ ไม่ต้องใช้อีเมล",
+            "icon": "RiDownloadLine"
+          },
+          {
+            "title": "แผนใช้งานฟรีตลอดไป",
+            "description": "ประมวลผลได้ 5 รูปต่อวันฟรี 100% ไม่ต้องสมัครสมาชิก ไม่ต้องใช้บัตรเครดิต",
+            "icon": "RiGiftLine"
+          }
+        ]
+      },
+      "stats": {
+        "id": "stats",
+        "title": "ได้รับความไว้วางใจจากครีเอเตอร์ทั่วโลก",
+        "description": "ร่วมเป็นส่วนหนึ่งของครีเอเตอร์นับพันที่ใช้ RemoveGeminiWatermark ทุกวัน",
+        "items": [
+          {
+            "title": "50,000+",
+            "description": "รูปภาพที่ลบลายน้ำแล้ว"
+          },
+          {
+            "title": "5+",
+            "description": "แพลตฟอร์ม AI"
+          },
+          {
+            "title": "100%",
+            "description": "ประมวลผลในเครื่อง"
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "faq": {
+        "id": "faq",
+        "title": "คำถามที่พบบ่อย",
+        "description": "ทุกสิ่งที่คุณควรรู้เกี่ยวกับการลบลายน้ำ AI",
+        "items": [
+          {
+            "question": "การลบลายน้ำ AI ถูกกฎหมายหรือไม่?",
+            "answer": "การลบลายน้ำเพื่อการใช้งานส่วนตัวโดยทั่วไปถือว่าถูกกฎหมายในหลายประเทศ อย่างไรก็ตาม เราขอแนะนำให้คุณตรวจสอบเงื่อนไขการให้บริการของแพลตฟอร์ม AI นั้นๆ และกฎหมายท้องถิ่นของคุณ เครื่องมือของเราออกแบบมาเพื่อการใช้งานที่ถูกต้อง เช่น โปรเจกต์ส่วนตัวและงานพอร์ตโฟลิโอ"
+          },
+          {
+            "question": "เครื่องมือนี้มีการอัปโหลดรูปภาพขึ้นเซิร์ฟเวอร์หรือไม่?",
+            "answer": "ไม่ รูปภาพทั้งหมดจะถูกประมวลผลในเครื่อง 100% บนเบราว์เซอร์ของคุณโดยใช้ Canvas API ข้อมูลรูปภาพจะไม่หลุดออกจากเครื่องของคุณ เราไม่มีการเก็บ ส่ง หรือเข้าถึงรูปภาพใดๆ ของคุณทั้งสิ้น"
+          },
+          {
+            "question": "สามารถลบลายน้ำ AI ตัวไหนได้บ้าง?",
+            "answer": "ปัจจุบันเรารองรับการลบลายน้ำที่มองเห็นได้จาก Google Gemini (โลโก้ดาว ✦) ส่วนการรองรับลายน้ำจาก DALL-E, Midjourney, Stable Diffusion และ Adobe Firefly จะตามมาในการอัปเดตครั้งหน้า"
+          },
+          {
+            "question": "การลบลายน้ำจะทำให้คุณภาพของภาพเสียไปหรือไม่?",
+            "answer": "อัลกอริทึม Reverse Alpha Blending ของเราจะคำนวณค่าพิกเซลเดิมกลับมา ทำให้แทบไม่เสียคุณภาพในบริเวณลายน้ำเลย ส่วนอื่นๆ ของภาพจะไม่มีการแตะต้องใดๆ"
+          },
+          {
+            "question": "สามารถประมวลผลภาพฟรีได้กี่รูป?",
+            "answer": "คุณสามารถประมวลผลได้สูงสุด 5 รูปต่อวันฟรี ไม่ต้องสมัครสมาชิกหรือใช้บัตรเครดิต สำหรับการใช้งานไม่จำกัด แผน Pro ของเราเริ่มต้นเพียง 9 ดอลลาร์ต่อเดือน"
+          },
+          {
+            "question": "สามารถใช้งานบนสมาร์ทโฟนได้หรือไม่?",
+            "answer": "ได้! เครื่องมือของเราทำงานได้บนเบราว์เซอร์มือถือทุกรุ่น ทั้ง iOS และ Android การประมวลผลนั้นเบาและทำงานได้ลื่นไหลบนสมาร์ทโฟนส่วนใหญ่"
+          }
+        ]
+      },
+      "cta": {
+        "id": "cta",
+        "title": "เริ่มลบลายน้ำ AI — ใช้งานฟรี",
+        "description": "ไม่ต้องสมัครสมาชิก ประมวลผลได้ 5 รูปต่อวันฟรี",
+        "buttons": [
+          {
+            "title": "ลบลายน้ำเดี๋ยวนี้",
+            "url": "#tool",
+            "target": "_self",
+            "icon": "Sparkles"
+          },
+          {
+            "title": "ดูราคา",
+            "url": "/#pricing",
+            "target": "_self",
+            "variant": "blue",
+            "icon": "DollarSign"
+          },
+          {
+            "title": "ทางลัด iOS",
+            "url": "/shortcuts",
+            "target": "_self",
+            "variant": "emerald",
+            "icon": "Command"
+          }
+        ],
+        "className": "bg-muted"
+      },
+      "partners": {
+        "id": "partners",
+        "block": "partners",
+        "title": "พันธมิตรของเรา"
+      }
+    }
+  }
+}

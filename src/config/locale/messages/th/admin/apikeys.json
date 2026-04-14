@@ -1,0 +1,17 @@
+{
+  "fields": {
+    "title": "หัวข้อ",
+    "key": "คีย์ (Key)",
+    "user": "ผู้ใช้",
+    "status": "สถานะ",
+    "created_at": "สร้างเมื่อ",
+    "action": "จัดการ"
+  },
+  "list": {
+    "title": "API Keys",
+    "crumbs": {
+      "admin": "ผู้ดูแลระบบ",
+      "apikeys": "API Keys"
+    }
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "title": "ระบบหลังบ้าน",
+  "nav": {
+    "items": [
+      {
+        "title": "ผู้ดูแลระบบ",
+        "icon": "ShieldCheck",
+        "children": [
+          {
+            "title": "ผู้ใช้งาน",
+            "icon": "Users",
+            "url": "/admin/users"
+          },
+          {
+            "title": "บทบาท",
+            "icon": "UserCheck",
+            "url": "/admin/roles"
+          },
+          {
+            "title": "สิทธิ์การเข้าถึง",
+            "icon": "Lock",
+            "url": "/admin/permissions"
+          }
+        ]
+      },
+      {
+        "title": "เนื้อหา",
+        "icon": "FileText",
+        "children": [
+          {
+            "title": "หมวดหมู่",
+            "icon": "Folder",
+            "url": "/admin/categories"
+          },
+          {
+            "title": "บทความ",
+            "icon": "FileText",
+            "url": "/admin/posts"
+          }
+        ]
+      },
+      {
+        "title": "การเงินและเครดิต",
+        "icon": "DollarSign",
+        "children": [
+          {
+            "title": "การชำระเงิน",
+            "url": "/admin/payments",
+            "icon": "DollarSign"
+          },
+          {
+            "title": "ระะการสมัครสมาชิก",
+            "url": "/admin/subscriptions",
+            "icon": "CreditCard"
+          },
+          {
+            "title": "เครดิต",
+            "url": "/admin/credits",
+            "icon": "Coins"
+          }
+        ]
+      }
+    ]
+  },
+  "business": [
+    {
+      "title": "ธุรกิจ",
+      "items": [
+        {
+          "title": "งาน AI",
+          "url": "/admin/ai-tasks",
+          "icon": "Brain"
+        },
+        {
+          "title": "การแชท AI",
+          "url": "/admin/chats",
+          "icon": "MessageCircle"
+        }
+      ]
+    }
+  ],
+  "bottom_nav": {
+    "items": [
+      {
+        "title": "การตั้งค่า",
+        "url": "/admin/settings/general",
+        "icon": "Settings"
+      },
+      {
+        "title": "API Keys",
+        "url": "/admin/apikeys",
+        "icon": "Key"
+      }
+    ]
+  },
+  "user": {
+    "nav": {
+      "items": [
+        {
+          "title": "โปรไฟล์",
+          "url": "/settings/profile",
+          "icon": "User",
+          "target": "_blank"
+        }
+      ]
+    },
+    "show_email": false,
+    "show_signout": true,
+    "signout_callback": "/"
+  },
+  "footer": {
+    "nav": {
+      "items": [
+        {
+          "title": "หน้าหลัก",
+          "url": "/",
+          "icon": "Home",
+          "target": "_blank"
+        },
+        {
+          "title": "GitHub",
+          "url": "https://github.com/your-app-name",
+          "icon": "Github",
+          "target": "_blank"
+        },
+        {
+          "title": "Twitter",
+          "url": "https://twitter.com/your-app-name",
+          "icon": "RiTwitterXFill",
+          "target": "_blank"
+        },
+        {
+          "title": "Discord",
+          "url": "https://discord.gg/your-app-name",
+          "icon": "RiDiscordFill",
+          "target": "_blank"
+        },
+        {
+          "title": "อีเมล",
+          "url": "mailto:support@your-domain.com",
+          "icon": "Mail",
+          "target": "_blank"
+        }
+      ]
+    },
+    "show_theme": true,
+    "show_locale": false
+  },
+  "variant": "sidebar"
+}

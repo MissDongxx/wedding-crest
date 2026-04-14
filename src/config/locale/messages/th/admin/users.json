@@ -1,0 +1,77 @@
+{
+  "fields": {
+    "id": "ID",
+    "name": "ชื่อ",
+    "avatar": "รูปโปรไฟล์",
+    "email": "อีเมล",
+    "email_verified": "ยืนยันอีเมลแล้ว",
+    "remaining_credits": "เครดิตคงเหลือ",
+    "created_at": "สร้างเมื่อ",
+    "actions": "การจัดการ",
+    "roles": "บทบาท",
+    "ip": "IP",
+    "locale": "ภาษา",
+    "utm_source": "แหล่งที่มา (UTM Source)"
+  },
+  "list": {
+    "title": "ผู้ใช้งาน",
+    "crumbs": {
+      "admin": "ผู้ดูแลระบบ",
+      "users": "ผู้ใช้งาน"
+    },
+    "buttons": {
+      "add": "เพิ่มผู้ใช้",
+      "edit": "แก้ไขผู้ใช้",
+      "view": "ดูข้อมูลผู้ใช้",
+      "delete": "ลบผู้ใช้",
+      "edit_roles": "แก้ไขบทบาท",
+      "grant_credits": "มอบเครดิต"
+    },
+    "search": {
+      "email": {
+        "title": "อีเมล",
+        "placeholder": "กรองด้วยอีเมล"
+      }
+    }
+  },
+  "edit": {
+    "title": "แก้ไขผู้ใช้",
+    "crumbs": {
+      "admin": "ผู้ดูแลระบบ",
+      "users": "ผู้ใช้งาน",
+      "edit": "แก้ไข"
+    },
+    "buttons": {
+      "submit": "อัปเดต"
+    }
+  },
+  "edit_roles": {
+    "title": "แก้ไขบทบาท",
+    "crumbs": {
+      "admin": "ผู้ดูแลระบบ",
+      "users": "ผู้ใช้งาน",
+      "edit_roles": "แก้ไขบทบาท"
+    },
+    "buttons": {
+      "submit": "อัปเดต"
+    }
+  },
+  "grant_credits": {
+    "title": "มอบเครดิต",
+    "crumbs": {
+      "admin": "ผู้ดูแลระบบ",
+      "users": "ผู้ใช้งาน",
+      "grant_credits": "มอบเครดิต"
+    },
+    "buttons": {
+      "submit": "มอบเครดิต"
+    },
+    "fields": {
+      "credits": "จำนวนเครดิต",
+      "valid_days": "จำนวนวันที่ใช้งานได้",
+      "valid_days_tip": "0 หมายถึงไม่มีวันหมดอายุ",
+      "description": "คำอธิบายการมอบเครดิต",
+      "description_placeholder": "ผู้ดูแลระบบมอบเครดิต"
+    }
+  }
+}

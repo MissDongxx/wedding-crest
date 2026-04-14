@@ -1,0 +1,46 @@
+{
+  "title": "การตั้งค่า",
+  "nav": {
+    "items": [
+      {
+        "title": "โปรไฟล์",
+        "url": "/settings/profile",
+        "icon": "User"
+      },
+      {
+        "title": "การเรียกเก็บเงิน",
+        "url": "/settings/billing",
+        "icon": "CreditCard"
+      },
+      {
+        "title": "การชำระเงิน",
+        "url": "/settings/payments",
+        "icon": "DollarSign"
+      },
+      {
+        "title": "เครดิต",
+        "url": "/settings/credits",
+        "icon": "Coins"
+      },
+      {
+        "title": "API Keys",
+        "url": "/settings/apikeys",
+        "icon": "RiKeyLine"
+      }
+    ]
+  },
+  "top_nav": {
+    "items": [
+      {
+        "title": "กิจกรรม",
+        "url": "/activity",
+        "icon": "Activity"
+      },
+      {
+        "title": "การตั้งค่า",
+        "url": "/settings",
+        "icon": "Settings"
+      }
+    ]
+  }
+}

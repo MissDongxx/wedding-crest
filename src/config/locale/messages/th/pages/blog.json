@@ -1,0 +1,22 @@
+{
+  "metadata": {
+    "title": "บล็อก",
+    "description": "อ่านฟีเจอร์ล่าสุด โซลูชัน และการอัปเดตผลิตภัณฑ์"
+  },
+  "page": {
+    "title": "บล็อก RemoveGeminiWatermark",
+    "sections": {
+      "blog": {
+        "id": "blog",
+        "title": "บล็อก",
+        "description": "เรื่องล่าสุดเกี่ยวกับฟีเจอร์ ผลิตภัณฑ์ และการปรับปรุงต่างๆ"
+      }
+    }
+  },
+  "messages": {
+    "all": "ทั้งหมด",
+    "no_content": "ไม่มีเนื้อหา",
+    "crumb": "บล็อก",
+    "toc": "สารบัญ"
+  }
+}

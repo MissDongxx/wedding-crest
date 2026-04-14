@@ -1,0 +1,90 @@
+{
+  "metadata": {
+    "title": "ราคา — RemoveGeminiWatermark",
+    "description": "ลบลายน้ำ AI ฟรี อัปเกรดเป็น Pro เพื่อการประมวลผลที่ไม่จำกัด"
+  },
+  "page": {
+    "title": "ราคา RemoveGeminiWatermark",
+    "sections": {
+      "pricing": {
+        "id": "pricing",
+        "title": "ราคาที่เรียบง่ายและโปร่งใส",
+        "description": "เริ่มต้นฟรี อัปเกรดเมื่อคุณต้องการใช้งานมากขึ้น",
+        "groups": [
+          {
+            "name": "one-time",
+            "title": "จ่ายครั้งเดียว",
+            "is_featured": true
+          }
+        ],
+        "items": [
+          {
+            "title": "ฟรี",
+            "description": "ทดลองลบลายน้ำ AI โดยไม่มีความเสี่ยง",
+            "features_title": "สิ่งที่รวมอยู่",
+            "features": [
+              "5 รูปต่อวัน",
+              "ลบลายน้ำ Gemini",
+              "ประมวลผลในเครื่อง 100%",
+              "รองรับ PNG, JPG, WebP",
+              "ไม่ต้องสมัครสมาชิก"
+            ],
+            "interval": "one-time",
+            "amount": 0,
+            "currency": "USD",
+            "price": "$0",
+            "unit": "ตลอดไป",
+            "is_featured": false,
+            "tip": "ไม่ต้องใช้บัตรเครดิต",
+            "button": {
+              "title": "เริ่มใช้งานฟรี",
+              "url": "/tools/gemini",
+              "icon": "RiFlashlightFill"
+            },
+            "product_id": "free",
+            "product_name": "RemoveGeminiWatermark ฟรี",
+            "credits": 0,
+            "valid_days": 0,
+            "group": "one-time"
+          },
+          {
+            "title": "ตลอดชีพ",
+            "description": "ลบลายน้ำได้ไม่จำกัดสำหรับมืออาชีพ จ่ายครั้งเดียว ใช้ได้ตลอดไป",
+            "label": "คุ้มค่าที่สุด",
+            "features_title": "ทุกอย่างในแผนฟรี และเพิ่มเติม",
+            "features": [
+              "ไม่จำกัดจำนวนรูปภาพ",
+              "รองรับทุกแพลตฟอร์ม AI",
+              "ประมวลผลแบบกลุ่ม (สูงสุด 100 รูป)",
+              "ลบข้อมูลเมตา C2PA/Exif",
+              "การสนับสนุนลำดับความสำคัญ",
+              "เข้าถึงระบบทางลัด iOS"
+            ],
+            "interval": "one-time",
+            "amount": 990,
+            "currency": "USD",
+            "price": "$9.9",
+            "unit": "",
+            "is_featured": true,
+            "tip": "จ่ายครั้งเดียว ใช้ได้ตลอดชีพ",
+            "button": {
+              "title": "รับสิทธิ์เข้าถึงตลอดชีพ",
+              "url": "/#pricing",
+              "icon": "RiFlashlightFill"
+            },
+            "product_id": "pro-lifetime",
+            "product_name": "RemoveGeminiWatermark Lifetime Pro",
+            "credits": 999999,
+            "valid_days": 36500,
+            "group": "one-time",
+            "plan_name": "ตลอดชีพ"
+          }
+        ]
+      }
+    }
+  },
+  "messages": {
+    "current_plan": "แผนปัจจุบัน",
+    "processing": "กำลังประมวลผล"
+  }
+}

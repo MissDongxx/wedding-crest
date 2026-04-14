@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "title": "ตัวสร้างรูปภาพด้วย AI",
+    "description": "สร้างรูปภาพด้วยรุ่น AI รองรับข้อความเป็นรูปภาพ และรูปภาพเป็นรูปภาพ"
+  },
+  "page": {
+    "title": "ตัวสร้างรูปภาพด้วย AI",
+    "description": "สร้างรูปภาพด้วยรุ่น AI รองรับข้อความเป็นรูปภาพ และรูปภาพเป็นรูปภาพ"
+  },
+  "generator": {
+    "title": "ตัวสร้างรูปภาพ",
+    "description": "สร้างรูปภาพด้วยรุ่น AI รองรับข้อความเป็นรูปภาพ และรูปภาพเป็นรูปภาพ",
+    "tabs": {
+      "text-to-image": "ข้อความเป็นรูปภาพ",
+      "image-to-image": "รูปภาพเป็นรูปภาพ"
+    },
+    "form": {
+      "provider": "ผู้ให้บริการ",
+      "model": "รุ่น (Model)",
+      "select_provider": "เลือกผู้ให้บริการ",
+      "select_model": "เลือกรุ่น",
+      "prompt": "คำสั่ง (Prompt)",
+      "prompt_placeholder": "บรรยายรายละเอียดของรูปภาพ เช่น สี รูปร่าง พื้นผิว เป็นต้น",
+      "reference_image": "รูปภาพอ้างอิง",
+      "reference_image_placeholder": "อัปโหลดรูปภาพอ้างอิง รองรับหลายรูปภาพ",
+      "some_images_failed_to_upload": "รูปภาพบางรูปอัปโหลดไม่สำเร็จ โปรดลบและอัปโหลดใหม่",
+      "prompt_too_long": "คำสั่งยาวเกินไป โปรดลบเนื้อหาบางส่วนออก"
+    },
+    "generate": "สร้างรูปภาพ",
+    "checking_account": "กำลังตรวจสอบบัญชี...",
+    "loading": "กำลังโหลด...",
+    "generating": "กำลังสร้าง...",
+    "sign_in_to_generate": "เข้าสู่ระบบเพื่อสร้างรูปภาพ",
+    "credits_cost": "ใช้ {credits} เครดิต",
+    "credits_remaining": "คงเหลือ {credits} เครดิต",
+    "buy_credits": "ซื้อเครดิต",
+    "progress": "ความคืบหน้า",
+    "generated_images": "ตัวอย่างรูปภาพ",
+    "ready_to_generate": "พร้อมที่จะสร้าง",
+    "ready_for_generating": "พร้อมสำหรับการสร้าง",
+    "no_images_generated": "ยังไม่มีรูปภาพที่สร้าง"
+  }
+}

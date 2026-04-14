@@ -8,9 +8,10 @@ export const localeNames: any = {
   de: 'Deutsch',
   fr: 'Français',
   ko: '한국어',
+  th: 'ไทย',
 };
 
-export const locales = ['en', 'zh', 'pt-BR', 'it', 'de', 'fr', 'ko'];
+export const locales = ['en', 'zh', 'pt-BR', 'it', 'de', 'fr', 'ko', 'th'];
 
 export const defaultLocale = envConfigs.locale;
 

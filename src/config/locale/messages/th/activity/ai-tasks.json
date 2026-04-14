@@ -1,0 +1,31 @@
+{
+  "fields": {
+    "title": "หัวข้อ",
+    "media_type": "ประเภทสื่อ",
+    "provider": "ผู้ให้บริการ",
+    "model": "รุ่น (Model)",
+    "prompt": "คำสั่ง (Prompt)",
+    "options": "ตัวเลือก",
+    "status": "สถานะ",
+    "result": "ผลลัพธ์",
+    "cost_credits": "ใช้เครดิต",
+    "created_at": "สร้างเมื่อ",
+    "action": "จัดการ"
+  },
+  "list": {
+    "title": "งาน AI",
+    "tabs": {
+      "all": "ทั้งหมด",
+      "music": "เพลง",
+      "image": "รูปภาพ",
+      "video": "วิดีโอ",
+      "audio": "เสียง",
+      "text": "ข้อความ"
+    },
+    "buttons": {
+      "view": "ดูงาน",
+      "refresh": "รีเฟรช"
+    },
+    "empty_message": "ไม่พบงาน"
+  }
+}

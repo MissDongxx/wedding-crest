@@ -1,0 +1,27 @@
+{
+  "fields": {
+    "transaction_no": "เลขที่ธุรกรรม",
+    "user": "ผู้ใช้",
+    "amount": "จำนวน",
+    "remaining": "คงเหลือ",
+    "type": "ประเภท",
+    "scene": "การใช้งาน",
+    "description": "คำอธิบาย",
+    "created_at": "สร้างเมื่อ",
+    "expires_at": "หมดอายุเมื่อ",
+    "metadata": "ข้อมูลเมตา",
+    "action": "จัดการ"
+  },
+  "list": {
+    "title": "เครดิต",
+    "crumbs": {
+      "admin": "ผู้ดูแลระบบ",
+      "credits": "เครดิต"
+    },
+    "tabs": {
+      "all": "ทั้งหมด",
+      "grant": "มอบให้",
+      "consume": "ใช้งาน"
+    }
+  }
+}

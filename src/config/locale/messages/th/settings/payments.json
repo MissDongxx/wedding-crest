@@ -1,0 +1,30 @@
+{
+  "fields": {
+    "order_no": "เลขที่คำสั่งซื้อ",
+    "user": "ผู้ใช้",
+    "amount": "จำนวน",
+    "product_name": "ชื่อสินค้า",
+    "price": "ราคา",
+    "paid_amount": "ยอดที่ชำระ",
+    "discount_amount": "ส่วนลด",
+    "description": "รายละเอียด",
+    "type": "ประเภท",
+    "provider": "ผู้ให้บริการ",
+    "created_at": "สร้างเมื่อ",
+    "status": "สถานะ",
+    "action": "จัดการ",
+    "actions": {
+      "view_invoice": "ดูใบแจ้งหนี้"
+    }
+  },
+  "list": {
+    "title": "การชำระเงิน",
+    "description": "ดูประวัติการชำระเงินของคุณ",
+    "tabs": {
+      "all": "ทั้งหมด",
+      "one-time": "จ่ายครั้งเดียว",
+      "subscription": "การสมัครสมาชิก",
+      "renew": "ต่ออายุ"
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "title": "กิจกรรม",
+  "nav": {
+    "items": [
+      {
+        "title": "งาน AI",
+        "url": "/activity/ai-tasks",
+        "icon": "RiTaskLine"
+      },
+      {
+        "title": "การแชท AI",
+        "url": "/activity/chats",
+        "icon": "RiChat2Line"
+      }
+    ]
+  },
+  "top_nav": {
+    "items": [
+      {
+        "title": "กิจกรรม",
+        "url": "/activity",
+        "icon": "Activity"
+      },
+      {
+        "title": "การตั้งค่า",
+        "url": "/settings",
+        "icon": "Settings"
+      }
+    ]
+  }
+}

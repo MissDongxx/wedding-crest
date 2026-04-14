@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "title": "ตัวสร้างวิดีโอด้วย AI",
+    "description": "สร้างวิดีโอด้วยรุ่น AI รองรับข้อความเป็นวิดีโอ, รูปภาพเป็นวิดีโอ และวิดีโอเป็นวิดีโอ"
+  },
+  "page": {
+    "title": "ตัวสร้างวิดีโอด้วย AI",
+    "description": "สร้างวิดีโอด้วยรุ่น AI รองรับข้อความเป็นวิดีโอ, รูปภาพเป็นวิดีโอ และวิดีโอเป็นวิดีโอ"
+  },
+  "generator": {
+    "title": "ตัวสร้างวิดีโอ",
+    "description": "สร้างวิดีโอด้วยรุ่น AI รองรับข้อความเป็นวิดีโอ, รูปภาพเป็นวิดีโอ และวิดีโอเป็นวิดีโอ",
+    "tabs": {
+      "text-to-video": "ข้อความเป็นวิดีโอ",
+      "image-to-video": "รูปภาพเป็นวิดีโอ",
+      "video-to-video": "วิดีโอเป็นวิดีโอ"
+    },
+    "form": {
+      "provider": "ผู้ให้บริการ",
+      "model": "รุ่น (Model)",
+      "select_provider": "เลือกผู้ให้บริการ",
+      "select_model": "เลือกรุ่น",
+      "prompt": "คำสั่ง (Prompt)",
+      "prompt_placeholder": "บรรยายเนื้อหาวิดีโอ เช่น ฉาก การกระทำ สไตล์ เป็นต้น",
+      "reference_image": "รูปภาพอ้างอิง",
+      "reference_image_placeholder": "อัปโหลดรูปภาพอ้างอิงสำหรับการสร้างวิดีโอ",
+      "reference_video": "URL วิดีโออ้างอิง",
+      "reference_video_placeholder": "กรอก URL ของวิดีโออ้างอิง",
+      "some_images_failed_to_upload": "รูปภาพอัปโหลดไม่สำเร็จ โปรดลบและอัปโหลดใหม่",
+      "prompt_too_long": "คำสั่งยาวเกินไป โปรดลบเนื้อหาบางส่วนออก"
+    },
+    "generate": "สร้างวิดีโอ",
+    "checking_account": "กำลังตรวจสอบบัญชี...",
+    "loading": "กำลังโหลด...",
+    "generating": "กำลังสร้าง...",
+    "sign_in_to_generate": "เข้าสู่ระบบเพื่อสร้างวิดีโอ",
+    "credits_cost": "ใช้ {credits} เครดิต",
+    "credits_remaining": "คงเหลือ {credits} เครดิต",
+    "buy_credits": "ซื้อเครดิต",
+    "progress": "ความคืบหน้า",
+    "generated_videos": "ตัวอย่างวิดีโอ",
+    "ready_to_generate": "พร้อมที่จะสร้าง",
+    "ready_for_generating": "พร้อมสำหรับการสร้าง",
+    "no_videos_generated": "ยังไม่มีวิดีโอที่สร้าง"
+  }
+}

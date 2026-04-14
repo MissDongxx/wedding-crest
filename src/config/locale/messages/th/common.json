@@ -1,0 +1,63 @@
+{
+  "metadata": {
+    "title": "ลบลายน้ำ Gemini ฟรี — RemoveGeminiWatermark.org",
+    "description": "เครื่องมือลบลายน้ำ AI ของ Gemini บนเบราว์เซอร์ลบได้ทันที ไม่ต้องอัปโหลด ประมวลผลในเครื่อง 100% คุณภาพไม่ลดลง",
+    "keywords": "ลบลายน้ำ gemini, ลบโลโก้ gemini, ลบทิ้งลายน้ำ gemini"
+  },
+  "sign": {
+    "sign_in_title": "เข้าสู่ระบบ",
+    "sign_in_description": "เข้าสู่ระบบบัญชีของคุณ",
+    "sign_up_title": "สมัครสมาชิก",
+    "sign_up_description": "สร้างบัญชีใหม่",
+    "email_title": "อีเมล",
+    "email_placeholder": "กรอกอีเมลของคุณที่นี่",
+    "password_title": "รหัสผ่าน",
+    "password_placeholder": "กรอกรหัสผ่านของคุณที่นี่",
+    "forgot_password": "ลืมรหัสผ่าน?",
+    "or": "หรือ",
+    "continue": "ดำเนินการต่อ",
+    "no_account": "ยังไม่มีบัญชีใช่ไหม?",
+    "already_have_account": "มีบัญชีอยู่แล้วใช่ไหม?",
+    "email_sign_in": "เข้าสู่ระบบด้วยอีเมล",
+    "google_sign_in_title": "เข้าสู่ระบบด้วย Google",
+    "github_sign_in_title": "เข้าสู่ระบบด้วย GitHub",
+    "close_title": "ปิด",
+    "cancel_title": "ยกเลิก",
+    "sign_out_title": "ออกจากระบบ",
+    "billing_title": "การเรียกเก็บเงิน",
+    "name_title": "ชื่อ",
+    "name_placeholder": "กรอกชื่อของคุณที่นี่",
+    "email_verification_hint": "ใช้อีเมลที่คุณเข้าถึงได้ คุณต้องยืนยันอีเมลหลังจากสมัครสมาชิก",
+    "admin_title": "ระบบดูแลระบบ",
+    "credits_title": "เครดิต: {credits}",
+    "verify_email_sent": "ส่งอีเมลยืนยันแล้ว โปรดตรวจสอบกล่องจดหมายของคุณ",
+    "verify_email_required": "โปรดยืนยันอีเมลของคุณก่อนเข้าสู่ระบบ",
+    "resend_verification": "ส่งอีเมลยืนยันอีกครั้ง",
+    "resend_verification_sent": "ส่งอีเมลยืนยันอีกครั้งแล้ว โปรดตรวจสอบกล่องจดหมายของคุณ",
+    "verify_email_page_title": "ตรวจสอบอีเมลของคุณ",
+    "verify_email_page_description": "หากต้องการดำเนินการต่อ ให้คลิกลิงก์ที่ส่งไปที่",
+    "verify_email_continue": "ดำเนินการต่อ",
+    "verify_email_tip": "หลังจากยืนยันแล้ว ให้คลิก \"ดำเนินการต่อ\"",
+    "verify_email_not_verified_yet": "ยังไม่ได้ยืนยัน โปรดคลิกลิงก์ในอีเมลของคุณก่อน",
+    "verify_email_account_mismatch": "เข้าสู่ระบบในชื่อ {current} หน้านี้กำลังรอ {expected}",
+    "resend_verification_countdown": "ส่งอีเมลยืนยันอีกครั้ง ({seconds} วินาที)",
+    "resend_verification_wait": "โปรดรอ {seconds} วินาทีก่อนส่งอีกครั้ง",
+    "back_to_sign_in": "กลับไปหน้าเข้าสู่ระบบ"
+  },
+  "payment": {
+    "choose_payment_method": "เลือกช่องทางการชำระเงิน",
+    "choose_payment_method_description": "",
+    "cancel_title": "ยกเลิก"
+  },
+  "locale_detector": {
+    "title": "เราตรวจพบว่าภาษาเบราว์เซอร์ของคุณคือ {locale} ต้องการเปลี่ยนเป็นภาษานี้ไหม?",
+    "switch_to": "เปลี่ยนเป็น {locale}"
+  },
+  "watermark": {
+    "trust_badges": {
+      "local": "ประมวลผลในเครื่อง 100%",
+      "metadata": "ลบ Metadata อัตโนมัติ",
+      "free_today": "วันนี้ใช้ฟรีเหลือ {remaining}/{limit}"
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "fields": {
+    "title": "ชื่อหัวข้อ",
+    "key": "คีย์ (Key)",
+    "created_at": "สร้างเมื่อ",
+    "action": "จัดการ"
+  },
+  "list": {
+    "title": "API Keys",
+    "empty_message": "ยังไม่มี API Keys",
+    "buttons": {
+      "add": "สร้าง API Key",
+      "edit": "แก้ไข",
+      "delete": "ลบ"
+    }
+  },
+  "add": {
+    "title": "สร้าง API Key",
+    "crumbs": {
+      "apikeys": "API Keys",
+      "add": "สร้าง API Key"
+    },
+    "buttons": {
+      "submit": "สร้าง"
+    }
+  },
+  "edit": {
+    "title": "แก้ไข API Key",
+    "crumbs": {
+      "apikeys": "API Keys",
+      "edit": "แก้ไข API Key"
+    },
+    "buttons": {
+      "submit": "อัปเดต"
+    }
+  },
+  "delete": {
+    "title": "ลบ API Key",
+    "crumbs": {
+      "apikeys": "API Keys",
+      "delete": "ลบ API Key"
+    },
+    "buttons": {
+      "submit": "ยืนยันการลบ"
+    }
+  }
+}

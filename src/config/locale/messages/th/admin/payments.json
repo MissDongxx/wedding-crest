@@ -1,0 +1,53 @@
+{
+  "fields": {
+    "order_no": "เลขที่คำสั่งซื้อ",
+    "user": "ผู้ใช้",
+    "amount": "จำนวน",
+    "product": "สินค้า",
+    "description": "คำอธิบาย",
+    "type": "ประเภท",
+    "provider": "ผู้ให้บริการ",
+    "created_at": "สร้างเมื่อ",
+    "status": "สถานะ",
+    "action": "จัดการ"
+  },
+  "list": {
+    "title": "การชำระเงิน",
+    "crumbs": {
+      "admin": "ผู้ดูแลระบบ",
+      "payments": "การชำระเงิน"
+    },
+    "tabs": {
+      "all": "ทั้งหมด",
+      "subscription": "การสมัครสมาชิก",
+      "one-time": "จ่ายครั้งเดียว"
+    },
+    "filters": {
+      "status": {
+        "title": "สถานะ",
+        "options": {
+          "all": "ทั้งหมด",
+          "paid": "ชำระแล้ว",
+          "created": "สร้างแล้ว",
+          "failed": "ล้มเหลว"
+        }
+      },
+      "provider": {
+        "title": "ผู้ให้บริการ",
+        "options": {
+          "all": "ทั้งหมด",
+          "stripe": "Stripe",
+          "creem": "Creem",
+          "lemonsqueezy": "Lemonsqueezy",
+          "paypal": "Paypal"
+        }
+      }
+    },
+    "search": {
+      "order_no": {
+        "title": "เลขที่คำสั่งซื้อ",
+        "placeholder": "เลขที่คำสั่งซื้อ"
+      }
+    }
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "header": {
+    "id": "header",
+    "brand": {
+      "title": "ลบลายน้ำ Gemini",
+      "logo": {
+        "src": "/logo.png",
+        "alt": "RemoveGeminiWatermark - เครื่องมือลบลายน้ำ Gemini ฟรี",
+        "width": 100,
+        "height": 100
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "ทางลัด",
+          "url": "/shortcuts",
+          "icon": "Command"
+        },
+        {
+          "title": "คุณสมบัติ",
+          "url": "/#features",
+          "icon": "Sparkles"
+        },
+        {
+          "title": "ราคา",
+          "url": "/#pricing",
+          "icon": "DollarSign"
+        },
+        {
+          "title": "บล็อก",
+          "url": "/blog",
+          "icon": "Newspaper"
+        }
+      ]
+    },
+    "buttons": [],
+    "user_nav": {
+      "show_name": true,
+      "show_credits": true,
+      "show_sign_out": true,
+      "items": [
+        {
+          "title": "การเรียกเก็บเงิน",
+          "url": "/settings/billing",
+          "icon": "CreditCard"
+        }
+      ]
+    },
+    "show_sign": true,
+    "show_theme": true,
+    "show_locale": true
+  },
+  "footer": {
+    "id": "footer",
+    "brand": {
+      "title": "ลบลายน้ำ Gemini",
+      "description": "เครื่องมือลบลายน้ำ AI ฟรีสำหรับ Gemini, DALL-E, Midjourney และภาพที่สร้างด้วย AI อื่นๆ ประมวลผลในเครื่อง 100% บนเบราว์เซอร์ของคุณ",
+      "logo": {
+        "src": "/logo.png",
+        "alt": "RemoveGeminiWatermark - เครื่องมือลบลายน้ำ Gemini ฟรี",
+        "width": 1024,
+        "height": 1024
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "เครื่องมือ",
+          "children": [
+            {
+              "title": "ตัวลบลายน้ำ Gemini",
+              "url": "/tools/gemini",
+              "target": "_self"
+            },
+            {
+              "title": "คุณสมบัติทั้งหมด",
+              "url": "/#features",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "ผลิตภัณฑ์",
+          "children": [
+            {
+              "title": "ราคา",
+              "url": "/#pricing",
+              "target": "_self"
+            },
+            {
+              "title": "บล็อก",
+              "url": "/blog",
+              "target": "_self"
+            },
+            {
+              "title": "ทางลัด iOS",
+              "url": "/shortcuts",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "กฎหมาย",
+          "children": [
+            {
+              "title": "นโยบายความเป็นส่วนตัว",
+              "url": "/privacy-policy",
+              "target": "_self"
+            },
+            {
+              "title": "เงื่อนไขการให้บริการ",
+              "url": "/terms-of-service",
+              "target": "_self"
+            }
+          ]
+        }
+      ]
+    },
+    "social": {
+      "items": [
+        {
+          "title": "X",
+          "icon": "RiTwitterXFill",
+          "url": "https://x.com/RemoveGeminiWM",
+          "target": "_blank"
+        },
+        {
+          "title": "อีเมล",
+          "icon": "Mail",
+          "url": "mailto:support@removegeminiwatermark.org",
+          "target": "_self"
+        }
+      ]
+    },
+    "agreement": {
+      "items": [
+        {
+          "title": "นโยบายความเป็นส่วนตัว",
+          "url": "/privacy-policy"
+        },
+        {
+          "title": "เงื่อนไขการให้บริการ",
+          "url": "/terms-of-service"
+        }
+      ]
+    },
+    "show_theme": true,
+    "show_locale": true
+  }
+}
