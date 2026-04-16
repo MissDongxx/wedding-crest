@@ -59,5 +59,30 @@
       "metadata": "Metadati rimossi automaticamente",
       "free_today": "{remaining}/{limit} gratis oggi"
     }
+  },
+  "upload_zone": {
+    "drop_text": "Rilascia la tua immagine qui",
+    "upload_text": "Carica immagine generata da AI",
+    "hint": "Trascina o clicca per selezionare · PNG, JPG, WebP · Max 20MB",
+    "processing_title": "Rimozione filigrana in corso...",
+    "processing_hint": "Elaborazione locale nel tuo browser. Nessun dato lascia il tuo dispositivo.",
+    "limit_title": "Limite giornaliero raggiunto",
+    "limit_hint_anonymous": "Hai usato {limit}/{limit} immagini gratuite oggi. Registrati per ottenerne 10 gratuite o aggiorna a Pro.",
+    "limit_hint_user": "Hai esaurito i crediti. Aggiorna a Pro per rimozione illimitata.",
+    "upgrade_button": "Aggiorna a Pro",
+    "try_tomorrow": "Riprova Domani",
+    "error_title": "Elaborazione fallita",
+    "error_hint": "Si è verificato un errore imprevisto",
+    "try_again": "Riprova",
+    "done_title": "Filigrana rimossa!",
+    "done_hint_pro": "Elaborata in {time}ms · Piano Pro",
+    "done_hint_free": "Elaborata in {time}ms · {used}/{limit} immagini gratuite usate oggi",
+    "process_another": "Elabora Un'altra",
+    "download": "Scarica",
+    "metadata_stripped": "Metadati rimossi:",
+    "before_label": "Prima",
+    "after_label": "Dopo — Filigrana Rimossa",
+    "alt_original": "Immagine originale con filigrana",
+    "alt_clean": "Immagine pulita senza filigrana"
   }
 }

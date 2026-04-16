@@ -73,5 +73,30 @@
     "sending_button": "Sending...",
     "success_message": "Message sent successfully!",
     "error_message": "Failed to send message. Please try again."
+  },
+  "upload_zone": {
+    "drop_text": "Drop your image here",
+    "upload_text": "Upload AI-generated image",
+    "hint": "Drag & drop or click to select · PNG, JPG, WebP · Max 20MB",
+    "processing_title": "Removing watermark...",
+    "processing_hint": "Processing locally in your browser. No data leaves your device.",
+    "limit_title": "Daily limit reached",
+    "limit_hint_anonymous": "You've used {limit}/{limit} free images today. Sign up to get 10 free images or upgrade to Pro.",
+    "limit_hint_user": "You've used all your credits. Upgrade to Pro for unlimited watermark removal.",
+    "upgrade_button": "Upgrade to Pro",
+    "try_tomorrow": "Try Tomorrow",
+    "error_title": "Processing failed",
+    "error_hint": "An unexpected error occurred",
+    "try_again": "Try Again",
+    "done_title": "Watermark removed!",
+    "done_hint_pro": "Processed in {time}ms · Pro plan",
+    "done_hint_free": "Processed in {time}ms · {used}/{limit} free images used today",
+    "process_another": "Process Another",
+    "download": "Download",
+    "metadata_stripped": "Metadata stripped:",
+    "before_label": "Before",
+    "after_label": "After — Watermark Removed",
+    "alt_original": "Original image with watermark",
+    "alt_clean": "Clean image without watermark"
   }
 }

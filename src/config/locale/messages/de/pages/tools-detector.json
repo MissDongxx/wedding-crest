@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "title": "AI Wasserzeichen-Detektor — RemoveGeminiWatermark.org",
+    "description": "Kostenloser AI Wasserzeichen-Detektor. Prüfen Sie sofort, ob ein Bild Gemini-, DALL-E- oder Midjourney-Wasserzeichen enthält, inklusive C2PA-Metadaten. Kein Upload — 100% lokale Verarbeitung."
+  },
+  "badge": "AI Wasserzeichen-Detektor",
+  "h1": "AI-Wasserzeichen in Beliebigem Bild Erkennen",
+  "h1_highlight": "AI-Wasserzeichen",
+  "subtitle": "Prüfen Sie, ob ein Bild sichtbare Wasserzeichen, C2PA-Signaturen oder AI-Metadaten-Marker enthält. 100% lokale Verarbeitung.",
+  "how_it_works": {
+    "title": "So Funktionierts",
+    "steps": [
+      { "step": "01", "title": "Bild Hochladen", "description": "Ziehen Sie ein Bild per Drag & Drop oder klicken Sie zum Hochladen. Unterstützt PNG, JPG und WebP bis 20MB." },
+      { "step": "02", "title": "Muster Analysieren", "description": "Unser Detektor prüft auf sichtbare Wasserzeichen-Muster und scannt binäre Header nach AI-Metadaten-Markern." },
+      { "step": "03", "title": "Ergebnisse Anzeigen", "description": "Erhalten Sie einen detaillierten Bericht mit Wasserzeichen-Konfidenz, C2PA-Status, Exif-Daten und Metadaten-Analyse." }
+    ]
+  },
+  "detect": {
+    "title": "Was Wir Erkennen",
+    "items": [
+      { "title": "Sichtbare Wasserzeichen", "description": "Das Gemini ✦ Stern-Logo in der unteren rechten Ecke von AI-generierten Bildern" },
+      { "title": "C2PA-Signaturen", "description": "Content Credentials-Manifeste die AI-generierte Inhalte identifizieren" },
+      { "title": "Exif-Metadaten", "description": "Kamera-Info, GPS-Daten, Software-Tags die AI-Generierung verraten könnten" },
+      { "title": "XMP- und IPTC-Daten", "description": "Erweiterte Metadaten einschließlich Erstellungstool, Beschreibungen und AI-Marker" }
+    ]
+  },
+  "faq": {
+    "title": "Häufig Gestellte Fragen",
+    "items": [
+      { "question": "Wie funktioniert der AI Wasserzeichen-Detektor?", "answer": "Der Detektor analysiert die untere rechte Ecke Ihres Bildes auf bekannte Wasserzeichen-Muster. Er prüft auch die binären Header auf Exif-Daten, C2PA-Manifeste und XMP-Metadaten." },
+      { "question": "Welche Arten von Wasserzeichen können erkannt werden?", "answer": "Der Detektor kann sichtbare Gemini-Wasserzeichen und C2PA/Exif-Metadaten-Marker erkennen. Unterstützung für DALL-E, Midjourney und Stable Diffusion kommt bald." },
+      { "question": "Wird mein Bild auf einen Server hochgeladen?", "answer": "Nein! Die gesamte Erkennung erfolgt zu 100% lokal in Ihrem Browser. Ihre Bilddaten verlassen niemals Ihr Gerät." },
+      { "question": "Was sind C2PA-Metadaten?", "answer": "C2PA ist ein Standard der Herkunftsinformationen in Bilddateien einbettet. Viele AI-Tools betten C2PA-Manifeste ein die das Bild als AI-generiert identifizieren." },
+      { "question": "Wie genau ist die Erkennung?", "answer": "Die Erkennung sichtbarer Wasserzeichen verwendet Pixel-Level-Mustererkennung. Metadaten-Erkennung ist hochgenau da sie die binäre Struktur direkt liest." },
+      { "question": "Kann es unsichtbare Wasserzeichen wie SynthID erkennen?", "answer": "Derzeit konzentriert sich der Detektor auf sichtbare Wasserzeichen und Metadaten-Marker. SynthID erfordert andere Techniken — wir forschen für zukünftige Updates." }
+    ]
+  },
+  "cta": { "title": "Müssen Sie ein Wasserzeichen entfernen?", "description": "Unser kostenloses Tool kann das Gemini-Wasserzeichen sofort entfernen.", "button": "Wasserzeichen Entfernen →" }
+}

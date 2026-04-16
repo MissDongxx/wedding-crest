@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { getThemePage } from '@/core/theme';
+import { envConfigs } from '@/config';
 import { getMetadata } from '@/shared/lib/seo';
 import { getCurrentSubscription } from '@/shared/models/subscription';
 import { getUserInfo } from '@/shared/models/user';
@@ -52,5 +53,35 @@ export default async function PricingPage({
     },
   };
 
-  return <Page locale={locale} page={page} />;
+  // BreadcrumbList structured data
+  const baseUrl = envConfigs.app_url;
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: baseUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Pricing',
+        item: `${baseUrl}/pricing`,
+      },
+    ],
+  };
+
+  return (
+    <>
+      {/* Structured Data: BreadcrumbList */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <Page locale={locale} page={page} />
+    </>
+  );
 }

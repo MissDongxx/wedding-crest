@@ -59,5 +59,30 @@
       "metadata": "Metadados removidos automaticamente",
       "free_today": "{remaining}/{limit} grátis hoje"
     }
+  },
+  "upload_zone": {
+    "drop_text": "Solte sua imagem aqui",
+    "upload_text": "Enviar imagem gerada por AI",
+    "hint": "Arraste e solte ou clique para selecionar · PNG, JPG, WebP · Máx 20MB",
+    "processing_title": "Removendo marca d'água...",
+    "processing_hint": "Processando localmente no seu navegador. Nenhum dado sai do seu dispositivo.",
+    "limit_title": "Limite diário atingido",
+    "limit_hint_anonymous": "Você usou {limit}/{limit} imagens gratuitas hoje. Cadastre-se para obter 10 imagens grátis ou atualize para Pro.",
+    "limit_hint_user": "Você usou todos os seus créditos. Atualize para Pro para remoção ilimitada.",
+    "upgrade_button": "Atualizar para Pro",
+    "try_tomorrow": "Tente Amanhã",
+    "error_title": "Falha no processamento",
+    "error_hint": "Ocorreu um erro inesperado",
+    "try_again": "Tentar Novamente",
+    "done_title": "Marca d'água removida!",
+    "done_hint_pro": "Processado em {time}ms · Plano Pro",
+    "done_hint_free": "Processado em {time}ms · {used}/{limit} imagens grátis usadas hoje",
+    "process_another": "Processar Outra",
+    "download": "Baixar",
+    "metadata_stripped": "Metadados removidos:",
+    "before_label": "Antes",
+    "after_label": "Depois — Marca d'água Removida",
+    "alt_original": "Imagem original com marca d'água",
+    "alt_clean": "Imagem limpa sem marca d'água"
   }
 }

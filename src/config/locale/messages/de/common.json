@@ -59,5 +59,30 @@
       "metadata": "Metadaten automatisch entfernt",
       "free_today": "{remaining}/{limit} heute kostenlos"
     }
+  },
+  "upload_zone": {
+    "drop_text": "Bild hier ablegen",
+    "upload_text": "AI-generiertes Bild hochladen",
+    "hint": "Ziehen & ablegen oder klicken · PNG, JPG, WebP · Max 20MB",
+    "processing_title": "Wasserzeichen wird entfernt...",
+    "processing_hint": "Lokale Verarbeitung im Browser. Ihre Daten verlassen nicht Ihr Gerät.",
+    "limit_title": "Tageslimit erreicht",
+    "limit_hint_anonymous": "Sie haben heute {limit}/{limit} kostenlose Bilder verwendet. Registrieren Sie sich für 10 kostenlose Bilder oder upgraden Sie auf Pro.",
+    "limit_hint_user": "Alle Credits aufgebraucht. Upgraden Sie auf Pro für unbegrenzte Wasserzeichen-Entfernung.",
+    "upgrade_button": "Auf Pro Upgraden",
+    "try_tomorrow": "Morgen Versuchen",
+    "error_title": "Verarbeitung fehlgeschlagen",
+    "error_hint": "Ein unerwarteter Fehler ist aufgetreten",
+    "try_again": "Erneut Versuchen",
+    "done_title": "Wasserzeichen entfernt!",
+    "done_hint_pro": "Verarbeitet in {time}ms · Pro-Plan",
+    "done_hint_free": "Verarbeitet in {time}ms · {used}/{limit} kostenlose Bilder heute verwendet",
+    "process_another": "Weiteres Verarbeiten",
+    "download": "Herunterladen",
+    "metadata_stripped": "Metadaten entfernt:",
+    "before_label": "Vorher",
+    "after_label": "Nachher — Wasserzeichen Entfernt",
+    "alt_original": "Originalbild mit Wasserzeichen",
+    "alt_clean": "Saubereres Bild ohne Wasserzeichen"
   }
 }

@@ -1,69 +1,33 @@
-import { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { envConfigs } from '@/config';
+import { getMetadata } from '@/shared/lib/seo';
 import DetectorClient from './detector-client';
 
 const baseUrl = envConfigs.app_url;
 
-export async function generateMetadata(): Promise<Metadata> {
-  return {
-    title:
-      'AI Watermark Detector — Check if Your Image Has an AI Watermark',
-    description:
-      'Free AI watermark detector. Instantly check if an image contains Gemini, DALL-E, or Midjourney watermarks, including C2PA metadata. No upload required — 100% local processing.',
-    keywords: [
-      'AI watermark detector',
-      'detect AI watermark',
-      'check AI watermark',
-      'gemini watermark detector',
-      'synthid detector',
-      'C2PA checker',
-      'how to tell if image has AI watermark',
-    ],
-    openGraph: {
-      title:
-        'AI Watermark Detector — Check if Your Image Has an AI Watermark',
-      description:
-        'Free AI watermark detector. Instantly check if an image contains watermarks and AI metadata. 100% local processing.',
-      type: 'website',
-    },
-  };
-}
+export const generateMetadata = getMetadata({
+  metadataKey: 'pages.tools-detector.metadata',
+  canonicalUrl: '/tools/detector',
+});
 
-const faqItems = [
-  {
-    question: 'How does the AI watermark detector work?',
-    answer:
-      'Our detector analyzes the bottom-right corner of your image for known watermark patterns (like the Gemini star logo). It also checks the file\'s binary headers for Exif data, C2PA manifests, XMP metadata, and IPTC tags that indicate AI generation.',
-  },
-  {
-    question: 'What types of watermarks can it detect?',
-    answer:
-      'The detector can identify visible Gemini watermarks (the ✦ star logo) and check for C2PA/Exif metadata markers that indicate an image was AI-generated. Support for DALL-E, Midjourney, and Stable Diffusion watermarks is coming soon.',
-  },
-  {
-    question: 'Is my image uploaded to a server?',
-    answer:
-      'No! All detection happens 100% locally in your browser using the Canvas API and binary header analysis. Your image data never leaves your device.',
-  },
-  {
-    question: 'What is C2PA metadata?',
-    answer:
-      'C2PA (Coalition for Content Provenance and Authenticity) is a standard that embeds provenance information in image files. Many AI tools like Adobe Firefly and some versions of DALL-E embed C2PA manifests that identify the image as AI-generated.',
-  },
-  {
-    question: 'How accurate is the detection?',
-    answer:
-      'Visible watermark detection uses pixel-level pattern matching against known alpha maps, with confidence scores. Metadata detection is highly accurate as it reads the file\'s binary structure directly. Results show confidence levels so you can make informed decisions.',
-  },
-  {
-    question: 'Can it detect invisible watermarks like SynthID?',
-    answer:
-      'Currently, our detector focuses on visible watermarks and metadata markers. SynthID is an invisible watermark embedded in pixel statistics — detecting it requires different techniques that we are researching for future updates.',
-  },
-];
+export default async function DetectorPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
 
-export default function DetectorPage() {
+  const t = await getTranslations('pages.tools-detector');
+
+  // FAQ data for structured data and display
+  const faqItems: { question: string; answer: string }[] = t.raw('faq.items');
+  const detectItems: { title: string; description: string }[] =
+    t.raw('detect.items');
+  const steps: { step: string; title: string; description: string }[] =
+    t.raw('how_it_works.steps');
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
@@ -89,7 +53,7 @@ export default function DetectorPage() {
   const faqJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: faqItems.map((item) => ({
+    mainEntity: faqItems.map((item: { question: string; answer: string }) => ({
       '@type': 'Question',
       name: item.question,
       acceptedAnswer: {
@@ -139,21 +103,32 @@ export default function DetectorPage() {
         <div className="mx-auto mb-12 max-w-3xl px-4 text-center">
           <div className="bg-primary/10 text-primary mb-6 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium">
             <span>🔍</span>
-            <span>AI Watermark Detector</span>
+            <span>{t('badge')}</span>
           </div>
 
           <h1 className="text-foreground mb-4 text-4xl font-bold tracking-tight sm:text-5xl">
-            Detect{' '}
-            <span className="from-primary to-primary/60 bg-gradient-to-r bg-clip-text text-transparent">
-              AI Watermarks
-            </span>{' '}
-            in Any Image
+            {t('h1')
+              .split(t('h1_highlight'))
+              .reduce<(React.ReactNode[])>((acc, part, i) => {
+                if (i === 0) {
+                  acc.push(part);
+                } else {
+                  acc.push(
+                    <span
+                      key={i}
+                      className="from-primary to-primary/60 bg-gradient-to-r bg-clip-text text-transparent"
+                    >
+                      {t('h1_highlight')}
+                    </span>
+                  );
+                  acc.push(part);
+                }
+                return acc;
+              }, [])}
           </h1>
 
           <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
-            Check if an image contains visible watermarks, C2PA signatures, or
-            AI metadata markers. 100% local processing — your images never
-            leave your device.
+            {t('subtitle')}
           </p>
         </div>
 
@@ -165,29 +140,10 @@ export default function DetectorPage() {
         {/* How Detection Works */}
         <div className="mx-auto mt-24 max-w-4xl px-4">
           <h2 className="text-foreground mb-12 text-center text-3xl font-bold">
-            How It Works
+            {t('how_it_works.title')}
           </h2>
           <div className="grid gap-8 md:grid-cols-3">
-            {[
-              {
-                step: '01',
-                title: 'Upload Image',
-                description:
-                  'Drag & drop or click to upload any image. Supports PNG, JPG, and WebP up to 20MB.',
-              },
-              {
-                step: '02',
-                title: 'Analyze Patterns',
-                description:
-                  'Our detector checks for visible watermark patterns (Gemini star logo) and scans binary headers for AI metadata markers.',
-              },
-              {
-                step: '03',
-                title: 'View Results',
-                description:
-                  'Get a detailed report showing watermark confidence, C2PA status, Exif data, and metadata analysis.',
-              },
-            ].map((item) => (
+            {steps.map((item) => (
               <div
                 key={item.step}
                 className="group relative rounded-xl border border-border/40 bg-white/30 p-6 backdrop-blur-sm transition-colors hover:border-primary/20"
@@ -209,31 +165,10 @@ export default function DetectorPage() {
         {/* What We Detect */}
         <div className="mx-auto mt-24 max-w-4xl px-4">
           <h2 className="text-foreground mb-12 text-center text-3xl font-bold">
-            What We Detect
+            {t('detect.title')}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
-            {[
-              {
-                title: 'Visible Watermarks',
-                description:
-                  'The Gemini ✦ star logo in the bottom-right corner of AI-generated images',
-              },
-              {
-                title: 'C2PA Signatures',
-                description:
-                  'Content Credentials manifests that identify AI-generated content',
-              },
-              {
-                title: 'Exif Metadata',
-                description:
-                  'Camera info, GPS data, software tags that may reveal AI generation',
-              },
-              {
-                title: 'XMP & IPTC Data',
-                description:
-                  'Extended metadata including creator tool, descriptions, and AI markers',
-              },
-            ].map((item) => (
+            {detectItems.map((item) => (
               <div
                 key={item.title}
                 className="rounded-xl border border-border/40 p-5"
@@ -252,10 +187,10 @@ export default function DetectorPage() {
         {/* FAQ Section */}
         <div className="mx-auto mt-24 max-w-3xl px-4">
           <h2 className="text-foreground mb-12 text-center text-3xl font-bold">
-            Frequently Asked Questions
+            {t('faq.title')}
           </h2>
           <div className="space-y-4">
-            {faqItems.map((item, idx) => (
+            {faqItems.map((item: { question: string; answer: string }, idx: number) => (
               <details
                 key={idx}
                 className="border-border group rounded-xl border"
@@ -274,17 +209,16 @@ export default function DetectorPage() {
         {/* CTA */}
         <div className="mx-auto mt-24 max-w-2xl px-4 text-center">
           <h2 className="text-foreground mb-4 text-2xl font-bold">
-            Need to remove a watermark?
+            {t('cta.title')}
           </h2>
           <p className="text-muted-foreground mb-6">
-            Our free tool can remove the Gemini watermark from your images
-            instantly.
+            {t('cta.description')}
           </p>
           <a
             href="/tools/gemini"
             className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center gap-2 rounded-lg px-6 py-3 font-medium transition-colors"
           >
-            Remove Watermark →
+            {t('cta.button')}
           </a>
         </div>
       </div>

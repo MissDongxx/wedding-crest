@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "title": "Gemini Wasserzeichen Kostenlos Entfernen — RemoveGeminiWatermark.org",
+    "description": "Entfernen Sie das Gemini AI-Wasserzeichen (✦) sofort. Kostenlos, 100% lokale Verarbeitung, kein Upload. Jetzt testen!"
+  },
+  "badge": "Gemini Wasserzeichen-Entfernung",
+  "h1": "Gemini AI Wasserzeichen Sofort Entfernen",
+  "h1_highlight": "Gemini AI Wasserzeichen",
+  "subtitle": "Entfernen Sie das Google Gemini Stern-Wasserzeichen (✦). 100% lokale Verarbeitung — Ihre Bilder verlassen nie Ihr Gerät.",
+  "how_it_works": {
+    "title": "So Funktionierts",
+    "steps": [
+      { "step": "01", "title": "Bild Hochladen", "description": "Ziehen Sie Ihr Gemini AI-generiertes Bild per Drag & Drop oder klicken Sie zum Hochladen. Unterstützt PNG, JPG und WebP." },
+      { "step": "02", "title": "Automatische Entfernung", "description": "Unser Algorithmus erkennt und entfernt das Wasserzeichen lokal in Ihrem Browser. Keine Serververarbeitung." },
+      { "step": "03", "title": "Sauberes Bild Herunterladen", "description": "Laden Sie Ihr sauberes Bild sofort herunter. Originalqualität ohne Artefakte." }
+    ]
+  },
+  "faq": {
+    "title": "Häufig Gestellte Fragen",
+    "items": [
+      { "question": "Wie funktioniert der Gemini Wasserzeichen-Entferner?", "answer": "Unser Tool verwendet umgekehrte Alpha-Blending, um das halbtransparente Gemini-Stern-Wasserzeichen (✦) mathematisch zu entfernen. Es analysiert die Wasserzeichen-Region in der unteren rechten Ecke und stellt die Originalpixelwerte ohne Qualitätsverlust wieder her." },
+      { "question": "Wird mein Bild auf einen Server hochgeladen?", "answer": "Nein! Die gesamte Verarbeitung erfolgt zu 100% lokal in Ihrem Browser über die Canvas API. Ihre Bilddaten verlassen niemals Ihr Gerät." },
+      { "question": "Welche Bildformate werden unterstützt?", "answer": "Wir unterstützen PNG, JPEG und WebP bis zu 20MB. Das verarbeitete Bild wird immer als PNG gespeichert, um die Qualität zu erhalten." },
+      { "question": "Wie viele Bilder kann ich kostenlos bearbeiten?", "answer": "Sie können bis zu 5 Bilder pro Tag kostenlos bearbeiten. Für unbegrenzte Verarbeitung upgraden Sie auf unseren Pro-Plan für nur $9/Monat." },
+      { "question": "Wird auch das unsichtbare SynthID-Wasserzeichen entfernt?", "answer": "Die aktuelle Version entfernt das sichtbare Stern-Wasserzeichen (✦). SynthID ist ein unsichtbares Wasserzeichen — Unterstützung dafür ist für ein zukünftiges Update geplant." },
+      { "question": "Beeinträchtigt die Entfernung die Bildqualität?", "answer": "Für das sichtbare Wasserzeichen stellt unser Algorithmus die Originalpixel mathematisch wieder her, was zu null Qualitätsverlust führt." }
+    ]
+  },
+  "cta": { "title": "Bereit, mehr Wasserzeichen zu entfernen?", "description": "Upgraden Sie auf Pro für unbegrenzte Verarbeitung auf allen AI-Plattformen.", "button": "Preise Ansehen →" }
+}

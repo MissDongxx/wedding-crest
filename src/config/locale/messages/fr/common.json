@@ -59,5 +59,30 @@
       "metadata": "Métadonnées automatiquement supprimées",
       "free_today": "{remaining}/{limit} gratuits aujourd'hui"
     }
+  },
+  "upload_zone": {
+    "drop_text": "Déposez votre image ici",
+    "upload_text": "Importer une image générée par AI",
+    "hint": "Glissez-déposez ou cliquez pour sélectionner · PNG, JPG, WebP · Max 20 Mo",
+    "processing_title": "Suppression du filigrane...",
+    "processing_hint": "Traitement local dans votre navigateur. Aucune donnée ne quitte votre appareil.",
+    "limit_title": "Limite quotidienne atteinte",
+    "limit_hint_anonymous": "Vous avez utilisé {limit}/{limit} images gratuites aujourd'hui. Inscrivez-vous pour obtenir 10 images gratuites ou passez à Pro.",
+    "limit_hint_user": "Vous avez épuisé vos crédits. Passez à Pro pour une suppression illimitée.",
+    "upgrade_button": "Passer à Pro",
+    "try_tomorrow": "Réessayer Demain",
+    "error_title": "Échec du traitement",
+    "error_hint": "Une erreur inattendue s'est produite",
+    "try_again": "Réessayer",
+    "done_title": "Filigrane supprimé !",
+    "done_hint_pro": "Traité en {time}ms · Plan Pro",
+    "done_hint_free": "Traité en {time}ms · {used}/{limit} images gratuites utilisées aujourd'hui",
+    "process_another": "Traiter une Autre Image",
+    "download": "Télécharger",
+    "metadata_stripped": "Métadonnées supprimées :",
+    "before_label": "Avant",
+    "after_label": "Après — Filigrane Supprimé",
+    "alt_original": "Image originale avec filigrane",
+    "alt_clean": "Image propre sans filigrane"
   }
 }

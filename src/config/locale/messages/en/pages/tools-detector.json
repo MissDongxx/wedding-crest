@@ -1,0 +1,85 @@
+{
+  "metadata": {
+    "title": "AI Watermark Detector — RemoveGeminiWatermark.org",
+    "description": "Free AI watermark detector. Instantly check if an image contains Gemini, DALL-E, or Midjourney watermarks, including C2PA metadata. No upload required — 100% local processing."
+  },
+  "badge": "AI Watermark Detector",
+  "h1": "Detect AI Watermarks in Any Image",
+  "h1_highlight": "AI Watermarks",
+  "subtitle": "Check if an image contains visible watermarks, C2PA signatures, or AI metadata markers. 100% local processing — your images never leave your device.",
+  "how_it_works": {
+    "title": "How It Works",
+    "steps": [
+      {
+        "step": "01",
+        "title": "Upload Image",
+        "description": "Drag & drop or click to upload any image. Supports PNG, JPG, and WebP up to 20MB."
+      },
+      {
+        "step": "02",
+        "title": "Analyze Patterns",
+        "description": "Our detector checks for visible watermark patterns (Gemini star logo) and scans binary headers for AI metadata markers."
+      },
+      {
+        "step": "03",
+        "title": "View Results",
+        "description": "Get a detailed report showing watermark confidence, C2PA status, Exif data, and metadata analysis."
+      }
+    ]
+  },
+  "detect": {
+    "title": "What We Detect",
+    "items": [
+      {
+        "title": "Visible Watermarks",
+        "description": "The Gemini ✦ star logo in the bottom-right corner of AI-generated images"
+      },
+      {
+        "title": "C2PA Signatures",
+        "description": "Content Credentials manifests that identify AI-generated content"
+      },
+      {
+        "title": "Exif Metadata",
+        "description": "Camera info, GPS data, software tags that may reveal AI generation"
+      },
+      {
+        "title": "XMP & IPTC Data",
+        "description": "Extended metadata including creator tool, descriptions, and AI markers"
+      }
+    ]
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "items": [
+      {
+        "question": "How does the AI watermark detector work?",
+        "answer": "Our detector analyzes the bottom-right corner of your image for known watermark patterns (like the Gemini star logo). It also checks the file's binary headers for Exif data, C2PA manifests, XMP metadata, and IPTC tags that indicate AI generation."
+      },
+      {
+        "question": "What types of watermarks can it detect?",
+        "answer": "The detector can identify visible Gemini watermarks (the ✦ star logo) and check for C2PA/Exif metadata markers that indicate an image was AI-generated. Support for DALL-E, Midjourney, and Stable Diffusion watermarks is coming soon."
+      },
+      {
+        "question": "Is my image uploaded to a server?",
+        "answer": "No! All detection happens 100% locally in your browser using the Canvas API and binary header analysis. Your image data never leaves your device."
+      },
+      {
+        "question": "What is C2PA metadata?",
+        "answer": "C2PA (Coalition for Content Provenance and Authenticity) is a standard that embeds provenance information in image files. Many AI tools like Adobe Firefly and some versions of DALL-E embed C2PA manifests that identify the image as AI-generated."
+      },
+      {
+        "question": "How accurate is the detection?",
+        "answer": "Visible watermark detection uses pixel-level pattern matching against known alpha maps, with confidence scores. Metadata detection is highly accurate as it reads the file's binary structure directly. Results show confidence levels so you can make informed decisions."
+      },
+      {
+        "question": "Can it detect invisible watermarks like SynthID?",
+        "answer": "Currently, our detector focuses on visible watermarks and metadata markers. SynthID is an invisible watermark embedded in pixel statistics — detecting it requires different techniques that we are researching for future updates."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Need to remove a watermark?",
+    "description": "Our free tool can remove the Gemini watermark from your images instantly.",
+    "button": "Remove Watermark →"
+  }
+}

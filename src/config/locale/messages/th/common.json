@@ -59,5 +59,30 @@
       "metadata": "ลบ Metadata อัตโนมัติ",
       "free_today": "วันนี้ใช้ฟรีเหลือ {remaining}/{limit}"
     }
+  },
+  "upload_zone": {
+    "drop_text": "วางรูปภาพของคุณที่นี่",
+    "upload_text": "อัปโหลดรูปภาพที่สร้างโดย AI",
+    "hint": "ลากและวางหรือคลิกเพื่อเลือก · PNG, JPG, WebP · สูงสุด 20MB",
+    "processing_title": "กำลังลบลายน้ำ...",
+    "processing_hint": "ประมวลผลในเบราว์เซอร์ของคุณ ข้อมูลไม่ออกจากอุปกรณ์",
+    "limit_title": "ถึงขีดจำกัดรายวันแล้ว",
+    "limit_hint_anonymous": "คุณใช้ภาพฟรี {limit}/{limit} รูปวันนี้แล้ว ลงทะเบียนเพื่อรับ 10 รูปฟรีหรืออัปเกรดเป็น Pro",
+    "limit_hint_user": "คุณใช้เครดิตหมดแล้ว อัปเกรดเป็น Pro เพื่อลบลายน้ำไม่จำกัด",
+    "upgrade_button": "อัปเกรดเป็น Pro",
+    "try_tomorrow": "ลองใหม่พรุ่งนี้",
+    "error_title": "การประมวลผลล้มเหลว",
+    "error_hint": "เกิดข้อผิดพลาดที่ไม่คาดคิด",
+    "try_again": "ลองอีกครั้ง",
+    "done_title": "ลบลายน้ำสำเร็จ!",
+    "done_hint_pro": "ประมวลผลใน {time}ms · แพ็คเกจ Pro",
+    "done_hint_free": "ประมวลผลใน {time}ms · ใช้ภาพฟรี {used}/{limit} รูปวันนี้",
+    "process_another": "ประมวลผลรูปอื่น",
+    "download": "ดาวน์โหลด",
+    "metadata_stripped": "ข้อมูลเมตาถูกลบแล้ว:",
+    "before_label": "ก่อน",
+    "after_label": "หลัง — ลายน้ำถูกลบแล้ว",
+    "alt_original": "รูปภาพต้นฉบับที่มีลายน้ำ",
+    "alt_clean": "รูปภาพสะอาดไม่มีลายน้ำ"
   }
 }

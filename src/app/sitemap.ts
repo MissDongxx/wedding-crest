@@ -9,10 +9,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
     '',
     '/tools/gemini',
+    '/tools/detector',
     '/pricing',
     '/blog',
     '/showcases',
     '/updates',
+    '/shortcuts',
   ];
 
   const sitemapEntries: MetadataRoute.Sitemap = [];
@@ -28,7 +30,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
         url: finalUrl,
         lastModified: new Date(),
         changeFrequency: route === '' ? 'weekly' : 'monthly',
-        priority: route === '' ? 1.0 : route === '/tools/gemini' ? 0.9 : 0.7,
+        priority:
+          route === ''
+            ? 1.0
+            : route === '/tools/gemini'
+              ? 0.9
+              : route.startsWith('/tools/')
+                ? 0.8
+                : 0.7,
       });
     });
   });

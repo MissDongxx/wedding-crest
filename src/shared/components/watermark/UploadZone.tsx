@@ -43,6 +43,7 @@ export function UploadZone({
   const [gatingStatus, setGatingStatus] = useState<GatingStatus | null>(null);
   const [metadataInfo, setMetadataInfo] = useState<MetadataInfo | null>(null);
   const t = useTranslations('common');
+  const uz = useTranslations('common.upload_zone');
 
   useEffect(() => {
     setUsageCount(getLocalUsageCount());
@@ -183,10 +184,10 @@ export function UploadZone({
             <Loader2 className="text-primary relative h-12 w-12 animate-spin" />
           </div>
           <h3 className="text-foreground mb-2 text-lg font-semibold">
-            Removing watermark...
+            {uz('processing_title')}
           </h3>
           <p className="text-muted-foreground text-sm">
-            Processing locally in your browser. No data leaves your device.
+            {uz('processing_hint')}
           </p>
         </div>
       </div>
@@ -203,22 +204,22 @@ export function UploadZone({
               <Lock className="h-8 w-8 text-amber-500" />
             </div>
             <h3 className="text-foreground mb-2 text-lg font-semibold">
-              Daily limit reached
+              {uz('limit_title')}
             </h3>
             <p className="text-muted-foreground mb-6 text-center text-sm">
               {gatingStatus?.mode === 'anonymous'
-                ? `You've used ${DAILY_FREE_LIMIT}/${DAILY_FREE_LIMIT} free images today. Sign up to get 10 free images or upgrade to Pro.`
-                : `You've used all your credits. Upgrade to Pro for unlimited watermark removal.`}
+                ? uz('limit_hint_anonymous', { limit: DAILY_FREE_LIMIT })
+                : uz('limit_hint_user')}
             </p>
             <div className="flex gap-3">
               <Button asChild>
                 <a href="/pricing">
                   <Sparkles className="mr-2 h-4 w-4" />
-                  Upgrade to Pro
+                  {uz('upgrade_button')}
                 </a>
               </Button>
               <Button variant="outline" onClick={handleReset}>
-                Try Tomorrow
+                {uz('try_tomorrow')}
               </Button>
             </div>
           </div>
@@ -231,14 +232,14 @@ export function UploadZone({
         <div className="border-destructive/30 bg-destructive/5 flex flex-col items-center justify-center rounded-2xl border border-dashed p-12">
           <AlertCircle className="text-destructive mb-4 h-10 w-10" />
           <h3 className="text-foreground mb-2 text-lg font-semibold">
-            Processing failed
+            {uz('error_title')}
           </h3>
           <p className="text-muted-foreground mb-6 text-center text-sm">
-            {error || 'An unexpected error occurred'}
+            {error || uz('error_hint')}
           </p>
           <Button variant="outline" onClick={handleReset}>
             <RefreshCw className="mr-2 h-4 w-4" />
-            Try Again
+            {uz('try_again')}
           </Button>
         </div>
       </div>
@@ -257,24 +258,23 @@ export function UploadZone({
             </div>
             <div>
               <h3 className="text-foreground font-semibold">
-                Watermark removed!
+                {uz('done_title')}
               </h3>
               <p className="text-muted-foreground text-sm">
-                Processed in {processingTime}ms
                 {isPro
-                  ? ' · Pro plan'
-                  : ` · ${usageCount}/${DAILY_FREE_LIMIT} free images used today`}
+                  ? uz('done_hint_pro', { time: processingTime })
+                  : uz('done_hint_free', { time: processingTime, used: usageCount, limit: DAILY_FREE_LIMIT })}
               </p>
             </div>
           </div>
           <div className="flex gap-3">
             <Button variant="outline" onClick={handleReset}>
               <RefreshCw className="mr-2 h-4 w-4" />
-              Process Another
+              {uz('process_another')}
             </Button>
             <Button onClick={handleDownload}>
               <Download className="mr-2 h-4 w-4" />
-              Download
+              {uz('download')}
             </Button>
           </div>
         </div>
@@ -288,7 +288,7 @@ export function UploadZone({
             <div className="mb-4 flex flex-wrap items-center gap-2">
               <span className="text-muted-foreground flex items-center gap-1 text-xs">
                 <Shield className="h-3.5 w-3.5 text-green-500" />
-                Metadata stripped:
+                {uz('metadata_stripped')}
               </span>
               {metadataInfo.hasExif && (
                 <span className="rounded-full bg-green-500/10 px-2 py-0.5 text-xs text-green-600 dark:text-green-400">
@@ -317,26 +317,26 @@ export function UploadZone({
         <div className="grid gap-6 md:grid-cols-2">
           <div className="group relative overflow-hidden rounded-xl border">
             <div className="bg-muted/50 px-4 py-2 text-center text-sm font-medium">
-              Before
+              {uz('before_label')}
             </div>
             <div className="bg-[repeating-conic-gradient(#e5e7eb_0%_25%,transparent_0%_50%)] dark:bg-[repeating-conic-gradient(#374151_0%_25%,transparent_0%_50%)] bg-[length:20px_20px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={originalUrl}
-                alt="Original image with watermark"
+                alt={uz('alt_original')}
                 className="h-auto w-full"
               />
             </div>
           </div>
           <div className="group relative overflow-hidden rounded-xl border border-green-500/30">
             <div className="bg-green-500/10 px-4 py-2 text-center text-sm font-medium text-green-600 dark:text-green-400">
-              After — Watermark Removed
+              {uz('after_label')}
             </div>
             <div className="bg-[repeating-conic-gradient(#e5e7eb_0%_25%,transparent_0%_50%)] dark:bg-[repeating-conic-gradient(#374151_0%_25%,transparent_0%_50%)] bg-[length:20px_20px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={cleanUrl}
-                alt="Clean image without watermark"
+                alt={uz('alt_clean')}
                 className="h-auto w-full"
               />
             </div>
@@ -377,11 +377,11 @@ export function UploadZone({
           <div>
             <h3 className="text-foreground mb-1 text-lg font-semibold">
               {isDragActive
-                ? 'Drop your image here'
-                : 'Upload AI-generated image'}
+                ? uz('drop_text')
+                : uz('upload_text')}
             </h3>
             <p className="text-muted-foreground text-sm">
-              Drag & drop or click to select · PNG, JPG, WebP · Max 20MB
+              {uz('hint')}
             </p>
           </div>
         </div>

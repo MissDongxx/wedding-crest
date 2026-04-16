@@ -1,66 +1,29 @@
-import { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { envConfigs } from '@/config';
+import { getMetadata } from '@/shared/lib/seo';
 import UploadZoneClient from './upload-zone-client';
 
 const baseUrl = envConfigs.app_url;
 
-export async function generateMetadata(): Promise<Metadata> {
-  return {
-    title: 'Remove Gemini Watermark Free — RemoveGeminiWatermark.org',
-    description:
-      'Remove the Gemini AI watermark (✦) from images instantly. Free, 100% local processing, no upload. Try RemoveGeminiWatermark now!',
-    keywords: [
-      'remove gemini watermark',
-      'gemini watermark cleaner',
-      'gemini logo remover',
-      'remove gemini watermark free',
-      'gemini ai watermark remover',
-    ],
-    openGraph: {
-      title: 'Remove Gemini Watermark Free — RemoveGeminiWatermark.org',
-      description:
-        'Remove the Gemini AI watermark (✦) from images instantly. Free, 100% local processing, no upload.',
-      type: 'website',
-    },
-  };
-}
+export const generateMetadata = getMetadata({
+  metadataKey: 'pages.tools-gemini.metadata',
+  canonicalUrl: '/tools/gemini',
+});
 
-// FAQ data for structured data and display
-const faqItems = [
-  {
-    question: 'How does the Gemini watermark remover work?',
-    answer:
-      'Our tool uses reverse alpha blending to mathematically remove the semi-transparent Gemini star (✦) watermark from your images. It analyzes the watermark region in the bottom-right corner and recovers the original pixel values with zero quality loss.',
-  },
-  {
-    question: 'Is my image uploaded to a server?',
-    answer:
-      'No! All processing happens 100% locally in your browser using the Canvas API. Your image data never leaves your device. This ensures complete privacy and security.',
-  },
-  {
-    question: 'What image formats are supported?',
-    answer:
-      'We support PNG, JPEG, and WebP formats up to 20MB. The processed image is always saved as PNG to preserve quality.',
-  },
-  {
-    question: 'How many images can I process for free?',
-    answer:
-      'You can process up to 5 images per day for free. For unlimited processing, upgrade to our Pro plan at just $9/month.',
-  },
-  {
-    question: 'Does it remove the invisible SynthID watermark too?',
-    answer:
-      'The current version removes the visible star (✦) logo watermark. SynthID is an invisible watermark embedded in the pixel data — support for this is planned for a future update.',
-  },
-  {
-    question: 'Will removing the watermark affect image quality?',
-    answer:
-      'For the visible watermark, our reverse alpha blending algorithm recovers the original pixels mathematically, resulting in zero quality loss in the watermark region.',
-  },
-];
+export default async function GeminiToolPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
 
-export default function GeminiToolPage() {
+  const t = await getTranslations('pages.tools-gemini');
+
+  // FAQ data for structured data and display
+  const faqItems: { question: string; answer: string }[] = t.raw('faq.items');
+
   // JSON-LD structured data
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -87,7 +50,7 @@ export default function GeminiToolPage() {
   const faqJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: faqItems.map((item) => ({
+    mainEntity: faqItems.map((item: { question: string; answer: string }) => ({
       '@type': 'Question',
       name: item.question,
       acceptedAnswer: {
@@ -124,6 +87,9 @@ export default function GeminiToolPage() {
       'RemoveGeminiWatermark - Free Gemini AI Watermark Removal Tool',
   };
 
+  const steps: { step: string; title: string; description: string }[] =
+    t.raw('how_it_works.steps');
+
   return (
     <>
       {/* Structured Data */}
@@ -149,20 +115,32 @@ export default function GeminiToolPage() {
         <div className="mx-auto mb-12 max-w-3xl px-4 text-center">
           <div className="bg-primary/10 text-primary mb-6 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium">
             <span>✦</span>
-            <span>Gemini Watermark Remover</span>
+            <span>{t('badge')}</span>
           </div>
 
           <h1 className="text-foreground mb-4 text-4xl font-bold tracking-tight sm:text-5xl">
-            Remove{' '}
-            <span className="from-primary to-primary/60 bg-gradient-to-r bg-clip-text text-transparent">
-              Gemini AI Watermark
-            </span>{' '}
-            Instantly
+            {t('h1')
+              .split(t('h1_highlight'))
+              .reduce<(React.ReactNode[])>((acc, part, i) => {
+                if (i === 0) {
+                  acc.push(part);
+                } else {
+                  acc.push(
+                    <span
+                      key={i}
+                      className="from-primary to-primary/60 bg-gradient-to-r bg-clip-text text-transparent"
+                    >
+                      {t('h1_highlight')}
+                    </span>
+                  );
+                  acc.push(part);
+                }
+                return acc;
+              }, [])}
           </h1>
 
           <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
-            Remove the Google Gemini star (✦) watermark from AI-generated images.
-            100% local processing — your images never leave your device.
+            {t('subtitle')}
           </p>
         </div>
 
@@ -174,29 +152,10 @@ export default function GeminiToolPage() {
         {/* How It Works */}
         <div className="mx-auto mt-24 max-w-4xl px-4">
           <h2 className="text-foreground mb-12 text-center text-3xl font-bold">
-            How It Works
+            {t('how_it_works.title')}
           </h2>
           <div className="grid gap-8 md:grid-cols-3">
-            {[
-              {
-                step: '01',
-                title: 'Upload Image',
-                description:
-                  'Drag & drop or click to upload your Gemini AI-generated image. Supports PNG, JPG, and WebP.',
-              },
-              {
-                step: '02',
-                title: 'Auto-Remove',
-                description:
-                  'Our algorithm detects and removes the watermark locally in your browser. No server processing.',
-              },
-              {
-                step: '03',
-                title: 'Download Clean',
-                description:
-                  'Download your clean image instantly. Original quality preserved with no artifacts.',
-              },
-            ].map((item) => (
+            {steps.map((item) => (
               <div
                 key={item.step}
                 className="group relative rounded-xl border border-border/40 bg-white/30 p-6 backdrop-blur-sm transition-colors hover:border-primary/20"
@@ -218,10 +177,10 @@ export default function GeminiToolPage() {
         {/* FAQ Section */}
         <div className="mx-auto mt-24 max-w-3xl px-4">
           <h2 className="text-foreground mb-12 text-center text-3xl font-bold">
-            Frequently Asked Questions
+            {t('faq.title')}
           </h2>
           <div className="space-y-4">
-            {faqItems.map((item, idx) => (
+            {faqItems.map((item: { question: string; answer: string }, idx: number) => (
               <details
                 key={idx}
                 className="border-border group rounded-xl border"
@@ -240,16 +199,16 @@ export default function GeminiToolPage() {
         {/* CTA */}
         <div className="mx-auto mt-24 max-w-2xl px-4 text-center">
           <h2 className="text-foreground mb-4 text-2xl font-bold">
-            Ready to remove more watermarks?
+            {t('cta.title')}
           </h2>
           <p className="text-muted-foreground mb-6">
-            Upgrade to Pro for unlimited processing across all AI platforms.
+            {t('cta.description')}
           </p>
           <a
             href="/pricing"
             className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center gap-2 rounded-lg px-6 py-3 font-medium transition-colors"
           >
-            View Pricing Plans →
+            {t('cta.button')}
           </a>
         </div>
       </div>

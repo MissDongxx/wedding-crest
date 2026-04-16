@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "title": "Rimuovi Filigrana Gemini Gratis — RemoveGeminiWatermark.org",
+    "description": "Rimuovi la filigrana Gemini AI (✦) istantaneamente. Gratuito, elaborazione 100% locale, senza caricamento. Prova ora!"
+  },
+  "badge": "Rimozione Filigrana Gemini",
+  "h1": "Rimuovi Filigrana Gemini AI Istantaneamente",
+  "h1_highlight": "Filigrana Gemini AI",
+  "subtitle": "Rimuovi la filigrana a stella (✦) di Google Gemini. Elaborazione 100% locale — le tue immagini non lasciano mai il tuo dispositivo.",
+  "how_it_works": {
+    "title": "Come Funziona",
+    "steps": [
+      { "step": "01", "title": "Carica Immagine", "description": "Trascina o clicca per caricare la tua immagine generata da Gemini AI. Supporta PNG, JPG e WebP." },
+      { "step": "02", "title": "Rimozione Automatica", "description": "Il nostro algoritmo rileva e rimuove la filigrana localmente nel tuo browser. Nessuna elaborazione sul server." },
+      { "step": "03", "title": "Scarica Pulita", "description": "Scarica la tua immagine pulita istantaneamente. Qualità originale preservata senza artefatti." }
+    ]
+  },
+  "faq": {
+    "title": "Domande Frequenti",
+    "items": [
+      { "question": "Come funziona il rimuovi filigrana Gemini?", "answer": "Il nostro strumento utilizza la fusione alfa inversa per rimuovere matematicamente la filigrana semi-trasparente a stella (✦) di Gemini. Analizza la regione della filigrana nell'angolo in basso a destra e recupera i valori dei pixel originali senza perdita di qualità." },
+      { "question": "La mia immagine viene caricata su un server?", "answer": "No! Tutta l'elaborazione avviene al 100% localmente nel tuo browser utilizzando la Canvas API. I dati della tua immagine non lasciano mai il tuo dispositivo." },
+      { "question": "Quali formati immagine sono supportati?", "answer": "Supportiamo PNG, JPEG e WebP fino a 20MB. L'immagine elaborata viene sempre salvata in PNG per preservare la qualità." },
+      { "question": "Quante immagini posso elaborare gratuitamente?", "answer": "Puoi elaborare fino a 5 immagini al giorno gratuitamente. Per elaborazione illimitata, aggiorna al piano Pro a soli $9/mese." },
+      { "question": "Rimuove anche la filigrana invisibile SynthID?", "answer": "La versione attuale rimuove la filigrana visibile a stella (✦). SynthID è una filigrana invisibile incorporata nei dati dei pixel — il supporto è pianificato per un aggiornamento futuro." },
+      { "question": "La rimozione della filigrana influenzerà la qualità dell'immagine?", "answer": "Per la filigrana visibile, il nostro algoritmo recupera matematicamente i pixel originali, risultando in zero perdita di qualità nella regione della filigrana." }
+    ]
+  },
+  "cta": { "title": "Pronto a rimuovere più filigrane?", "description": "Aggiorna a Pro per elaborazione illimitata su tutte le piattaforme AI.", "button": "Vedi Piani Tariffari →" }
+}

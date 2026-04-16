@@ -69,5 +69,78 @@ export default async function BlogDetailPage({
 
   const Page = await getThemePage('dynamic-page');
 
-  return <Page locale={locale} page={page} />;
+  // JSON-LD structured data for blog article
+  const baseUrl = envConfigs.app_url;
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.description,
+    author: {
+      '@type': 'Person',
+      name: post.author_name || 'RemoveGeminiWatermark',
+      ...(post.author_image
+        ? { image: post.author_image }
+        : {}),
+    },
+    datePublished: post.created_at,
+    url: `${baseUrl}/blog/${slug}`,
+    publisher: {
+      '@type': 'Organization',
+      name: 'RemoveGeminiWatermark',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${baseUrl}/logo.png`,
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${baseUrl}/blog/${slug}`,
+    },
+  };
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: baseUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Blog',
+        item: `${baseUrl}/blog`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: post.title,
+        item: `${baseUrl}/blog/${slug}`,
+      },
+    ],
+  };
+
+  return (
+    <>
+      {/* Structured Data: Article */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(articleJsonLd),
+        }}
+      />
+      {/* Structured Data: BreadcrumbList */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd),
+        }}
+      />
+      <Page locale={locale} page={page} />
+    </>
+  );
 }

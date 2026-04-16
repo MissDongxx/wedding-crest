@@ -1,0 +1,64 @@
+{
+  "metadata": {
+    "title": "Remove Gemini Watermark Free — RemoveGeminiWatermark.org",
+    "description": "Remove the Gemini AI watermark (✦) from images instantly. Free, 100% local processing, no upload. Try RemoveGeminiWatermark now!"
+  },
+  "badge": "Gemini Watermark Remover",
+  "h1": "Remove Gemini AI Watermark Instantly",
+  "h1_highlight": "Gemini AI Watermark",
+  "subtitle": "Remove the Google Gemini star (✦) watermark from AI-generated images. 100% local processing — your images never leave your device.",
+  "how_it_works": {
+    "title": "How It Works",
+    "steps": [
+      {
+        "step": "01",
+        "title": "Upload Image",
+        "description": "Drag & drop or click to upload your Gemini AI-generated image. Supports PNG, JPG, and WebP."
+      },
+      {
+        "step": "02",
+        "title": "Auto-Remove",
+        "description": "Our algorithm detects and removes the watermark locally in your browser. No server processing."
+      },
+      {
+        "step": "03",
+        "title": "Download Clean",
+        "description": "Download your clean image instantly. Original quality preserved with no artifacts."
+      }
+    ]
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "items": [
+      {
+        "question": "How does the Gemini watermark remover work?",
+        "answer": "Our tool uses reverse alpha blending to mathematically remove the semi-transparent Gemini star (✦) watermark from your images. It analyzes the watermark region in the bottom-right corner and recovers the original pixel values with zero quality loss."
+      },
+      {
+        "question": "Is my image uploaded to a server?",
+        "answer": "No! All processing happens 100% locally in your browser using the Canvas API. Your image data never leaves your device. This ensures complete privacy and security."
+      },
+      {
+        "question": "What image formats are supported?",
+        "answer": "We support PNG, JPEG, and WebP formats up to 20MB. The processed image is always saved as PNG to preserve quality."
+      },
+      {
+        "question": "How many images can I process for free?",
+        "answer": "You can process up to 5 images per day for free. For unlimited processing, upgrade to our Pro plan at just $9/month."
+      },
+      {
+        "question": "Does it remove the invisible SynthID watermark too?",
+        "answer": "The current version removes the visible star (✦) logo watermark. SynthID is an invisible watermark embedded in the pixel data — support for this is planned for a future update."
+      },
+      {
+        "question": "Will removing the watermark affect image quality?",
+        "answer": "For the visible watermark, our reverse alpha blending algorithm recovers the original pixels mathematically, resulting in zero quality loss in the watermark region."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Ready to remove more watermarks?",
+    "description": "Upgrade to Pro for unlimited processing across all AI platforms.",
+    "button": "View Pricing Plans →"
+  }
+}
