@@ -160,11 +160,7 @@ export function VerifyEmailPage({
       attempts += 1;
       await checkSessionAndRedirect();
       if (attempts >= maxAttempts) return;
-      // keep polling only while we're not signed in yet
-      const { data } = await authClient.getSession();
-      if (!data?.user) {
-        window.setTimeout(tick, 1000);
-      }
+      window.setTimeout(tick, 1000);
     };
 
     void tick();

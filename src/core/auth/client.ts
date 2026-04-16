@@ -54,7 +54,7 @@ function createGetSessionThrottledFetch({
 
     const key = getDedupeKey(input);
     const existing = inFlight.get(key);
-    if (existing) return existing;
+    if (existing) return existing.then((res) => res.clone());
 
     const now = Date.now();
     const waitMs = Math.max(0, lastStartedAt + minIntervalMs - now);
@@ -70,7 +70,7 @@ function createGetSessionThrottledFetch({
     });
 
     inFlight.set(key, promise);
-    return promise;
+    return promise.then((res) => res.clone());
   };
 }
 

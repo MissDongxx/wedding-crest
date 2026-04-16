@@ -88,34 +88,34 @@
     "show_theme": true,
     "show_locale": false
   },
-  "variant": "sidebar"
-},
-"library": {
-  "title": "คลังข้อมูล",
-  "icon": "History",
-  "url": "/chat/history",
-  "more": "เพิ่มเติม",
-  "actions": {
-    "edit_title": "แก้ไขชื่อหัวข้อ",
-    "share": "แชร์",
-    "delete": "ลบ"
+  "variant": "sidebar",
+  "library": {
+    "title": "คลังข้อมูล",
+    "icon": "History",
+    "url": "/chat/history",
+    "more": "เพิ่มเติม",
+    "actions": {
+      "edit_title": "แก้ไขชื่อหัวข้อ",
+      "share": "แชร์",
+      "delete": "ลบ"
+    }
+  },
+  "generator": {
+    "title": "วันนี้มีอะไรให้ฉันช่วยไหม?",
+    "input_placeholder": "ถามฉันได้ทุกเรื่องเลย..."
+  },
+  "history": {
+    "title": "ประวัติการแชท",
+    "description": "ดูและกลับไปดูบทสนทนาก่อนหน้าของคุณ",
+    "empty": "ยังไม่มีบทสนทนา",
+    "error": "โหลดบทสนทนาไม่สำเร็จ",
+    "retry": "ลองใหม่",
+    "signin": "เข้าสู่ระบบเพื่อดูประวัติการแชทของคุณ",
+    "summary": "กำลังแสดง {from}-{to} จากทั้งหมด {total}",
+    "perPage": "ต่อหน้า",
+    "prev": "ก่อนหน้า",
+    "next": "ถัดไป",
+    "open": "เปิดแชท",
+    "untitled": "บทสนทนาที่ไม่มีชื่อ"
   }
-},
-"generator": {
-  "title": "วันนี้มีอะไรให้ฉันช่วยไหม?",
-  "input_placeholder": "ถามฉันได้ทุกเรื่องเลย..."
-},
-"history": {
-  "title": "ประวัติการแชท",
-  "description": "ดูและกลับไปดูบทสนทนาก่อนหน้าของคุณ",
-  "empty": "ยังไม่มีบทสนทนา",
-  "error": "โหลดบทสนทนาไม่สำเร็จ",
-  "retry": "ลองใหม่",
-  "signin": "เข้าสู่ระบบเพื่อดูประวัติการแชทของคุณ",
-  "summary": "กำลังแสดง {from}-{to} จากทั้งหมด {total}",
-  "perPage": "ต่อหน้า",
-  "prev": "ก่อนหน้า",
-  "next": "ถัดไป",
-  "open": "เปิดแชท",
-  "untitled": "บทสนทนาที่ไม่มีชื่อ"
 }

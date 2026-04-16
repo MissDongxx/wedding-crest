@@ -1,3 +1,4 @@
+import { BetterAuthOptions } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { oneTap } from 'better-auth/plugins';
 import { getLocale } from 'next-intl/server';
@@ -73,7 +74,11 @@ const authOptions = {
 };
 
 // get auth options with configs
-export async function getAuthOptions(configs: Record<string, string>) {
+export async function getAuthOptions(
+  configs: Record<string, string>,
+  request?: Request,
+  database?: any
+) {
   const emailVerificationEnabled =
     configs.email_verification_enabled === 'true' &&
     !!(configs.resend_api_key || configs.brevo_api_key);
@@ -85,17 +90,55 @@ export async function getAuthOptions(configs: Record<string, string>) {
   const runtimeSecret =
     configs.auth_secret || configs.AUTH_SECRET || envConfigs.auth_secret;
 
+  let runtimeBaseURL =
+    configs.auth_url ||
+    configs.AUTH_URL ||
+    configs.app_url ||
+    configs.NEXT_PUBLIC_APP_URL;
+
+  // If no explicit config, try to infer from the current request
+  if (!runtimeBaseURL && request) {
+    try {
+      const url = new URL(request.url);
+      runtimeBaseURL = url.origin;
+    } catch {
+      // ignore
+    }
+  }
+
+  // Fallback to static env config
+  runtimeBaseURL = runtimeBaseURL || envConfigs.auth_url || envConfigs.app_url;
+
+  // Final safeguard: Never allow localhost in production if we have any other hint.
+  if (
+    process.env.NODE_ENV === 'production' &&
+    runtimeBaseURL?.includes('localhost')
+  ) {
+    // If we're on Cloudflare but getting localhost, it means the default envConfig was used.
+    // We should fallback to the known production domain as a last resort.
+    runtimeBaseURL = 'https://removegeminiwatermark.org';
+  }
+
+  if (process.env.NODE_ENV !== 'production' || configs.debug === 'true') {
+    console.log('[auth] Initialization with baseURL:', runtimeBaseURL);
+  }
+
   return {
     ...authOptions,
+    baseURL: runtimeBaseURL,
+    trustedOrigins: runtimeBaseURL ? [runtimeBaseURL] : [],
     ...(runtimeSecret ? { secret: runtimeSecret } : {}),
     // Add database connection only when actually needed (runtime)
     // D1 is only available inside Cloudflare Workers runtime (not during build)
-    database: (envConfigs.database_url || (envConfigs.database_provider === 'd1' && isCloudflareWorker))
-      ? drizzleAdapter(db(), {
-          provider: getDatabaseProvider(envConfigs.database_provider),
-          schema: schema,
-        })
-      : null,
+    database:
+      database ||
+      (envConfigs.database_url ||
+      (envConfigs.database_provider === 'd1' && isCloudflareWorker)
+        ? drizzleAdapter(db(), {
+            provider: getDatabaseProvider(envConfigs.database_provider),
+            schema: schema,
+          })
+        : null),
     databaseHooks: {
       user: {
         create: {
@@ -201,7 +244,7 @@ export async function getAuthOptions(configs: Record<string, string>) {
                 const emailService = await getEmailService(configs as any);
                 const logoUrl = envConfigs.app_logo?.startsWith('http')
                   ? envConfigs.app_logo
-                  : `${envConfigs.app_url}${envConfigs.app_logo?.startsWith('/') ? '' : '/'}${envConfigs.app_logo || ''}`;
+                  : `${runtimeBaseURL || envConfigs.app_url}${envConfigs.app_logo?.startsWith('/') ? '' : '/'}${envConfigs.app_logo || ''}`;
                 const result = await emailService.sendEmail({
                   to: user.email,
                   subject: `Verify your email - ${envConfigs.app_name}`,
@@ -211,8 +254,24 @@ export async function getAuthOptions(configs: Record<string, string>) {
                     url,
                   }),
                 });
+
+                if (!result.success) {
+                  console.error(
+                    '[sendVerificationEmail] provider failed to send email:',
+                    result.error,
+                    'provider:',
+                    result.provider
+                  );
+                } else {
+                  console.log(
+                    '[sendVerificationEmail] email sent successfully to:',
+                    user.email,
+                    'messageId:',
+                    result.messageId
+                  );
+                }
               } catch (err) {
-                console.error('[sendVerificationEmail] failed:', err);
+                console.error('[sendVerificationEmail] crashed:', err);
               }
             },
           },

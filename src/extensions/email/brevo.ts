@@ -100,9 +100,17 @@ export class BrevoProvider implements EmailProvider {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        let errorMessage =
+          errorData.message || response.statusText || 'Brevo API Error';
+
+        // Include Brevo error code if available
+        if (errorData.code) {
+          errorMessage = `${errorData.code}: ${errorMessage}`;
+        }
+
         return {
           success: false,
-          error: errorData.message || response.statusText || 'Brevo API Error',
+          error: errorMessage,
           provider: this.name,
         };
       }
