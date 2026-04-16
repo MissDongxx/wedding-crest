@@ -41,7 +41,7 @@
         "id": "hero",
         "title": "Supprimer le Filigrane IA des Images Gemini",
         "highlight_text": "Images Gemini",
-        "description": "Outil gratuit basé sur le navigateur pour supprimer les filigranes de Gemini, DALL-E, Midjourney et d'autres images générées par IA.<br/>Traitement 100% local — vos images ne quittent jamais votre appareil.",
+        "description": "Outil gratuit basé sur le navigateur pour supprimer les filigranes d'images générées par Gemini.<br/>Traitement 100% local — vos images ne quittent jamais votre appareil.",
         "announcement": {
           "badge": "Gratuit",
           "title": "✦ Supprimer les Filigranes Gemini Instantanément",
@@ -155,8 +155,8 @@
         "description": "Tout ce dont vous avez besoin pour nettoyer les images générées par IA.",
         "items": [
           {
-            "title": "Support Multi-Plateforme",
-            "description": "Supprimez les filigranes de Gemini, DALL-E, Midjourney, Stable Diffusion et Adobe Firefly.",
+            "title": "Suppression Filigrane Gemini",
+            "description": "Supprimez les filigranes visibles des images Google Gemini (le logo étoile ✦).",
             "icon": "RiRobot2Line"
           },
           {
@@ -221,7 +221,7 @@
           },
           {
             "question": "Quels filigranes IA peuvent être supprimés ?",
-            "answer": "Actuellement, nous supportons la suppression des filigranes visibles de Google Gemini (le logo étoile ✦). Le support pour les filigranes DALL-E, Midjourney, Stable Diffusion et Adobe Firefly sera disponible dans les prochaines mises à jour."
+            "answer": "Actuellement, nous supportons la suppression des filigranes visibles de Google Gemini (le logo étoile ✦)."
           },
           {
             "question": "La suppression du filigrane affectera-t-elle la qualité de l'image ?",

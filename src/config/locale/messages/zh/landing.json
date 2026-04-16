@@ -56,7 +56,7 @@
     "id": "footer",
     "brand": {
       "title": "Remove Gemini Watermark",
-      "description": "免费浏览器工具，移除 Gemini、DALL-E、Midjourney 等 AI 生成图片的水印。100% 本地处理。",
+      "description": "免费浏览器工具，移除 Gemini 生成图片的水印。100% 本地处理。",
       "logo": {
         "src": "/logo.png",
         "alt": "RemoveGeminiWatermark - 免费 Gemini 水印移除工具",

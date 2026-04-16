@@ -56,7 +56,7 @@
     "id": "footer",
     "brand": {
       "title": "Gemini Wasserzeichen entfernen",
-      "description": "Kostenloses Browser-Tool zum Entfernen von KI-Wasserzeichen aus Gemini, DALL-E, Midjourney und anderen KI-generierten Bildern. 100% lokale Verarbeitung.",
+      "description": "Kostenloses Browser-Tool zum Entfernen von KI-Wasserzeichen aus Gemini-generierten Bildern. 100% lokale Verarbeitung.",
       "logo": {
         "src": "/logo.png",
         "alt": "Gemini Wasserzeichen entfernen",

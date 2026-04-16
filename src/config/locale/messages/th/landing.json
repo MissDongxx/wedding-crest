@@ -56,7 +56,7 @@
     "id": "footer",
     "brand": {
       "title": "ลบลายน้ำ Gemini",
-      "description": "เครื่องมือลบลายน้ำ AI ฟรีสำหรับ Gemini, DALL-E, Midjourney และภาพที่สร้างด้วย AI อื่นๆ ประมวลผลในเครื่อง 100% บนเบราว์เซอร์ของคุณ",
+      "description": "เครื่องมือลบลายน้ำ AI ฟรีสำหรับรูปภาพ Gemini ประมวลผลในเครื่อง 100% บนเบราว์เซอร์ของคุณ",
       "logo": {
         "src": "/logo.png",
         "alt": "RemoveGeminiWatermark - เครื่องมือลบลายน้ำ Gemini ฟรี",

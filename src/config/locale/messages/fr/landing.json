@@ -56,7 +56,7 @@
     "id": "footer",
     "brand": {
       "title": "Supprimer le Watermark Gemini",
-      "description": "Outil gratuit basé sur le navigateur pour supprimer les filigranes IA de Gemini, DALL-E, Midjourney et d'autres images générées par IA. Traitement 100% local.",
+      "description": "Outil gratuit basé sur le navigateur pour supprimer les filigranes IA d'images générées par Gemini. Traitement 100% local.",
       "logo": {
         "src": "/logo.png",
         "alt": "Supprimer le Watermark Gemini",

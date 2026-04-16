@@ -41,7 +41,7 @@
         "id": "hero",
         "title": "Rimuovi Watermark AI dalle Immagini Gemini",
         "highlight_text": "Immagini Gemini",
-        "description": "Strumento gratuito basato su browser per rimuovere watermark da immagini Gemini, DALL-E, Midjourney e altre immagini generate da AI.<br/>Elaborazione 100% locale — le tue immagini non lasciano mai il tuo dispositivo.",
+        "description": "Strumento gratuito basato su browser per rimuovere watermark da immagini generate da Gemini.<br/>Elaborazione 100% locale — le tue immagini non lasciano mai il tuo dispositivo.",
         "announcement": {
           "badge": "Gratis",
           "title": "✦ Rimuovi Watermark Gemini Istantaneamente",
@@ -155,8 +155,8 @@
         "description": "Tutto ciò di cui hai bisogno per pulire immagini generate da AI.",
         "items": [
           {
-            "title": "Supporto Multi-Piattaforma",
-            "description": "Rimuovi watermark da Gemini, DALL-E, Midjourney, Stable Diffusion e Adobe Firefly.",
+            "title": "Rimozione Watermark Gemini",
+            "description": "Rimuovi i watermark visibili dalle immagini Google Gemini (il logo a stella ✦).",
             "icon": "RiRobot2Line"
           },
           {
@@ -221,7 +221,7 @@
           },
           {
             "question": "Quali watermark AI possono essere rimossi?",
-            "answer": "Attualmente supportiamo la rimozione di watermark visibili da Google Gemini (il logo a stella ✦). Il supporto per watermark DALL-E, Midjourney, Stable Diffusion e Adobe Firefly arriverà nei prossimi aggiornamenti."
+            "answer": "Attualmente supportiamo la rimozione di watermark visibili da Google Gemini (il logo a stella ✦)."
           },
           {
             "question": "La rimozione del watermark influenzerà la qualità dell'immagine?",

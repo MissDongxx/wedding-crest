@@ -59,5 +59,19 @@
       "metadata": "Metadata auto-stripped",
       "free_today": "{remaining}/{limit} free today"
     }
+  },
+  "contact": {
+    "name_title": "Name",
+    "name_placeholder": "Your name",
+    "email_title": "Email",
+    "email_placeholder": "your@email.com",
+    "subject_title": "Subject",
+    "subject_placeholder": "How can we help?",
+    "message_title": "Message",
+    "message_placeholder": "Tell us more about your inquiry...",
+    "submit_button": "Send Message",
+    "sending_button": "Sending...",
+    "success_message": "Message sent successfully!",
+    "error_message": "Failed to send message. Please try again."
   }
 }

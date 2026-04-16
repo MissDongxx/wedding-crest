@@ -112,6 +112,10 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     AccordionItem,
     AccordionTrigger,
     AccordionContent,
+    ContactForm: (props: any) => {
+      const { ContactForm } = require('@/shared/blocks/common/contact-form');
+      return <ContactForm {...props} />;
+    },
     ...components,
   };
 

@@ -41,7 +41,7 @@
         "id": "hero",
         "title": "KI-Wasserzeichen aus Gemini-Bildern entfernen",
         "highlight_text": "Gemini-Bildern",
-        "description": "Kostenloses Browser-Tool zum Entfernen von Wasserzeichen aus Gemini, DALL-E, Midjourney und anderen KI-generierten Bildern.<br/>100% lokale Verarbeitung — Ihre Bilder verlassen niemals Ihr Gerät.",
+        "description": "Kostenloses Browser-Tool zum Entfernen von Wasserzeichen aus Gemini-generierten Bildern.<br/>100% lokale Verarbeitung — Ihre Bilder verlassen niemals Ihr Gerät.",
         "announcement": {
           "badge": "Kostenlos",
           "title": "✦ Gemini Wasserzeichen sofort entfernen",
@@ -155,8 +155,8 @@
         "description": "Alles, was Sie brauchen, um KI-generierte Bilder zu bereinigen.",
         "items": [
           {
-            "title": "Multi-Plattform-Support",
-            "description": "Entfernen Sie Wasserzeichen von Gemini, DALL-E, Midjourney, Stable Diffusion und Adobe Firefly.",
+            "title": "Gemini Wasserzeichen entfernen",
+            "description": "Entfernen Sie sichtbare Wasserzeichen von Google Gemini Bildern (das ✦-Sternlogo).",
             "icon": "RiRobot2Line"
           },
           {
@@ -221,7 +221,7 @@
           },
           {
             "question": "Welche KI-Wasserzeichen können entfernt werden?",
-            "answer": "Aktuell unterstützen wir die Entfernung sichtbarer Wasserzeichen von Google Gemini (das ✦-Sternlogo). Unterstützung für DALL-E, Midjourney, Stable Diffusion und Adobe Firefly Wasserzeichen wird in kommenden Updates verfügbar sein."
+            "answer": "Aktuell unterstützen wir die Entfernung sichtbarer Wasserzeichen von Google Gemini (das ✦-Sternlogo)."
           },
           {
             "question": "Beeinträchtigt das Entfernen des Wasserzeichens die Bildqualität?",

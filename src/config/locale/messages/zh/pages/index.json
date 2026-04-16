@@ -25,7 +25,7 @@
         "id": "hero",
         "title": "移除 Gemini 图片的 AI 水印",
         "highlight_text": "Gemini 图片",
-        "description": "免费浏览器工具，移除 Gemini、DALL-E、Midjourney 等 AI 生成图片的水印。<br/>100% 本地处理 — 你的图片不会离开你的设备。",
+        "description": "免费浏览器工具，移除 Gemini 生成图片的水印。<br/>100% 本地处理 — 你的图片不会离开你的设备。",
         "announcement": {
           "badge": "免费",
           "title": "✦ 即时移除 Gemini 水印",
@@ -155,8 +155,8 @@
         "description": "清理 AI 生成图片所需的一切工具。",
         "items": [
           {
-            "title": "多平台支持",
-            "description": "移除 Gemini、DALL-E、Midjourney、Stable Diffusion 和 Adobe Firefly 的水印。",
+            "title": "Gemini 水印移除",
+            "description": "移除 Google Gemini 图片的可见水印（✦ 星标 Logo）。",
             "icon": "RiRobot2Line"
           },
           {
@@ -221,7 +221,7 @@
           },
           {
             "question": "支持哪些 AI 水印？",
-            "answer": "目前支持移除 Google Gemini 的可见水印（✦ 星标 Logo）。对 DALL-E、Midjourney、Stable Diffusion 和 Adobe Firefly 水印的支持将在后续更新中推出。"
+            "answer": "目前支持移除 Google Gemini 的可见水印（✦ 星标 Logo）。"
           },
           {
             "question": "移除水印会影响图片质量吗？",

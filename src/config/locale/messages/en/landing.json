@@ -56,7 +56,7 @@
     "id": "footer",
     "brand": {
       "title": "Remove Gemini Watermark",
-      "description": "Free browser-based tool to remove AI watermarks from Gemini, DALL-E, Midjourney and other AI-generated images. 100% local processing.",
+      "description": "Free browser-based tool to remove AI watermarks from Gemini-generated images. 100% local processing.",
       "logo": {
         "src": "/logo.png",
         "alt": "RemoveGeminiWatermark - Free Gemini Watermark Remover Tool",

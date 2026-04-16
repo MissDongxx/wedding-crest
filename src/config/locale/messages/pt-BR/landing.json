@@ -56,7 +56,7 @@
     "id": "footer",
     "brand": {
       "title": "Remove Gemini Watermark",
-      "description": "Ferramenta gratuita no navegador para remover marcas d'água de imagens geradas por Gemini, DALL-E, Midjourney e outras IAs. Processamento 100% local.",
+      "description": "Ferramenta gratuita no navegador para remover marcas d'água de imagens geradas pelo Gemini. Processamento 100% local.",
       "logo": {
         "src": "/logo.png",
         "alt": "RemoveGeminiWatermark - Ferramenta Grátis para Remover Marca d'água do Gemini",

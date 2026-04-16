@@ -25,7 +25,7 @@
         "id": "hero",
         "title": "Remova Marca d'água de IA de Imagens do Gemini",
         "highlight_text": "Imagens do Gemini",
-        "description": "Ferramenta gratuita no navegador para remover marcas d'água de imagens geradas por Gemini, DALL-E, Midjourney e outras IAs.<br/>Processamento 100% local — suas imagens nunca saem do seu dispositivo.",
+        "description": "Ferramenta gratuita no navegador para remover marcas d'água de imagens geradas pelo Gemini.<br/>Processamento 100% local — suas imagens nunca saem do seu dispositivo.",
         "announcement": {
           "badge": "Grátis",
           "title": "✦ Remova Marcas d'água do Gemini Instantaneamente",
@@ -155,8 +155,8 @@
         "description": "Tudo o que você precisa para limpar imagens geradas por IA.",
         "items": [
           {
-            "title": "Suporte Multi-Plataforma",
-            "description": "Remova marcas d'água de Gemini, DALL-E, Midjourney, Stable Diffusion e Adobe Firefly.",
+            "title": "Remoção Marca d'água Gemini",
+            "description": "Remova marcas d'água visíveis de imagens do Google Gemini (o logo de estrela ✦).",
             "icon": "RiRobot2Line"
           },
           {
@@ -221,7 +221,7 @@
           },
           {
             "question": "Quais marcas d'água de IA podem ser removidas?",
-            "answer": "Atualmente, suportamos a remoção de marcas d'água visíveis do Google Gemini (o logo de estrela ✦). Suporte para marcas d'água do DALL-E, Midjourney, Stable Diffusion e Adobe Firefly estará disponível em atualizações futuras."
+            "answer": "Atualmente, suportamos a remoção de marcas d'água visíveis do Google Gemini (o logo de estrela ✦)."
           },
           {
             "question": "Remover a marca d'água afetará a qualidade da imagem?",
