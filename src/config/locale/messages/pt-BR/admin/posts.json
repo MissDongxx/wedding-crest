@@ -18,8 +18,19 @@
   "list": {
     "title": "Artigos",
     "crumbs": { "admin": "Admin", "posts": "Artigos" },
-    "buttons": { "add": "Adicionar Artigo", "edit": "Editar Artigo", "view": "Ver Artigo", "delete": "Excluir Artigo" },
-    "tabs": { "all": "Todos", "published": "Publicados", "pending": "Pendentes", "draft": "Rascunhos", "archived": "Arquivados" }
+    "buttons": {
+      "add": "Adicionar Artigo",
+      "edit": "Editar Artigo",
+      "view": "Ver Artigo",
+      "delete": "Excluir Artigo"
+    },
+    "tabs": {
+      "all": "Todos",
+      "published": "Publicados",
+      "pending": "Pendentes",
+      "draft": "Rascunhos",
+      "archived": "Arquivados"
+    }
   },
   "add": {
     "title": "Adicionar Artigo",

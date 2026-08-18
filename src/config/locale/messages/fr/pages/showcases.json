@@ -21,15 +21,78 @@
           { "name": "other", "title": "Autre" }
         ],
         "items": [
-          { "title": "ThinkAny", "description": "Moteur de Recherche IA", "url": "https://thinkany.ai", "target": "_blank", "image": { "src": "/imgs/cases/7.png", "alt": "vitrine" }, "group": "ai-chatbot" },
-          { "title": "HeyBeauty", "description": "Essayage Virtuel IA", "url": "https://heybeauty.ai", "target": "_blank", "image": { "src": "/imgs/cases/5.png", "alt": "vitrine" }, "group": "ai-image" },
-          { "title": "AI Wallpaper", "description": "Générateur de Fonds d'Écran IA", "url": "https://aiwallpaper.shop", "target": "_blank", "image": { "src": "/imgs/cases/1.png", "alt": "vitrine" }, "group": "ai-image" },
-          { "title": "AI Cover", "description": "Générateur de Pochettes IA", "url": "https://aicover.design", "target": "_blank", "image": { "src": "/imgs/cases/2.png", "alt": "vitrine" }, "group": "ai-image" },
-          { "title": "GPTs Works", "description": "Annuaire GPTs", "url": "https://gpts.works", "target": "_blank", "image": { "src": "/imgs/cases/3.png", "alt": "vitrine" }, "group": "other" },
-          { "title": "Melodisco", "description": "Lecteur de Musique IA", "url": "https://melodis.co", "target": "_blank", "image": { "src": "/imgs/cases/4.png", "alt": "vitrine" }, "group": "ai-music" },
-          { "title": "Pagen", "description": "Générateur de Landing Pages IA", "url": "https://pagen.so", "target": "_blank", "image": { "src": "/imgs/cases/6.png", "alt": "vitrine" }, "group": "ai-coding" },
-          { "title": "SoraFM", "description": "Générateur de Vidéos IA", "url": "https://sorafm.trys.ai", "target": "_blank", "image": { "src": "/imgs/cases/8.png", "alt": "vitrine" }, "group": "ai-video" },
-          { "title": "PodLM", "description": "Générateur de Podcasts IA", "url": "https://podlm.ai", "target": "_blank", "image": { "src": "/imgs/cases/9.png", "alt": "vitrine" }, "group": "ai-audio" }
+          {
+            "title": "ThinkAny",
+            "description": "Moteur de Recherche IA",
+            "url": "https://thinkany.ai",
+            "target": "_blank",
+            "image": { "src": "/imgs/cases/7.png", "alt": "vitrine" },
+            "group": "ai-chatbot"
+          },
+          {
+            "title": "HeyBeauty",
+            "description": "Essayage Virtuel IA",
+            "url": "https://heybeauty.ai",
+            "target": "_blank",
+            "image": { "src": "/imgs/cases/5.png", "alt": "vitrine" },
+            "group": "ai-image"
+          },
+          {
+            "title": "AI Wallpaper",
+            "description": "Générateur de Fonds d'Écran IA",
+            "url": "https://aiwallpaper.shop",
+            "target": "_blank",
+            "image": { "src": "/imgs/cases/1.png", "alt": "vitrine" },
+            "group": "ai-image"
+          },
+          {
+            "title": "AI Cover",
+            "description": "Générateur de Pochettes IA",
+            "url": "https://aicover.design",
+            "target": "_blank",
+            "image": { "src": "/imgs/cases/2.png", "alt": "vitrine" },
+            "group": "ai-image"
+          },
+          {
+            "title": "GPTs Works",
+            "description": "Annuaire GPTs",
+            "url": "https://gpts.works",
+            "target": "_blank",
+            "image": { "src": "/imgs/cases/3.png", "alt": "vitrine" },
+            "group": "other"
+          },
+          {
+            "title": "Melodisco",
+            "description": "Lecteur de Musique IA",
+            "url": "https://melodis.co",
+            "target": "_blank",
+            "image": { "src": "/imgs/cases/4.png", "alt": "vitrine" },
+            "group": "ai-music"
+          },
+          {
+            "title": "Pagen",
+            "description": "Générateur de Landing Pages IA",
+            "url": "https://pagen.so",
+            "target": "_blank",
+            "image": { "src": "/imgs/cases/6.png", "alt": "vitrine" },
+            "group": "ai-coding"
+          },
+          {
+            "title": "SoraFM",
+            "description": "Générateur de Vidéos IA",
+            "url": "https://sorafm.trys.ai",
+            "target": "_blank",
+            "image": { "src": "/imgs/cases/8.png", "alt": "vitrine" },
+            "group": "ai-video"
+          },
+          {
+            "title": "PodLM",
+            "description": "Générateur de Podcasts IA",
+            "url": "https://podlm.ai",
+            "target": "_blank",
+            "image": { "src": "/imgs/cases/9.png", "alt": "vitrine" },
+            "group": "ai-audio"
+          }
         ]
       }
     }

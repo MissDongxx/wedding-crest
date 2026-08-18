@@ -11,7 +11,7 @@
  *
  * Usage: npx tsx scripts/generate-alpha-maps.ts
  */
-import { writeFileSync, mkdirSync } from 'fs';
+import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 /**
@@ -63,7 +63,7 @@ function createPNG(width: number, height: number, rgba: Uint8Array): Buffer {
     for (let x = 0; x < width; x++) {
       const srcIdx = (y * width + x) * 4;
       const dstIdx = y * (width * 4 + 1) + 1 + x * 4;
-      rawData[dstIdx] = rgba[srcIdx];       // R
+      rawData[dstIdx] = rgba[srcIdx]; // R
       rawData[dstIdx + 1] = rgba[srcIdx + 1]; // G
       rawData[dstIdx + 2] = rgba[srcIdx + 2]; // B
       rawData[dstIdx + 3] = rgba[srcIdx + 3]; // A
@@ -104,8 +104,8 @@ function createPNG(width: number, height: number, rgba: Uint8Array): Buffer {
   const ihdr = Buffer.alloc(13);
   ihdr.writeUInt32BE(width, 0);
   ihdr.writeUInt32BE(height, 4);
-  ihdr[8] = 8;  // bit depth
-  ihdr[9] = 6;  // color type: RGBA
+  ihdr[8] = 8; // bit depth
+  ihdr[9] = 6; // color type: RGBA
   ihdr[10] = 0; // compression
   ihdr[11] = 0; // filter
   ihdr[12] = 0; // interlace
@@ -124,7 +124,7 @@ function generate(size: number) {
   const cx = size / 2;
   const cy = size / 2;
   const outerR = size * 0.42;
-  const innerR = size * 0.10;
+  const innerR = size * 0.1;
   const points = 4;
   const edgeSoftness = 2.0; // pixels of anti-aliasing
 
@@ -154,7 +154,7 @@ function generate(size: number) {
 
       // Logo pixels: white with computed alpha
       const idx = i * 4;
-      rgba[idx] = 255;     // R
+      rgba[idx] = 255; // R
       rgba[idx + 1] = 255; // G
       rgba[idx + 2] = 255; // B
       rgba[idx + 3] = Math.round(alpha * 255); // A

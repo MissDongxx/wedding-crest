@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer';
+
 import {
   CheckoutSession,
   PaymentBilling,
@@ -754,7 +755,6 @@ export class PayPalProvider implements PaymentProvider {
       case 'BILLING.SUBSCRIPTION.EXPIRED':
         return PaymentEventType.SUBSCRIBE_CANCELED;
 
-
       default:
         throw new Error(`Unknown PayPal event type: ${eventType}`);
     }
@@ -958,7 +958,7 @@ export class PayPalProvider implements PaymentProvider {
             metadata = { custom_id: purchaseUnit.custom_id };
           }
         }
-      } catch { }
+      } catch {}
     }
 
     const result: PaymentSession = {

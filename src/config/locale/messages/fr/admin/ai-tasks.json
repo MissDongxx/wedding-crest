@@ -17,7 +17,14 @@
   "list": {
     "title": "Tâches IA",
     "crumbs": { "admin": "Admin", "ai-tasks": "Tâches IA" },
-    "tabs": { "all": "Toutes", "music": "Musique", "image": "Image", "video": "Vidéo", "audio": "Audio", "text": "Texte" },
+    "tabs": {
+      "all": "Toutes",
+      "music": "Musique",
+      "image": "Image",
+      "video": "Vidéo",
+      "audio": "Audio",
+      "text": "Texte"
+    },
     "buttons": { "view": "Voir la Tâche", "refresh": "Actualiser la Tâche" },
     "empty_message": "Aucune tâche trouvée"
   }

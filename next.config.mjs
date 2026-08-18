@@ -17,7 +17,7 @@ const withNextIntl = createNextIntlPlugin({
 // Path to our fix for pngjs's broken sync-inflate.js
 const syncInflateFix = resolve(
   import.meta.dirname,
-  'src/shared/lib/sync-inflate-fix.js',
+  'src/shared/lib/sync-inflate-fix.js'
 );
 
 /** @type {import('next').NextConfig} */

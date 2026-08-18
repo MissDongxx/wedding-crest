@@ -14,19 +14,37 @@
   "list": {
     "title": "Pagamentos",
     "crumbs": { "admin": "Admin", "payments": "Pagamentos" },
-    "tabs": { "all": "Todos", "subscription": "Assinatura", "one-time": "Único" },
+    "tabs": {
+      "all": "Todos",
+      "subscription": "Assinatura",
+      "one-time": "Único"
+    },
     "filters": {
       "status": {
         "title": "Status",
-        "options": { "all": "Todos", "paid": "Pago", "created": "Criado", "failed": "Falhou" }
+        "options": {
+          "all": "Todos",
+          "paid": "Pago",
+          "created": "Criado",
+          "failed": "Falhou"
+        }
       },
       "provider": {
         "title": "Provedor",
-        "options": { "all": "Todos", "stripe": "Stripe", "creem": "Creem", "lemonsqueezy": "Lemonsqueezy", "paypal": "Paypal" }
+        "options": {
+          "all": "Todos",
+          "stripe": "Stripe",
+          "creem": "Creem",
+          "lemonsqueezy": "Lemonsqueezy",
+          "paypal": "Paypal"
+        }
       }
     },
     "search": {
-      "order_no": { "title": "Número do Pedido", "placeholder": "Número do Pedido" }
+      "order_no": {
+        "title": "Número do Pedido",
+        "placeholder": "Número do Pedido"
+      }
     }
   }
 }

@@ -1,7 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
-import { envConfigs } from '@/config';
 import { defaultLocale, locales } from '@/config/locale';
+import { getAllConfigs } from '@/shared/models/config';
 
 // get metadata for page component
 export function getMetadata(
@@ -23,6 +23,10 @@ export function getMetadata(
   }) {
     const { locale } = await params;
     setRequestLocale(locale);
+
+    // merged configs: admin (DB) settings override env; ensures the browser
+    // title / OG metadata reflect admin-configured app name, url, preview image
+    const configs = await getAllConfigs();
 
     // passed metadata
     const passedMetadata = {
@@ -49,17 +53,23 @@ export function getMetadata(
     // canonical url
     const canonicalUrl = await getCanonicalUrl(
       options.canonicalUrl || '',
-      locale || ''
+      locale || '',
+      configs.app_url
     );
 
     // languages alternates
     const languages: Record<string, string> = {};
     for (const l of locales) {
-      languages[l] = await getCanonicalUrl(options.canonicalUrl || '', l);
+      languages[l] = await getCanonicalUrl(
+        options.canonicalUrl || '',
+        l,
+        configs.app_url
+      );
     }
     languages['x-default'] = await getCanonicalUrl(
       options.canonicalUrl || '',
-      defaultLocale
+      defaultLocale,
+      configs.app_url
     );
 
     const title =
@@ -70,17 +80,17 @@ export function getMetadata(
       defaultMetadata.description;
 
     // image url
-    let imageUrl = options.imageUrl || envConfigs.app_preview_image;
+    let imageUrl = options.imageUrl || configs.app_preview_image;
     if (imageUrl.startsWith('http')) {
       imageUrl = imageUrl;
     } else {
-      imageUrl = `${envConfigs.app_url}${imageUrl}`;
+      imageUrl = `${configs.app_url}${imageUrl}`;
     }
 
     // app name
     let appName = options.appName;
     if (!appName) {
-      appName = envConfigs.app_name || '';
+      appName = configs.app_name || '';
     }
 
     return {
@@ -140,7 +150,11 @@ async function getTranslatedMetadata(metadataKey: string, locale: string) {
   };
 }
 
-async function getCanonicalUrl(canonicalUrl: string, locale: string) {
+async function getCanonicalUrl(
+  canonicalUrl: string,
+  locale: string,
+  appUrl: string
+) {
   if (!canonicalUrl) {
     canonicalUrl = '/';
   }
@@ -154,7 +168,7 @@ async function getCanonicalUrl(canonicalUrl: string, locale: string) {
       canonicalUrl = `/${canonicalUrl}`;
     }
 
-    canonicalUrl = `${envConfigs.app_url}${
+    canonicalUrl = `${appUrl}${
       !locale || locale === defaultLocale ? '' : `/${locale}`
     }${canonicalUrl}`;
 

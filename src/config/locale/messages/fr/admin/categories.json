@@ -26,12 +26,20 @@
   },
   "add": {
     "title": "Ajouter une Catégorie",
-    "crumbs": { "admin": "Admin", "categories": "Catégories", "add": "Ajouter" },
+    "crumbs": {
+      "admin": "Admin",
+      "categories": "Catégories",
+      "add": "Ajouter"
+    },
     "buttons": { "submit": "Ajouter la Catégorie" }
   },
   "edit": {
     "title": "Modifier la Catégorie",
-    "crumbs": { "admin": "Admin", "categories": "Catégories", "edit": "Modifier" },
+    "crumbs": {
+      "admin": "Admin",
+      "categories": "Catégories",
+      "edit": "Modifier"
+    },
     "buttons": { "submit": "Modifier la Catégorie" }
   }
 }

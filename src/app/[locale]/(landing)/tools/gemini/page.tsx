@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { envConfigs } from '@/config';
 import { getMetadata } from '@/shared/lib/seo';
+
 import UploadZoneClient from './upload-zone-client';
 
 const baseUrl = envConfigs.app_url;
@@ -29,8 +30,7 @@ export default async function GeminiToolPage({
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
     name: 'Gemini Watermark Remover',
-    description:
-      'Free tool to remove Google Gemini AI watermarks from images',
+    description: 'Free tool to remove Google Gemini AI watermarks from images',
     applicationCategory: 'UtilitiesApplication',
     operatingSystem: 'Web Browser',
     offers: {
@@ -121,7 +121,7 @@ export default async function GeminiToolPage({
           <h1 className="text-foreground mb-4 text-4xl font-bold tracking-tight sm:text-5xl">
             {t('h1')
               .split(t('h1_highlight'))
-              .reduce<(React.ReactNode[])>((acc, part, i) => {
+              .reduce<React.ReactNode[]>((acc, part, i) => {
                 if (i === 0) {
                   acc.push(part);
                 } else {
@@ -158,7 +158,7 @@ export default async function GeminiToolPage({
             {steps.map((item) => (
               <div
                 key={item.step}
-                className="group relative rounded-xl border border-border/40 bg-white/30 p-6 backdrop-blur-sm transition-colors hover:border-primary/20"
+                className="group border-border/40 hover:border-primary/20 relative rounded-xl border bg-white/30 p-6 backdrop-blur-sm transition-colors"
               >
                 <span className="text-primary/20 text-5xl font-bold">
                   {item.step}
@@ -180,19 +180,21 @@ export default async function GeminiToolPage({
             {t('faq.title')}
           </h2>
           <div className="space-y-4">
-            {faqItems.map((item: { question: string; answer: string }, idx: number) => (
-              <details
-                key={idx}
-                className="border-border group rounded-xl border"
-              >
-                <summary className="text-foreground cursor-pointer px-6 py-4 font-medium transition-colors hover:text-primary">
-                  {item.question}
-                </summary>
-                <p className="text-muted-foreground px-6 pb-4 text-sm leading-relaxed">
-                  {item.answer}
-                </p>
-              </details>
-            ))}
+            {faqItems.map(
+              (item: { question: string; answer: string }, idx: number) => (
+                <details
+                  key={idx}
+                  className="border-border group rounded-xl border"
+                >
+                  <summary className="text-foreground hover:text-primary cursor-pointer px-6 py-4 font-medium transition-colors">
+                    {item.question}
+                  </summary>
+                  <p className="text-muted-foreground px-6 pb-4 text-sm leading-relaxed">
+                    {item.answer}
+                  </p>
+                </details>
+              )
+            )}
           </div>
         </div>
 
@@ -201,9 +203,7 @@ export default async function GeminiToolPage({
           <h2 className="text-foreground mb-4 text-2xl font-bold">
             {t('cta.title')}
           </h2>
-          <p className="text-muted-foreground mb-6">
-            {t('cta.description')}
-          </p>
+          <p className="text-muted-foreground mb-6">{t('cta.description')}</p>
           <a
             href="/pricing"
             className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center gap-2 rounded-lg px-6 py-3 font-medium transition-colors"

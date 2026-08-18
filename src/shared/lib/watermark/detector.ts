@@ -7,15 +7,19 @@
  */
 
 import { getAlphaMap } from './alpha-map';
-import type { DetectionResult, WatermarkType, DetectionConfidence } from './types';
+import type {
+  DetectionConfidence,
+  DetectionResult,
+  WatermarkType,
+} from './types';
 
 /** Watermark candidate sizes with their default margins (right-bottom corner) */
 const SIZE_CANDIDATES = [
   { size: 128, margin: 80 },
-  { size: 96,  margin: 64 },
-  { size: 72,  margin: 48 },
-  { size: 48,  margin: 32 },
-  { size: 32,  margin: 16 },
+  { size: 96, margin: 64 },
+  { size: 72, margin: 48 },
+  { size: 48, margin: 32 },
+  { size: 32, margin: 16 },
 ];
 
 /** Pixel offsets to scan around the nominal position (handles slight misalignment) */
@@ -61,8 +65,20 @@ export async function detectWatermark(
 
         const regionData = ctx.getImageData(x0, y0, size, size);
         // Sample surrounding background for adaptive comparison
-        const bgBrightness = sampleBackgroundBrightness(ctx, x0, y0, size, width, height);
-        const confidence = matchAlphaPattern(regionData, alphaMap, size, bgBrightness);
+        const bgBrightness = sampleBackgroundBrightness(
+          ctx,
+          x0,
+          y0,
+          size,
+          width,
+          height
+        );
+        const confidence = matchAlphaPattern(
+          regionData,
+          alphaMap,
+          size,
+          bgBrightness
+        );
 
         candidates.push({ size, margin, confidence, offsetX: dx, offsetY: dy });
       }
@@ -128,7 +144,8 @@ function sampleBackgroundBrightness(
   if (sampleH > 0) {
     const data = ctx.getImageData(x0, sampleY, size, sampleH);
     for (let i = 0; i < data.data.length; i += 4) {
-      totalBrightness += (data.data[i] + data.data[i + 1] + data.data[i + 2]) / 3;
+      totalBrightness +=
+        (data.data[i] + data.data[i + 1] + data.data[i + 2]) / 3;
       count++;
     }
   }
@@ -139,7 +156,8 @@ function sampleBackgroundBrightness(
   if (sampleW > 0) {
     const data = ctx.getImageData(sampleX, y0, sampleW, size);
     for (let i = 0; i < data.data.length; i += 4) {
-      totalBrightness += (data.data[i] + data.data[i + 1] + data.data[i + 2]) / 3;
+      totalBrightness +=
+        (data.data[i] + data.data[i + 1] + data.data[i + 2]) / 3;
       count++;
     }
   }
@@ -182,10 +200,7 @@ function matchAlphaPattern(
     const expectedElevation = expectedAlpha * (255 - bgBrightness) * 0.4;
     const minBrightness = bgBrightness + expectedElevation;
 
-    if (
-      brightness >= minBrightness &&
-      brightness <= 255
-    ) {
+    if (brightness >= minBrightness && brightness <= 255) {
       matchScore++;
     }
 
@@ -202,7 +217,13 @@ function getConfidenceLevel(confidence: number): DetectionConfidence {
 }
 
 function buildDetails(
-  best: { size: number; margin: number; confidence: number; offsetX: number; offsetY: number },
+  best: {
+    size: number;
+    margin: number;
+    confidence: number;
+    offsetX: number;
+    offsetY: number;
+  },
   width: number,
   height: number
 ): string {
@@ -213,9 +234,10 @@ function buildDetails(
   const size = best.size;
   const percentage = Math.round(best.confidence * 100);
   const level = best.confidence > 0.7 ? 'High' : 'Moderate';
-  const offsetInfo = (best.offsetX !== 0 || best.offsetY !== 0)
-    ? ` (offset: ${best.offsetX},${best.offsetY})`
-    : '';
+  const offsetInfo =
+    best.offsetX !== 0 || best.offsetY !== 0
+      ? ` (offset: ${best.offsetX},${best.offsetY})`
+      : '';
 
   return (
     `${level} confidence (${percentage}%) match for Gemini watermark pattern ` +

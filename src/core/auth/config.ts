@@ -6,17 +6,17 @@ import { getLocale } from 'next-intl/server';
 import { db } from '@/core/db';
 import { envConfigs } from '@/config';
 import * as schema from '@/config/db/schema';
-import { isCloudflareWorker } from '@/shared/lib/env';
 import { VerifyEmail } from '@/shared/blocks/email/verify-email';
 import {
   getCookieFromCtx,
   getHeaderValue,
   guessLocaleFromAcceptLanguage,
 } from '@/shared/lib/cookie';
+import { isCloudflareWorker } from '@/shared/lib/env';
 import { getNonceStr, getUuid } from '@/shared/lib/hash';
 import { getClientIp } from '@/shared/lib/ip';
+import { ApikeyStatus, createApikey } from '@/shared/models/apikey';
 import { grantCreditsForNewUser } from '@/shared/models/credit';
-import { createApikey, ApikeyStatus } from '@/shared/models/apikey';
 import { getEmailService } from '@/shared/services/email';
 import { grantRoleForNewUser } from '@/shared/services/rbac';
 
@@ -25,6 +25,9 @@ import { grantRoleForNewUser } from '@/shared/services/rbac';
 // and to add a server-side throttle beyond any client-side cooldown.
 const recentVerificationEmailSentAt = new Map<string, number>();
 const VERIFICATION_EMAIL_MIN_INTERVAL_MS = 60_000;
+// Temporary switch for the admin login flow. Set back to false to restore
+// the configured email-verification behavior.
+const TEMPORARILY_DISABLE_EMAIL_VERIFICATION = true;
 
 // Static auth options - NO database connection
 // This ensures zero database calls during build time
@@ -80,6 +83,7 @@ export async function getAuthOptions(
   database?: any
 ) {
   const emailVerificationEnabled =
+    !TEMPORARILY_DISABLE_EMAIL_VERIFICATION &&
     configs.email_verification_enabled === 'true' &&
     !!(configs.resend_api_key || configs.brevo_api_key);
 

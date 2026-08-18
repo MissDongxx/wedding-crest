@@ -21,6 +21,7 @@
     "db:migrate": "tsx scripts/with-env.ts npx drizzle-kit migrate --config=src/core/db/config.ts",
     "db:push": "tsx scripts/with-env.ts npx drizzle-kit push --config=src/core/db/config.ts",
     "db:studio": "tsx scripts/with-env.ts npx drizzle-kit studio --config=src/core/db/config.ts",
+    "test:wedding": "tsx scripts/verify-wedding.ts",
     "auth:generate": "tsx scripts/with-env.ts npx @better-auth/cli generate --config=src/core/auth/index.ts",
     "rbac:init": "tsx scripts/with-env.ts npx tsx scripts/init-rbac.ts",
     "rbac:assign": "tsx scripts/with-env.ts npx tsx scripts/assign-role.ts",

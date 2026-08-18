@@ -79,9 +79,7 @@ export default async function BlogDetailPage({
     author: {
       '@type': 'Person',
       name: post.author_name || 'RemoveGeminiWatermark',
-      ...(post.author_image
-        ? { image: post.author_image }
-        : {}),
+      ...(post.author_image ? { image: post.author_image } : {}),
     },
     datePublished: post.created_at,
     url: `${baseUrl}/blog/${slug}`,

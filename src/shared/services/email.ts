@@ -1,4 +1,8 @@
-import { EmailManager, ResendProvider, BrevoProvider } from '@/extensions/email';
+import {
+  BrevoProvider,
+  EmailManager,
+  ResendProvider,
+} from '@/extensions/email';
 import { Configs, getAllConfigs } from '@/shared/models/config';
 
 /**

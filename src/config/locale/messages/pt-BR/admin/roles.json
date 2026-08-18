@@ -14,7 +14,12 @@
   "list": {
     "title": "Funções",
     "crumbs": { "admin": "Admin", "roles": "Funções" },
-    "buttons": { "create": "Criar Função", "edit": "Editar Função", "edit_permissions": "Editar Permissões", "delete": "Excluir Função" }
+    "buttons": {
+      "create": "Criar Função",
+      "edit": "Editar Função",
+      "edit_permissions": "Editar Permissões",
+      "delete": "Excluir Função"
+    }
   },
   "edit": {
     "title": "Editar Função",
@@ -23,7 +28,11 @@
   },
   "edit_permissions": {
     "title": "Editar Permissões",
-    "crumbs": { "admin": "Admin", "roles": "Funções", "edit_permissions": "Editar Permissões" },
+    "crumbs": {
+      "admin": "Admin",
+      "roles": "Funções",
+      "edit_permissions": "Editar Permissões"
+    },
     "buttons": { "submit": "Atualizar" }
   }
 }

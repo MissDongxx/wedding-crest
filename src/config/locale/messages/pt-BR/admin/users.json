@@ -16,7 +16,14 @@
   "list": {
     "title": "Usuários",
     "crumbs": { "admin": "Admin", "users": "Usuários" },
-    "buttons": { "add": "Adicionar Usuário", "edit": "Editar Usuário", "view": "Ver Usuário", "delete": "Excluir Usuário", "edit_roles": "Editar Funções", "grant_credits": "Conceder Créditos" },
+    "buttons": {
+      "add": "Adicionar Usuário",
+      "edit": "Editar Usuário",
+      "view": "Ver Usuário",
+      "delete": "Excluir Usuário",
+      "edit_roles": "Editar Funções",
+      "grant_credits": "Conceder Créditos"
+    },
     "search": { "email": { "title": "E-mail", "placeholder": "E-mail" } }
   },
   "edit": {
@@ -26,13 +33,27 @@
   },
   "edit_roles": {
     "title": "Editar Funções",
-    "crumbs": { "admin": "Admin", "users": "Usuários", "edit_roles": "Editar Funções" },
+    "crumbs": {
+      "admin": "Admin",
+      "users": "Usuários",
+      "edit_roles": "Editar Funções"
+    },
     "buttons": { "submit": "Atualizar" }
   },
   "grant_credits": {
     "title": "Conceder Créditos",
-    "crumbs": { "admin": "Admin", "users": "Usuários", "grant_credits": "Conceder Créditos" },
+    "crumbs": {
+      "admin": "Admin",
+      "users": "Usuários",
+      "grant_credits": "Conceder Créditos"
+    },
     "buttons": { "submit": "Conceder" },
-    "fields": { "credits": "Quantidade de Créditos", "valid_days": "Dias de Validade dos Créditos", "valid_days_tip": "0 significa válido para sempre", "description": "Descrição da Concessão de Créditos", "description_placeholder": "Créditos concedidos pelo administrador" }
+    "fields": {
+      "credits": "Quantidade de Créditos",
+      "valid_days": "Dias de Validade dos Créditos",
+      "valid_days_tip": "0 significa válido para sempre",
+      "description": "Descrição da Concessão de Créditos",
+      "description_placeholder": "Créditos concedidos pelo administrador"
+    }
   }
 }

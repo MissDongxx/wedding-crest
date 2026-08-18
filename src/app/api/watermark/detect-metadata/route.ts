@@ -1,5 +1,5 @@
-import { respData, respErr } from '@/shared/lib/resp';
 import { enforceMinIntervalRateLimit } from '@/shared/lib/rate-limit';
+import { respData, respErr } from '@/shared/lib/resp';
 
 const HEAD_READ_SIZE = 65536; // 64KB from head
 const TAIL_READ_SIZE = 65536; // 64KB from tail (for WebP/PNG)
@@ -47,7 +47,9 @@ export async function POST(request: Request) {
       // WebP XMP/EXIF chunks are often near the end of the file.
       // Read tail if file is larger than what we already read.
       if (file.size > HEAD_READ_SIZE) {
-        const tailBuffer = await file.slice(file.size - TAIL_READ_SIZE).arrayBuffer();
+        const tailBuffer = await file
+          .slice(file.size - TAIL_READ_SIZE)
+          .arrayBuffer();
         const tailBytes = new Uint8Array(tailBuffer);
         const tailView = new DataView(tailBuffer);
         analyzeWebP(tailView, tailBytes, result);
@@ -176,11 +178,7 @@ function analyzePNG(
     if (offset + 12 + chunkLength > bytes.length) break;
 
     const chunkData = bytes.slice(offset + 8, offset + 8 + chunkLength);
-    if (
-      chunkType === 'tEXt' ||
-      chunkType === 'iTXt' ||
-      chunkType === 'zTXt'
-    ) {
+    if (chunkType === 'tEXt' || chunkType === 'iTXt' || chunkType === 'zTXt') {
       const text = new TextDecoder('utf-8', { fatal: false }).decode(chunkData);
       if (text.includes('x:xmpmeta') || text.includes('XML:com.adobe.xmp')) {
         result.hasXMP = true;
@@ -218,10 +216,14 @@ function analyzeWebP(
   }
 ): void {
   // When reading from the tail, skip the RIFF header check
-  const offsetStart = bytes.length > 12 &&
-    bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46
-    ? 12
-    : 0;
+  const offsetStart =
+    bytes.length > 12 &&
+    bytes[0] === 0x52 &&
+    bytes[1] === 0x49 &&
+    bytes[2] === 0x46 &&
+    bytes[3] === 0x46
+      ? 12
+      : 0;
 
   let offset = offsetStart;
   while (offset < bytes.length - 8) {

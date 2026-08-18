@@ -8,11 +8,11 @@ import {
   timestamp,
 } from 'drizzle-orm/pg-core';
 
-import { envConfigs } from '@/config';
-
-const schemaName = 'watermark';
+const schemaName = 'wedding-crest';
 const customSchema = pgSchema(schemaName);
-const table: typeof pgTable = customSchema.table.bind(customSchema) as unknown as typeof pgTable;
+const table: typeof pgTable = customSchema.table.bind(
+  customSchema
+) as unknown as typeof pgTable;
 
 export const user = table(
   'user',
@@ -187,6 +187,7 @@ export const order = table(
     userId: text('user_id')
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
+    projectId: text('project_id'), // optional Wedding Crest Studio project
     userEmail: text('user_email'), // checkout user email
     status: text('status').notNull(), // created, paid, failed
     amount: integer('amount').notNull(), // checkout amount in cents
@@ -244,6 +245,7 @@ export const order = table(
     ),
     // Order orders by creation time for listing
     index('idx_order_created_at').on(table.createdAt),
+    index('idx_order_project_status').on(table.projectId, table.status),
   ]
 );
 
@@ -570,5 +572,149 @@ export const processingLog = table(
     index('idx_wm_log_user').on(table.userId),
     index('idx_wm_log_session').on(table.sessionId),
     index('idx_wm_log_created').on(table.createdAt),
+  ]
+);
+
+// Wedding Crest Studio tables. Keep this domain isolated in the wedding-crest
+// PostgreSQL schema while reusing the template's auth and AI tables above.
+export const weddingProject = table(
+  'wedding_project',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
+    guestId: text('guest_id'),
+    partner1: text('partner_1').notNull(),
+    partner2: text('partner_2').notNull(),
+    initials: text('initials').notNull(),
+    weddingDate: text('wedding_date'),
+    location: text('location'),
+    venue: text('venue'),
+    style: text('style').notNull(),
+    layout: text('layout').notNull(),
+    typography: text('typography').notNull().default('editorial_rose'),
+    palette: text('palette').notNull(),
+    complexity: text('complexity').notNull().default('medium'),
+    status: text('status').notNull().default('draft'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_wedding_project_user').on(table.userId, table.status),
+    index('idx_wedding_project_guest').on(table.guestId, table.status),
+  ]
+);
+
+export const weddingProjectElement = table(
+  'wedding_project_element',
+  {
+    id: text('id').primaryKey(),
+    projectId: text('project_id')
+      .notNull()
+      .references(() => weddingProject.id, { onDelete: 'cascade' }),
+    type: text('type').notNull(),
+    value: text('value').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_wedding_project_element_project').on(
+      table.projectId,
+      table.type
+    ),
+  ]
+);
+
+export const weddingGeneration = table(
+  'wedding_generation',
+  {
+    id: text('id').primaryKey(),
+    projectId: text('project_id')
+      .notNull()
+      .references(() => weddingProject.id, { onDelete: 'cascade' }),
+    aiTaskId: text('ai_task_id'),
+    candidateIndex: integer('candidate_index').notNull(),
+    provider: text('provider').notNull(),
+    model: text('model').notNull(),
+    promptVersion: text('prompt_version').notNull(),
+    styleVersion: text('style_version').notNull(),
+    layoutVersion: text('layout_version').notNull(),
+    prompt: text('prompt').notNull(),
+    status: text('status').notNull().default('queued'),
+    providerTaskId: text('provider_task_id'),
+    sourceImageUrl: text('source_image_url'),
+    finalImageUrl: text('final_image_url'),
+    composedSvg: text('composed_svg'),
+    qaScore: integer('qa_score'),
+    cost: integer('cost').default(0),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_wedding_generation_project').on(table.projectId, table.status),
+    index('idx_wedding_generation_provider_task').on(
+      table.provider,
+      table.providerTaskId
+    ),
+  ]
+);
+
+export const weddingGenerationReview = table(
+  'wedding_generation_review',
+  {
+    id: text('id').primaryKey(),
+    generationId: text('generation_id')
+      .notNull()
+      .references(() => weddingGeneration.id, { onDelete: 'cascade' }),
+    compositionScore: integer('composition_score').notNull(),
+    styleScore: integer('style_score').notNull(),
+    objectScore: integer('object_score').notNull(),
+    negativeSpaceScore: integer('negative_space_score').notNull(),
+    colorScore: integer('color_score').notNull(),
+    artifactScore: integer('artifact_score').notNull(),
+    aestheticScore: integer('aesthetic_score').notNull(),
+    decision: text('decision').notNull(),
+    reviewJson: text('review_json').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [index('idx_wedding_review_generation').on(table.generationId)]
+);
+
+export const weddingAsset = table(
+  'wedding_asset',
+  {
+    id: text('id').primaryKey(),
+    projectId: text('project_id')
+      .notNull()
+      .references(() => weddingProject.id, { onDelete: 'cascade' }),
+    type: text('type').notNull(),
+    url: text('url').notNull(),
+    storageKey: text('storage_key'),
+    width: integer('width').notNull().default(1000),
+    height: integer('height').notNull().default(1000),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_wedding_asset_project_type').on(table.projectId, table.type),
+  ]
+);
+
+export const weddingPromptTemplate = table(
+  'wedding_prompt_template',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    version: text('version').notNull(),
+    style: text('style').notNull(),
+    template: text('template').notNull(),
+    active: boolean('active').default(true).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_wedding_prompt_active_style').on(table.style, table.active),
   ]
 );

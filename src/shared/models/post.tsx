@@ -187,7 +187,7 @@ export async function getPost({
 
       return post;
     }
-  } catch { }
+  } catch {}
 
   // get post from locale file
   const localPost = await getLocalPost({ slug, locale, postPrefix });
@@ -199,7 +199,7 @@ function buildLocalPost(
   localPost: Awaited<ReturnType<typeof postsSource.getPage>>,
   slug: string,
   postPrefix: string,
-  locale: string,
+  locale: string
 ): BlogPostType {
   const MDXContent = localPost!.data.body;
   const body = (
@@ -449,7 +449,7 @@ export async function getRemotePostsAndCategories({
         url: `${categoryPrefix}${category.slug}`,
       }))
     );
-  } catch { }
+  } catch {}
 
   return {
     posts: dbPostsList,

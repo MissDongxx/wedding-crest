@@ -11,7 +11,12 @@
   "list": {
     "title": "Chats de IA",
     "crumbs": { "admin": "Admin", "chats": "Chats de IA" },
-    "tabs": { "all": "Todos", "pending": "Pendentes", "completed": "Concluídos", "failed": "Falhados" },
+    "tabs": {
+      "all": "Todos",
+      "pending": "Pendentes",
+      "completed": "Concluídos",
+      "failed": "Falhados"
+    },
     "buttons": { "view": "Ver Chat", "new": "Novo Chat" },
     "empty_message": "Nenhum chat encontrado"
   }

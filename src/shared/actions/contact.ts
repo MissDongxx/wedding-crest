@@ -12,7 +12,7 @@ export interface ContactFormData {
 export async function sendContactEmail(data: ContactFormData) {
   try {
     const emailService = await getEmailService();
-    
+
     const supportEmail = 'support@removegeminiwatermark.org';
     const siteName = 'RemoveGeminiWatermark';
 

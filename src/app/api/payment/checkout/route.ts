@@ -1,10 +1,10 @@
+import { loadMessages } from '@/core/i18n/request';
 import {
   PaymentInterval,
   PaymentOrder,
   PaymentPrice,
   PaymentType,
 } from '@/extensions/payment/types';
-import { loadMessages } from '@/core/i18n/request';
 import { getSnowId, getUuid } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
 import { getAllConfigs } from '@/shared/models/config';
@@ -254,6 +254,7 @@ export async function POST(req: Request) {
       id: getUuid(),
       orderNo: orderNo,
       userId: user.id,
+      projectId: metadata?.project_id || null,
       userEmail: user.email,
       status: OrderStatus.PENDING,
       amount: checkoutAmount, // use the amount for selected currency

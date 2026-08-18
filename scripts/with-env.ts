@@ -15,8 +15,8 @@
  *
  * Priority: --env argument > ENV_FILE env var > .env.{NODE_ENV} > .env.development (default)
  */
-import fs from 'fs';
 import { execSync } from 'child_process';
+import fs from 'fs';
 
 // Parse command line arguments
 const args = process.argv.slice(2);

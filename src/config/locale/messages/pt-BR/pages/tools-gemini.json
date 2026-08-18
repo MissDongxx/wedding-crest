@@ -10,21 +10,55 @@
   "how_it_works": {
     "title": "Como Funciona",
     "steps": [
-      { "step": "01", "title": "Enviar Imagem", "description": "Arraste e solte ou clique para enviar sua imagem gerada pelo Gemini AI. Suporta PNG, JPG e WebP." },
-      { "step": "02", "title": "Remoção Automática", "description": "Nosso algoritmo detecta e remove a marca d'água localmente no seu navegador. Sem processamento no servidor." },
-      { "step": "03", "title": "Baixar Limpa", "description": "Baixe sua imagem limpa instantaneamente. Qualidade original preservada sem artefatos." }
+      {
+        "step": "01",
+        "title": "Enviar Imagem",
+        "description": "Arraste e solte ou clique para enviar sua imagem gerada pelo Gemini AI. Suporta PNG, JPG e WebP."
+      },
+      {
+        "step": "02",
+        "title": "Remoção Automática",
+        "description": "Nosso algoritmo detecta e remove a marca d'água localmente no seu navegador. Sem processamento no servidor."
+      },
+      {
+        "step": "03",
+        "title": "Baixar Limpa",
+        "description": "Baixe sua imagem limpa instantaneamente. Qualidade original preservada sem artefatos."
+      }
     ]
   },
   "faq": {
     "title": "Perguntas Frequentes",
     "items": [
-      { "question": "Como funciona o removedor de marca d'água Gemini?", "answer": "Nossa ferramenta usa mistura alfa reversa para remover matematicamente a marca d'água semi-transparente em estrela (✦) do Gemini. Analisa a região da marca d'água no canto inferior direito e recupera os valores originais dos pixels com zero perda de qualidade." },
-      { "question": "Minha imagem é enviada para um servidor?", "answer": "Não! Todo o processamento acontece 100% localmente no seu navegador usando a Canvas API. Os dados da sua imagem nunca saem do seu dispositivo." },
-      { "question": "Quais formatos de imagem são suportados?", "answer": "Suportamos PNG, JPEG e WebP até 20MB. A imagem processada é sempre salva em PNG para preservar a qualidade." },
-      { "question": "Quantas imagens posso processar gratuitamente?", "answer": "Você pode processar até 5 imagens por dia gratuitamente. Para processamento ilimitado, atualize para o plano Pro por apenas $9/mês." },
-      { "question": "Também remove a marca d'água invisível SynthID?", "answer": "A versão atual remove a marca d'água visível em estrela (✦). SynthID é uma marca d'água invisível incorporada nos dados de pixel — suporte para isso está planejado para uma atualização futura." },
-      { "question": "Remover a marca d'água afetará a qualidade da imagem?", "answer": "Para a marca d'água visível, nosso algoritmo de mistura alfa reversa recupera os pixels originais matematicamente, resultando em zero perda de qualidade na região da marca d'água." }
+      {
+        "question": "Como funciona o removedor de marca d'água Gemini?",
+        "answer": "Nossa ferramenta usa mistura alfa reversa para remover matematicamente a marca d'água semi-transparente em estrela (✦) do Gemini. Analisa a região da marca d'água no canto inferior direito e recupera os valores originais dos pixels com zero perda de qualidade."
+      },
+      {
+        "question": "Minha imagem é enviada para um servidor?",
+        "answer": "Não! Todo o processamento acontece 100% localmente no seu navegador usando a Canvas API. Os dados da sua imagem nunca saem do seu dispositivo."
+      },
+      {
+        "question": "Quais formatos de imagem são suportados?",
+        "answer": "Suportamos PNG, JPEG e WebP até 20MB. A imagem processada é sempre salva em PNG para preservar a qualidade."
+      },
+      {
+        "question": "Quantas imagens posso processar gratuitamente?",
+        "answer": "Você pode processar até 5 imagens por dia gratuitamente. Para processamento ilimitado, atualize para o plano Pro por apenas $9/mês."
+      },
+      {
+        "question": "Também remove a marca d'água invisível SynthID?",
+        "answer": "A versão atual remove a marca d'água visível em estrela (✦). SynthID é uma marca d'água invisível incorporada nos dados de pixel — suporte para isso está planejado para uma atualização futura."
+      },
+      {
+        "question": "Remover a marca d'água afetará a qualidade da imagem?",
+        "answer": "Para a marca d'água visível, nosso algoritmo de mistura alfa reversa recupera os pixels originais matematicamente, resultando em zero perda de qualidade na região da marca d'água."
+      }
     ]
   },
-  "cta": { "title": "Pronto para remover mais marcas d'água?", "description": "Atualize para Pro para processamento ilimitado em todas as plataformas AI.", "button": "Ver Planos de Preços →" }
+  "cta": {
+    "title": "Pronto para remover mais marcas d'água?",
+    "description": "Atualize para Pro para processamento ilimitado em todas as plataformas AI.",
+    "button": "Ver Planos de Preços →"
+  }
 }

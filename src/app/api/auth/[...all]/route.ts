@@ -35,7 +35,10 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('[auth POST] Error:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal Server Error', details: String(error?.valueOf()) }),
+      JSON.stringify({
+        error: 'Internal Server Error',
+        details: String(error?.valueOf()),
+      }),
       { status: 500, headers: { 'content-type': 'application/json' } }
     );
   }
@@ -54,7 +57,10 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error('[auth GET] Error:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal Server Error', details: String(error?.valueOf()) }),
+      JSON.stringify({
+        error: 'Internal Server Error',
+        details: String(error?.valueOf()),
+      }),
       { status: 500, headers: { 'content-type': 'application/json' } }
     );
   }

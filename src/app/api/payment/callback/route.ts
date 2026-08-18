@@ -54,7 +54,6 @@ export async function GET(req: Request) {
       sessionId: order.paymentSessionId,
     });
 
-
     await handleCheckoutSuccess({
       order,
       session,

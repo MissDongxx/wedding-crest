@@ -35,12 +35,20 @@
   },
   "edit_roles": {
     "title": "Modifier les Rôles",
-    "crumbs": { "admin": "Admin", "users": "Utilisateurs", "edit_roles": "Modifier les Rôles" },
+    "crumbs": {
+      "admin": "Admin",
+      "users": "Utilisateurs",
+      "edit_roles": "Modifier les Rôles"
+    },
     "buttons": { "submit": "Mettre à Jour" }
   },
   "grant_credits": {
     "title": "Attribuer des Crédits",
-    "crumbs": { "admin": "Admin", "users": "Utilisateurs", "grant_credits": "Attribuer des Crédits" },
+    "crumbs": {
+      "admin": "Admin",
+      "users": "Utilisateurs",
+      "grant_credits": "Attribuer des Crédits"
+    },
     "buttons": { "submit": "Attribuer" },
     "fields": {
       "credits": "Montant de Crédits",

@@ -1,5 +1,9 @@
 import packageJson from '../../package.json';
 
+export const WEDDING_DB_SCHEMA = 'wedding-crest';
+
+const databaseProvider = process.env.DATABASE_PROVIDER ?? 'postgresql';
+
 // Note: Environment variables are loaded via dotenv-cli in package.json scripts.
 // Next.js automatically loads .env files in the runtime, so no manual loading is needed here.
 
@@ -18,16 +22,19 @@ export const envConfigs: ConfigMap = {
   locale: process.env.NEXT_PUBLIC_DEFAULT_LOCALE ?? 'en',
   database_url: process.env.DATABASE_URL ?? '',
   database_auth_token: process.env.DATABASE_AUTH_TOKEN ?? '',
-  database_provider: process.env.DATABASE_PROVIDER ?? 'postgresql',
-  db_schema_file: process.env.DB_SCHEMA_FILE ?? './src/config/db/schema.ts',
-  // PostgreSQL schema name (e.g. 'web'). Default: 'public'
-  db_schema: process.env.DB_SCHEMA ?? 'public',
+  database_provider: databaseProvider,
+  db_schema_file:
+    process.env.DB_SCHEMA_FILE ??
+    (databaseProvider === 'postgresql'
+      ? './src/config/db/schema.postgres.ts'
+      : './src/config/db/schema.ts'),
+  // Wedding Crest Studio is isolated to this PostgreSQL schema.
+  db_schema: WEDDING_DB_SCHEMA,
   // Drizzle migrations journal table name (avoid conflicts across projects)
   db_migrations_table:
     process.env.DB_MIGRATIONS_TABLE ?? '__drizzle_migrations',
-  // Drizzle migrations journal schema (default in drizzle-kit is 'drizzle')
-  // We keep 'public' as template default for stability on fresh Supabase DBs.
-  db_migrations_schema: process.env.DB_MIGRATIONS_SCHEMA ?? 'drizzle',
+  // Keep the migration journal inside the same isolated schema.
+  db_migrations_schema: WEDDING_DB_SCHEMA,
   // Output folder for drizzle-kit generated migrations
   db_migrations_out:
     process.env.DB_MIGRATIONS_OUT ?? './src/config/db/migrations',

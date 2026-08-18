@@ -140,7 +140,10 @@ export async function handleCheckoutSuccess({
   }
 
   // Only process orders in CREATED or PENDING status
-  if (order.status !== OrderStatus.CREATED && order.status !== OrderStatus.PENDING) {
+  if (
+    order.status !== OrderStatus.CREATED &&
+    order.status !== OrderStatus.PENDING
+  ) {
     return;
   }
 

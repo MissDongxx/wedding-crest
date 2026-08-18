@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 
 import { LazyImage, SmartIcon } from '@/shared/blocks/common';
-import { BeforeAfter } from '@/shared/components/watermark/BeforeAfter';
 import { BorderBeam } from '@/shared/components/magicui/border-beam';
 import {
   Accordion,
@@ -13,6 +12,7 @@ import {
   AccordionTrigger,
 } from '@/shared/components/ui/accordion';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
+import { BeforeAfter } from '@/shared/components/watermark/BeforeAfter';
 import { cn } from '@/shared/lib/utils';
 import { Section } from '@/shared/types/blocks/landing';
 

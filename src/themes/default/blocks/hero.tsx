@@ -109,53 +109,52 @@ export function Hero({
 
       {(section.image?.src || section.image_invert?.src) && (
         <div className="border-foreground/10 relative mt-8 border-y sm:mt-16">
-            <div className="relative z-10 mx-auto max-w-6xl border-x px-3">
-              <div className="border-x">
-                <div
-                  aria-hidden
-                  className="h-3 w-full bg-[repeating-linear-gradient(-45deg,var(--color-foreground),var(--color-foreground)_1px,transparent_1px,transparent_4px)] opacity-5"
+          <div className="relative z-10 mx-auto max-w-6xl border-x px-3">
+            <div className="border-x">
+              <div
+                aria-hidden
+                className="h-3 w-full bg-[repeating-linear-gradient(-45deg,var(--color-foreground),var(--color-foreground)_1px,transparent_1px,transparent_4px)] opacity-5"
+              />
+              {section.image_invert?.src && (
+                <Image
+                  className="border-border/25 relative z-2 hidden w-full border dark:block"
+                  src={section.image_invert.src}
+                  alt={section.image_invert.alt || section.image?.alt || ''}
+                  width={
+                    section.image_invert.width || section.image?.width || 1200
+                  }
+                  height={
+                    section.image_invert.height || section.image?.height || 630
+                  }
+                  sizes="(max-width: 768px) 100vw, 1200px"
+                  loading="lazy"
+                  fetchPriority="high"
+                  quality={75}
+                  unoptimized={section.image_invert.src.startsWith('http')}
                 />
-                {section.image_invert?.src && (
-                  <Image
-                    className="border-border/25 relative z-2 hidden w-full border dark:block"
-                    src={section.image_invert.src}
-                    alt={section.image_invert.alt || section.image?.alt || ''}
-                    width={
-                      section.image_invert.width || section.image?.width || 1200
-                    }
-                    height={
-                      section.image_invert.height || section.image?.height || 630
-                    }
-                    sizes="(max-width: 768px) 100vw, 1200px"
-                    loading="lazy"
-                    fetchPriority="high"
-                    quality={75}
-                    unoptimized={section.image_invert.src.startsWith('http')}
-                  />
-                )}
-                {section.image?.src && (
-                  <Image
-                    className="border-border/25 relative z-2 block w-full border dark:hidden"
-                    src={section.image.src}
-                    alt={section.image.alt || section.image_invert?.alt || ''}
-                    width={
-                      section.image.width || section.image_invert?.width || 1200
-                    }
-                    height={
-                      section.image.height || section.image_invert?.height || 630
-                    }
-                    sizes="(max-width: 768px) 100vw, 1200px"
-                    loading="lazy"
-                    fetchPriority="high"
-                    quality={75}
-                    unoptimized={section.image.src.startsWith('http')}
-                  />
-                )}
-              </div>
+              )}
+              {section.image?.src && (
+                <Image
+                  className="border-border/25 relative z-2 block w-full border dark:hidden"
+                  src={section.image.src}
+                  alt={section.image.alt || section.image_invert?.alt || ''}
+                  width={
+                    section.image.width || section.image_invert?.width || 1200
+                  }
+                  height={
+                    section.image.height || section.image_invert?.height || 630
+                  }
+                  sizes="(max-width: 768px) 100vw, 1200px"
+                  loading="lazy"
+                  fetchPriority="high"
+                  quality={75}
+                  unoptimized={section.image.src.startsWith('http')}
+                />
+              )}
             </div>
           </div>
-        )
-      }
+        </div>
+      )}
 
       {section.background_image?.src && (
         <div className="absolute inset-0 -z-10 hidden h-full w-full overflow-hidden md:block">

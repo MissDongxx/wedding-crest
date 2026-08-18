@@ -14,18 +14,24 @@ export function Partners({
   return (
     <section
       id={section.id}
-      className={cn('py-4 border-t border-border/40', section.className, className)}
+      className={cn(
+        'border-border/40 border-t py-4',
+        section.className,
+        className
+      )}
     >
       <div className="mx-auto max-w-7xl px-6">
         <ScrollAnimation>
           <div className="flex flex-col items-center justify-center space-y-6">
-            <div className="flex flex-wrap items-center justify-center gap-8 opacity-[0.05]">              <a
+            <div className="flex flex-wrap items-center justify-center gap-8 opacity-[0.05]">
+              {' '}
+              <a
                 href="https://turbo0.com/item/removegeminiwatermarkr"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative transition-all duration-300 hover:scale-105"
               >
-                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                <div className="from-primary/10 to-primary/5 absolute -inset-2 rounded-xl bg-gradient-to-r opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="https://img.turbo0.com/badge-listed-light.svg"
@@ -40,7 +46,7 @@ export function Partners({
                 rel="noopener noreferrer"
                 className="group relative transition-all duration-300 hover:scale-105"
               >
-                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                <div className="from-primary/10 to-primary/5 absolute -inset-2 rounded-xl bg-gradient-to-r opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="https://www.toolpilot.ai/cdn/shop/files/f-w_690x151_crop_center.png"
@@ -55,7 +61,7 @@ export function Partners({
                 rel="noopener noreferrer"
                 className="group relative transition-all duration-300 hover:scale-105"
               >
-                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                <div className="from-primary/10 to-primary/5 absolute -inset-2 rounded-xl bg-gradient-to-r opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="https://websitelaunches.com/badge/removegeminiwatermark.org.svg"
@@ -70,7 +76,7 @@ export function Partners({
                 rel="noopener noreferrer"
                 className="group relative transition-all duration-300 hover:scale-105"
               >
-                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                <div className="from-primary/10 to-primary/5 absolute -inset-2 rounded-xl bg-gradient-to-r opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="https://www.shipit.buzz/api/products/removegeminiwatermark/badge?theme=light"
@@ -85,9 +91,9 @@ export function Partners({
                 rel="noopener noreferrer"
                 className="group relative transition-all duration-300 hover:scale-105"
               >
-                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                <div className="from-primary/10 to-primary/5 absolute -inset-2 rounded-xl bg-gradient-to-r opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
                 <span
-                  className="relative block text-xs font-semibold text-foreground dark:brightness-110"
+                  className="text-foreground relative block text-xs font-semibold dark:brightness-110"
                   style={{ height: '14px', lineHeight: '14px' }}
                 >
                   Z-Image
@@ -99,7 +105,7 @@ export function Partners({
                 rel="noopener noreferrer"
                 className="group relative transition-all duration-300 hover:scale-105"
               >
-                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                <div className="from-primary/10 to-primary/5 absolute -inset-2 rounded-xl bg-gradient-to-r opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="https://auraplusplus.com/images/badges/featured-on-light.svg"
@@ -114,7 +120,7 @@ export function Partners({
                 rel="noopener noreferrer"
                 className="group relative transition-all duration-300 hover:scale-105"
               >
-                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                <div className="from-primary/10 to-primary/5 absolute -inset-2 rounded-xl bg-gradient-to-r opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="https://cdn.prod.website-files.com/63d8afd87da01fb58ea3fbcb/6487e2868c6c8f93b4828827_dang-badge.png"
@@ -129,7 +135,7 @@ export function Partners({
                 rel="noopener noreferrer"
                 className="group relative transition-all duration-300 hover:scale-105"
               >
-                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                <div className="from-primary/10 to-primary/5 absolute -inset-2 rounded-xl bg-gradient-to-r opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="https://trylaunch.ai/badges/badge-color.png"
@@ -144,7 +150,7 @@ export function Partners({
                 rel="noopener noreferrer"
                 className="group relative transition-all duration-300 hover:scale-105"
               >
-                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                <div className="from-primary/10 to-primary/5 absolute -inset-2 rounded-xl bg-gradient-to-r opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="https://startupfa.me/badges/featured-badge-small.webp"
@@ -159,7 +165,7 @@ export function Partners({
                 rel="noopener noreferrer"
                 className="group relative transition-all duration-300 hover:scale-105"
               >
-                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                <div className="from-primary/10 to-primary/5 absolute -inset-2 rounded-xl bg-gradient-to-r opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="https://findly.tools/badges/findly-tools-badge-light.svg"
@@ -174,7 +180,7 @@ export function Partners({
                 rel="noopener noreferrer"
                 className="group relative transition-all duration-300 hover:scale-105"
               >
-                <div className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
+                <div className="from-primary/10 to-primary/5 absolute -inset-2 rounded-xl bg-gradient-to-r opacity-0 blur-xl transition-opacity group-hover:opacity-100" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=featured&theme=neutral"

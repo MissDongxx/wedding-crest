@@ -4,6 +4,7 @@ import {
   GeminiProvider,
   KieProvider,
   ReplicateProvider,
+  RunwareProvider,
 } from '@/extensions/ai';
 import { Configs, getAllConfigs } from '@/shared/models/config';
 
@@ -44,6 +45,16 @@ export function getAIManagerWithConfigs(configs: Configs) {
     aiManager.addProvider(
       new GeminiProvider({
         apiKey: configs.gemini_api_key,
+      })
+    );
+  }
+
+  if (configs.runware_api_key) {
+    aiManager.addProvider(
+      new RunwareProvider({
+        apiKey: configs.runware_api_key,
+        model: configs.runware_model,
+        customStorage: configs.runware_custom_storage === 'true',
       })
     );
   }

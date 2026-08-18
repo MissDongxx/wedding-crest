@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import Image from 'next/image';
 
 import { UploadZone } from '@/shared/components/watermark/UploadZone';
+import { cn } from '@/shared/lib/utils';
 import type { ProcessingState } from '@/shared/lib/watermark';
 import { Section } from '@/shared/types/blocks/landing';
-import { cn } from '@/shared/lib/utils';
 
 export function UploadZoneBlock({
   section,
@@ -20,7 +20,10 @@ export function UploadZoneBlock({
 
   const handlePointerDown = useCallback(() => setShowAfter(true), []);
   const handlePointerUp = useCallback(() => setShowAfter(false), []);
-  const handleContextMenu = useCallback((e: React.SyntheticEvent) => e.preventDefault(), []);
+  const handleContextMenu = useCallback(
+    (e: React.SyntheticEvent) => e.preventDefault(),
+    []
+  );
   const handleUploadStateChange = useCallback((state: ProcessingState) => {
     if (state !== 'idle') setUploaded(true);
   }, []);
@@ -28,7 +31,11 @@ export function UploadZoneBlock({
   return (
     <section
       id={section.id}
-      className={cn('pt-16 pb-8 md:pt-24 md:pb-12', section.className, className)}
+      className={cn(
+        'pt-16 pb-8 md:pt-24 md:pb-12',
+        section.className,
+        className
+      )}
     >
       <div className="container">
         {section.title && (
@@ -49,40 +56,54 @@ export function UploadZoneBlock({
             )}
           </div>
         )}
-        <div className={cn(
-          'grid gap-8 items-start transition-all duration-300',
-          uploaded ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'
-        )}>
+        <div
+          className={cn(
+            'grid items-start gap-8 transition-all duration-300',
+            uploaded ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'
+          )}
+        >
           <UploadZone onStateChange={handleUploadStateChange} />
           {/* Comparison toggle area — hidden after upload */}
           {!uploaded && (
             <div className="flex flex-col items-center gap-3">
               <div
-                className="relative aspect-[3/2] w-full overflow-hidden rounded-2xl border border-border/40 bg-muted/20 shadow-lg cursor-pointer select-none [&_img]:pointer-events-none"
+                className="border-border/40 bg-muted/20 relative aspect-[3/2] w-full cursor-pointer overflow-hidden rounded-2xl border shadow-lg select-none [&_img]:pointer-events-none"
                 onPointerDown={handlePointerDown}
                 onPointerUp={handlePointerUp}
                 onPointerLeave={handlePointerUp}
                 onContextMenu={handleContextMenu}
               >
                 <Image
-                  src={showAfter ? '/images/examples/after.jpg' : '/images/examples/before.jpg'}
-                  alt={showAfter ? 'After watermark removal' : 'Before watermark removal'}
+                  src={
+                    showAfter
+                      ? '/images/examples/after.jpg'
+                      : '/images/examples/before.jpg'
+                  }
+                  alt={
+                    showAfter
+                      ? 'After watermark removal'
+                      : 'Before watermark removal'
+                  }
                   fill
                   className="object-cover transition-opacity duration-200 select-none"
                   priority
                 />
                 {/* Label badge */}
-                <div className={cn(
-                  'absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md transition-colors duration-200',
-                  showAfter
-                    ? 'bg-green-500/80 text-white'
-                    : 'bg-red-500/80 text-white'
-                )}>
+                <div
+                  className={cn(
+                    'absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-semibold backdrop-blur-md transition-colors duration-200',
+                    showAfter
+                      ? 'bg-green-500/80 text-white'
+                      : 'bg-red-500/80 text-white'
+                  )}
+                >
                   {showAfter ? 'After' : 'Before'}
                 </div>
               </div>
-              <p className="text-muted-foreground text-sm text-center">
-                {(section as Record<string, unknown>).comparison_tip as string || 'Press & hold to see the result'}
+              <p className="text-muted-foreground text-center text-sm">
+                {((section as Record<string, unknown>)
+                  .comparison_tip as string) ||
+                  'Press & hold to see the result'}
               </p>
             </div>
           )}

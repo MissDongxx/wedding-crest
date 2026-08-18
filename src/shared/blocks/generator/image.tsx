@@ -127,6 +127,12 @@ const MODEL_OPTIONS = [
     provider: 'kie',
     scenes: ['text-to-image', 'image-to-image'],
   },
+  {
+    value: 'flux-1-schnell',
+    label: 'Flux 1 Schnell',
+    provider: 'runware',
+    scenes: ['text-to-image'],
+  },
 ];
 
 const PROVIDER_OPTIONS = [
@@ -145,6 +151,10 @@ const PROVIDER_OPTIONS = [
   {
     value: 'kie',
     label: 'Kie',
+  },
+  {
+    value: 'runware',
+    label: 'Runware',
   },
 ];
 

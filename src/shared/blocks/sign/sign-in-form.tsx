@@ -31,7 +31,8 @@ export function SignInForm({
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { configs, setIsShowSignModal, setUser, fetchUserInfo } = useAppContext();
+  const { configs, setIsShowSignModal, setUser, fetchUserInfo } =
+    useAppContext();
 
   const isGoogleAuthEnabled = configs.google_auth_enabled === 'true';
   const isGithubAuthEnabled = configs.github_auth_enabled === 'true';

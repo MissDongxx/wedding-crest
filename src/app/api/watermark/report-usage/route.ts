@@ -1,7 +1,7 @@
-import { respData, respErr } from '@/shared/lib/resp';
 import { enforceMinIntervalRateLimit } from '@/shared/lib/rate-limit';
-import { getUserInfo } from '@/shared/models/user';
+import { respData, respErr } from '@/shared/lib/resp';
 import { consumeCredits } from '@/shared/models/credit';
+import { getUserInfo } from '@/shared/models/user';
 
 export async function POST(request: Request) {
   // Rate limit: max 1 request per 500ms

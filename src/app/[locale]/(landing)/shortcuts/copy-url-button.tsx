@@ -1,10 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/shared/components/ui/button';
-import { Copy, Check } from 'lucide-react';
+import { Check, Copy } from 'lucide-react';
 
-export function CopyUrlButton({ url, copyLabel, copiedLabel }: { url: string; copyLabel: string; copiedLabel: string }) {
+import { Button } from '@/shared/components/ui/button';
+
+export function CopyUrlButton({
+  url,
+  copyLabel,
+  copiedLabel,
+}: {
+  url: string;
+  copyLabel: string;
+  copiedLabel: string;
+}) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -26,20 +35,15 @@ export function CopyUrlButton({ url, copyLabel, copiedLabel }: { url: string; co
   };
 
   return (
-    <Button
-      size="sm"
-      variant="ghost"
-      className="shrink-0"
-      onClick={handleCopy}
-    >
+    <Button size="sm" variant="ghost" className="shrink-0" onClick={handleCopy}>
       {copied ? (
         <>
-          <Check className="h-4 w-4 mr-1 text-green-500" />
-          <span className="text-green-600 text-xs">{copiedLabel}</span>
+          <Check className="mr-1 h-4 w-4 text-green-500" />
+          <span className="text-xs text-green-600">{copiedLabel}</span>
         </>
       ) : (
         <>
-          <Copy className="h-4 w-4 mr-1" />
+          <Copy className="mr-1 h-4 w-4" />
           <span className="text-xs">{copyLabel}</span>
         </>
       )}

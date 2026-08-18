@@ -2,7 +2,11 @@
   "title": "Activité",
   "nav": {
     "items": [
-      { "title": "Tâches IA", "url": "/activity/ai-tasks", "icon": "RiTaskLine" },
+      {
+        "title": "Tâches IA",
+        "url": "/activity/ai-tasks",
+        "icon": "RiTaskLine"
+      },
       { "title": "Chats IA", "url": "/activity/chats", "icon": "RiChat2Line" }
     ]
   },

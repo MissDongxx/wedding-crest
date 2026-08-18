@@ -23,12 +23,20 @@
   },
   "edit": {
     "title": "Modifier le Rôle",
-    "crumbs": { "admin": "Admin", "roles": "Rôles", "edit": "Modifier le Rôle" },
+    "crumbs": {
+      "admin": "Admin",
+      "roles": "Rôles",
+      "edit": "Modifier le Rôle"
+    },
     "buttons": { "submit": "Mettre à Jour" }
   },
   "edit_permissions": {
     "title": "Modifier les Permissions",
-    "crumbs": { "admin": "Admin", "roles": "Rôles", "edit_permissions": "Modifier les Permissions" },
+    "crumbs": {
+      "admin": "Admin",
+      "roles": "Rôles",
+      "edit_permissions": "Modifier les Permissions"
+    },
     "buttons": { "submit": "Mettre à Jour" }
   }
 }

@@ -1,7 +1,7 @@
-import { respData, respErr } from '@/shared/lib/resp';
 import { enforceMinIntervalRateLimit } from '@/shared/lib/rate-limit';
-import { getUserInfo } from '@/shared/models/user';
+import { respData, respErr } from '@/shared/lib/resp';
 import { getRemainingCredits } from '@/shared/models/credit';
+import { getUserInfo } from '@/shared/models/user';
 
 const DAILY_FREE_LIMIT = 5;
 

@@ -65,7 +65,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       }
 
       setConfigs(data);
-    } catch { }
+    } catch {}
   }, []);
 
   const fetchUserCredits = useCallback(async () => {
@@ -86,7 +86,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       }
 
       setUser((prev) => (prev ? { ...prev, credits: data } : prev));
-    } catch { }
+    } catch {}
   }, []);
 
   const fetchUserInfo = useCallback(async () => {
@@ -103,7 +103,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       }
 
       setUser(data);
-    } catch { }
+    } catch {}
   }, []);
 
   const showOneTap = useCallback(async (configs: Record<string, string>) => {

@@ -41,7 +41,9 @@ export async function analyzeMetadata(file: File): Promise<MetadataInfo> {
   return result;
 }
 
-function detectFileType(bytes: Uint8Array): 'jpeg' | 'png' | 'webp' | 'unknown' {
+function detectFileType(
+  bytes: Uint8Array
+): 'jpeg' | 'png' | 'webp' | 'unknown' {
   if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
     return 'jpeg';
   }
@@ -237,8 +239,7 @@ function analyzeWebP(
       bytes[offset + 2],
       bytes[offset + 3]
     );
-    const chunkLength =
-      view.getUint32(offset + 4, true); // WebP is little-endian
+    const chunkLength = view.getUint32(offset + 4, true); // WebP is little-endian
     const chunkData = bytes.slice(offset + 8, offset + 8 + chunkLength);
 
     if (chunkType === 'XMP ') {

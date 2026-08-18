@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { respErr } from '@/shared/lib/resp';
-import { enforceMinIntervalRateLimit } from '@/shared/lib/rate-limit';
-import { getUserInfo } from '@/shared/models/user';
-import { getRemainingCredits, consumeCredits } from '@/shared/models/credit';
-import { findApikeyByKey } from '@/shared/models/apikey';
+
 import { removeWatermarkPureJS } from '@/shared/lib/pure-image';
+import { enforceMinIntervalRateLimit } from '@/shared/lib/rate-limit';
+import { respErr } from '@/shared/lib/resp';
+import { findApikeyByKey } from '@/shared/models/apikey';
+import { consumeCredits, getRemainingCredits } from '@/shared/models/credit';
+import { getUserInfo } from '@/shared/models/user';
 
 export const runtime = 'nodejs';
 
@@ -21,7 +22,10 @@ const DAILY_FREE_LIMIT = 5;
  */
 const dailyUsageMap = new Map<string, { date: string; count: number }>();
 
-function checkDailyFreeUsage(key: string): { allowed: boolean; remaining: number } {
+function checkDailyFreeUsage(key: string): {
+  allowed: boolean;
+  remaining: number;
+} {
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
   const usage = dailyUsageMap.get(key);
 
@@ -74,9 +78,11 @@ async function authenticateUser(request: NextRequest): Promise<string | null> {
  * Get client IP for daily free usage tracking.
  */
 function getClientIp(request: NextRequest): string {
-  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-    || request.headers.get('x-real-ip')
-    || 'unknown';
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
 }
 
 export async function POST(request: NextRequest) {
@@ -114,7 +120,12 @@ export async function POST(request: NextRequest) {
         const { allowed, remaining } = checkDailyFreeUsage(freeKey);
         if (!allowed) {
           return NextResponse.json(
-            { code: -1, message: 'Daily free limit reached (5 images/day). Purchase credits for unlimited use.', data: { remaining: 0, plan: 'free' } },
+            {
+              code: -1,
+              message:
+                'Daily free limit reached (5 images/day). Purchase credits for unlimited use.',
+              data: { remaining: 0, plan: 'free' },
+            },
             { status: 403 }
           );
         }
@@ -126,29 +137,46 @@ export async function POST(request: NextRequest) {
       const { allowed, remaining } = checkDailyFreeUsage(freeKey);
       if (!allowed) {
         return NextResponse.json(
-          { code: -1, message: 'Daily free limit reached (5 images/day). Sign in and purchase credits for unlimited use.', data: { remaining: 0, plan: 'anonymous' } },
+          {
+            code: -1,
+            message:
+              'Daily free limit reached (5 images/day). Sign in and purchase credits for unlimited use.',
+            data: { remaining: 0, plan: 'anonymous' },
+          },
           { status: 403 }
         );
       }
     }
 
     // Parse image from form data
-    console.log(`[remove-watermark] Parsing formData... (+${Date.now() - startTime}ms)`);
+    console.log(
+      `[remove-watermark] Parsing formData... (+${Date.now() - startTime}ms)`
+    );
     const formData = await request.formData();
     const imageFile = formData.get('image') as File;
 
     if (!imageFile) {
-      return respErr('No image provided. Please use the "image" field in multipart/form-data.');
+      return respErr(
+        'No image provided. Please use the "image" field in multipart/form-data.'
+      );
     }
 
-    console.log(`[remove-watermark] formData parsed (+${Date.now() - startTime}ms), reading buffer...`);
+    console.log(
+      `[remove-watermark] formData parsed (+${Date.now() - startTime}ms), reading buffer...`
+    );
     const buffer = Buffer.from(await imageFile.arrayBuffer());
-    console.log(`[remove-watermark] Input image size: ${buffer.length} bytes, type: ${imageFile.type} (+${Date.now() - startTime}ms)`);
+    console.log(
+      `[remove-watermark] Input image size: ${buffer.length} bytes, type: ${imageFile.type} (+${Date.now() - startTime}ms)`
+    );
 
     // Remove watermark using pure JS (works on Cloudflare Workers)
-    console.log(`[remove-watermark] Starting watermark removal... (+${Date.now() - startTime}ms)`);
+    console.log(
+      `[remove-watermark] Starting watermark removal... (+${Date.now() - startTime}ms)`
+    );
     const { buffer: resultBuffer, isJPEG } = removeWatermarkPureJS(buffer);
-    console.log(`[remove-watermark] Watermark removed. Output: ${resultBuffer.length} bytes, isJPEG: ${isJPEG} (+${Date.now() - startTime}ms)`);
+    console.log(
+      `[remove-watermark] Watermark removed. Output: ${resultBuffer.length} bytes, isJPEG: ${isJPEG} (+${Date.now() - startTime}ms)`
+    );
 
     // Consume credits for members only
     if (isMember && userId) {
@@ -167,7 +195,9 @@ export async function POST(request: NextRequest) {
     // Return the result — use Response for maximum compatibility
     const respContentType = isJPEG ? 'image/jpeg' : 'image/png';
     const body = new Uint8Array(resultBuffer);
-    console.log(`[remove-watermark] Responding with ${body.length} bytes, Content-Type: ${respContentType} (+${Date.now() - startTime}ms)`);
+    console.log(
+      `[remove-watermark] Responding with ${body.length} bytes, Content-Type: ${respContentType} (+${Date.now() - startTime}ms)`
+    );
 
     return new Response(body, {
       status: 200,
@@ -190,11 +220,15 @@ export async function POST(request: NextRequest) {
       errorMessage.includes('client disconnected');
 
     if (isDisconnect) {
-      console.warn(`[remove-watermark] Client disconnected after ${elapsed}ms (code: ${errorCode}, msg: ${errorMessage})`);
+      console.warn(
+        `[remove-watermark] Client disconnected after ${elapsed}ms (code: ${errorCode}, msg: ${errorMessage})`
+      );
       return new Response(null, { status: 499 }); // Nginx-style: client closed request
     }
     console.error(`[remove-watermark] Failed after ${elapsed}ms:`, error);
-    return respErr('Watermark removal failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    return respErr(
+      'Watermark removal failed: ' +
+        (error instanceof Error ? error.message : 'Unknown error')
+    );
   }
 }
-

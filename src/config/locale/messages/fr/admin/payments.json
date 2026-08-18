@@ -22,11 +22,22 @@
     "filters": {
       "status": {
         "title": "Statut",
-        "options": { "all": "Tous", "paid": "Payé", "created": "Créé", "failed": "Échoué" }
+        "options": {
+          "all": "Tous",
+          "paid": "Payé",
+          "created": "Créé",
+          "failed": "Échoué"
+        }
       },
       "provider": {
         "title": "Fournisseur",
-        "options": { "all": "Tous", "stripe": "Stripe", "creem": "Creem", "lemonsqueezy": "Lemonsqueezy", "paypal": "Paypal" }
+        "options": {
+          "all": "Tous",
+          "stripe": "Stripe",
+          "creem": "Creem",
+          "lemonsqueezy": "Lemonsqueezy",
+          "paypal": "Paypal"
+        }
       }
     },
     "search": {

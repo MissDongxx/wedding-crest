@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /**
  * Drop-in replacement for pngjs/lib/sync-inflate.js
@@ -11,7 +11,7 @@
  * safety limits are unnecessary for our controlled server-side usage.
  */
 
-let zlib = require("zlib");
+let zlib = require('zlib');
 
 function inflateSync(buffer) {
   return zlib.inflateSync(buffer);

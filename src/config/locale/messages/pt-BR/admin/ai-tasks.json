@@ -17,7 +17,14 @@
   "list": {
     "title": "Tarefas de IA",
     "crumbs": { "admin": "Admin", "ai-tasks": "Tarefas de IA" },
-    "tabs": { "all": "Todas", "music": "Música", "image": "Imagem", "video": "Vídeo", "audio": "Áudio", "text": "Texto" },
+    "tabs": {
+      "all": "Todas",
+      "music": "Música",
+      "image": "Imagem",
+      "video": "Vídeo",
+      "audio": "Áudio",
+      "text": "Texto"
+    },
     "buttons": { "view": "Ver Tarefa", "refresh": "Atualizar Tarefa" },
     "empty_message": "Nenhuma tarefa encontrada"
   }

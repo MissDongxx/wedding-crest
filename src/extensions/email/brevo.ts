@@ -1,11 +1,6 @@
 import { render } from '@react-email/components';
 
-import {
-  EmailConfigs,
-  EmailMessage,
-  EmailProvider,
-  EmailSendResult,
-} from '.';
+import { EmailConfigs, EmailMessage, EmailProvider, EmailSendResult } from '.';
 
 /**
  * Brevo email provider configs

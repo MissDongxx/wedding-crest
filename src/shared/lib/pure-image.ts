@@ -12,9 +12,10 @@
  * We handle this by catching the error at decode time and falling back
  * to a manual zlib.inflateSync-based PNG decode.
  */
-import { PNG } from 'pngjs';
-import jpeg from 'jpeg-js';
 import zlib from 'zlib';
+import jpeg from 'jpeg-js';
+import { PNG } from 'pngjs';
+
 import { getEmbeddedAlphaMap } from './alpha-maps';
 
 // ---------------------------------------------------------------------------
@@ -23,12 +24,18 @@ import { getEmbeddedAlphaMap } from './alpha-maps';
 // When pngjs's PNG.sync.read fails due to the Cloudflare Workers zlib class
 // issue, we fall back to this manual implementation.
 
-function pngReadFallback(buffer: Buffer): { width: number; height: number; data: Buffer } {
+function pngReadFallback(buffer: Buffer): {
+  width: number;
+  height: number;
+  data: Buffer;
+} {
   // Minimal PNG parser — handles standard non-interlaced RGBA/RGB/grayscale PNGs
   const signature = buffer.slice(0, 8);
   if (
-    signature[0] !== 0x89 || signature[1] !== 0x50 ||
-    signature[2] !== 0x4e || signature[3] !== 0x47
+    signature[0] !== 0x89 ||
+    signature[1] !== 0x50 ||
+    signature[2] !== 0x4e ||
+    signature[3] !== 0x47
   ) {
     throw new Error('Not a valid PNG file');
   }
@@ -70,14 +77,25 @@ function pngReadFallback(buffer: Buffer): { width: number; height: number; data:
   // Determine bytes per pixel based on color type
   let bpp: number;
   switch (colorType) {
-    case 0: bpp = 1; break;  // Grayscale
-    case 2: bpp = 3; break;  // RGB
-    case 4: bpp = 2; break;  // Grayscale + Alpha
-    case 6: bpp = 4; break;  // RGBA
-    default: throw new Error(`Unsupported PNG color type: ${colorType}`);
+    case 0:
+      bpp = 1;
+      break; // Grayscale
+    case 2:
+      bpp = 3;
+      break; // RGB
+    case 4:
+      bpp = 2;
+      break; // Grayscale + Alpha
+    case 6:
+      bpp = 4;
+      break; // RGBA
+    default:
+      throw new Error(`Unsupported PNG color type: ${colorType}`);
   }
   if (bitDepth !== 8) {
-    throw new Error(`Unsupported PNG bit depth: ${bitDepth}, only 8-bit is supported`);
+    throw new Error(
+      `Unsupported PNG bit depth: ${bitDepth}, only 8-bit is supported`
+    );
   }
 
   const stride = width * bpp + 1; // +1 for filter byte
@@ -87,7 +105,10 @@ function pngReadFallback(buffer: Buffer): { width: number; height: number; data:
   for (let y = 0; y < height; y++) {
     const filterType = raw[y * stride];
     const scanline = raw.slice(y * stride + 1, (y + 1) * stride);
-    const prevLine = y > 0 ? raw.slice((y - 1) * stride + 1, y * stride) : Buffer.alloc(width * bpp);
+    const prevLine =
+      y > 0
+        ? raw.slice((y - 1) * stride + 1, y * stride)
+        : Buffer.alloc(width * bpp);
 
     // Apply PNG filter
     for (let x = 0; x < width * bpp; x++) {
@@ -96,16 +117,26 @@ function pngReadFallback(buffer: Buffer): { width: number; height: number; data:
       const c = x >= bpp ? prevLine[x - bpp] : 0;
 
       switch (filterType) {
-        case 0: break; // None
-        case 1: scanline[x] = (scanline[x] + a) & 0xff; break; // Sub
-        case 2: scanline[x] = (scanline[x] + b) & 0xff; break; // Up
-        case 3: scanline[x] = (scanline[x] + ((a + b) >> 1)) & 0xff; break; // Average
-        case 4: { // Paeth
+        case 0:
+          break; // None
+        case 1:
+          scanline[x] = (scanline[x] + a) & 0xff;
+          break; // Sub
+        case 2:
+          scanline[x] = (scanline[x] + b) & 0xff;
+          break; // Up
+        case 3:
+          scanline[x] = (scanline[x] + ((a + b) >> 1)) & 0xff;
+          break; // Average
+        case 4: {
+          // Paeth
           const p = a + b - c;
           const pa = Math.abs(p - a);
           const pb = Math.abs(p - b);
           const pc = Math.abs(p - c);
-          scanline[x] = (scanline[x] + (pa <= pb && pa <= pc ? a : pb <= pc ? b : c)) & 0xff;
+          scanline[x] =
+            (scanline[x] + (pa <= pb && pa <= pc ? a : pb <= pc ? b : c)) &
+            0xff;
           break;
         }
       }
@@ -146,7 +177,11 @@ function pngReadFallback(buffer: Buffer): { width: number; height: number; data:
  * Safely read a PNG buffer, falling back to manual decode if pngjs fails
  * (Cloudflare Workers zlib class issue).
  */
-function safePngRead(buffer: Buffer): { width: number; height: number; data: Buffer } {
+function safePngRead(buffer: Buffer): {
+  width: number;
+  height: number;
+  data: Buffer;
+} {
   try {
     return PNG.sync.read(buffer);
   } catch (err: any) {
@@ -155,7 +190,10 @@ function safePngRead(buffer: Buffer): { width: number; height: number; data: Buf
       err?.message?.includes('is not a constructor') ||
       err?.message?.includes('zlib binding closed')
     ) {
-      console.warn('[pure-image] pngjs sync-inflate failed, using fallback decoder:', err.message);
+      console.warn(
+        '[pure-image] pngjs sync-inflate failed, using fallback decoder:',
+        err.message
+      );
       return pngReadFallback(buffer);
     }
     throw err;
@@ -179,7 +217,7 @@ function getWatermarkParams(width: number, height: number) {
 function removeWatermarkFromRGBA(
   pixels: Uint8Array,
   width: number,
-  height: number,
+  height: number
 ): boolean {
   const { size: wmSize, margin } = getWatermarkParams(width, height);
   const alphaMap = getEmbeddedAlphaMap(wmSize);
@@ -257,10 +295,7 @@ export function removeWatermarkPureJS(buffer: Buffer): {
   removeWatermarkFromRGBA(rgba, width, height);
 
   if (jpegInput) {
-    const encoded = jpeg.encode(
-      { width, height, data: rgba as Buffer },
-      92,
-    );
+    const encoded = jpeg.encode({ width, height, data: rgba as Buffer }, 92);
     return { buffer: Buffer.from(encoded.data), isJPEG: true };
   } else {
     const outPng = new PNG({ width, height });
@@ -269,4 +304,3 @@ export function removeWatermarkPureJS(buffer: Buffer): {
     return { buffer: encoded, isJPEG: false };
   }
 }
-

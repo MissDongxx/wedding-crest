@@ -1,4 +1,5 @@
 # RemoveGeminiWatermark —— 完整建站执行方案
+
 > 基于 RemoveGeminiWatermark | 可直接交给 AI 执行 | v2.0
 
 ---
@@ -10,6 +11,7 @@
 **定位**：覆盖所有主流 AI 平台的图片水印去除工具，对标并超越 geminiwatermarkcleaner.com
 
 **核心差异化**：
+
 - 支持 Gemini、ChatGPT/DALL-E、Midjourney、Stable Diffusion、Adobe Firefly 等全平台
 - **双层清理机制**：可见水印像素还原 + C2PA/Exif 元数据擦除，竞品只做前者
 - **水印检测器**：独立的检测入口页面，捕获 `AI watermark detector` 关键词流量
@@ -193,63 +195,68 @@ FREE_CREDITS_REGISTERED=20               # 注册用户免费次数
 ## 四、i18n 配置
 
 ### `i18n/config.ts`
+
 ```typescript
 export const locales = [
-  { code: 'en',    name: 'English',    flag: '🇺🇸' },
-  { code: 'zh-CN', name: '简体中文',   flag: '🇨🇳' },
-  { code: 'zh-TW', name: '繁體中文',   flag: '🇹🇼' },
-  { code: 'ja',    name: '日本語',     flag: '🇯🇵' },
-  { code: 'ko',    name: '한국어',     flag: '🇰🇷' },
-  { code: 'es',    name: 'Español',    flag: '🇪🇸' },
-  { code: 'fr',    name: 'Français',   flag: '🇫🇷' },
-  { code: 'de',    name: 'Deutsch',    flag: '🇩🇪' },
-  { code: 'pt',    name: 'Português',  flag: '🇧🇷' },
-  { code: 'it',    name: 'Italiano',   flag: '🇮🇹' },
-  { code: 'ru',    name: 'Русский',    flag: '🇷🇺' },
-  { code: 'ar',    name: 'العربية',    flag: '🇸🇦' },
-  { code: 'hi',    name: 'हिन्दी',     flag: '🇮🇳' },
-] as const
+  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'zh-CN', name: '简体中文', flag: '🇨🇳' },
+  { code: 'zh-TW', name: '繁體中文', flag: '🇹🇼' },
+  { code: 'ja', name: '日本語', flag: '🇯🇵' },
+  { code: 'ko', name: '한국어', flag: '🇰🇷' },
+  { code: 'es', name: 'Español', flag: '🇪🇸' },
+  { code: 'fr', name: 'Français', flag: '🇫🇷' },
+  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+  { code: 'pt', name: 'Português', flag: '🇧🇷' },
+  { code: 'it', name: 'Italiano', flag: '🇮🇹' },
+  { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+  { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+  { code: 'hi', name: 'हिन्दी', flag: '🇮🇳' },
+] as const;
 
-export type Locale = typeof locales[number]['code']
-export const defaultLocale: Locale = 'en'
-export const localesCodes = locales.map(l => l.code)
+export type Locale = (typeof locales)[number]['code'];
+export const defaultLocale: Locale = 'en';
+export const localesCodes = locales.map((l) => l.code);
 ```
 
 ### `middleware.ts`
+
 ```typescript
-import { NextRequest, NextResponse } from 'next/server'
-import { localesCodes, defaultLocale } from '@/i18n/config'
+import { NextRequest, NextResponse } from 'next/server';
+import { defaultLocale, localesCodes } from '@/i18n/config';
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
-  
+  const { pathname } = request.nextUrl;
+
   // 跳过 API、静态文件
   if (
     pathname.startsWith('/api') ||
     pathname.startsWith('/_next') ||
     pathname.includes('.')
-  ) return NextResponse.next()
+  )
+    return NextResponse.next();
 
   // 检查路径是否已含语言前缀
   const pathnameHasLocale = localesCodes.some(
-    locale => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
-  )
-  if (pathnameHasLocale) return NextResponse.next()
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  );
+  if (pathnameHasLocale) return NextResponse.next();
 
   // 读取浏览器语言偏好
-  const acceptLang = request.headers.get('accept-language') ?? ''
-  const preferred = acceptLang.split(',')[0].split('-')[0].toLowerCase()
-  const locale = localesCodes.includes(preferred as any) ? preferred : defaultLocale
+  const acceptLang = request.headers.get('accept-language') ?? '';
+  const preferred = acceptLang.split(',')[0].split('-')[0].toLowerCase();
+  const locale = localesCodes.includes(preferred as any)
+    ? preferred
+    : defaultLocale;
 
   // 英语不加前缀（SEO 友好：根路径 = 英语）
-  if (locale === defaultLocale) return NextResponse.next()
+  if (locale === defaultLocale) return NextResponse.next();
 
-  return NextResponse.redirect(new URL(`/${locale}${pathname}`, request.url))
+  return NextResponse.redirect(new URL(`/${locale}${pathname}`, request.url));
 }
 
 export const config = {
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
-}
+};
 ```
 
 ---
@@ -259,20 +266,21 @@ export const config = {
 ### 5.1 首页 Hero 区块 `components/home/Hero.tsx`
 
 ```tsx
-'use client'
-import { useState } from 'react'
-import { useTranslations } from 'next-intl'
-import { UploadZone } from '@/components/tool/UploadZone'
-import { Badge } from '@/components/shared/Badge'
+'use client';
+
+import { useState } from 'react';
+import { Badge } from '@/components/shared/Badge';
+import { UploadZone } from '@/components/tool/UploadZone';
+import { useTranslations } from 'next-intl';
 
 export function Hero() {
-  const t = useTranslations('hero')
-  
+  const t = useTranslations('hero');
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-slate-950 to-slate-900 pt-24 pb-20">
       {/* 背景网格装饰 */}
       <div className="absolute inset-0 bg-[url('/images/grid.svg')] opacity-5" />
-      
+
       <div className="relative mx-auto max-w-6xl px-4 text-center">
         {/* 信任标签 */}
         <Badge className="mb-6 inline-flex">
@@ -293,8 +301,17 @@ export function Hero() {
 
         {/* 支持平台快速展示 */}
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          {['Gemini', 'DALL-E', 'Midjourney', 'Stable Diffusion', 'Firefly'].map(p => (
-            <span key={p} className="rounded-full bg-white/10 px-4 py-1.5 text-sm text-white">
+          {[
+            'Gemini',
+            'DALL-E',
+            'Midjourney',
+            'Stable Diffusion',
+            'Firefly',
+          ].map((p) => (
+            <span
+              key={p}
+              className="rounded-full bg-white/10 px-4 py-1.5 text-sm text-white"
+            >
               {p}
             </span>
           ))}
@@ -312,61 +329,62 @@ export function Hero() {
         </p>
       </div>
     </section>
-  )
+  );
 }
 ```
 
 ### 5.2 上传 & 处理核心组件 `components/tool/UploadZone.tsx`
 
 ```tsx
-'use client'
-import { useCallback, useState } from 'react'
-import { useDropzone } from 'react-dropzone'
-import { removeWatermark } from '@/lib/watermark/remover'
+'use client';
 
-type ProcessingState = 'idle' | 'processing' | 'done' | 'error'
+import { useCallback, useState } from 'react';
+import { removeWatermark } from '@/lib/watermark/remover';
+import { useDropzone } from 'react-dropzone';
+
+type ProcessingState = 'idle' | 'processing' | 'done' | 'error';
 
 export function UploadZone() {
-  const [state, setState] = useState<ProcessingState>('idle')
-  const [originalUrl, setOriginalUrl] = useState<string>('')
-  const [cleanUrl, setCleanUrl] = useState<string>('')
-  const [error, setError] = useState<string>('')
+  const [state, setState] = useState<ProcessingState>('idle');
+  const [originalUrl, setOriginalUrl] = useState<string>('');
+  const [cleanUrl, setCleanUrl] = useState<string>('');
+  const [error, setError] = useState<string>('');
 
   const onDrop = useCallback(async (files: File[]) => {
-    const file = files[0]
-    if (!file) return
+    const file = files[0];
+    if (!file) return;
 
     // 预览原图
-    setOriginalUrl(URL.createObjectURL(file))
-    setState('processing')
-    setError('')
+    setOriginalUrl(URL.createObjectURL(file));
+    setState('processing');
+    setError('');
 
     try {
       // 读取图片
-      const bitmap = await createImageBitmap(file)
-      const canvas = new OffscreenCanvas(bitmap.width, bitmap.height)
-      const ctx = canvas.getContext('2d')!
-      ctx.drawImage(bitmap, 0, 0)
+      const bitmap = await createImageBitmap(file);
+      const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(bitmap, 0, 0);
 
       // 调用核心去水印逻辑
-      await removeWatermark(canvas)
+      await removeWatermark(canvas);
 
       // 转为可下载 Blob
-      const blob = await canvas.convertToBlob({ type: 'image/png' })
-      setCleanUrl(URL.createObjectURL(blob))
-      setState('done')
+      const blob = await canvas.convertToBlob({ type: 'image/png' });
+      setCleanUrl(URL.createObjectURL(blob));
+      setState('done');
     } catch (err) {
-      setError('Processing failed. Please try again.')
-      setState('error')
+      setError('Processing failed. Please try again.');
+      setState('error');
     }
-  }, [])
+  }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { 'image/*': ['.png', '.jpg', '.jpeg', '.webp'] },
     maxFiles: 1,
     maxSize: 20 * 1024 * 1024, // 20MB
-  })
+  });
 
   return (
     <div className="space-y-4">
@@ -374,20 +392,20 @@ export function UploadZone() {
       {state === 'idle' && (
         <div
           {...getRootProps()}
-          className={`
-            cursor-pointer rounded-2xl border-2 border-dashed p-12 text-center transition-colors
-            ${isDragActive
+          className={`cursor-pointer rounded-2xl border-2 border-dashed p-12 text-center transition-colors ${
+            isDragActive
               ? 'border-blue-400 bg-blue-500/10'
               : 'border-slate-600 bg-slate-800/50 hover:border-slate-400 hover:bg-slate-800'
-            }
-          `}
+          } `}
         >
           <input {...getInputProps()} />
-          <div className="text-4xl mb-3">🖼️</div>
-          <p className="text-white font-medium">
-            {isDragActive ? 'Drop image here' : 'Drop AI image here or click to upload'}
+          <div className="mb-3 text-4xl">🖼️</div>
+          <p className="font-medium text-white">
+            {isDragActive
+              ? 'Drop image here'
+              : 'Drop AI image here or click to upload'}
           </p>
-          <p className="text-slate-400 text-sm mt-2">
+          <p className="mt-2 text-sm text-slate-400">
             PNG, JPG, WebP · Max 20MB · Gemini, DALL-E, Midjourney supported
           </p>
         </div>
@@ -397,8 +415,10 @@ export function UploadZone() {
       {state === 'processing' && (
         <div className="rounded-2xl border border-slate-700 bg-slate-800/50 p-12 text-center">
           <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
-          <p className="text-white font-medium">Removing watermark...</p>
-          <p className="text-slate-400 text-sm mt-1">Processing locally in your browser</p>
+          <p className="font-medium text-white">Removing watermark...</p>
+          <p className="mt-1 text-sm text-slate-400">
+            Processing locally in your browser
+          </p>
         </div>
       )}
 
@@ -407,25 +427,33 @@ export function UploadZone() {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-slate-400 text-sm mb-2 text-center">Before</p>
-              <img src={originalUrl} alt="Original" className="rounded-xl w-full" />
+              <p className="mb-2 text-center text-sm text-slate-400">Before</p>
+              <img
+                src={originalUrl}
+                alt="Original"
+                className="w-full rounded-xl"
+              />
             </div>
             <div>
-              <p className="text-green-400 text-sm mb-2 text-center">After ✓</p>
-              <img src={cleanUrl} alt="Cleaned" className="rounded-xl w-full" />
+              <p className="mb-2 text-center text-sm text-green-400">After ✓</p>
+              <img src={cleanUrl} alt="Cleaned" className="w-full rounded-xl" />
             </div>
           </div>
           <div className="flex gap-3">
             <a
               href={cleanUrl}
               download="clean-image.png"
-              className="flex-1 rounded-xl bg-blue-600 py-3 text-center text-white font-medium hover:bg-blue-500 transition-colors"
+              className="flex-1 rounded-xl bg-blue-600 py-3 text-center font-medium text-white transition-colors hover:bg-blue-500"
             >
               ⬇ Download Clean Image
             </a>
             <button
-              onClick={() => { setState('idle'); setOriginalUrl(''); setCleanUrl('') }}
-              className="rounded-xl border border-slate-600 px-6 py-3 text-slate-300 hover:bg-slate-800 transition-colors"
+              onClick={() => {
+                setState('idle');
+                setOriginalUrl('');
+                setCleanUrl('');
+              }}
+              className="rounded-xl border border-slate-600 px-6 py-3 text-slate-300 transition-colors hover:bg-slate-800"
             >
               New Image
             </button>
@@ -446,7 +474,7 @@ export function UploadZone() {
         </div>
       )}
     </div>
-  )
+  );
 }
 ```
 
@@ -457,73 +485,76 @@ export function UploadZone() {
 function getWatermarkParams(width: number, height: number) {
   return width > 1024 && height > 1024
     ? { size: 96, margin: 32 }
-    : { size: 48, margin: 32 }
+    : { size: 48, margin: 32 };
 }
 
 // 预计算的 Alpha Map（从 Gemini 白底/黑底图提取，硬编码缓存）
 // 实际部署时替换为真实提取的数据
-const ALPHA_MAP_CACHE: Record<number, Float32Array> = {}
+const ALPHA_MAP_CACHE: Record<number, Float32Array> = {};
 
 async function getAlphaMap(size: number): Promise<Float32Array> {
-  if (ALPHA_MAP_CACHE[size]) return ALPHA_MAP_CACHE[size]
-  
+  if (ALPHA_MAP_CACHE[size]) return ALPHA_MAP_CACHE[size];
+
   // 从 public 目录加载预计算的 alpha map
-  const response = await fetch(`/alpha-maps/gemini-${size}.bin`)
-  const buffer = await response.arrayBuffer()
-  const alphaMap = new Float32Array(buffer)
-  ALPHA_MAP_CACHE[size] = alphaMap
-  return alphaMap
+  const response = await fetch(`/alpha-maps/gemini-${size}.bin`);
+  const buffer = await response.arrayBuffer();
+  const alphaMap = new Float32Array(buffer);
+  ALPHA_MAP_CACHE[size] = alphaMap;
+  return alphaMap;
 }
 
 // 获取水印 Logo 的像素数据
 async function getLogoPixels(size: number): Promise<Uint8ClampedArray> {
-  const img = new Image()
-  img.src = `/watermark-logos/gemini-${size}.png`
-  await new Promise(resolve => { img.onload = resolve })
-  
-  const canvas = new OffscreenCanvas(size, size)
-  const ctx = canvas.getContext('2d')!
-  ctx.drawImage(img, 0, 0)
-  return ctx.getImageData(0, 0, size, size).data
+  const img = new Image();
+  img.src = `/watermark-logos/gemini-${size}.png`;
+  await new Promise((resolve) => {
+    img.onload = resolve;
+  });
+
+  const canvas = new OffscreenCanvas(size, size);
+  const ctx = canvas.getContext('2d')!;
+  ctx.drawImage(img, 0, 0);
+  return ctx.getImageData(0, 0, size, size).data;
 }
 
 // 主函数：对 OffscreenCanvas 执行水印去除
 export async function removeWatermark(canvas: OffscreenCanvas): Promise<void> {
-  const { width, height } = canvas
-  const { size: wmSize, margin } = getWatermarkParams(width, height)
-  
+  const { width, height } = canvas;
+  const { size: wmSize, margin } = getWatermarkParams(width, height);
+
   const [alphaMap, logoPixels] = await Promise.all([
     getAlphaMap(wmSize),
     getLogoPixels(wmSize),
-  ])
+  ]);
 
-  const ctx = canvas.getContext('2d')!
-  
+  const ctx = canvas.getContext('2d')!;
+
   // 水印起始坐标（右下角）
-  const x0 = width - margin - wmSize
-  const y0 = height - margin - wmSize
-  
-  const imageData = ctx.getImageData(x0, y0, wmSize, wmSize)
-  const data = imageData.data
+  const x0 = width - margin - wmSize;
+  const y0 = height - margin - wmSize;
+
+  const imageData = ctx.getImageData(x0, y0, wmSize, wmSize);
+  const data = imageData.data;
 
   for (let i = 0; i < wmSize * wmSize; i++) {
-    const alpha = alphaMap[i]
-    if (alpha < 0.01) continue  // 跳过透明度极低区域
-    
-    const idx = i * 4
-    const denominator = 1 - alpha
-    
+    const alpha = alphaMap[i];
+    if (alpha < 0.01) continue; // 跳过透明度极低区域
+
+    const idx = i * 4;
+    const denominator = 1 - alpha;
+
     // 逆向 Alpha 混合公式：original = (composed - wm * alpha) / (1 - alpha)
-    for (let c = 0; c < 3; c++) {  // R, G, B
-      const composed = data[idx + c]
-      const wmPixel = logoPixels[idx + c]
-      const original = (composed - wmPixel * alpha) / denominator
-      data[idx + c] = Math.max(0, Math.min(255, Math.round(original)))
+    for (let c = 0; c < 3; c++) {
+      // R, G, B
+      const composed = data[idx + c];
+      const wmPixel = logoPixels[idx + c];
+      const original = (composed - wmPixel * alpha) / denominator;
+      data[idx + c] = Math.max(0, Math.min(255, Math.round(original)));
     }
     // Alpha 通道保持不变
   }
-  
-  ctx.putImageData(imageData, x0, y0)
+
+  ctx.putImageData(imageData, x0, y0);
 }
 ```
 
@@ -550,12 +581,12 @@ pnpm add exiftool-vendored
 
 ```typescript
 // lib/watermark/metadata.ts
-import { exiftool } from 'exiftool-vendored'
+import { exiftool } from 'exiftool-vendored';
 
 export interface MetadataStripOptions {
-  stripExif: boolean       // 擦除所有 Exif 标签
-  stripC2PA: boolean       // 擦除 C2PA 签名（XMP 中的 c2pa:* 字段）
-  stripIptc: boolean       // 擦除 IPTC 标签
+  stripExif: boolean; // 擦除所有 Exif 标签
+  stripC2PA: boolean; // 擦除 C2PA 签名（XMP 中的 c2pa:* 字段）
+  stripIptc: boolean; // 擦除 IPTC 标签
 }
 
 /**
@@ -568,38 +599,42 @@ export async function stripMetadata(
   outputPath: string,
   options: MetadataStripOptions
 ): Promise<void> {
-  const args: string[] = []
+  const args: string[] = [];
 
   if (options.stripExif) {
-    args.push('-all=')           // 清除所有元数据
+    args.push('-all='); // 清除所有元数据
   }
 
   if (options.stripC2PA) {
     // C2PA 签名存在于 XMP 的特定命名空间中
-    args.push('-XMP-c2pa:all=')
-    args.push('-XMP-dc:all=')
-    args.push('-XMP-photoshop:all=')
+    args.push('-XMP-c2pa:all=');
+    args.push('-XMP-dc:all=');
+    args.push('-XMP-photoshop:all=');
   }
 
   if (options.stripIptc) {
-    args.push('-IPTC:all=')
+    args.push('-IPTC:all=');
   }
 
   // 保留基础色彩空间信息（避免图片渲染异常）
-  args.push('-ICC_Profile:all=')  // 不删除色彩配置
+  args.push('-ICC_Profile:all='); // 不删除色彩配置
 
-  await exiftool.write(inputPath, {}, {
-    outFile: outputPath,
-    // 传入原始参数
-    writeArgs: args,
-  })
+  await exiftool.write(
+    inputPath,
+    {},
+    {
+      outFile: outputPath,
+      // 传入原始参数
+      writeArgs: args,
+    }
+  );
 }
 
 /**
  * 读取图片元数据（用于检测器功能）
  */
 export async function readMetadata(filePath: string) {
-  const tags = await exiftool.read(filePath)
+  const tags = await exiftool.read(filePath);
   return {
     hasC2PA: !!(tags['XMP-c2pa:Manifest'] || tags['C2PA']),
     hasAIMarker: !!(
@@ -611,58 +646,58 @@ export async function readMetadata(filePath: string) {
     software: tags['Exif:Software'] ?? null,
     creatorTool: tags['XMP:CreatorTool'] ?? null,
     rawTags: tags,
-  }
+  };
 }
 ```
 
 **对应的 API Route** `app/api/strip-metadata/route.ts`：
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server'
-import { writeFile, readFile, unlink } from 'fs/promises'
-import { tmpdir } from 'os'
-import { join } from 'path'
-import { stripMetadata } from '@/lib/watermark/metadata'
-import { randomUUID } from 'crypto'
+import { randomUUID } from 'crypto';
+import { readFile, unlink, writeFile } from 'fs/promises';
+import { tmpdir } from 'os';
+import { join } from 'path';
+import { NextRequest, NextResponse } from 'next/server';
+import { stripMetadata } from '@/lib/watermark/metadata';
 
 export async function POST(req: NextRequest) {
-  const formData = await req.formData()
-  const file = formData.get('file') as File
-  const stripExif = formData.get('stripExif') === 'true'
-  const stripC2PA = formData.get('stripC2PA') === 'true'
+  const formData = await req.formData();
+  const file = formData.get('file') as File;
+  const stripExif = formData.get('stripExif') === 'true';
+  const stripC2PA = formData.get('stripC2PA') === 'true';
 
   if (!file) {
-    return NextResponse.json({ error: 'No file provided' }, { status: 400 })
+    return NextResponse.json({ error: 'No file provided' }, { status: 400 });
   }
 
-  const id = randomUUID()
-  const inputPath = join(tmpdir(), `${id}-input.png`)
-  const outputPath = join(tmpdir(), `${id}-output.png`)
+  const id = randomUUID();
+  const inputPath = join(tmpdir(), `${id}-input.png`);
+  const outputPath = join(tmpdir(), `${id}-output.png`);
 
   try {
     // 写入临时文件
-    const buffer = Buffer.from(await file.arrayBuffer())
-    await writeFile(inputPath, buffer)
+    const buffer = Buffer.from(await file.arrayBuffer());
+    await writeFile(inputPath, buffer);
 
     // 执行元数据擦除
     await stripMetadata(inputPath, outputPath, {
       stripExif,
       stripC2PA,
       stripIptc: stripExif,
-    })
+    });
 
     // 读取结果并返回
-    const result = await readFile(outputPath)
+    const result = await readFile(outputPath);
     return new NextResponse(result, {
       headers: {
         'Content-Type': 'image/png',
         'Content-Disposition': 'attachment; filename="clean.png"',
       },
-    })
+    });
   } finally {
     // 清理临时文件
-    await unlink(inputPath).catch(() => {})
-    await unlink(outputPath).catch(() => {})
+    await unlink(inputPath).catch(() => {});
+    await unlink(outputPath).catch(() => {});
   }
 }
 ```
@@ -670,47 +705,52 @@ export async function POST(req: NextRequest) {
 **前端 MetadataToggle 组件** `components/tool/MetadataToggle.tsx`：
 
 ```tsx
-'use client'
+'use client';
 interface MetadataToggleProps {
-  stripExif: boolean
-  stripC2PA: boolean
-  onStripExifChange: (v: boolean) => void
-  onStripC2PAChange: (v: boolean) => void
+  stripExif: boolean;
+  stripC2PA: boolean;
+  onStripExifChange: (v: boolean) => void;
+  onStripC2PAChange: (v: boolean) => void;
 }
 
 export function MetadataToggle({
-  stripExif, stripC2PA, onStripExifChange, onStripC2PAChange
+  stripExif,
+  stripC2PA,
+  onStripExifChange,
+  onStripC2PAChange,
 }: MetadataToggleProps) {
   return (
-    <div className="rounded-xl border border-slate-700 bg-slate-800/30 p-4 space-y-3">
-      <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+    <div className="space-y-3 rounded-xl border border-slate-700 bg-slate-800/30 p-4">
+      <p className="text-xs font-medium tracking-wider text-slate-400 uppercase">
         Advanced Cleaning Options
       </p>
 
-      <label className="flex items-start gap-3 cursor-pointer">
+      <label className="flex cursor-pointer items-start gap-3">
         <input
           type="checkbox"
           checked={stripExif}
-          onChange={e => onStripExifChange(e.target.checked)}
+          onChange={(e) => onStripExifChange(e.target.checked)}
           className="mt-0.5 rounded"
         />
         <div>
-          <p className="text-sm text-white font-medium">Strip Exif & Metadata</p>
+          <p className="text-sm font-medium text-white">
+            Strip Exif & Metadata
+          </p>
           <p className="text-xs text-slate-400">
             Remove camera info, GPS, software tags. Recommended for privacy.
           </p>
         </div>
       </label>
 
-      <label className="flex items-start gap-3 cursor-pointer">
+      <label className="flex cursor-pointer items-start gap-3">
         <input
           type="checkbox"
           checked={stripC2PA}
-          onChange={e => onStripC2PAChange(e.target.checked)}
+          onChange={(e) => onStripC2PAChange(e.target.checked)}
           className="mt-0.5 rounded"
         />
         <div>
-          <p className="text-sm text-white font-medium">
+          <p className="text-sm font-medium text-white">
             Strip C2PA Signature
             <span className="ml-2 rounded-full bg-amber-500/20 px-2 py-0.5 text-xs text-amber-400">
               Advanced
@@ -719,12 +759,15 @@ export function MetadataToggle({
           <p className="text-xs text-slate-400">
             Remove Content Credentials / C2PA manifest embedded by AI platforms.
             For personal use only — see{' '}
-            <a href="/legal" className="underline">terms</a>.
+            <a href="/legal" className="underline">
+              terms
+            </a>
+            .
           </p>
         </div>
       </label>
     </div>
-  )
+  );
 }
 ```
 
@@ -747,12 +790,12 @@ export interface AntiSynthIDOptions {
    * 建议值：0.01 ~ 0.03（肉眼不可见，但能扰动统计特征）
    * 超过 0.05 会产生可见噪点，不建议使用
    */
-  noiseLevel: number
+  noiseLevel: number;
   /**
    * 是否进行微量重采样（降采样后再升采样）
    * 会轻微模糊图片，但对某些 SynthID 变体效果更好
    */
-  enableResample: boolean
+  enableResample: boolean;
 }
 
 /**
@@ -763,41 +806,41 @@ export function applyAntiSynthID(
   canvas: OffscreenCanvas,
   options: AntiSynthIDOptions
 ): void {
-  const { noiseLevel, enableResample } = options
-  const ctx = canvas.getContext('2d')!
-  const { width, height } = canvas
+  const { noiseLevel, enableResample } = options;
+  const ctx = canvas.getContext('2d')!;
+  const { width, height } = canvas;
 
-  const imageData = ctx.getImageData(0, 0, width, height)
-  const data = imageData.data
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const data = imageData.data;
 
   // 添加高斯噪点
-  const noiseRange = noiseLevel * 255
+  const noiseRange = noiseLevel * 255;
 
   for (let i = 0; i < data.length; i += 4) {
     // Box-Muller 变换生成高斯随机数
-    const u1 = Math.random()
-    const u2 = Math.random()
-    const gaussian = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2)
-    const noise = gaussian * noiseRange
+    const u1 = Math.random();
+    const u2 = Math.random();
+    const gaussian = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+    const noise = gaussian * noiseRange;
 
     // 只对 RGB 通道添加噪点，保留 Alpha
     for (let c = 0; c < 3; c++) {
-      data[i + c] = Math.max(0, Math.min(255, Math.round(data[i + c] + noise)))
+      data[i + c] = Math.max(0, Math.min(255, Math.round(data[i + c] + noise)));
     }
   }
 
-  ctx.putImageData(imageData, 0, 0)
+  ctx.putImageData(imageData, 0, 0);
 
   // 可选：微量重采样（缩小 2% 再放大回原尺寸）
   if (enableResample) {
     const tempCanvas = new OffscreenCanvas(
       Math.floor(width * 0.98),
       Math.floor(height * 0.98)
-    )
-    const tempCtx = tempCanvas.getContext('2d')!
-    tempCtx.drawImage(canvas, 0, 0, tempCanvas.width, tempCanvas.height)
-    ctx.clearRect(0, 0, width, height)
-    ctx.drawImage(tempCanvas, 0, 0, width, height)
+    );
+    const tempCtx = tempCanvas.getContext('2d')!;
+    tempCtx.drawImage(canvas, 0, 0, tempCanvas.width, tempCanvas.height);
+    ctx.clearRect(0, 0, width, height);
+    ctx.drawImage(tempCanvas, 0, 0, width, height);
   }
 }
 ```
@@ -832,15 +875,15 @@ export function applyAntiSynthID(
 // lib/watermark/batch.ts
 
 export interface BatchItem {
-  id: string
-  file: File
-  status: 'pending' | 'processing' | 'done' | 'error'
-  progress: number        // 0-100
-  cleanUrl?: string       // 处理完成后的 Blob URL
-  error?: string
+  id: string;
+  file: File;
+  status: 'pending' | 'processing' | 'done' | 'error';
+  progress: number; // 0-100
+  cleanUrl?: string; // 处理完成后的 Blob URL
+  error?: string;
 }
 
-export type BatchProgressCallback = (items: BatchItem[]) => void
+export type BatchProgressCallback = (items: BatchItem[]) => void;
 
 /**
  * 并行批量处理图片
@@ -852,134 +895,135 @@ export async function processBatch(
   options: { stripExif: boolean; stripC2PA: boolean },
   onProgress: BatchProgressCallback
 ): Promise<BatchItem[]> {
-  const CONCURRENCY = 4
+  const CONCURRENCY = 4;
 
   const items: BatchItem[] = files.map((file, i) => ({
     id: `batch-${i}`,
     file,
     status: 'pending',
     progress: 0,
-  }))
+  }));
 
-  onProgress([...items])
+  onProgress([...items]);
 
   // 分批并发执行
   for (let i = 0; i < items.length; i += CONCURRENCY) {
-    const chunk = items.slice(i, i + CONCURRENCY)
+    const chunk = items.slice(i, i + CONCURRENCY);
 
     await Promise.allSettled(
-      chunk.map(async item => {
-        item.status = 'processing'
-        onProgress([...items])
+      chunk.map(async (item) => {
+        item.status = 'processing';
+        onProgress([...items]);
 
         try {
           // 读取图片
-          const bitmap = await createImageBitmap(item.file)
-          const canvas = new OffscreenCanvas(bitmap.width, bitmap.height)
-          const ctx = canvas.getContext('2d')!
-          ctx.drawImage(bitmap, 0, 0)
+          const bitmap = await createImageBitmap(item.file);
+          const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+          const ctx = canvas.getContext('2d')!;
+          ctx.drawImage(bitmap, 0, 0);
 
-          item.progress = 30
-          onProgress([...items])
+          item.progress = 30;
+          onProgress([...items]);
 
           // 可见水印去除
-          const { removeWatermark } = await import('./remover')
-          await removeWatermark(canvas)
+          const { removeWatermark } = await import('./remover');
+          await removeWatermark(canvas);
 
-          item.progress = 70
-          onProgress([...items])
+          item.progress = 70;
+          onProgress([...items]);
 
           // 元数据擦除（如果需要，走 API）
-          let finalBlob = await canvas.convertToBlob({ type: 'image/png' })
+          let finalBlob = await canvas.convertToBlob({ type: 'image/png' });
 
           if (options.stripExif || options.stripC2PA) {
-            const form = new FormData()
-            form.append('file', finalBlob, 'image.png')
-            form.append('stripExif', String(options.stripExif))
-            form.append('stripC2PA', String(options.stripC2PA))
+            const form = new FormData();
+            form.append('file', finalBlob, 'image.png');
+            form.append('stripExif', String(options.stripExif));
+            form.append('stripC2PA', String(options.stripC2PA));
 
             const resp = await fetch('/api/strip-metadata', {
               method: 'POST',
               body: form,
-            })
-            finalBlob = await resp.blob()
+            });
+            finalBlob = await resp.blob();
           }
 
-          item.cleanUrl = URL.createObjectURL(finalBlob)
-          item.status = 'done'
-          item.progress = 100
+          item.cleanUrl = URL.createObjectURL(finalBlob);
+          item.status = 'done';
+          item.progress = 100;
         } catch (err) {
-          item.status = 'error'
-          item.error = err instanceof Error ? err.message : 'Unknown error'
+          item.status = 'error';
+          item.error = err instanceof Error ? err.message : 'Unknown error';
         }
 
-        onProgress([...items])
+        onProgress([...items]);
       })
-    )
+    );
   }
 
-  return items
+  return items;
 }
 ```
 
 **批量上传组件** `components/tool/BatchUploadZone.tsx`：
 
 ```tsx
-'use client'
-import { useCallback, useState } from 'react'
-import { useDropzone } from 'react-dropzone'
-import { processBatch, BatchItem } from '@/lib/watermark/batch'
+'use client';
+
+import { useCallback, useState } from 'react';
+import { BatchItem, processBatch } from '@/lib/watermark/batch';
+import { useDropzone } from 'react-dropzone';
 
 export function BatchUploadZone() {
-  const [items, setItems] = useState<BatchItem[]>([])
-  const [running, setRunning] = useState(false)
+  const [items, setItems] = useState<BatchItem[]>([]);
+  const [running, setRunning] = useState(false);
 
   const onDrop = useCallback(async (files: File[]) => {
-    if (files.length === 0) return
-    setRunning(true)
+    if (files.length === 0) return;
+    setRunning(true);
 
     await processBatch(
       files,
       { stripExif: true, stripC2PA: false },
       (updated) => setItems([...updated])
-    )
+    );
 
-    setRunning(false)
-  }, [])
+    setRunning(false);
+  }, []);
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: { 'image/*': ['.png', '.jpg', '.webp'] },
     multiple: true,
     maxFiles: 100,
-  })
+  });
 
-  const doneCount = items.filter(i => i.status === 'done').length
-  const totalCount = items.length
+  const doneCount = items.filter((i) => i.status === 'done').length;
+  const totalCount = items.length;
 
   // 打包下载所有结果
   const downloadAll = async () => {
     // 使用 JSZip 打包
-    const JSZip = (await import('jszip')).default
-    const zip = new JSZip()
+    const JSZip = (await import('jszip')).default;
+    const zip = new JSZip();
 
     await Promise.all(
       items
-        .filter(i => i.status === 'done' && i.cleanUrl)
+        .filter((i) => i.status === 'done' && i.cleanUrl)
         .map(async (item, idx) => {
-          const resp = await fetch(item.cleanUrl!)
-          const blob = await resp.blob()
-          zip.file(`clean-${idx + 1}.png`, blob)
+          const resp = await fetch(item.cleanUrl!);
+          const blob = await resp.blob();
+          zip.file(`clean-${idx + 1}.png`, blob);
         })
-    )
+    );
 
-    const zipBlob = await zip.generateAsync({ type: 'blob' })
-    const url = URL.createObjectURL(zipBlob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'clean-images.zip'
-    a.click()
-  }
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(zipBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'clean-images.zip';
+    a.click();
+  };
 
   return (
     <div className="space-y-4">
@@ -987,12 +1031,14 @@ export function BatchUploadZone() {
       {items.length === 0 && (
         <div
           {...getRootProps()}
-          className="cursor-pointer rounded-2xl border-2 border-dashed border-slate-600 bg-slate-800/50 p-16 text-center hover:border-slate-400 transition-colors"
+          className="cursor-pointer rounded-2xl border-2 border-dashed border-slate-600 bg-slate-800/50 p-16 text-center transition-colors hover:border-slate-400"
         >
           <input {...getInputProps()} />
-          <div className="text-4xl mb-3">🗂️</div>
-          <p className="text-white font-medium">Drop multiple images here</p>
-          <p className="text-slate-400 text-sm mt-2">Up to 100 images · PNG, JPG, WebP</p>
+          <div className="mb-3 text-4xl">🗂️</div>
+          <p className="font-medium text-white">Drop multiple images here</p>
+          <p className="mt-2 text-sm text-slate-400">
+            Up to 100 images · PNG, JPG, WebP
+          </p>
           <span className="mt-4 inline-block rounded-full bg-blue-600/20 px-4 py-1.5 text-sm text-blue-400">
             Pro feature
           </span>
@@ -1003,13 +1049,15 @@ export function BatchUploadZone() {
       {items.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <p className="text-white font-medium">
-              {running ? `Processing ${doneCount}/${totalCount}...` : `Done — ${doneCount} images cleaned`}
+            <p className="font-medium text-white">
+              {running
+                ? `Processing ${doneCount}/${totalCount}...`
+                : `Done — ${doneCount} images cleaned`}
             </p>
             {!running && doneCount > 0 && (
               <button
                 onClick={downloadAll}
-                className="rounded-xl bg-blue-600 px-5 py-2 text-sm text-white hover:bg-blue-500 transition-colors"
+                className="rounded-xl bg-blue-600 px-5 py-2 text-sm text-white transition-colors hover:bg-blue-500"
               >
                 ⬇ Download All (.zip)
               </button>
@@ -1017,11 +1065,16 @@ export function BatchUploadZone() {
           </div>
 
           {/* 每张图片的进度条 */}
-          <div className="max-h-80 overflow-y-auto space-y-2 pr-1">
-            {items.map(item => (
-              <div key={item.id} className="flex items-center gap-3 rounded-lg bg-slate-800 px-4 py-2">
-                <span className="text-sm text-slate-400 truncate flex-1">{item.file.name}</span>
-                <div className="w-32 bg-slate-700 rounded-full h-1.5">
+          <div className="max-h-80 space-y-2 overflow-y-auto pr-1">
+            {items.map((item) => (
+              <div
+                key={item.id}
+                className="flex items-center gap-3 rounded-lg bg-slate-800 px-4 py-2"
+              >
+                <span className="flex-1 truncate text-sm text-slate-400">
+                  {item.file.name}
+                </span>
+                <div className="h-1.5 w-32 rounded-full bg-slate-700">
                   <div
                     className={`h-1.5 rounded-full transition-all ${
                       item.status === 'error' ? 'bg-red-500' : 'bg-blue-500'
@@ -1029,12 +1082,21 @@ export function BatchUploadZone() {
                     style={{ width: `${item.progress}%` }}
                   />
                 </div>
-                <span className="text-xs w-12 text-right text-slate-500">
-                  {item.status === 'done' ? '✓' : item.status === 'error' ? '✗' : `${item.progress}%`}
+                <span className="w-12 text-right text-xs text-slate-500">
+                  {item.status === 'done'
+                    ? '✓'
+                    : item.status === 'error'
+                      ? '✗'
+                      : `${item.progress}%`}
                 </span>
                 {item.cleanUrl && (
-                  <a href={item.cleanUrl} download={`clean-${item.file.name}`}
-                    className="text-xs text-blue-400 hover:text-blue-300">⬇</a>
+                  <a
+                    href={item.cleanUrl}
+                    download={`clean-${item.file.name}`}
+                    className="text-xs text-blue-400 hover:text-blue-300"
+                  >
+                    ⬇
+                  </a>
                 )}
               </div>
             ))}
@@ -1042,7 +1104,7 @@ export function BatchUploadZone() {
         </div>
       )}
     </div>
-  )
+  );
 }
 ```
 
@@ -1056,47 +1118,49 @@ export function BatchUploadZone() {
 // lib/watermark/detector.ts
 
 export interface DetectionResult {
-  hasVisibleWatermark: boolean
-  visibleWatermarkPlatform: string | null   // 'gemini' | 'dalle' | 'midjourney' | null
-  visibleWatermarkConfidence: number        // 0-1
-  hasMetadataMarkers: boolean
+  hasVisibleWatermark: boolean;
+  visibleWatermarkPlatform: string | null; // 'gemini' | 'dalle' | 'midjourney' | null
+  visibleWatermarkConfidence: number; // 0-1
+  hasMetadataMarkers: boolean;
   metadataDetails: {
-    software?: string
-    creatorTool?: string
-    hasC2PA: boolean
-  }
-  recommendation: 'clean' | 'likely_clean' | 'has_watermark'
+    software?: string;
+    creatorTool?: string;
+    hasC2PA: boolean;
+  };
+  recommendation: 'clean' | 'likely_clean' | 'has_watermark';
 }
 
 /**
  * 检测图片是否含有 AI 水印（可见层）
  * 通过比较水印区域像素与已知 alpha map 的相似度来判断
  */
-export async function detectWatermark(canvas: OffscreenCanvas): Promise<DetectionResult> {
-  const { width, height } = canvas
-  const ctx = canvas.getContext('2d')!
+export async function detectWatermark(
+  canvas: OffscreenCanvas
+): Promise<DetectionResult> {
+  const { width, height } = canvas;
+  const ctx = canvas.getContext('2d')!;
 
   // 检测 Gemini 水印（48x48 和 96x96 两种尺寸）
   for (const wmSize of [48, 96]) {
-    const margin = 32
-    const x0 = width - margin - wmSize
-    const y0 = height - margin - wmSize
+    const margin = 32;
+    const x0 = width - margin - wmSize;
+    const y0 = height - margin - wmSize;
 
     // 边界检查
-    if (x0 < 0 || y0 < 0) continue
+    if (x0 < 0 || y0 < 0) continue;
 
-    const regionData = ctx.getImageData(x0, y0, wmSize, wmSize)
-    const confidence = await matchGeminiAlphaPattern(regionData, wmSize)
+    const regionData = ctx.getImageData(x0, y0, wmSize, wmSize);
+    const confidence = await matchGeminiAlphaPattern(regionData, wmSize);
 
     if (confidence > 0.75) {
       return {
         hasVisibleWatermark: true,
         visibleWatermarkPlatform: 'gemini',
         visibleWatermarkConfidence: confidence,
-        hasMetadataMarkers: false,  // 元数据检测在服务端
+        hasMetadataMarkers: false, // 元数据检测在服务端
         metadataDetails: { hasC2PA: false },
         recommendation: 'has_watermark',
-      }
+      };
     }
   }
 
@@ -1107,7 +1171,7 @@ export async function detectWatermark(canvas: OffscreenCanvas): Promise<Detectio
     hasMetadataMarkers: false,
     metadataDetails: { hasC2PA: false },
     recommendation: 'likely_clean',
-  }
+  };
 }
 
 /**
@@ -1118,30 +1182,30 @@ async function matchGeminiAlphaPattern(
   wmSize: number
 ): Promise<number> {
   // 加载预计算的 alpha map
-  const resp = await fetch(`/alpha-maps/gemini-${wmSize}.bin`)
-  const alphaMap = new Float32Array(await resp.arrayBuffer())
-  const pixels = regionData.data
+  const resp = await fetch(`/alpha-maps/gemini-${wmSize}.bin`);
+  const alphaMap = new Float32Array(await resp.arrayBuffer());
+  const pixels = regionData.data;
 
-  let matchScore = 0
-  let testCount = 0
+  let matchScore = 0;
+  let testCount = 0;
 
   for (let i = 0; i < wmSize * wmSize; i++) {
-    const expectedAlpha = alphaMap[i]
+    const expectedAlpha = alphaMap[i];
     // 只检测 alpha > 0.1 的有意义区域
-    if (expectedAlpha < 0.1) continue
+    if (expectedAlpha < 0.1) continue;
 
     // 简单启发：该区域的亮度是否与水印叠加后的预期值吻合
-    const idx = i * 4
-    const brightness = (pixels[idx] + pixels[idx + 1] + pixels[idx + 2]) / 3
+    const idx = i * 4;
+    const brightness = (pixels[idx] + pixels[idx + 1] + pixels[idx + 2]) / 3;
     // 水印区域通常比周围区域亮（白色/半透明 logo）
-    const expectedBrightness = 200 + expectedAlpha * 55
-    const diff = Math.abs(brightness - expectedBrightness)
+    const expectedBrightness = 200 + expectedAlpha * 55;
+    const diff = Math.abs(brightness - expectedBrightness);
 
-    matchScore += diff < 40 ? 1 : 0
-    testCount++
+    matchScore += diff < 40 ? 1 : 0;
+    testCount++;
   }
 
-  return testCount > 0 ? matchScore / testCount : 0
+  return testCount > 0 ? matchScore / testCount : 0;
 }
 ```
 
@@ -1150,13 +1214,18 @@ async function matchGeminiAlphaPattern(
 ```tsx
 export const metadata: Metadata = {
   title: 'AI Watermark Detector — Check if Your Image Has an AI Watermark',
-  description: 'Free AI watermark detector. Instantly check if an image contains Gemini, DALL-E, or Midjourney watermarks, including invisible C2PA metadata. No upload required.',
+  description:
+    'Free AI watermark detector. Instantly check if an image contains Gemini, DALL-E, or Midjourney watermarks, including invisible C2PA metadata. No upload required.',
   keywords: [
-    'AI watermark detector', 'detect AI watermark', 'check AI watermark',
-    'gemini watermark detector', 'synthid detector', 'C2PA checker',
+    'AI watermark detector',
+    'detect AI watermark',
+    'check AI watermark',
+    'gemini watermark detector',
+    'synthid detector',
+    'C2PA checker',
     'how to tell if image has AI watermark',
   ],
-}
+};
 
 // 页面顶部 AIO Summary（Google AI Overview 优化）
 // 放在 <main> 最顶部，使用 <p> 标签
@@ -1164,7 +1233,7 @@ const AIO_SUMMARY = `
   Summary: This free AI watermark detector analyzes images locally in your browser
   to identify visible watermarks from Gemini (✦ star logo), DALL-E, and Midjourney,
   plus C2PA metadata markers. No image upload required — 100% private.
-`
+`;
 ```
 
 ---
@@ -1172,15 +1241,16 @@ const AIO_SUMMARY = `
 ## 九、定价页面配置 `app/[locale]/pricing/page.tsx`
 
 ```tsx
-import { Metadata } from 'next'
-import { getTranslations } from 'next-intl/server'
+import { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
 // SEO 元数据
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: 'Pricing — RemoveGeminiWatermark | Free & Pro Plans',
-    description: 'Remove AI watermarks for free. Upgrade to Pro for unlimited processing, batch mode, and priority support. No subscription required.',
-  }
+    description:
+      'Remove AI watermarks for free. Upgrade to Pro for unlimited processing, batch mode, and priority support. No subscription required.',
+  };
 }
 
 const PLANS = [
@@ -1236,51 +1306,56 @@ const PLANS = [
     cta: 'Get Lifetime Access',
     ctaHref: '/checkout/lifetime',
   },
-]
+];
 
 export default function PricingPage() {
   return (
     <main className="py-24">
       <div className="mx-auto max-w-6xl px-4">
-        <h1 className="text-center text-4xl font-bold text-white mb-4">
+        <h1 className="mb-4 text-center text-4xl font-bold text-white">
           Simple, Transparent Pricing
         </h1>
-        <p className="text-center text-slate-400 mb-16 text-lg">
+        <p className="mb-16 text-center text-lg text-slate-400">
           Start free. Upgrade when you need more.
         </p>
 
         <div className="grid gap-8 lg:grid-cols-3">
-          {PLANS.map(plan => (
+          {PLANS.map((plan) => (
             <div
               key={plan.id}
-              className={`
-                relative rounded-2xl p-8 border
-                ${plan.highlight
+              className={`relative rounded-2xl border p-8 ${
+                plan.highlight
                   ? 'border-blue-500 bg-blue-500/10'
                   : 'border-slate-700 bg-slate-800/50'
-                }
-              `}
+              } `}
             >
               {plan.badge && (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-blue-600 px-4 py-1 text-xs font-medium text-white">
                   {plan.badge}
                 </span>
               )}
-              
+
               <div className="mb-6">
-                <p className="text-slate-400 text-sm">{plan.name}</p>
-                <div className="flex items-baseline gap-2 mt-1">
-                  <span className="text-4xl font-bold text-white">{plan.price}</span>
+                <p className="text-sm text-slate-400">{plan.name}</p>
+                <div className="mt-1 flex items-baseline gap-2">
+                  <span className="text-4xl font-bold text-white">
+                    {plan.price}
+                  </span>
                   {plan.originalPrice && (
-                    <span className="text-slate-500 line-through text-sm">{plan.originalPrice}</span>
+                    <span className="text-sm text-slate-500 line-through">
+                      {plan.originalPrice}
+                    </span>
                   )}
-                  <span className="text-slate-400 text-sm">/{plan.period}</span>
+                  <span className="text-sm text-slate-400">/{plan.period}</span>
                 </div>
               </div>
 
               <ul className="mb-8 space-y-3">
-                {plan.features.map(f => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-slate-300">
+                {plan.features.map((f) => (
+                  <li
+                    key={f}
+                    className="flex items-center gap-2 text-sm text-slate-300"
+                  >
                     <span className="text-green-400">✓</span> {f}
                   </li>
                 ))}
@@ -1288,13 +1363,11 @@ export default function PricingPage() {
 
               <a
                 href={plan.ctaHref}
-                className={`
-                  block w-full rounded-xl py-3 text-center font-medium transition-colors
-                  ${plan.highlight
+                className={`block w-full rounded-xl py-3 text-center font-medium transition-colors ${
+                  plan.highlight
                     ? 'bg-blue-600 text-white hover:bg-blue-500'
                     : 'border border-slate-600 text-slate-300 hover:bg-slate-700'
-                  }
-                `}
+                } `}
               >
                 {plan.cta}
               </a>
@@ -1303,7 +1376,7 @@ export default function PricingPage() {
         </div>
       </div>
     </main>
-  )
+  );
 }
 ```
 
@@ -1314,21 +1387,24 @@ export default function PricingPage() {
 ### 10.1 根布局 SEO `app/[locale]/layout.tsx`
 
 ```tsx
-import { Metadata } from 'next'
-import { notFound } from 'next/navigation'
-import { localesCodes } from '@/i18n/config'
+import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { localesCodes } from '@/i18n/config';
 
-type Props = { params: { locale: string } }
+type Props = { params: { locale: string } };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { locale } = params
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL!
+  const { locale } = params;
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL!;
 
   // hreflang 多语言声明（SEO 关键配置）
-  const languages = localesCodes.reduce((acc, loc) => {
-    acc[loc] = loc === 'en' ? baseUrl : `${baseUrl}/${loc}`
-    return acc
-  }, {} as Record<string, string>)
+  const languages = localesCodes.reduce(
+    (acc, loc) => {
+      acc[loc] = loc === 'en' ? baseUrl : `${baseUrl}/${loc}`;
+      return acc;
+    },
+    {} as Record<string, string>
+  );
 
   return {
     metadataBase: new URL(baseUrl),
@@ -1339,52 +1415,68 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: { card: 'summary_large_image' },
     robots: { index: true, follow: true },
-  }
+  };
 }
 
 export async function generateStaticParams() {
-  return localesCodes.map(locale => ({ locale }))
+  return localesCodes.map((locale) => ({ locale }));
 }
 
-export default function LocaleLayout({ children, params }: Props & { children: React.ReactNode }) {
-  if (!localesCodes.includes(params.locale as any)) notFound()
-  return children
+export default function LocaleLayout({
+  children,
+  params,
+}: Props & { children: React.ReactNode }) {
+  if (!localesCodes.includes(params.locale as any)) notFound();
+  return children;
 }
 ```
 
 ### 10.2 首页完整 SEO 元数据 `app/[locale]/page.tsx`
 
 ```tsx
-import { Metadata } from 'next'
+import { Metadata } from 'next';
 
 // 每种语言的 SEO 标题/描述单独配置
 const SEO_BY_LOCALE: Record<string, { title: string; description: string }> = {
   en: {
-    title: 'RemoveGeminiWatermark — Remove Watermarks from Gemini, DALL-E, Midjourney Images',
-    description: 'Free AI watermark remover. Remove watermarks from Google Gemini, ChatGPT DALL-E, Midjourney, Stable Diffusion images instantly. 100% local processing, no upload needed.',
+    title:
+      'RemoveGeminiWatermark — Remove Watermarks from Gemini, DALL-E, Midjourney Images',
+    description:
+      'Free AI watermark remover. Remove watermarks from Google Gemini, ChatGPT DALL-E, Midjourney, Stable Diffusion images instantly. 100% local processing, no upload needed.',
   },
   'zh-CN': {
     title: 'AI水印去除工具 — 一键去除Gemini、DALL-E、Midjourney图片水印',
-    description: '免费AI图片水印去除工具，支持Google Gemini、ChatGPT DALL-E、Midjourney、Stable Diffusion等全平台。本地处理，无需上传，保护隐私。',
+    description:
+      '免费AI图片水印去除工具，支持Google Gemini、ChatGPT DALL-E、Midjourney、Stable Diffusion等全平台。本地处理，无需上传，保护隐私。',
   },
   ja: {
     title: 'AI透かし除去ツール — Gemini・DALL-E・Midjourneyの透かしを削除',
-    description: 'Google Gemini、ChatGPT DALL-E、Midjourneyなど主要AIプラットフォームの透かしを無料で削除。ローカル処理でプライバシーを保護。',
+    description:
+      'Google Gemini、ChatGPT DALL-E、Midjourneyなど主要AIプラットフォームの透かしを無料で削除。ローカル処理でプライバシーを保護。',
   },
   // ... 其他语言
-}
+};
 
-export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
-  const seo = SEO_BY_LOCALE[params.locale] ?? SEO_BY_LOCALE.en
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const seo = SEO_BY_LOCALE[params.locale] ?? SEO_BY_LOCALE.en;
   return {
     title: seo.title,
     description: seo.description,
     keywords: [
-      'AI watermark remover', 'remove gemini watermark', 'remove dall-e watermark',
-      'midjourney watermark remover', 'stable diffusion watermark', 'free watermark remover',
-      'AI image watermark', 'remove AI watermark online',
+      'AI watermark remover',
+      'remove gemini watermark',
+      'remove dall-e watermark',
+      'midjourney watermark remover',
+      'stable diffusion watermark',
+      'free watermark remover',
+      'AI image watermark',
+      'remove AI watermark online',
     ],
-  }
+  };
 }
 ```
 
@@ -1419,7 +1511,8 @@ export function WebAppStructuredData() {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
     name: 'RemoveGeminiWatermark',
-    description: 'Remove watermarks from AI-generated images including Gemini, DALL-E, and Midjourney',
+    description:
+      'Remove watermarks from AI-generated images including Gemini, DALL-E, and Midjourney',
     url: process.env.NEXT_PUBLIC_SITE_URL,
     applicationCategory: 'UtilitiesApplication',
     operatingSystem: 'Web Browser',
@@ -1429,16 +1522,20 @@ export function WebAppStructuredData() {
       priceCurrency: 'USD',
       description: 'Free tier with 5 images per day',
     },
-  }
+  };
   return (
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
     />
-  )
+  );
 }
 
-export function FAQStructuredData({ faqs }: { faqs: { q: string; a: string }[] }) {
+export function FAQStructuredData({
+  faqs,
+}: {
+  faqs: { q: string; a: string }[];
+}) {
   const data = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -1447,13 +1544,13 @@ export function FAQStructuredData({ faqs }: { faqs: { q: string; a: string }[] }
       name: q,
       acceptedAnswer: { '@type': 'Answer', text: a },
     })),
-  }
+  };
   return (
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
     />
-  )
+  );
 }
 ```
 
@@ -1468,38 +1565,44 @@ export function FAQStructuredData({ faqs }: { faqs: { q: string; a: string }[] }
 ```tsx
 export const metadata: Metadata = {
   title: 'Gemini Watermark Remover — Remove Google Gemini AI Watermark Free',
-  description: 'Remove the Gemini AI watermark (Nano Banana logo) from images instantly. Free browser tool, 100% local processing. Works with gemini.google.com and Google AI Studio.',
+  description:
+    'Remove the Gemini AI watermark (Nano Banana logo) from images instantly. Free browser tool, 100% local processing. Works with gemini.google.com and Google AI Studio.',
   keywords: [
-    'gemini watermark remover', 'remove gemini watermark',
-    'gemini nano banana watermark', 'google ai studio watermark',
+    'gemini watermark remover',
+    'remove gemini watermark',
+    'gemini nano banana watermark',
+    'google ai studio watermark',
     'how to remove gemini image ai watermark',
   ],
-}
+};
 
 export default function GeminiToolPage() {
   return (
     <>
       <WebAppStructuredData />
       <FAQStructuredData faqs={GEMINI_FAQS} />
-      
+
       <main>
         {/* 针对 Gemini 的专属 Hero */}
         <section>
           <h1>Gemini Watermark Remover</h1>
-          <p>Remove the Gemini AI watermark (Nano Banana ✦ logo) from images automatically...</p>
+          <p>
+            Remove the Gemini AI watermark (Nano Banana ✦ logo) from images
+            automatically...
+          </p>
           <UploadZone platform="gemini" />
         </section>
-        
+
         {/* Gemini 专属内容 */}
         <section>
           <h2>How to Remove Gemini Watermark</h2>
           {/* 详细步骤，捕获 how-to 关键词 */}
         </section>
-        
+
         <FAQSection faqs={GEMINI_FAQS} />
       </main>
     </>
-  )
+  );
 }
 
 const GEMINI_FAQS = [
@@ -1519,47 +1622,52 @@ const GEMINI_FAQS = [
     q: 'Is it safe to upload my images?',
     a: 'All processing happens entirely in your browser. Your images are never uploaded to any server.',
   },
-]
+];
 ```
 
 ---
 
 ## 十二、博客内容规划（前6篇，优先发布）
 
-| 文件名 | 目标关键词 | 预计月搜索量 | 优先级 |
-|--------|-----------|------------|--------|
-| `how-to-remove-gemini-watermark.mdx` | how to remove gemini image ai watermark | 高 | P0 |
-| `how-to-remove-chatgpt-dalle-watermark.mdx` | remove dall-e watermark, chatgpt image watermark | 高 | P0 |
-| `remove-gemini-watermark-comparison-2026.mdx` | best ai watermark remover, ai watermark remover comparison | 中 | P1 |
-| `what-is-synthid-watermark.mdx` | what is synthid, google synthid watermark | 中 | P1 |
-| `how-to-remove-midjourney-watermark.mdx` | midjourney watermark remover | 中 | P1 |
-| `is-it-legal-to-remove-ai-watermarks.mdx` | is it legal to remove ai watermark | 高意向 | P2 |
+| 文件名                                        | 目标关键词                                                 | 预计月搜索量 | 优先级 |
+| --------------------------------------------- | ---------------------------------------------------------- | ------------ | ------ |
+| `how-to-remove-gemini-watermark.mdx`          | how to remove gemini image ai watermark                    | 高           | P0     |
+| `how-to-remove-chatgpt-dalle-watermark.mdx`   | remove dall-e watermark, chatgpt image watermark           | 高           | P0     |
+| `remove-gemini-watermark-comparison-2026.mdx` | best ai watermark remover, ai watermark remover comparison | 中           | P1     |
+| `what-is-synthid-watermark.mdx`               | what is synthid, google synthid watermark                  | 中           | P1     |
+| `how-to-remove-midjourney-watermark.mdx`      | midjourney watermark remover                               | 中           | P1     |
+| `is-it-legal-to-remove-ai-watermarks.mdx`     | is it legal to remove ai watermark                         | 高意向       | P2     |
 
 ### 博客 MDX 模板结构（每篇必须包含）
 
 ```mdx
 ---
-title: "How to Remove Gemini Watermark from AI-Generated Images (2026 Guide)"
-description: "Step-by-step guide to remove the Gemini AI watermark (Nano Banana logo) from images. Free online tool, works in seconds."
-date: "2026-01-15"
-author: "RemoveGeminiWatermark Team"
-tags: ["gemini", "watermark", "how-to"]
-image: "/images/blog/remove-gemini-watermark.png"
+title: 'How to Remove Gemini Watermark from AI-Generated Images (2026 Guide)'
+description: 'Step-by-step guide to remove the Gemini AI watermark (Nano Banana logo) from images. Free online tool, works in seconds.'
+date: '2026-01-15'
+author: 'RemoveGeminiWatermark Team'
+tags: ['gemini', 'watermark', 'how-to']
+image: '/images/blog/remove-gemini-watermark.png'
 ---
 
 ## What Is the Gemini Watermark?
+
 [解释水印原理，300字]
 
 ## How to Remove Gemini Watermark: Step-by-Step
+
 [步骤教程，配截图]
 
 ## Free Tool: Remove Gemini Watermark Online
+
 [CTA 嵌入工具]
 
 ## Frequently Asked Questions
+
 [3-5个 FAQ，使用 FAQ schema 组件]
 
 ## Related Tools
+
 [内链到其他平台工具页]
 ```
 
@@ -1605,54 +1713,62 @@ create policy "Users can update own profile" on public.profiles
 ### Webhook 处理 `app/api/stripe/webhook/route.ts`
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server'
-import Stripe from 'stripe'
-import { createClient } from '@supabase/supabase-js'
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+);
 
 export async function POST(req: NextRequest) {
-  const body = await req.text()
-  const sig = req.headers.get('stripe-signature')!
-  
-  let event: Stripe.Event
+  const body = await req.text();
+  const sig = req.headers.get('stripe-signature')!;
+
+  let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
+    event = stripe.webhooks.constructEvent(
+      body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET!
+    );
   } catch {
-    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
 
   switch (event.type) {
     case 'checkout.session.completed': {
-      const session = event.data.object as Stripe.CheckoutSession
-      const userId = session.metadata?.userId
-      const plan = session.metadata?.plan  // 'pro' | 'lifetime'
-      
+      const session = event.data.object as Stripe.CheckoutSession;
+      const userId = session.metadata?.userId;
+      const plan = session.metadata?.plan; // 'pro' | 'lifetime'
+
       if (userId && plan) {
-        await supabase.from('profiles').update({
-          plan,
-          credits_limit: plan === 'lifetime' ? 999999 : 1000,
-          stripe_customer_id: session.customer as string,
-        }).eq('id', userId)
+        await supabase
+          .from('profiles')
+          .update({
+            plan,
+            credits_limit: plan === 'lifetime' ? 999999 : 1000,
+            stripe_customer_id: session.customer as string,
+          })
+          .eq('id', userId);
       }
-      break
+      break;
     }
-    
+
     case 'customer.subscription.deleted': {
       // 订阅取消，降级为 free
-      const sub = event.data.object as Stripe.Subscription
-      await supabase.from('profiles')
+      const sub = event.data.object as Stripe.Subscription;
+      await supabase
+        .from('profiles')
         .update({ plan: 'free', credits_limit: 20 })
-        .eq('stripe_customer_id', sub.customer as string)
-      break
+        .eq('stripe_customer_id', sub.customer as string);
+      break;
     }
   }
 
-  return NextResponse.json({ received: true })
+  return NextResponse.json({ received: true });
 }
 ```
 
@@ -1663,7 +1779,7 @@ export async function POST(req: NextRequest) {
 ### `next.config.ts`
 
 ```typescript
-import type { NextConfig } from 'next'
+import type { NextConfig } from 'next';
 
 const config: NextConfig = {
   experimental: {
@@ -1672,8 +1788,8 @@ const config: NextConfig = {
   },
   webpack(config) {
     // WASM 支持
-    config.experiments = { ...config.experiments, asyncWebAssembly: true }
-    return config
+    config.experiments = { ...config.experiments, asyncWebAssembly: true };
+    return config;
   },
   // 图片优化
   images: {
@@ -1690,21 +1806,22 @@ const config: NextConfig = {
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com; img-src 'self' blob: data:;",
+            value:
+              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com; img-src 'self' blob: data:;",
           },
         ],
       },
-    ]
+    ];
   },
   // 重定向：旧 URL 兼容
   async redirects() {
     return [
       { source: '/remove-watermark', destination: '/#tool', permanent: true },
-    ]
+    ];
   },
-}
+};
 
-export default config
+export default config;
 ```
 
 ### Vercel 一键部署配置 `vercel.json`
@@ -1719,7 +1836,10 @@ export default config
       "source": "/wasm/(.*)",
       "headers": [
         { "key": "Content-Type", "value": "application/wasm" },
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     }
   ]
@@ -1786,4 +1906,4 @@ pnpm dev
 
 ---
 
-*方案版本：v1.0 | 2026年4月*
+_方案版本：v1.0 | 2026年4月_

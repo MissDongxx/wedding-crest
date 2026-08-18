@@ -23,8 +23,12 @@ import { Textarea } from '@/shared/components/ui/textarea';
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
-  subject: z.string().min(5, { message: 'Subject must be at least 5 characters.' }),
-  message: z.string().min(10, { message: 'Message must be at least 10 characters.' }),
+  subject: z
+    .string()
+    .min(5, { message: 'Subject must be at least 5 characters.' }),
+  message: z
+    .string()
+    .min(10, { message: 'Message must be at least 10 characters.' }),
 });
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
@@ -61,7 +65,7 @@ export function ContactForm() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl rounded-2xl border bg-card p-8 shadow-sm">
+    <div className="bg-card mx-auto w-full max-w-2xl rounded-2xl border p-8 shadow-sm">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">

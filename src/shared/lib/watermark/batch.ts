@@ -6,8 +6,8 @@
  * Reports usage via the gating API per completed job.
  */
 
-import { removeWatermark } from './remover';
 import { reportUsage } from './gating';
+import { removeWatermark } from './remover';
 import type { BatchJob } from './types';
 
 const DEFAULT_CONCURRENCY = 2;
@@ -28,7 +28,9 @@ export async function processBatch(
   const imagesToProcess = files.slice(0, MAX_IMAGES);
   const totalSize = imagesToProcess.reduce((s, f) => s + f.size, 0);
   if (totalSize > MAX_BATCH_BYTES) {
-    throw new Error(`Batch too large (${(totalSize / 1024 / 1024).toFixed(0)}MB). Please reduce the number of files.`);
+    throw new Error(
+      `Batch too large (${(totalSize / 1024 / 1024).toFixed(0)}MB). Please reduce the number of files.`
+    );
   }
 
   const jobs: BatchJob[] = imagesToProcess.map((file, index) => ({
@@ -99,9 +101,7 @@ export async function processBatch(
 /**
  * Download all completed batch results as a ZIP file.
  */
-export async function downloadBatchAsZip(
-  jobs: BatchJob[]
-): Promise<void> {
+export async function downloadBatchAsZip(jobs: BatchJob[]): Promise<void> {
   const JSZip = (await import('jszip')).default;
   const zip = new JSZip();
 

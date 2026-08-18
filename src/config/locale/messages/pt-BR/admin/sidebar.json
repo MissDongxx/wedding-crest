@@ -21,14 +21,22 @@
           "children": [
             { "title": "Usuários", "url": "/admin/users", "icon": "User" },
             { "title": "Funções", "url": "/admin/roles", "icon": "Users" },
-            { "title": "Permissões", "url": "/admin/permissions", "icon": "ShieldCheck" }
+            {
+              "title": "Permissões",
+              "url": "/admin/permissions",
+              "icon": "ShieldCheck"
+            }
           ]
         },
         {
           "title": "Páginas e Conteúdo",
           "icon": "FileText",
           "children": [
-            { "title": "Categorias", "icon": "Folder", "url": "/admin/categories" },
+            {
+              "title": "Categorias",
+              "icon": "Folder",
+              "url": "/admin/categories"
+            },
             { "title": "Artigos", "icon": "FileText", "url": "/admin/posts" }
           ]
         },
@@ -36,8 +44,16 @@
           "title": "Pagamentos e Créditos",
           "icon": "DollarSign",
           "children": [
-            { "title": "Pagamentos", "url": "/admin/payments", "icon": "DollarSign" },
-            { "title": "Assinaturas", "url": "/admin/subscriptions", "icon": "CreditCard" },
+            {
+              "title": "Pagamentos",
+              "url": "/admin/payments",
+              "icon": "DollarSign"
+            },
+            {
+              "title": "Assinaturas",
+              "url": "/admin/subscriptions",
+              "icon": "CreditCard"
+            },
             { "title": "Créditos", "url": "/admin/credits", "icon": "Coins" }
           ]
         }
@@ -47,20 +63,33 @@
       "title": "Negócios",
       "items": [
         { "title": "Tarefas de IA", "url": "/admin/ai-tasks", "icon": "Brain" },
-        { "title": "Chats de IA", "url": "/admin/chats", "icon": "MessageCircle" }
+        {
+          "title": "Chats de IA",
+          "url": "/admin/chats",
+          "icon": "MessageCircle"
+        }
       ]
     }
   ],
   "bottom_nav": {
     "items": [
-      { "title": "Configurações", "url": "/admin/settings/general", "icon": "Settings" },
+      {
+        "title": "Configurações",
+        "url": "/admin/settings/general",
+        "icon": "Settings"
+      },
       { "title": "Chaves de API", "url": "/admin/apikeys", "icon": "Key" }
     ]
   },
   "user": {
     "nav": {
       "items": [
-        { "title": "Perfil", "url": "/settings/profile", "icon": "User", "target": "_blank" }
+        {
+          "title": "Perfil",
+          "url": "/settings/profile",
+          "icon": "User",
+          "target": "_blank"
+        }
       ]
     },
     "show_email": false,
@@ -71,10 +100,30 @@
     "nav": {
       "items": [
         { "title": "Início", "url": "/", "icon": "Home", "target": "_blank" },
-        { "title": "GitHub", "url": "https://github.com/your-app-name", "icon": "Github", "target": "_blank" },
-        { "title": "Twitter", "url": "https://twitter.com/your-app-name", "icon": "RiTwitterXFill", "target": "_blank" },
-        { "title": "Discord", "url": "https://discord.gg/your-app-name", "icon": "RiDiscordFill", "target": "_blank" },
-        { "title": "E-mail", "url": "mailto:support@your-domain.com", "icon": "Mail", "target": "_blank" }
+        {
+          "title": "GitHub",
+          "url": "https://github.com/your-app-name",
+          "icon": "Github",
+          "target": "_blank"
+        },
+        {
+          "title": "Twitter",
+          "url": "https://twitter.com/your-app-name",
+          "icon": "RiTwitterXFill",
+          "target": "_blank"
+        },
+        {
+          "title": "Discord",
+          "url": "https://discord.gg/your-app-name",
+          "icon": "RiDiscordFill",
+          "target": "_blank"
+        },
+        {
+          "title": "E-mail",
+          "url": "mailto:support@your-domain.com",
+          "icon": "Mail",
+          "target": "_blank"
+        }
       ]
     },
     "show_theme": true,

@@ -1,8 +1,8 @@
 'use client';
 
 import { BeforeAfter } from '@/shared/components/watermark/BeforeAfter';
-import { Section } from '@/shared/types/blocks/landing';
 import { cn } from '@/shared/lib/utils';
+import { Section } from '@/shared/types/blocks/landing';
 
 export function ComparisonBlock({
   section,

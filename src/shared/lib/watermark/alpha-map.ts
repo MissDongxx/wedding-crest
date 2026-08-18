@@ -29,9 +29,7 @@ export async function getAlphaMap(size: number): Promise<Float32Array> {
   await new Promise<void>((resolve, reject) => {
     img.onload = () => resolve();
     img.onerror = () =>
-      reject(
-        new Error(`Failed to load watermark capture: bg_${size}.png`)
-      );
+      reject(new Error(`Failed to load watermark capture: bg_${size}.png`));
   });
 
   const canvas = new OffscreenCanvas(size, size);

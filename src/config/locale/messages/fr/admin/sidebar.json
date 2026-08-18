@@ -18,14 +18,22 @@
           "children": [
             { "title": "Utilisateurs", "url": "/admin/users", "icon": "User" },
             { "title": "Rôles", "url": "/admin/roles", "icon": "Users" },
-            { "title": "Permissions", "url": "/admin/permissions", "icon": "ShieldCheck" }
+            {
+              "title": "Permissions",
+              "url": "/admin/permissions",
+              "icon": "ShieldCheck"
+            }
           ]
         },
         {
           "title": "Pages & Contenus",
           "icon": "FileText",
           "children": [
-            { "title": "Catégories", "icon": "Folder", "url": "/admin/categories" },
+            {
+              "title": "Catégories",
+              "icon": "Folder",
+              "url": "/admin/categories"
+            },
             { "title": "Articles", "icon": "FileText", "url": "/admin/posts" }
           ]
         },
@@ -33,8 +41,16 @@
           "title": "Paiements & Crédits",
           "icon": "DollarSign",
           "children": [
-            { "title": "Paiements", "url": "/admin/payments", "icon": "DollarSign" },
-            { "title": "Abonnements", "url": "/admin/subscriptions", "icon": "CreditCard" },
+            {
+              "title": "Paiements",
+              "url": "/admin/payments",
+              "icon": "DollarSign"
+            },
+            {
+              "title": "Abonnements",
+              "url": "/admin/subscriptions",
+              "icon": "CreditCard"
+            },
             { "title": "Crédits", "url": "/admin/credits", "icon": "Coins" }
           ]
         }
@@ -50,14 +66,23 @@
   ],
   "bottom_nav": {
     "items": [
-      { "title": "Paramètres", "url": "/admin/settings/general", "icon": "Settings" },
+      {
+        "title": "Paramètres",
+        "url": "/admin/settings/general",
+        "icon": "Settings"
+      },
       { "title": "Clés API", "url": "/admin/apikeys", "icon": "Key" }
     ]
   },
   "user": {
     "nav": {
       "items": [
-        { "title": "Profil", "url": "/settings/profile", "icon": "User", "target": "_blank" }
+        {
+          "title": "Profil",
+          "url": "/settings/profile",
+          "icon": "User",
+          "target": "_blank"
+        }
       ]
     },
     "show_email": false,
@@ -68,10 +93,30 @@
     "nav": {
       "items": [
         { "title": "Accueil", "url": "/", "icon": "Home", "target": "_blank" },
-        { "title": "GitHub", "url": "https://github.com/your-app-name", "icon": "Github", "target": "_blank" },
-        { "title": "Twitter", "url": "https://twitter.com/your-app-name", "icon": "RiTwitterXFill", "target": "_blank" },
-        { "title": "Discord", "url": "https://discord.gg/your-app-name", "icon": "RiDiscordFill", "target": "_blank" },
-        { "title": "E-mail", "url": "mailto:support@your-domain.com", "icon": "Mail", "target": "_blank" }
+        {
+          "title": "GitHub",
+          "url": "https://github.com/your-app-name",
+          "icon": "Github",
+          "target": "_blank"
+        },
+        {
+          "title": "Twitter",
+          "url": "https://twitter.com/your-app-name",
+          "icon": "RiTwitterXFill",
+          "target": "_blank"
+        },
+        {
+          "title": "Discord",
+          "url": "https://discord.gg/your-app-name",
+          "icon": "RiDiscordFill",
+          "target": "_blank"
+        },
+        {
+          "title": "E-mail",
+          "url": "mailto:support@your-domain.com",
+          "icon": "Mail",
+          "target": "_blank"
+        }
       ]
     },
     "show_theme": true,

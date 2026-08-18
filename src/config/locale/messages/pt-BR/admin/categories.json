@@ -10,17 +10,36 @@
   "list": {
     "title": "Categorias",
     "crumbs": { "admin": "Admin", "categories": "Categorias" },
-    "buttons": { "add": "Adicionar Categoria", "edit": "Editar Categoria", "view": "Ver Categoria", "delete": "Excluir Categoria" },
-    "tabs": { "all": "Todas", "published": "Publicadas", "pending": "Pendentes", "draft": "Rascunhos", "archived": "Arquivadas" }
+    "buttons": {
+      "add": "Adicionar Categoria",
+      "edit": "Editar Categoria",
+      "view": "Ver Categoria",
+      "delete": "Excluir Categoria"
+    },
+    "tabs": {
+      "all": "Todas",
+      "published": "Publicadas",
+      "pending": "Pendentes",
+      "draft": "Rascunhos",
+      "archived": "Arquivadas"
+    }
   },
   "add": {
     "title": "Adicionar Categoria",
-    "crumbs": { "admin": "Admin", "categories": "Categorias", "add": "Adicionar" },
+    "crumbs": {
+      "admin": "Admin",
+      "categories": "Categorias",
+      "add": "Adicionar"
+    },
     "buttons": { "submit": "Adicionar Categoria" }
   },
   "edit": {
     "title": "Editar Categoria",
-    "crumbs": { "admin": "Admin", "categories": "Categorias", "edit": "Editar" },
+    "crumbs": {
+      "admin": "Admin",
+      "categories": "Categorias",
+      "edit": "Editar"
+    },
     "buttons": { "submit": "Editar Categoria" }
   }
 }

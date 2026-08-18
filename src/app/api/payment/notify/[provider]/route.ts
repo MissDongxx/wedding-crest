@@ -49,8 +49,7 @@ export async function POST(
       throw new Error('payment session not found');
     }
 
-
-if (eventType === PaymentEventType.CHECKOUT_SUCCESS) {
+    if (eventType === PaymentEventType.CHECKOUT_SUCCESS) {
       // one-time payment or subscription first payment
       const orderNo = session.metadata.order_no;
 
@@ -86,8 +85,7 @@ if (eventType === PaymentEventType.CHECKOUT_SUCCESS) {
           // Method 1: Use subscriptionCycleType if available (Stripe, Creem, PayPal all provide this)
           if (subscriptionCycleType) {
             if (subscriptionCycleType === SubscriptionCycleType.CREATE) {
-
-return Response.json({ message: 'success' });
+              return Response.json({ message: 'success' });
             }
 
             if (subscriptionCycleType === SubscriptionCycleType.RENEWAL) {
@@ -98,13 +96,11 @@ return Response.json({ message: 'success' });
                   paymentProvider: provider,
                 });
                 if (existingOrder) {
-
-return Response.json({ message: 'success' });
+                  return Response.json({ message: 'success' });
                 }
               }
 
-
-await handleSubscriptionRenewal({
+              await handleSubscriptionRenewal({
                 subscription: existingSubscription,
                 session,
               });
@@ -120,13 +116,12 @@ await handleSubscriptionRenewal({
               paymentProvider: provider,
             });
             if (existingOrder) {
-
-return Response.json({ message: 'success' });
+              return Response.json({ message: 'success' });
             }
 
             // Transaction not found - treat as renewal (subscription exists but transaction is new)
 
-await handleSubscriptionRenewal({
+            await handleSubscriptionRenewal({
               subscription: existingSubscription,
               session,
             });

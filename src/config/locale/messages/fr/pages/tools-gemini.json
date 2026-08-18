@@ -10,21 +10,55 @@
   "how_it_works": {
     "title": "Comment Ça Marche",
     "steps": [
-      { "step": "01", "title": "Importer l'Image", "description": "Glissez-déposez ou cliquez pour importer votre image générée par Gemini AI. Prend en charge PNG, JPG et WebP." },
-      { "step": "02", "title": "Suppression Auto", "description": "Notre algorithme détecte et supprime le filigrane localement dans votre navigateur. Aucun traitement sur serveur." },
-      { "step": "03", "title": "Télécharger Propre", "description": "Téléchargez votre image propre instantanément. Qualité originale préservée sans artefacts." }
+      {
+        "step": "01",
+        "title": "Importer l'Image",
+        "description": "Glissez-déposez ou cliquez pour importer votre image générée par Gemini AI. Prend en charge PNG, JPG et WebP."
+      },
+      {
+        "step": "02",
+        "title": "Suppression Auto",
+        "description": "Notre algorithme détecte et supprime le filigrane localement dans votre navigateur. Aucun traitement sur serveur."
+      },
+      {
+        "step": "03",
+        "title": "Télécharger Propre",
+        "description": "Téléchargez votre image propre instantanément. Qualité originale préservée sans artefacts."
+      }
     ]
   },
   "faq": {
     "title": "Questions Fréquentes",
     "items": [
-      { "question": "Comment fonctionne le supresseur de filigrane Gemini ?", "answer": "Notre outil utilise le mélange alpha inversé pour supprimer mathématiquement le filigrane semi-transparent en étoile (✦) de Gemini. Il analyse la région du filigrane dans le coin inférieur droit et récupère les valeurs de pixels originales sans perte de qualité." },
-      { "question": "Mon image est-elle téléchargée sur un serveur ?", "answer": "Non ! Tout le traitement se fait à 100% localement dans votre navigateur via la Canvas API. Les données de votre image ne quittent jamais votre appareil." },
-      { "question": "Quels formats d'image sont supportés ?", "answer": "Nous supportons PNG, JPEG et WebP jusqu'à 20 Mo. L'image traitée est toujours sauvegardée en PNG pour préserver la qualité." },
-      { "question": "Combien d'images puis-je traiter gratuitement ?", "answer": "Vous pouvez traiter jusqu'à 5 images par jour gratuitement. Pour un traitement illimité, passez au plan Pro à seulement 9 $/mois." },
-      { "question": "Supprime-t-il aussi le filigrane invisible SynthID ?", "answer": "La version actuelle supprime le filigrane visible en étoile (✦). SynthID est un filigrane invisible intégré aux données de pixels — le support est prévu pour une mise à jour future." },
-      { "question": "La suppression du filigrane affectera-t-elle la qualité de l'image ?", "answer": "Pour le filigrane visible, notre algorithme récupère mathématiquement les pixels originaux, ce qui donne une perte de qualité nulle dans la région du filigrane." }
+      {
+        "question": "Comment fonctionne le supresseur de filigrane Gemini ?",
+        "answer": "Notre outil utilise le mélange alpha inversé pour supprimer mathématiquement le filigrane semi-transparent en étoile (✦) de Gemini. Il analyse la région du filigrane dans le coin inférieur droit et récupère les valeurs de pixels originales sans perte de qualité."
+      },
+      {
+        "question": "Mon image est-elle téléchargée sur un serveur ?",
+        "answer": "Non ! Tout le traitement se fait à 100% localement dans votre navigateur via la Canvas API. Les données de votre image ne quittent jamais votre appareil."
+      },
+      {
+        "question": "Quels formats d'image sont supportés ?",
+        "answer": "Nous supportons PNG, JPEG et WebP jusqu'à 20 Mo. L'image traitée est toujours sauvegardée en PNG pour préserver la qualité."
+      },
+      {
+        "question": "Combien d'images puis-je traiter gratuitement ?",
+        "answer": "Vous pouvez traiter jusqu'à 5 images par jour gratuitement. Pour un traitement illimité, passez au plan Pro à seulement 9 $/mois."
+      },
+      {
+        "question": "Supprime-t-il aussi le filigrane invisible SynthID ?",
+        "answer": "La version actuelle supprime le filigrane visible en étoile (✦). SynthID est un filigrane invisible intégré aux données de pixels — le support est prévu pour une mise à jour future."
+      },
+      {
+        "question": "La suppression du filigrane affectera-t-elle la qualité de l'image ?",
+        "answer": "Pour le filigrane visible, notre algorithme récupère mathématiquement les pixels originaux, ce qui donne une perte de qualité nulle dans la région du filigrane."
+      }
     ]
   },
-  "cta": { "title": "Prêt à supprimer plus de filigranes ?", "description": "Passez à Pro pour un traitement illimité sur toutes les plateformes AI.", "button": "Voir les Tarifs →" }
+  "cta": {
+    "title": "Prêt à supprimer plus de filigranes ?",
+    "description": "Passez à Pro pour un traitement illimité sur toutes les plateformes AI.",
+    "button": "Voir les Tarifs →"
+  }
 }
