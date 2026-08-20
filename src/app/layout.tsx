@@ -1,6 +1,5 @@
 import '@/config/style/global.css';
 
-import { JetBrains_Mono, Merriweather, Noto_Sans_Mono } from 'next/font/google';
 import { getLocale, setRequestLocale } from 'next-intl/server';
 import NextTopLoader from 'nextjs-toploader';
 
@@ -13,27 +12,29 @@ import { getAffiliateService } from '@/shared/services/affiliate';
 import { getAnalyticsService } from '@/shared/services/analytics';
 import { getCustomerService } from '@/shared/services/customer_service';
 
-const notoSansMono = Noto_Sans_Mono({
-  subsets: ['latin'],
-  variable: '--font-sans',
-  display: 'swap',
-  preload: true,
-});
+// Resolve the favicon URL once per render from the merged env+DB config.
+// We deliberately reuse the same `app_logo` value the marketing header shows,
+// so the favicon follows whatever the admin uploads — there is no separate
+// `app_favicon` to keep in sync. `NEXT_PUBLIC_APP_FAVICON` is still honored
+// as a hard override when it is *explicitly* set in the environment
+// (we detect "explicit" by reading the raw env var, not the defaulted
+// `envConfigs.app_favicon` value, otherwise the default `/favicon.webp`
+// would always win and the admin upload would never reach the favicon).
+async function resolveFaviconHref() {
+  const explicitFavicon = process.env.NEXT_PUBLIC_APP_FAVICON;
+  if (explicitFavicon && explicitFavicon.length > 0) {
+    return explicitFavicon;
+  }
+  try {
+    const configs = await getAllConfigs();
+    return configs.app_logo || envConfigs.app_logo || '/logo.webp';
+  } catch {
+    return envConfigs.app_logo || '/logo.webp';
+  }
+}
 
-const merriweather = Merriweather({
-  subsets: ['latin'],
-  weight: ['400', '700'],
-  variable: '--font-serif',
-  display: 'swap',
-  preload: true,
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-mono',
-  display: 'swap',
-  preload: true,
-});
+// Fonts are self-hosted OFL families loaded through
+// src/config/style/wedding-fonts.css (no build-time network fetch).
 
 export default async function RootLayout({
   children,
@@ -101,17 +102,24 @@ export default async function RootLayout({
     customerServiceBodyScripts = customerService.getBodyScripts();
   }
 
+  // Resolve the favicon from the merged config (admin-controlled) regardless
+  // of the production flag — the favicon should reflect the studio logo even
+  // in dev/preview.
+  const faviconHref = await resolveFaviconHref();
+
   return (
-    <html
-      lang={locale}
-      className={`${notoSansMono.variable} ${merriweather.variable} ${jetbrainsMono.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang={locale} suppressHydrationWarning>
       <head>
         {/* Polyfill for esbuild's __name helper used in inline scripts */}
-        <script dangerouslySetInnerHTML={{ __html: 'if(typeof globalThis.__name==="undefined"){globalThis.__name=function(){}}' }} />
-        <link rel="icon" href={envConfigs.app_favicon} />
-        <link rel="alternate icon" href="/favicon.ico" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'if(typeof globalThis.__name==="undefined"){globalThis.__name=function(){}}',
+          }}
+        />
+        <link rel="icon" href={faviconHref} type="image/webp" />
+        <link rel="alternate icon" href={faviconHref} type="image/webp" />
+        <link rel="apple-touch-icon" href={faviconHref} />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         {/* inject locales */}
@@ -150,12 +158,12 @@ export default async function RootLayout({
       </head>
       <body suppressHydrationWarning className="overflow-x-hidden">
         <NextTopLoader
-          color="#6466F1"
+          color="#8a8f6e"
           initialPosition={0.08}
           crawlSpeed={200}
           height={3}
           crawl={true}
-          showSpinner={true}
+          showSpinner={false}
           easing="ease"
           speed={200}
         />

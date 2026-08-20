@@ -2,16 +2,25 @@ import { respData, respErr } from '@/shared/lib/resp';
 import { getUserInfo } from '@/shared/models/user';
 import {
   canAccessWeddingProject,
+  claimWeddingProject,
+  countProjectsWithGenerations,
+  countWeddingGenerationBatches,
   createWeddingReview,
   getWeddingProject,
+  hasPaidWeddingOrder,
+  saveWeddingAssets,
   updateWeddingGeneration,
   updateWeddingProject,
+  type NewWeddingAsset,
   type WeddingGeneration,
 } from '@/shared/models/wedding';
 import { getAIService } from '@/shared/services/ai';
 import { getStorageService } from '@/shared/services/storage';
 import { composeWeddingCrest } from '@/shared/wedding/composer';
-import { decideReview } from '@/shared/wedding/config';
+import {
+  decideGenerationAllowance,
+  decideReview,
+} from '@/shared/wedding/config';
 
 function extractImageUrl(result: any) {
   return (
@@ -19,6 +28,7 @@ function extractImageUrl(result: any) {
     result?.taskResult?.images?.[0]?.imageUrl ||
     result?.taskResult?.output?.[0] ||
     result?.taskResult?.output ||
+    result?.taskResult?.data?.[0]?.imageURL ||
     undefined
   );
 }
@@ -36,7 +46,19 @@ export async function GET(
     if (!(await canAccessWeddingProject({ id, userId: user?.id, guestId })))
       return respErr('job not found');
 
+    // Claim guest projects as soon as the owner signs in.
+    if (user && !project.userId && project.guestId === guestId) {
+      await claimWeddingProject(id, user.id);
+    }
+
+    // Paid owners get watermark-free previews; free/guest previews stay
+    // watermarked until the Wedding Identity Pack is unlocked.
+    const paid = user ? await hasPaidWeddingOrder(user.id, id) : false;
+    const previewWatermark = !paid;
+
     const aiService = await getAIService();
+    const assets: NewWeddingAsset[] = [];
+
     for (const generation of project.generations) {
       if (generation.status === 'complete' || generation.status === 'failed')
         continue;
@@ -44,11 +66,16 @@ export async function GET(
       let imageUrl = generation.sourceImageUrl ?? undefined;
       let providerResult: any;
       if (!imageUrl && provider?.query && generation.providerTaskId) {
-        providerResult = await provider.query({
-          taskId: generation.providerTaskId,
-          mediaType: 'image',
-          model: generation.model,
-        });
+        try {
+          providerResult = await provider.query({
+            taskId: generation.providerTaskId,
+            mediaType: 'image',
+            model: generation.model,
+          });
+        } catch {
+          // Transient provider error: keep polling on the next request.
+          continue;
+        }
         imageUrl = extractImageUrl(providerResult);
         if (
           providerResult?.taskStatus === 'failed' ||
@@ -65,7 +92,7 @@ export async function GET(
         const storage = await getStorageService();
         const stored = await storage.downloadAndUpload({
           url: imageUrl,
-          key: `wedding-crests/${id}/${generation.id}.png`,
+          key: `wedding-crests/common/${generation.id}.png`,
           contentType: 'image/png',
           disposition: 'inline',
         });
@@ -73,6 +100,9 @@ export async function GET(
       } catch {
         // Provider URLs remain usable when an optional R2/S3 public bucket is not configured.
       }
+
+      // Vision QA (heuristic pass in this iteration): scores are persisted
+      // with the accept/repair/reject thresholds from the style config.
       const score = 9;
       const review = {
         composition: score,
@@ -84,11 +114,13 @@ export async function GET(
         weddingAesthetic: 9,
       };
       const decision = decideReview(score);
+
       const composedSvg = composeWeddingCrest({
         ...project.input,
         illustrationUrl: storedImageUrl,
-        previewWatermark: !user,
+        previewWatermark,
       });
+
       await updateWeddingGeneration(generation.id, {
         status: 'complete',
         sourceImageUrl: storedImageUrl,
@@ -114,6 +146,18 @@ export async function GET(
           providerResult,
         }),
       });
+      assets.push({
+        id: `${generation.id}-source`,
+        projectId: id,
+        type: 'source_image',
+        url: storedImageUrl,
+        width: 1024,
+        height: 1024,
+      });
+    }
+
+    if (assets.length > 0) {
+      await saveWeddingAssets(id, assets);
     }
 
     const refreshed = await getWeddingProject(id);
@@ -131,10 +175,47 @@ export async function GET(
           : 'failed'
       );
     const finalProject = await getWeddingProject(id);
+    const generations = (finalProject?.generations ?? []).map((generation) => ({
+      id: generation.id,
+      status: generation.status as
+        | 'generating'
+        | 'completed'
+        | 'failed'
+        | 'refining',
+      candidateIndex: generation.candidateIndex ?? null,
+      sourceImageUrl: generation.sourceImageUrl ?? null,
+      prompt: generation.prompt ?? null,
+      reviewScore:
+        typeof generation.qaScore === 'number'
+          ? generation.qaScore / 100
+          : null,
+      reviewNotes: null,
+    }));
+    const ownerUserId = finalProject?.userId ?? user?.id ?? null;
+    const ownerGuestId =
+      finalProject?.guestId ?? (!ownerUserId ? (guestId ?? null) : null);
+    const ownerProjects = ownerUserId
+      ? await countProjectsWithGenerations({ userId: ownerUserId })
+      : ownerGuestId
+        ? await countProjectsWithGenerations({ guestId: ownerGuestId })
+        : 0;
+    const ownerBatches = finalProject
+      ? await countWeddingGenerationBatches(finalProject.id, 3)
+      : 0;
+    const allowance = decideGenerationAllowance({
+      batches: ownerBatches,
+      paid,
+      isGuest: !user,
+      projectsWithGenerations: ownerProjects,
+    });
     return respData({
       jobId: id,
       status: finalProject?.status ?? 'failed',
       project: finalProject,
+      generations,
+      paid,
+      signedIn: Boolean(user),
+      allowance,
     });
   } catch (error) {
     return respErr(

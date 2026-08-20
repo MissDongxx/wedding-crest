@@ -4,7 +4,7 @@
       "brand": {
         "title": "RemoveGeminiWatermark Chat",
         "logo": {
-          "src": "/logo.png",
+          "src": "/logo.webp",
           "alt": "RemoveGeminiWatermark Chat"
         },
         "url": "/chat"

@@ -21,7 +21,7 @@ export default async function PostsPage({
   // Check if user has permission to read posts
   await requirePermission({
     code: PERMISSIONS.POSTS_READ,
-    redirectUrl: '/admin/no-permission',
+    redirectUrl: '/no-permission',
     locale,
   });
 

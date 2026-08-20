@@ -24,7 +24,7 @@ export default async function SettingsPage({
   // Check if user has permission to read settings
   await requireAllPermissions({
     codes: [PERMISSIONS.SETTINGS_READ, PERMISSIONS.SETTINGS_WRITE],
-    redirectUrl: '/admin/no-permission',
+    redirectUrl: '/no-permission',
     locale,
   });
 

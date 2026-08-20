@@ -1,250 +1,180 @@
 {
+  "metadata": {
+    "title": "Wedding Crest Design — AI Wedding Crest & Monogram Maker",
+    "description": "Design a custom wedding crest in minutes. Six styles, 12 layouts, matching color palettes and typography — with full SVG downloads, monograms and mockups. Free to start."
+  },
   "page": {
     "show_sections": [
-      "tool",
-      "comparison",
       "hero",
+      "styles",
       "introduce",
       "benefits",
-      "features",
+      "examples",
       "pricing",
-      "stats",
       "faq",
       "cta"
     ],
     "sections": {
-      "tool": {
-        "block": "upload-zone-block",
-        "id": "tool",
-        "title": "Remove AI Watermark from Gemini image",
-        "label": "Free Online Tool",
-        "description": "Upload your AI-generated image and remove the Gemini watermark instantly. 100% local processing — your images never leave your device.",
-        "comparison_tip": "Press & hold to see the result"
-      },
       "hero": {
+        "block": "wedding-hero",
         "id": "hero",
-        "title": "Remove AI Watermark from Gemini image",
-        "highlight_text": "Any Image",
-        "description": "Free browser-based tool to remove watermarks from Gemini-generated images.<br/>100% local processing — your images never leave your device.",
+        "title": "Create a Wedding Crest That Feels Like You",
+        "description": "A custom wedding crest pulls your whole celebration together — invitations, signage, menus, and thank-you cards, all wearing the same beautiful mark. Describe your wedding once, and our AI illustrator draws it in your style.",
         "announcement": {
-          "badge": "Free",
-          "title": "✦ Remove Gemini Watermarks Instantly",
-          "url": "/tools/gemini"
+          "badge": "New",
+          "title": "6 signature styles · 12 layouts · instant typography preview",
+          "url": "/#styles"
         },
-        "tip": "🔒 100% private • no upload • works offline",
+        "tip": "No signup needed to try · Free preview with watermark",
         "buttons": [
           {
-            "title": "Remove Watermark Free",
+            "title": "Create My Wedding Crest",
             "icon": "Sparkles",
-            "url": "/tools/gemini",
+            "url": "/create",
             "target": "_self",
             "variant": "default"
           },
           {
-            "title": "View Pricing",
-            "icon": "DollarSign",
-            "url": "/#pricing",
+            "title": "See Examples",
+            "icon": "RiEyeLine",
+            "url": "/examples",
             "target": "_self",
-            "variant": "blue"
-          },
-          {
-            "title": "iOS Shortcut",
-            "icon": "Command",
-            "url": "/shortcuts",
-            "target": "_self",
-            "variant": "emerald"
+            "variant": "outline"
           }
-        ],
-        "show_avatars": false,
-        "show_award": false
+        ]
       },
-      "comparison": {
-        "block": "comparison-block",
-        "id": "comparison",
-        "title": "Professional Quality Results",
-        "label": "Comparison",
-        "description": "See how our browser-based tool removes AI watermarks with zero quality loss.",
-        "before_after": {
-          "before_image": "/images/examples/castle-before.jpg",
-          "after_image": "/images/examples/castle-after.jpg",
-          "before_label": "Before",
-          "after_label": "After",
-          "before_alt": "AI-generated image with Gemini watermark visible in corner",
-          "after_alt": "Same image after removing Gemini watermark with zero quality loss",
-          "layout": "side-by-side"
-        }
+      "styles": {
+        "block": "wedding-styles",
+        "id": "styles",
+        "title": "Find Your Style",
+        "description": "Six illustrated styles, each with matching layouts, palettes, and typography. Pick the one that feels like your wedding."
       },
       "introduce": {
-        "block": "features-step",
         "id": "introduce",
         "title": "How It Works",
         "label": "3 Simple Steps",
-        "description": "Remove AI watermarks in seconds — no signup, no software download.",
+        "description": "From names to finished crest in under five minutes — no design skills needed.",
         "image_position": "left",
         "text_align": "center",
         "items": [
           {
-            "title": "Upload Your Image",
-            "description": "Drag & drop or click to upload your AI-generated image. Supports PNG, JPG, and WebP up to 20MB.",
-            "icon": "RiUploadCloud2Line"
+            "title": "Tell Us About Yourselves",
+            "description": "Enter your names, date, and wedding details — venue, flowers, personal elements like your dog or the mountains where you got engaged.",
+            "icon": "RiQuillPenLine"
           },
           {
-            "title": "Auto-Remove Watermark",
-            "description": "Our algorithm detects and removes the watermark using reverse alpha blending — 100% in your browser.",
+            "title": "Pick Style, Colors & Fonts",
+            "description": "Choose from six illustrated styles, seven curated palettes, and eight typography pairings. The layout updates live as you choose.",
+            "icon": "RiPaletteLine"
+          },
+          {
+            "title": "Get 3 Crests + Full Kit",
+            "description": "Our AI illustrates the artwork while typography is set programmatically for crisp results. Pick your favorite, then download SVG, monogram, mockups and more.",
             "icon": "RiMagicLine"
-          },
-          {
-            "title": "Download Clean Image",
-            "description": "Get your clean image instantly in PNG format. Original quality preserved with zero artifacts.",
-            "icon": "RiDownloadLine"
           }
         ],
-        "className": "bg-muted"
+        "className": ""
       },
       "benefits": {
-        "block": "features-accordion",
         "id": "benefits",
-        "title": "Why Choose RemoveGeminiWatermark to Remove Gemini Watermark",
-        "label": "Benefits",
-        "description": "The most private and highest-quality AI watermark removal tool available.",
+        "title": "One Crest, Everywhere",
+        "description": "A wedding crest is the single mark that ties your entire celebration together.",
         "items": [
           {
-            "title": "100% Private — No Upload Required",
-            "description": "Unlike other tools, your images are processed entirely in your browser. No data is sent to any server, ever. Your creative work stays private.",
-            "icon": "RiShieldCheckLine",
-            "before_after": {
-              "before_image": "/images/examples/woman-after.jpg",
-              "after_image": "/images/examples/woman-before.jpg",
-              "before_label": "Clean",
-              "after_label": "Watermarked",
-              "before_alt": "Clean AI image with watermark removed",
-              "after_alt": "Original AI image with Gemini watermark"
-            }
+            "title": "Cohesive Wedding Identity",
+            "description": "Invitations, save-the-dates, ceremony programs, dinner menus, welcome signs, favor tags, and your website — all sharing one beautiful mark.",
+            "icon": "RiHeart3Line"
           },
           {
-            "title": "Zero Quality Loss",
-            "description": "Our reverse alpha blending algorithm mathematically recovers the original pixels under the watermark. No blurring, no artifacts, no quality degradation.",
-            "icon": "RiImageEditLine",
-            "before_after": {
-              "before_image": "/images/examples/dog-before.jpg",
-              "after_image": "/images/examples/dog-after.jpg",
-              "before_label": "Watermarked",
-              "after_label": "Clean",
-              "before_alt": "Original AI image of a dog with Gemini watermark",
-              "after_alt": "Processed image with watermark removed with zero quality loss"
-            }
+            "title": "Crisp, Editable SVG",
+            "description": "Typography is composed programmatically, not AI-generated, so names and dates stay perfectly sharp at any size — from a wax seal to a welcome sign.",
+            "icon": "RiVectorLine"
           },
           {
-            "title": "Lightning Fast Processing",
-            "description": "Process images in under 500ms using the Canvas API. No waiting for server responses or processing queues.",
-            "icon": "RiFlashlightLine",
-            "before_after": {
-              "before_image": "/images/examples/skater-before.jpg",
-              "after_image": "/images/examples/skater-after.jpg",
-              "before_label": "Watermarked",
-              "after_label": "Clean",
-              "before_alt": "Original AI image of a skater with Gemini watermark",
-              "after_alt": "Processed image with watermark removed with zero quality loss"
-            }
-          }
-        ]
-      },
-      "features": {
-        "id": "features",
-        "title": "Powerful Features to Remove Gemini Watermark",
-        "description": "Everything you need to clean AI-generated images.",
-        "items": [
-          {
-            "title": "Gemini Watermark Removal",
-            "description": "Remove visible watermarks from Google Gemini images (the ✦ star logo).",
-            "icon": "RiRobot2Line"
-          },
-          {
-            "title": "Double-Layer Cleaning",
-            "description": "Remove both visible watermarks (logos, stars) and invisible metadata (C2PA, EXIF AI tags).",
-            "icon": "RiStackLine"
-          },
-          {
-            "title": "Browser-Based Processing",
-            "description": "All processing happens locally in your browser using the Canvas API. Works offline too.",
-            "icon": "RiGlobalLine"
-          },
-          {
-            "title": "Batch Processing",
-            "description": "Pro users can process up to 100 images at once with drag & drop batch upload.",
-            "icon": "RiFileCopyLine"
-          },
-          {
-            "title": "Instant Download",
-            "description": "Download your clean images immediately in high-quality PNG format. No waiting, no email required.",
-            "icon": "RiDownloadLine"
-          },
-          {
-            "title": "Free Forever Plan",
-            "description": "Process 5 images per day completely free. No signup, no credit card, no strings attached.",
+            "title": "A Full Identity Kit",
+            "description": "Every design includes a monogram, simplified mark, black-and-white version, and four print mockups — everything a stationer would charge hundreds for.",
             "icon": "RiGiftLine"
+          },
+          {
+            "title": "Uniquely Yours",
+            "description": "Your flowers, your location, your dog, your story. No two crests are alike, and every element is one you chose.",
+            "icon": "RiLeafLine"
+          },
+          {
+            "title": "Real Fonts, Real Colors",
+            "description": "Eight curated font pairings and seven wedding palettes — or bring your own hex codes to match your stationery exactly.",
+            "icon": "RiDropLine"
+          },
+          {
+            "title": "See It In Place",
+            "description": "Instant mockups show your crest on an invitation, save-the-date, dinner menu, and welcome sign before you download a single file.",
+            "icon": "RiLayoutGridLine"
           }
         ]
       },
-      "stats": {
-        "id": "stats",
-        "title": "Trusted by Creators Worldwide",
-        "description": "Join thousands of creators who use RemoveGeminiWatermark every day.",
-        "items": [
+      "examples": {
+        "block": "wedding-examples",
+        "id": "examples",
+        "title": "Crests From Real Weddings",
+        "description": "Browse the gallery for inspiration — every example can be remixed with your own names and colors.",
+        "buttons": [
           {
-            "title": "50,000+",
-            "description": "Images Cleaned"
-          },
-          {
-            "title": "5+",
-            "description": "AI Platforms"
-          },
-          {
-            "title": "100%",
-            "description": "Local Processing"
+            "title": "Browse All Examples",
+            "url": "/examples",
+            "target": "_self"
           }
-        ],
-        "className": "bg-muted"
+        ]
+      },
+      "pricing": {
+        "id": "pricing"
       },
       "faq": {
         "id": "faq",
         "title": "Frequently Asked Questions",
-        "description": "Everything you need to know about removing AI watermarks.",
+        "description": "Everything couples ask before designing their crest.",
         "items": [
           {
-            "question": "Is it legal to remove AI watermarks?",
-            "answer": "Removing watermarks for personal use is generally legal in most jurisdictions. However, we recommend checking the terms of service of the specific AI platform and your local laws. Our tool is designed for legitimate use cases such as personal projects and portfolio work."
+            "question": "What is a wedding crest?",
+            "answer": "A wedding crest is an illustrated emblem that represents you as a couple — typically combining your initials or names with decorative elements like florals, laurels, or arches in your wedding style. It appears on invitations, signage, menus, and favors to unify your entire celebration."
           },
           {
-            "question": "Does this tool upload my images to a server?",
-            "answer": "No. All image processing happens 100% locally in your web browser using the Canvas API. Your image data never leaves your device. We don't store, transmit, or have access to any of your images."
+            "question": "What's the difference between a wedding crest and a monogram?",
+            "answer": "A monogram is your initials arranged typographically (like 'E & J'). A wedding crest is a fuller emblem that surrounds your names or monogram with illustrated artwork — florals, wreaths, arches, or frames. Every crest you design here includes a standalone monogram too."
           },
           {
-            "question": "Which AI watermarks can be removed?",
-            "answer": "Currently, we support removing visible watermarks from Google Gemini (the ✦ star logo)."
+            "question": "Can I try it before signing up?",
+            "answer": "Yes! You can design and generate your first crest completely without an account — you'll see it with a light watermark. Create an account (free) to save your design, and unlock watermark-free high-resolution files with the Wedding Identity Pack."
           },
           {
-            "question": "Will removing the watermark affect image quality?",
-            "answer": "Our reverse alpha blending algorithm mathematically recovers the original pixel values, resulting in virtually zero quality loss in the watermark region. The rest of the image remains completely untouched."
+            "question": "How many designs do I get?",
+            "answer": "Each generation produces three crest candidates to choose from. Free accounts can create one project and regenerate once. The Wedding Identity Pack unlocks three regenerations and the full download kit."
           },
           {
-            "question": "How many images can I process for free?",
-            "answer": "You can process up to 5 images per day completely free. No signup or credit card required. For unlimited processing, our Pro plan starts at just $9/month."
+            "question": "What files do I get?",
+            "answer": "The Wedding Identity Pack includes: your primary crest in SVG (standard and 3000px print-ready PNG-ready scale), a standalone monogram SVG, a simplified mark SVG, a black-and-white version, four print mockups, and a usage guide with your exact color codes and fonts."
           },
           {
-            "question": "Does it work on mobile devices?",
-            "answer": "Yes! Our tool works in any modern web browser, including mobile browsers on iOS and Android. The processing is lightweight enough to run smoothly on most smartphones."
+            "question": "Are the names and dates crisp?",
+            "answer": "Yes — and this is what sets us apart. The AI illustrates only the artwork layer; all typography (your names, initials, and date) is composed programmatically in real fonts. So text is always pixel-perfect, never the wobbly lettering typical of AI images."
+          },
+          {
+            "question": "Can I use my own colors?",
+            "answer": "Absolutely. Choose from seven curated wedding palettes or enter your own hex codes — perfect for matching existing stationery or brand colors. You can select up to three colors per crest."
+          },
+          {
+            "question": "Can I make changes after generating?",
+            "answer": "Yes. Quick edits — reduce colors, remove a personal element, simplify the illustration — are one click. You can also change the typography pairing, layout, or name display anytime with instant preview, no regeneration needed."
           }
         ]
       },
       "cta": {
         "id": "cta",
-        "title": "Start Removing AI Watermarks — It's Free",
-        "description": "No signup required. Process up to 5 images daily for free.",
+        "title": "Your Crest Is Five Minutes Away",
+        "description": "Start with your names, leave with a complete wedding identity.",
         "buttons": [
           {
-            "title": "Remove Watermark Now",
-            "url": "#tool",
+            "title": "Design My Crest",
+            "url": "/create",
             "target": "_self",
             "icon": "Sparkles"
           },
@@ -252,23 +182,11 @@
             "title": "View Pricing",
             "url": "/#pricing",
             "target": "_self",
-            "variant": "blue",
+            "variant": "outline",
             "icon": "DollarSign"
-          },
-          {
-            "title": "iOS Shortcut",
-            "url": "/shortcuts",
-            "target": "_self",
-            "variant": "emerald",
-            "icon": "Command"
           }
         ],
-        "className": "bg-muted"
-      },
-      "partners": {
-        "id": "partners",
-        "block": "partners",
-        "title": "Our Partners"
+        "className": ""
       }
     }
   }

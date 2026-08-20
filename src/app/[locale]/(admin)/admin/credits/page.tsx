@@ -25,7 +25,7 @@ export default async function CreditsPage({
   // Check if user has permission to read credits
   await requirePermission({
     code: PERMISSIONS.CREDITS_READ,
-    redirectUrl: '/admin/no-permission',
+    redirectUrl: '/no-permission',
     locale,
   });
 

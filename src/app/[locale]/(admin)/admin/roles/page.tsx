@@ -17,7 +17,7 @@ export default async function AdminRolesPage({
   // Check if user has permission to read users
   await requirePermission({
     code: PERMISSIONS.ROLES_READ,
-    redirectUrl: `/admin/no-permission`,
+    redirectUrl: `/no-permission`,
     locale,
   });
 

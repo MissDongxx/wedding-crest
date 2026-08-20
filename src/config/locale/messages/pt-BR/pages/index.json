@@ -1,269 +1,192 @@
 {
+  "metadata": {
+    "title": "Wedding Crest Design — AI Wedding Crest & Monogram Maker",
+    "description": "Design a custom wedding crest in minutes. Six styles, 12 layouts, matching color palettes and typography — with full SVG downloads, monograms and mockups. Free to start."
+  },
   "page": {
     "show_sections": [
-      "tool",
-      "comparison",
       "hero",
+      "styles",
       "introduce",
       "benefits",
-      "features",
+      "examples",
       "pricing",
-      "stats",
       "faq",
       "cta"
     ],
     "sections": {
-      "tool": {
-        "block": "upload-zone-block",
-        "id": "tool",
-        "title": "Remova Marca d'água de IA de Imagens do Gemini",
-        "label": "Ferramenta Online Grátis",
-        "description": "Envie sua imagem gerada por IA e remova a marca d'água do Gemini instantaneamente. Processamento 100% local — suas imagens nunca saem do seu dispositivo.",
-        "comparison_tip": "Pressione e segure para ver o resultado"
-      },
       "hero": {
+        "block": "wedding-hero",
         "id": "hero",
-        "title": "Remova Marca d'água de IA de Imagens do Gemini",
-        "highlight_text": "Imagens do Gemini",
-        "description": "Ferramenta gratuita no navegador para remover marcas d'água de imagens geradas pelo Gemini.<br/>Processamento 100% local — suas imagens nunca saem do seu dispositivo.",
+        "title": "Create a Wedding Crest That Feels Like You",
+        "description": "A custom wedding crest pulls your whole celebration together — invitations, signage, menus, and thank-you cards, all wearing the same beautiful mark. Describe your wedding once, and our AI illustrator draws it in your style.",
         "announcement": {
-          "badge": "Grátis",
-          "title": "✦ Remova Marcas d'água do Gemini Instantaneamente",
-          "url": "/tools/gemini"
+          "badge": "New",
+          "title": "6 signature styles · 12 layouts · instant typography preview",
+          "url": "/#styles"
         },
-        "tip": "🔒 100% privado • sem upload • funciona offline",
+        "tip": "No signup needed to try · Free preview with watermark",
         "buttons": [
           {
-            "title": "Remover Marca d'água Grátis",
+            "title": "Create My Wedding Crest",
             "icon": "Sparkles",
-            "url": "/tools/gemini",
+            "url": "/create",
             "target": "_self",
             "variant": "default"
           },
           {
-            "title": "Ver Preços",
-            "icon": "DollarSign",
-            "url": "/#pricing",
+            "title": "See Examples",
+            "icon": "RiEyeLine",
+            "url": "/examples",
             "target": "_self",
-            "variant": "blue"
-          },
-          {
-            "title": "Atalho iOS",
-            "icon": "Command",
-            "url": "/shortcuts",
-            "target": "_self",
-            "variant": "emerald"
+            "variant": "outline"
           }
-        ],
-        "show_avatars": false,
-        "show_award": false
+        ]
       },
-      "comparison": {
-        "block": "comparison-block",
-        "id": "comparison",
-        "title": "Resultados Profissionais",
-        "label": "Comparação",
-        "description": "Veja como nossa ferramenta no navegador remove marcas d'água de IA sem perda de qualidade.",
-        "before_after": {
-          "before_image": "/images/examples/castle-before.jpg",
-          "after_image": "/images/examples/castle-after.jpg",
-          "before_label": "Antes",
-          "after_label": "Depois",
-          "before_alt": "Imagem gerada por IA com marca d'água do Gemini visível no canto",
-          "after_alt": "Mesma imagem após remover a marca d'água do Gemini sem perda de qualidade",
-          "layout": "side-by-side"
-        }
+      "styles": {
+        "block": "wedding-styles",
+        "id": "styles",
+        "title": "Find Your Style",
+        "description": "Six illustrated styles, each with matching layouts, palettes, and typography. Pick the one that feels like your wedding."
       },
       "introduce": {
-        "block": "features-step",
         "id": "introduce",
-        "title": "Como Funciona",
-        "label": "3 Passos Simples",
-        "description": "Remova marcas d'água de IA em segundos — sem cadastro, sem download de software.",
+        "title": "How It Works",
+        "label": "3 Simple Steps",
+        "description": "From names to finished crest in under five minutes — no design skills needed.",
         "image_position": "left",
         "text_align": "center",
         "items": [
           {
-            "title": "Envie Sua Imagem",
-            "description": "Arraste e solte ou clique para enviar sua imagem gerada por IA. Suporta PNG, JPG e WebP até 20MB.",
-            "icon": "RiUploadCloud2Line"
+            "title": "Tell Us About Yourselves",
+            "description": "Enter your names, date, and wedding details — venue, flowers, personal elements like your dog or the mountains where you got engaged.",
+            "icon": "RiQuillPenLine"
           },
           {
-            "title": "Remoção Automática",
-            "description": "Nosso algoritmo detecta e remove a marca d'água usando mistura alfa reversa — 100% no seu navegador.",
+            "title": "Pick Style, Colors & Fonts",
+            "description": "Choose from six illustrated styles, seven curated palettes, and eight typography pairings. The layout updates live as you choose.",
+            "icon": "RiPaletteLine"
+          },
+          {
+            "title": "Get 3 Crests + Full Kit",
+            "description": "Our AI illustrates the artwork while typography is set programmatically for crisp results. Pick your favorite, then download SVG, monogram, mockups and more.",
             "icon": "RiMagicLine"
-          },
-          {
-            "title": "Baixe a Imagem Limpa",
-            "description": "Obtenha sua imagem limpa instantaneamente em formato PNG. Qualidade original preservada sem artefatos.",
-            "icon": "RiDownloadLine"
           }
         ],
-        "className": "bg-muted"
+        "className": ""
       },
       "benefits": {
-        "block": "features-accordion",
         "id": "benefits",
-        "title": "Por Que Escolher o RemoveGeminiWatermark",
-        "label": "Vantagens",
-        "description": "A ferramenta mais privada e de maior qualidade para remoção de marcas d'água de IA.",
+        "title": "One Crest, Everywhere",
+        "description": "A wedding crest is the single mark that ties your entire celebration together.",
         "items": [
           {
-            "title": "100% Privado — Sem Upload Necessário",
-            "description": "Ao contrário de outras ferramentas, suas imagens são processadas inteiramente no seu navegador. Nenhum dado é enviado a qualquer servidor. Seu trabalho criativo permanece privado.",
-            "icon": "RiShieldCheckLine",
-            "before_after": {
-              "before_image": "/images/examples/woman-after.jpg",
-              "after_image": "/images/examples/woman-before.jpg",
-              "before_label": "Limpa",
-              "after_label": "Com Marca d'água",
-              "before_alt": "Imagem de IA limpa com marca d'água removida",
-              "after_alt": "Imagem de IA original com marca d'água do Gemini"
-            }
+            "title": "Cohesive Wedding Identity",
+            "description": "Invitations, save-the-dates, ceremony programs, dinner menus, welcome signs, favor tags, and your website — all sharing one beautiful mark.",
+            "icon": "RiHeart3Line"
           },
           {
-            "title": "Zero Perda de Qualidade",
-            "description": "Nosso algoritmo de mistura alfa reversa recupera matematicamente os pixels originais sob a marca d'água. Sem desfoque, sem artefatos, sem degradação.",
-            "icon": "RiImageEditLine",
-            "before_after": {
-              "before_image": "/images/examples/dog-before.jpg",
-              "after_image": "/images/examples/dog-after.jpg",
-              "before_label": "Com Marca d'água",
-              "after_label": "Limpa",
-              "before_alt": "Imagem de IA de um cachorro com marca d'água do Gemini",
-              "after_alt": "Imagem processada com marca d'água removida sem perda de qualidade"
-            }
+            "title": "Crisp, Editable SVG",
+            "description": "Typography is composed programmatically, not AI-generated, so names and dates stay perfectly sharp at any size — from a wax seal to a welcome sign.",
+            "icon": "RiVectorLine"
           },
           {
-            "title": "Processamento Ultrarrápido",
-            "description": "Processe imagens em menos de 500ms usando a Canvas API. Sem esperar por respostas de servidor ou filas de processamento.",
-            "icon": "RiFlashlightLine",
-            "before_after": {
-              "before_image": "/images/examples/skater-before.jpg",
-              "after_image": "/images/examples/skater-after.jpg",
-              "before_label": "Com Marca d'água",
-              "after_label": "Limpa",
-              "before_alt": "Imagem de IA de um skatista com marca d'água do Gemini",
-              "after_alt": "Imagem processada com marca d'água removida sem perda de qualidade"
-            }
-          }
-        ]
-      },
-      "features": {
-        "id": "features",
-        "title": "Recursos Poderosos para Remover Marca d'água do Gemini",
-        "description": "Tudo o que você precisa para limpar imagens geradas por IA.",
-        "items": [
-          {
-            "title": "Remoção Marca d'água Gemini",
-            "description": "Remova marcas d'água visíveis de imagens do Google Gemini (o logo de estrela ✦).",
-            "icon": "RiRobot2Line"
-          },
-          {
-            "title": "Limpeza em Dupla Camada",
-            "description": "Remove tanto marcas d'água visíveis (logos, estrelas) quanto metadados invisíveis (C2PA, tags EXIF de IA).",
-            "icon": "RiStackLine"
-          },
-          {
-            "title": "Processamento no Navegador",
-            "description": "Todo processamento acontece localmente no seu navegador usando a Canvas API. Funciona offline também.",
-            "icon": "RiGlobalLine"
-          },
-          {
-            "title": "Processamento em Lote",
-            "description": "Usuários Pro podem processar até 100 imagens de uma vez com upload em lote por arrastar e soltar.",
-            "icon": "RiFileCopyLine"
-          },
-          {
-            "title": "Download Instantâneo",
-            "description": "Baixe suas imagens limpas imediatamente em formato PNG de alta qualidade. Sem espera, sem e-mail necessário.",
-            "icon": "RiDownloadLine"
-          },
-          {
-            "title": "Plano Gratuito Para Sempre",
-            "description": "Processe 5 imagens por dia totalmente grátis. Sem cadastro, sem cartão de crédito, sem pegadinhas.",
+            "title": "A Full Identity Kit",
+            "description": "Every design includes a monogram, simplified mark, black-and-white version, and four print mockups — everything a stationer would charge hundreds for.",
             "icon": "RiGiftLine"
+          },
+          {
+            "title": "Uniquely Yours",
+            "description": "Your flowers, your location, your dog, your story. No two crests are alike, and every element is one you chose.",
+            "icon": "RiLeafLine"
+          },
+          {
+            "title": "Real Fonts, Real Colors",
+            "description": "Eight curated font pairings and seven wedding palettes — or bring your own hex codes to match your stationery exactly.",
+            "icon": "RiDropLine"
+          },
+          {
+            "title": "See It In Place",
+            "description": "Instant mockups show your crest on an invitation, save-the-date, dinner menu, and welcome sign before you download a single file.",
+            "icon": "RiLayoutGridLine"
           }
         ]
       },
-      "stats": {
-        "id": "stats",
-        "title": "Confiado por Criadores do Mundo Todo",
-        "description": "Junte-se a milhares de criadores que usam o RemoveGeminiWatermark todos os dias.",
-        "items": [
+      "examples": {
+        "block": "wedding-examples",
+        "id": "examples",
+        "title": "Crests From Real Weddings",
+        "description": "Browse the gallery for inspiration — every example can be remixed with your own names and colors.",
+        "buttons": [
           {
-            "title": "50.000+",
-            "description": "Imagens Processadas"
-          },
-          {
-            "title": "5+",
-            "description": "Plataformas de IA"
-          },
-          {
-            "title": "100%",
-            "description": "Processamento Local"
+            "title": "Browse All Examples",
+            "url": "/examples",
+            "target": "_self"
           }
-        ],
-        "className": "bg-muted"
+        ]
+      },
+      "pricing": {
+        "id": "pricing"
       },
       "faq": {
         "id": "faq",
-        "title": "Perguntas Frequentes",
-        "description": "Tudo o que você precisa saber sobre remoção de marcas d'água de IA.",
+        "title": "Frequently Asked Questions",
+        "description": "Everything couples ask before designing their crest.",
         "items": [
           {
-            "question": "É legal remover marcas d'água de IA?",
-            "answer": "Remover marcas d'água para uso pessoal é geralmente legal na maioria das jurisdições. No entanto, recomendamos verificar os termos de serviço da plataforma de IA específica e as leis locais. Nossa ferramenta é projetada para casos de uso legítimos, como projetos pessoais e portfólios."
+            "question": "What is a wedding crest?",
+            "answer": "A wedding crest is an illustrated emblem that represents you as a couple — typically combining your initials or names with decorative elements like florals, laurels, or arches in your wedding style. It appears on invitations, signage, menus, and favors to unify your entire celebration."
           },
           {
-            "question": "Esta ferramenta envia minhas imagens para um servidor?",
-            "answer": "Não. Todo o processamento de imagem acontece 100% localmente no seu navegador usando a Canvas API. Os dados das suas imagens nunca saem do seu dispositivo. Não armazenamos, transmitimos ou temos acesso a nenhuma das suas imagens."
+            "question": "What's the difference between a wedding crest and a monogram?",
+            "answer": "A monogram is your initials arranged typographically (like 'E & J'). A wedding crest is a fuller emblem that surrounds your names or monogram with illustrated artwork — florals, wreaths, arches, or frames. Every crest you design here includes a standalone monogram too."
           },
           {
-            "question": "Quais marcas d'água de IA podem ser removidas?",
-            "answer": "Atualmente, suportamos a remoção de marcas d'água visíveis do Google Gemini (o logo de estrela ✦)."
+            "question": "Can I try it before signing up?",
+            "answer": "Yes! You can design and generate your first crest completely without an account — you'll see it with a light watermark. Create an account (free) to save your design, and unlock watermark-free high-resolution files with the Wedding Identity Pack."
           },
           {
-            "question": "Remover a marca d'água afetará a qualidade da imagem?",
-            "answer": "Nosso algoritmo de mistura alfa reversa recupera matematicamente os valores originais dos pixels, resultando em praticamente zero perda de qualidade na região da marca d'água. O restante da imagem permanece completamente intacto."
+            "question": "How many designs do I get?",
+            "answer": "Each generation produces three crest candidates to choose from. Free accounts can create one project and regenerate once. The Wedding Identity Pack unlocks three regenerations and the full download kit."
           },
           {
-            "question": "Quantas imagens posso processar gratuitamente?",
-            "answer": "Você pode processar até 5 imagens por dia totalmente grátis. Sem cadastro ou cartão de crédito necessário. Para processamento ilimitado, nosso plano Pro começa a partir de $9/mês."
+            "question": "What files do I get?",
+            "answer": "The Wedding Identity Pack includes: your primary crest in SVG (standard and 3000px print-ready PNG-ready scale), a standalone monogram SVG, a simplified mark SVG, a black-and-white version, four print mockups, and a usage guide with your exact color codes and fonts."
           },
           {
-            "question": "Funciona em dispositivos móveis?",
-            "answer": "Sim! Nossa ferramenta funciona em qualquer navegador moderno, incluindo navegadores móveis no iOS e Android. O processamento é leve o suficiente para rodar sem problemas na maioria dos smartphones."
+            "question": "Are the names and dates crisp?",
+            "answer": "Yes — and this is what sets us apart. The AI illustrates only the artwork layer; all typography (your names, initials, and date) is composed programmatically in real fonts. So text is always pixel-perfect, never the wobbly lettering typical of AI images."
+          },
+          {
+            "question": "Can I use my own colors?",
+            "answer": "Absolutely. Choose from seven curated wedding palettes or enter your own hex codes — perfect for matching existing stationery or brand colors. You can select up to three colors per crest."
+          },
+          {
+            "question": "Can I make changes after generating?",
+            "answer": "Yes. Quick edits — reduce colors, remove a personal element, simplify the illustration — are one click. You can also change the typography pairing, layout, or name display anytime with instant preview, no regeneration needed."
           }
         ]
       },
       "cta": {
         "id": "cta",
-        "title": "Comece a Remover Marcas d'água de IA — É Grátis",
-        "description": "Sem cadastro necessário. Processe até 5 imagens por dia gratuitamente.",
+        "title": "Your Crest Is Five Minutes Away",
+        "description": "Start with your names, leave with a complete wedding identity.",
         "buttons": [
           {
-            "title": "Remover Marca d'água Agora",
-            "url": "#tool",
+            "title": "Design My Crest",
+            "url": "/create",
             "target": "_self",
             "icon": "Sparkles"
           },
           {
-            "title": "Ver Preços",
+            "title": "View Pricing",
             "url": "/#pricing",
             "target": "_self",
-            "variant": "blue",
+            "variant": "outline",
             "icon": "DollarSign"
-          },
-          {
-            "title": "Atalho iOS",
-            "url": "/shortcuts",
-            "target": "_self",
-            "variant": "emerald",
-            "icon": "Command"
           }
         ],
-        "className": "bg-muted"
+        "className": ""
       }
     }
   }

@@ -1,274 +1,192 @@
 {
+  "metadata": {
+    "title": "Wedding Crest Design — AI Wedding Crest & Monogram Maker",
+    "description": "Design a custom wedding crest in minutes. Six styles, 12 layouts, matching color palettes and typography — with full SVG downloads, monograms and mockups. Free to start."
+  },
   "page": {
     "show_sections": [
-      "tool",
-      "comparison",
       "hero",
+      "styles",
       "introduce",
       "benefits",
-      "features",
+      "examples",
       "pricing",
-      "stats",
       "faq",
       "cta"
     ],
     "sections": {
-      "tool": {
-        "block": "upload-zone-block",
-        "id": "tool",
-        "title": "ลบลายน้ำ AI ออกจากรูปภาพ Gemini",
-        "label": "เครื่องมือออนไลน์ฟรี",
-        "description": "อัปโหลดรูปภาพที่สร้างโดย AI และลบลายน้ำ Gemini ได้ทันที ประมวลผลในเครื่อง 100% รูปภาพของคุณจะไม่ถูกส่งออกไปนอกเครื่อง",
-        "comparison_tip": "กดค้างเพื่อดูผลลัพธ์"
-      },
       "hero": {
+        "block": "wedding-hero",
         "id": "hero",
-        "title": "ลบลายน้ำ AI ออกจากรูปภาพ Gemini",
-        "highlight_text": "ทุกรูปแบบ",
-        "description": "เครื่องมือบนเบราว์เซอร์ฟรีสำหรับลบลายน้ำจากรูปภาพ Gemini<br/>ประมวลผลในเครื่อง 100% รูปภาพของคุณจะปลอดภัยและไม่ถูกอัปโหลดขึ้นเซิร์ฟเวอร์",
+        "title": "Create a Wedding Crest That Feels Like You",
+        "description": "A custom wedding crest pulls your whole celebration together — invitations, signage, menus, and thank-you cards, all wearing the same beautiful mark. Describe your wedding once, and our AI illustrator draws it in your style.",
         "announcement": {
-          "badge": "ฟรี",
-          "title": "✦ ลบลายน้ำ Gemini ได้ทันที",
-          "url": "/tools/gemini"
+          "badge": "New",
+          "title": "6 signature styles · 12 layouts · instant typography preview",
+          "url": "/#styles"
         },
-        "tip": "🔒 เป็นส่วนตัว 100% • ไม่ต้องอัปโหลด • ทำงานออฟไลน์ได้",
+        "tip": "No signup needed to try · Free preview with watermark",
         "buttons": [
           {
-            "title": "ลบลายน้ำฟรี",
+            "title": "Create My Wedding Crest",
             "icon": "Sparkles",
-            "url": "/tools/gemini",
+            "url": "/create",
             "target": "_self",
             "variant": "default"
           },
           {
-            "title": "ดูราคา",
-            "icon": "DollarSign",
-            "url": "/#pricing",
+            "title": "See Examples",
+            "icon": "RiEyeLine",
+            "url": "/examples",
             "target": "_self",
-            "variant": "blue"
-          },
-          {
-            "title": "ทางลัด iOS",
-            "icon": "Command",
-            "url": "/shortcuts",
-            "target": "_self",
-            "variant": "emerald"
+            "variant": "outline"
           }
-        ],
-        "show_avatars": false,
-        "show_award": false
+        ]
       },
-      "comparison": {
-        "block": "comparison-block",
-        "id": "comparison",
-        "title": "ผลลัพธ์ระดับมืออาชีพ",
-        "label": "การเปรียบเทียบ",
-        "description": "ดูความสามารถของเครื่องมือเราในการลบลายน้ำ AI โดยไม่เสียคุณภาพของภาพ",
-        "before_after": {
-          "before_image": "/images/examples/castle-before.jpg",
-          "after_image": "/images/examples/castle-after.jpg",
-          "before_label": "ก่อน",
-          "after_label": "หลัง",
-          "before_alt": "รูปภาพ AI ที่มีลายน้ำ Gemini ในมุมภาพ",
-          "after_alt": "รูปภาพเดิมหลังลบลายน้ำ Gemini โดยไม่เสียคุณภาพ",
-          "layout": "side-by-side"
-        }
+      "styles": {
+        "block": "wedding-styles",
+        "id": "styles",
+        "title": "Find Your Style",
+        "description": "Six illustrated styles, each with matching layouts, palettes, and typography. Pick the one that feels like your wedding."
       },
       "introduce": {
-        "block": "features-step",
         "id": "introduce",
-        "title": "วิธีการทำงาน",
-        "label": "3 ขั้นตอนง่ายๆ",
-        "description": "ลบลายน้ำ AI ได้ในไม่กี่วินาที — ไม่ต้องสมัครสมาชิก ไม่ต้องดาวน์โหลดซอฟต์แวร์",
+        "title": "How It Works",
+        "label": "3 Simple Steps",
+        "description": "From names to finished crest in under five minutes — no design skills needed.",
         "image_position": "left",
         "text_align": "center",
         "items": [
           {
-            "title": "อัปโหลดรูปภาพ",
-            "description": "ลากและวางหรือคลิกเพื่ออัปโหลดรูปภาพ AI ของคุณ รองรับ PNG, JPG และ WebP ขนาดสูงสุด 20MB",
-            "icon": "RiUploadCloud2Line"
+            "title": "Tell Us About Yourselves",
+            "description": "Enter your names, date, and wedding details — venue, flowers, personal elements like your dog or the mountains where you got engaged.",
+            "icon": "RiQuillPenLine"
           },
           {
-            "title": "ลบลายน้ำอัตโนมัติ",
-            "description": "อัลกอริทึมของเราจะตรวจจับและลบลายน้ำโดยใช้เทคนิค Reverse Alpha Blending — ทำงานบนเบราว์เซอร์ของคุณ 100%",
+            "title": "Pick Style, Colors & Fonts",
+            "description": "Choose from six illustrated styles, seven curated palettes, and eight typography pairings. The layout updates live as you choose.",
+            "icon": "RiPaletteLine"
+          },
+          {
+            "title": "Get 3 Crests + Full Kit",
+            "description": "Our AI illustrates the artwork while typography is set programmatically for crisp results. Pick your favorite, then download SVG, monogram, mockups and more.",
             "icon": "RiMagicLine"
-          },
-          {
-            "title": "ดาวน์โหลดรูปภาพ",
-            "description": "รับรูปภาพที่สะอาดได้ทันทีในรูปแบบ PNG รักษาคุณภาพต้นฉบับไว้ได้ครบถ้วน",
-            "icon": "RiDownloadLine"
           }
         ],
-        "className": "bg-muted"
+        "className": ""
       },
       "benefits": {
-        "block": "features-accordion",
         "id": "benefits",
-        "title": "ทำไมควรเลือก RemoveGeminiWatermark",
-        "label": "จุดเด่น",
-        "description": "เครื่องมือลบลายน้ำ AI ที่มีความเป็นส่วนตัวสูงที่สุดและคุณภาพดีที่สุด",
+        "title": "One Crest, Everywhere",
+        "description": "A wedding crest is the single mark that ties your entire celebration together.",
         "items": [
           {
-            "title": "เป็นส่วนตัว 100% — ไม่ต้องอัปโหลด",
-            "description": "ต่างจากเครื่องมืออื่น รูปภาพของคุณถูกประมวลผลบนเบราว์เซอร์ทั้งหมด ข้อมูลจะไม่ถูกส่งไปยังเซิร์ฟเวอร์ใดๆ ผลงานสร้างสรรค์ของคุณจะเป็นความลับเสมอ",
-            "icon": "RiShieldCheckLine",
-            "before_after": {
-              "before_image": "/images/examples/woman-after.jpg",
-              "after_image": "/images/examples/woman-before.jpg",
-              "before_label": "สะอาด",
-              "after_label": "มีลายน้ำ",
-              "before_alt": "รูปภาพ AI หลังลบลายน้ำแล้ว",
-              "after_alt": "รูปภาพ AI ต้นฉบับที่มีลายน้ำ Gemini"
-            }
+            "title": "Cohesive Wedding Identity",
+            "description": "Invitations, save-the-dates, ceremony programs, dinner menus, welcome signs, favor tags, and your website — all sharing one beautiful mark.",
+            "icon": "RiHeart3Line"
           },
           {
-            "title": "คุณภาพไม่ลดลง",
-            "description": "อัลกอริทึม Reverse Alpha Blending ของเราคำนวณพิกเซลเดิมกลับมาได้แม่นยำ ไม่มีการเบลอ ไม่มีรอยด่าง และไม่เสียคุณภาพของภาพ",
-            "icon": "RiImageEditLine",
-            "before_after": {
-              "before_image": "/images/examples/dog-before.jpg",
-              "after_image": "/images/examples/dog-after.jpg",
-              "before_label": "มีลายน้ำ",
-              "after_label": "สะอาด",
-              "before_alt": "รูปภาพสุนัขที่มีลายน้ำ Gemini",
-              "after_alt": "รูปภาพหลังลบลายน้ำออกโดยไม่เสียคุณภาพ"
-            }
+            "title": "Crisp, Editable SVG",
+            "description": "Typography is composed programmatically, not AI-generated, so names and dates stay perfectly sharp at any size — from a wax seal to a welcome sign.",
+            "icon": "RiVectorLine"
           },
           {
-            "title": "ประมวลผลรวดเร็วปานสายฟ้า",
-            "description": "ประมวลผลรูปภาพในเวลาไม่ถึง 500ms โดยใช้ Canvas API ไม่ต้องรอคิวหรือรอกระบวนการจากเซิร์ฟเวอร์",
-            "icon": "RiFlashlightLine",
-            "before_after": {
-              "before_image": "/images/examples/skater-before.jpg",
-              "after_image": "/images/examples/skater-after.jpg",
-              "before_label": "มีลายน้ำ",
-              "after_label": "สะอาด",
-              "before_alt": "รูปภาพนักสเก็ตที่มีลายน้ำ Gemini",
-              "after_alt": "รูปภาพหลังลบลายน้ำออกโดยไม่เสียคุณภาพ"
-            }
-          }
-        ]
-      },
-      "features": {
-        "id": "features",
-        "title": "คุณสมบัติที่ทรงพลังสำหรับการลบลายน้ำ Gemini",
-        "description": "ทุกสิ่งที่คุณต้องการเพื่อทำความสะอาดรูปภาพ AI",
-        "items": [
-          {
-            "title": "ลบลายน้ำ Gemini",
-            "description": "ลบลายน้ำที่มองเห็นได้จากรูปภาพ Google Gemini (โลโก้ดาว ✦)",
-            "icon": "RiRobot2Line"
-          },
-          {
-            "title": "การทำความสะอาดสองชั้น",
-            "description": "ลบทั้งลายน้ำที่มองเห็นได้ (โลโก้, ดาว) และข้อมูลเมตาที่มองไม่เห็น (C2PA, EXIF AI tags)",
-            "icon": "RiStackLine"
-          },
-          {
-            "title": "ประมวลผลบนเบราว์เซอร์",
-            "description": "การประมวลผลทั้งหมดเกิดขึ้นในเบราว์เซอร์ของคุณโดยใช้ Canvas API ทำงานออฟไลน์ได้ด้วย",
-            "icon": "RiGlobalLine"
-          },
-          {
-            "title": "การประมวลผลแบบกลุ่ม",
-            "description": "ผู้ใช้ระดับ Pro สามารถประมวลผลรูปภาพได้สูงสุด 100 รูปพร้อมกันด้วยการลากวาง",
-            "icon": "RiFileCopyLine"
-          },
-          {
-            "title": "ดาวน์โหลดทันที",
-            "description": "ดาวน์โหลดรูปภาพที่สะอาดได้ทันทีในรูปแบบ PNG คุณภาพสูง ไม่ต้องรอ ไม่ต้องใช้อีเมล",
-            "icon": "RiDownloadLine"
-          },
-          {
-            "title": "แผนใช้งานฟรีตลอดไป",
-            "description": "ประมวลผลได้ 5 รูปต่อวันฟรี 100% ไม่ต้องสมัครสมาชิก ไม่ต้องใช้บัตรเครดิต",
+            "title": "A Full Identity Kit",
+            "description": "Every design includes a monogram, simplified mark, black-and-white version, and four print mockups — everything a stationer would charge hundreds for.",
             "icon": "RiGiftLine"
+          },
+          {
+            "title": "Uniquely Yours",
+            "description": "Your flowers, your location, your dog, your story. No two crests are alike, and every element is one you chose.",
+            "icon": "RiLeafLine"
+          },
+          {
+            "title": "Real Fonts, Real Colors",
+            "description": "Eight curated font pairings and seven wedding palettes — or bring your own hex codes to match your stationery exactly.",
+            "icon": "RiDropLine"
+          },
+          {
+            "title": "See It In Place",
+            "description": "Instant mockups show your crest on an invitation, save-the-date, dinner menu, and welcome sign before you download a single file.",
+            "icon": "RiLayoutGridLine"
           }
         ]
       },
-      "stats": {
-        "id": "stats",
-        "title": "ได้รับความไว้วางใจจากครีเอเตอร์ทั่วโลก",
-        "description": "ร่วมเป็นส่วนหนึ่งของครีเอเตอร์นับพันที่ใช้ RemoveGeminiWatermark ทุกวัน",
-        "items": [
+      "examples": {
+        "block": "wedding-examples",
+        "id": "examples",
+        "title": "Crests From Real Weddings",
+        "description": "Browse the gallery for inspiration — every example can be remixed with your own names and colors.",
+        "buttons": [
           {
-            "title": "50,000+",
-            "description": "รูปภาพที่ลบลายน้ำแล้ว"
-          },
-          {
-            "title": "5+",
-            "description": "แพลตฟอร์ม AI"
-          },
-          {
-            "title": "100%",
-            "description": "ประมวลผลในเครื่อง"
+            "title": "Browse All Examples",
+            "url": "/examples",
+            "target": "_self"
           }
-        ],
-        "className": "bg-muted"
+        ]
+      },
+      "pricing": {
+        "id": "pricing"
       },
       "faq": {
         "id": "faq",
-        "title": "คำถามที่พบบ่อย",
-        "description": "ทุกสิ่งที่คุณควรรู้เกี่ยวกับการลบลายน้ำ AI",
+        "title": "Frequently Asked Questions",
+        "description": "Everything couples ask before designing their crest.",
         "items": [
           {
-            "question": "การลบลายน้ำ AI ถูกกฎหมายหรือไม่?",
-            "answer": "การลบลายน้ำเพื่อการใช้งานส่วนตัวโดยทั่วไปถือว่าถูกกฎหมายในหลายประเทศ อย่างไรก็ตาม เราขอแนะนำให้คุณตรวจสอบเงื่อนไขการให้บริการของแพลตฟอร์ม AI นั้นๆ และกฎหมายท้องถิ่นของคุณ เครื่องมือของเราออกแบบมาเพื่อการใช้งานที่ถูกต้อง เช่น โปรเจกต์ส่วนตัวและงานพอร์ตโฟลิโอ"
+            "question": "What is a wedding crest?",
+            "answer": "A wedding crest is an illustrated emblem that represents you as a couple — typically combining your initials or names with decorative elements like florals, laurels, or arches in your wedding style. It appears on invitations, signage, menus, and favors to unify your entire celebration."
           },
           {
-            "question": "เครื่องมือนี้มีการอัปโหลดรูปภาพขึ้นเซิร์ฟเวอร์หรือไม่?",
-            "answer": "ไม่ รูปภาพทั้งหมดจะถูกประมวลผลในเครื่อง 100% บนเบราว์เซอร์ของคุณโดยใช้ Canvas API ข้อมูลรูปภาพจะไม่หลุดออกจากเครื่องของคุณ เราไม่มีการเก็บ ส่ง หรือเข้าถึงรูปภาพใดๆ ของคุณทั้งสิ้น"
+            "question": "What's the difference between a wedding crest and a monogram?",
+            "answer": "A monogram is your initials arranged typographically (like 'E & J'). A wedding crest is a fuller emblem that surrounds your names or monogram with illustrated artwork — florals, wreaths, arches, or frames. Every crest you design here includes a standalone monogram too."
           },
           {
-            "question": "สามารถลบลายน้ำ AI ตัวไหนได้บ้าง?",
-            "answer": "ปัจจุบันเรารองรับการลบลายน้ำที่มองเห็นได้จาก Google Gemini (โลโก้ดาว ✦)"
+            "question": "Can I try it before signing up?",
+            "answer": "Yes! You can design and generate your first crest completely without an account — you'll see it with a light watermark. Create an account (free) to save your design, and unlock watermark-free high-resolution files with the Wedding Identity Pack."
           },
           {
-            "question": "การลบลายน้ำจะทำให้คุณภาพของภาพเสียไปหรือไม่?",
-            "answer": "อัลกอริทึม Reverse Alpha Blending ของเราจะคำนวณค่าพิกเซลเดิมกลับมา ทำให้แทบไม่เสียคุณภาพในบริเวณลายน้ำเลย ส่วนอื่นๆ ของภาพจะไม่มีการแตะต้องใดๆ"
+            "question": "How many designs do I get?",
+            "answer": "Each generation produces three crest candidates to choose from. Free accounts can create one project and regenerate once. The Wedding Identity Pack unlocks three regenerations and the full download kit."
           },
           {
-            "question": "สามารถประมวลผลภาพฟรีได้กี่รูป?",
-            "answer": "คุณสามารถประมวลผลได้สูงสุด 5 รูปต่อวันฟรี ไม่ต้องสมัครสมาชิกหรือใช้บัตรเครดิต สำหรับการใช้งานไม่จำกัด แผน Pro ของเราเริ่มต้นเพียง 9 ดอลลาร์ต่อเดือน"
+            "question": "What files do I get?",
+            "answer": "The Wedding Identity Pack includes: your primary crest in SVG (standard and 3000px print-ready PNG-ready scale), a standalone monogram SVG, a simplified mark SVG, a black-and-white version, four print mockups, and a usage guide with your exact color codes and fonts."
           },
           {
-            "question": "สามารถใช้งานบนสมาร์ทโฟนได้หรือไม่?",
-            "answer": "ได้! เครื่องมือของเราทำงานได้บนเบราว์เซอร์มือถือทุกรุ่น ทั้ง iOS และ Android การประมวลผลนั้นเบาและทำงานได้ลื่นไหลบนสมาร์ทโฟนส่วนใหญ่"
+            "question": "Are the names and dates crisp?",
+            "answer": "Yes — and this is what sets us apart. The AI illustrates only the artwork layer; all typography (your names, initials, and date) is composed programmatically in real fonts. So text is always pixel-perfect, never the wobbly lettering typical of AI images."
+          },
+          {
+            "question": "Can I use my own colors?",
+            "answer": "Absolutely. Choose from seven curated wedding palettes or enter your own hex codes — perfect for matching existing stationery or brand colors. You can select up to three colors per crest."
+          },
+          {
+            "question": "Can I make changes after generating?",
+            "answer": "Yes. Quick edits — reduce colors, remove a personal element, simplify the illustration — are one click. You can also change the typography pairing, layout, or name display anytime with instant preview, no regeneration needed."
           }
         ]
       },
       "cta": {
         "id": "cta",
-        "title": "เริ่มลบลายน้ำ AI — ใช้งานฟรี",
-        "description": "ไม่ต้องสมัครสมาชิก ประมวลผลได้ 5 รูปต่อวันฟรี",
+        "title": "Your Crest Is Five Minutes Away",
+        "description": "Start with your names, leave with a complete wedding identity.",
         "buttons": [
           {
-            "title": "ลบลายน้ำเดี๋ยวนี้",
-            "url": "#tool",
+            "title": "Design My Crest",
+            "url": "/create",
             "target": "_self",
             "icon": "Sparkles"
           },
           {
-            "title": "ดูราคา",
+            "title": "View Pricing",
             "url": "/#pricing",
             "target": "_self",
-            "variant": "blue",
+            "variant": "outline",
             "icon": "DollarSign"
-          },
-          {
-            "title": "ทางลัด iOS",
-            "url": "/shortcuts",
-            "target": "_self",
-            "variant": "emerald",
-            "icon": "Command"
           }
         ],
-        "className": "bg-muted"
-      },
-      "partners": {
-        "id": "partners",
-        "block": "partners",
-        "title": "พันธมิตรของเรา"
+        "className": ""
       }
     }
   }

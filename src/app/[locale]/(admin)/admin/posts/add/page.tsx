@@ -25,7 +25,7 @@ export default async function PostAddPage({
   // Check if user has permission to add posts
   await requirePermission({
     code: PERMISSIONS.POSTS_WRITE,
-    redirectUrl: '/admin/no-permission',
+    redirectUrl: '/no-permission',
     locale,
   });
 

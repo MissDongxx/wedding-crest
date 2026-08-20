@@ -5,20 +5,22 @@ import { envConfigs } from '@/config';
 import { Brand as BrandType } from '@/shared/types/blocks/common';
 
 /**
- * Renders the marketing header brand. Falls back to the admin-configured
- * `app_logo` (resolved by the parent layout from the merged env+DB public
- * configs) when the i18n brand block doesn't supply one, so the studio
- * admin's uploaded logo is what shows in the public site nav.
+ * Renders the marketing header brand.
  *
- * The parent layout (e.g. themes/default/layouts/landing.tsx) computes the
- * merged `appLogo` once per render and passes it as a prop. This keeps
- * `BrandLogo` itself a thin client-safe component, since the public header
- * (`themes/default/blocks/header.tsx`) is a client component and cannot
- * directly call `getPublicConfigs()`.
+ * Resolution order (highest priority first):
+ *   1. `appLogo` from the admin (DB) settings, passed in by the parent
+ *      layout from `getPublicConfigs()`. This is what the studio admin
+ *      uploads and what should be visible on the public site.
+ *   2. `brand.logo?.src` from the i18n landing file, used only as a
+ *      static fallback for marketing assets (e.g. when the admin has
+ *      not configured a logo yet, or for auth/docs layouts that do not
+ *      pass `appLogo`).
+ *   3. `envConfigs.app_logo` — the env-var default, last resort.
  *
- * `envConfigs.app_logo` is the env-var fallback used when the parent
- * doesn't supply `appLogo` (e.g. when this component is used outside the
- * landing layout — error boundary, not-found, etc.).
+ * Putting `appLogo` first is what makes admin logo changes take effect
+ * on the live site. The previous order (`brand.logo?.src || appLogo || …`)
+ * always won on the i18n hard-coded `"/logo.webp"`, so the admin upload
+ * was silently ignored.
  */
 export function BrandLogo({
   brand,
@@ -27,7 +29,7 @@ export function BrandLogo({
   brand: BrandType;
   appLogo?: string;
 }) {
-  const configured = brand.logo?.src || appLogo || envConfigs.app_logo;
+  const configured = appLogo || brand.logo?.src || envConfigs.app_logo;
   return (
     <Link
       href={brand.url || ''}

@@ -1,90 +1,92 @@
 {
   "metadata": {
-    "title": "ราคา — RemoveGeminiWatermark",
-    "description": "ลบลายน้ำ AI ฟรี อัปเกรดเป็น Pro เพื่อการประมวลผลที่ไม่จำกัด"
+    "title": "Pricing - Wedding Crest Design",
+    "description": "Design your wedding crest free, then unlock the complete Wedding Identity Pack with high-resolution SVG downloads, monograms and mockups for $19."
   },
   "page": {
-    "title": "ราคา RemoveGeminiWatermark",
+    "title": "Wedding Crest Design Pricing",
     "sections": {
       "pricing": {
         "id": "pricing",
-        "title": "ราคาที่เรียบง่ายและโปร่งใส",
-        "description": "เริ่มต้นฟรี อัปเกรดเมื่อคุณต้องการใช้งานมากขึ้น",
+        "title": "Simple, Honest Pricing",
+        "description": "Design free. Pay once, only if you love it.",
         "groups": [
           {
             "name": "one-time",
-            "title": "จ่ายครั้งเดียว",
+            "title": "Pay Once",
             "is_featured": true
           }
         ],
         "items": [
           {
-            "title": "ฟรี",
-            "description": "ทดลองลบลายน้ำ AI โดยไม่มีความเสี่ยง",
-            "features_title": "สิ่งที่รวมอยู่",
+            "title": "Free",
+            "description": "Design your crest and see it in full.",
+            "features_title": "Includes",
             "features": [
-              "5 รูปต่อวัน",
-              "ลบลายน้ำ Gemini",
-              "ประมวลผลในเครื่อง 100%",
-              "รองรับ PNG, JPG, WebP",
-              "ไม่ต้องสมัครสมาชิก"
+              "1 saved wedding project",
+              "3 crest candidates per generation",
+              "1 regeneration",
+              "All 6 styles, layouts & palettes",
+              "Instant typography preview",
+              "Mockup previews with watermark"
             ],
             "interval": "one-time",
             "amount": 0,
             "currency": "USD",
             "price": "$0",
-            "unit": "ตลอดไป",
+            "unit": "forever",
             "is_featured": false,
-            "tip": "ไม่ต้องใช้บัตรเครดิต",
+            "tip": "No credit card required",
             "button": {
-              "title": "เริ่มใช้งานฟรี",
-              "url": "/tools/gemini",
+              "title": "Start Designing",
+              "url": "/create",
               "icon": "RiFlashlightFill"
             },
             "product_id": "free",
-            "product_name": "RemoveGeminiWatermark ฟรี",
+            "product_name": "Wedding Crest Design Free",
             "credits": 0,
             "valid_days": 0,
             "group": "one-time"
           },
           {
-            "title": "ตลอดชีพ",
-            "description": "ลบลายน้ำได้ไม่จำกัดสำหรับมืออาชีพ จ่ายครั้งเดียว ใช้ได้ตลอดไป",
-            "label": "คุ้มค่าที่สุด",
-            "features_title": "ทุกอย่างในแผนฟรี และเพิ่มเติม",
+            "title": "Wedding Identity Pack",
+            "description": "Unlock watermark-free, high-resolution files for one wedding project. Pay once - it's yours forever.",
+            "label": "Most Popular",
+            "features_title": "Everything in Free, plus",
             "features": [
-              "ไม่จำกัดจำนวนรูปภาพ",
-              "รองรับทุกแพลตฟอร์ม AI",
-              "ประมวลผลแบบกลุ่ม (สูงสุด 100 รูป)",
-              "ลบข้อมูลเมตา C2PA/Exif",
-              "การสนับสนุนลำดับความสำคัญ",
-              "เข้าถึงระบบทางลัด iOS"
+              "Watermark-free high-resolution files",
+              "3 regenerations (9 more crest candidates)",
+              "Primary crest SVG + print-scale file",
+              "Standalone monogram SVG",
+              "Simplified mark & black-white versions",
+              "4 print mockups (invite, save-the-date, menu, sign)",
+              "Usage guide with exact hex codes & fonts",
+              "Commercial use for your wedding"
             ],
             "interval": "one-time",
-            "amount": 990,
+            "amount": 1900,
             "currency": "USD",
-            "price": "$9.9",
-            "unit": "",
+            "price": "$19",
+            "unit": "one-time",
             "is_featured": true,
-            "tip": "จ่ายครั้งเดียว ใช้ได้ตลอดชีพ",
+            "tip": "One payment · Yours forever",
             "button": {
-              "title": "รับสิทธิ์เข้าถึงตลอดชีพ",
-              "url": "/#pricing",
-              "icon": "RiFlashlightFill"
+              "title": "Unlock My Crest",
+              "url": "/create",
+              "icon": "RiVipCrownLine"
             },
-            "product_id": "pro-lifetime",
-            "product_name": "RemoveGeminiWatermark Lifetime Pro",
-            "credits": 999999,
-            "valid_days": 36500,
-            "group": "one-time",
-            "plan_name": "ตลอดชีพ"
+            "product_id": "wedding_identity_pack",
+            "product_name": "Wedding Identity Pack",
+            "credits": 0,
+            "valid_days": 0,
+            "group": "one-time"
           }
         ]
       }
     }
   },
   "messages": {
-    "current_plan": "แผนปัจจุบัน",
-    "processing": "กำลังประมวลผล"
+    "current_plan": "Current Plan",
+    "processing": "Processing"
   }
 }

@@ -62,5 +62,10 @@ export const localeMessagesPaths = [
   'pages/updates',
   'pages/tools-gemini',
   'pages/tools-detector',
+  'pages/create',
+  'pages/design',
+  'pages/examples',
+  'pages/myDesigns',
+  'pages/seo',
   'shortcuts',
 ];

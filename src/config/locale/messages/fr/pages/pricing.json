@@ -1,90 +1,92 @@
 {
   "metadata": {
-    "title": "Tarifs — Supprimer le Watermark Gemini",
-    "description": "Supprimez les filigranes IA gratuitement. Passez à Lifetime pour un traitement illimité."
+    "title": "Pricing - Wedding Crest Design",
+    "description": "Design your wedding crest free, then unlock the complete Wedding Identity Pack with high-resolution SVG downloads, monograms and mockups for $19."
   },
   "page": {
-    "title": "Tarifs Supprimer le Watermark Gemini",
+    "title": "Wedding Crest Design Pricing",
     "sections": {
       "pricing": {
         "id": "pricing",
-        "title": "Tarifs Simples et Transparents",
-        "description": "Commencez gratuitement. Évoluez quand vous en avez besoin.",
+        "title": "Simple, Honest Pricing",
+        "description": "Design free. Pay once, only if you love it.",
         "groups": [
           {
             "name": "one-time",
-            "title": "Paiement Unique",
+            "title": "Pay Once",
             "is_featured": true
           }
         ],
         "items": [
           {
-            "title": "Gratuit",
-            "description": "Essayez la suppression de filigranes IA sans risque.",
-            "features_title": "Inclus",
+            "title": "Free",
+            "description": "Design your crest and see it in full.",
+            "features_title": "Includes",
             "features": [
-              "5 images par jour",
-              "Suppression filigrane Gemini",
-              "Traitement 100% local",
-              "Support PNG, JPG, WebP",
-              "Aucune inscription requise"
+              "1 saved wedding project",
+              "3 crest candidates per generation",
+              "1 regeneration",
+              "All 6 styles, layouts & palettes",
+              "Instant typography preview",
+              "Mockup previews with watermark"
             ],
             "interval": "one-time",
             "amount": 0,
             "currency": "USD",
-            "price": "0 €",
-            "unit": "pour toujours",
+            "price": "$0",
+            "unit": "forever",
             "is_featured": false,
-            "tip": "Aucune carte bancaire requise",
+            "tip": "No credit card required",
             "button": {
-              "title": "Commencer Gratuitement",
-              "url": "/tools/gemini",
+              "title": "Start Designing",
+              "url": "/create",
               "icon": "RiFlashlightFill"
             },
             "product_id": "free",
-            "product_name": "Supprimer le Watermark Gemini Gratuit",
+            "product_name": "Wedding Crest Design Free",
             "credits": 0,
             "valid_days": 0,
             "group": "one-time"
           },
           {
-            "title": "Lifetime",
-            "description": "Suppression illimitée de filigranes pour les professionnels. Payez une fois, utilisez pour toujours.",
-            "label": "Meilleur Rapport Qualité-Prix",
-            "features_title": "Tout dans le plan Gratuit, plus",
+            "title": "Wedding Identity Pack",
+            "description": "Unlock watermark-free, high-resolution files for one wedding project. Pay once - it's yours forever.",
+            "label": "Most Popular",
+            "features_title": "Everything in Free, plus",
             "features": [
-              "Images illimitées",
-              "Toutes les plateformes IA supportées",
-              "Traitement par lot (jusqu'à 100)",
-              "Suppression métadonnées C2PA/Exif",
-              "Support prioritaire",
-              "Accès Raccourcis iOS"
+              "Watermark-free high-resolution files",
+              "3 regenerations (9 more crest candidates)",
+              "Primary crest SVG + print-scale file",
+              "Standalone monogram SVG",
+              "Simplified mark & black-white versions",
+              "4 print mockups (invite, save-the-date, menu, sign)",
+              "Usage guide with exact hex codes & fonts",
+              "Commercial use for your wedding"
             ],
             "interval": "one-time",
-            "amount": 990,
+            "amount": 1900,
             "currency": "USD",
-            "price": "$9.9",
-            "unit": "",
+            "price": "$19",
+            "unit": "one-time",
             "is_featured": true,
-            "tip": "Payez une fois, utilisez pour toujours",
+            "tip": "One payment · Yours forever",
             "button": {
-              "title": "Obtenir l'Accès Lifetime",
-              "url": "/#pricing",
-              "icon": "RiFlashlightFill"
+              "title": "Unlock My Crest",
+              "url": "/create",
+              "icon": "RiVipCrownLine"
             },
-            "product_id": "pro-lifetime",
-            "product_name": "Supprimer le Watermark Gemini Lifetime Pro",
-            "credits": 999999,
-            "valid_days": 36500,
-            "group": "one-time",
-            "plan_name": "Lifetime"
+            "product_id": "wedding_identity_pack",
+            "product_name": "Wedding Identity Pack",
+            "credits": 0,
+            "valid_days": 0,
+            "group": "one-time"
           }
         ]
       }
     }
   },
   "messages": {
-    "current_plan": "Plan Actuel",
-    "processing": "Traitement"
+    "current_plan": "Current Plan",
+    "processing": "Processing"
   }
 }

@@ -6,7 +6,9 @@ import {
   canAccessWeddingProject,
   getWeddingGeneration,
   getWeddingProject,
+  hasPaidWeddingOrder,
   updateWeddingGeneration,
+  updateWeddingProject,
 } from '@/shared/models/wedding';
 import { composeWeddingCrest } from '@/shared/wedding/composer';
 
@@ -22,6 +24,11 @@ const editSchema = z.object({
   ]),
 });
 
+/**
+ * Quick edits adjust the composed crest without a new AI run:
+ * palette reduction and element removal mutate the project input, the
+ * aesthetic hints are persisted for the next regeneration.
+ */
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -48,10 +55,39 @@ export async function POST(
       !generation.sourceImageUrl
     )
       return respErr('generation not found');
+
+    // Paid owners see watermark-free previews.
+    const paid = user ? await hasPaidWeddingOrder(user.id, projectId) : false;
+
+    const input = { ...project.input };
+    const projectUpdate: Record<string, unknown> = {};
+
+    switch (action) {
+      case 'reduce_colors':
+        projectUpdate.palette = JSON.stringify(input.palette.slice(0, 2));
+        input.palette = input.palette.slice(0, 2);
+        break;
+      case 'remove_personal_element':
+        input.personalElements = input.personalElements.slice(0, -1);
+        break;
+      case 'make_simpler':
+        projectUpdate.complexity = 'minimal';
+        input.complexity = 'minimal';
+        break;
+      default:
+        // more_romantic / more_elegant / more_negative_space influence the
+        // next regeneration prompt; the composed preview stays unchanged.
+        break;
+    }
+
+    if (Object.keys(projectUpdate).length > 0) {
+      await updateWeddingProject(projectId, projectUpdate as any);
+    }
+
     const composedSvg = composeWeddingCrest({
-      ...project.input,
+      ...input,
       illustrationUrl: generation.sourceImageUrl,
-      previewWatermark: !user,
+      previewWatermark: !paid,
     });
     const updated = await updateWeddingGeneration(id, {
       composedSvg,

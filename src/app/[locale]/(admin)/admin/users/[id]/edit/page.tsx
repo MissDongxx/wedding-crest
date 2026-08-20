@@ -19,7 +19,7 @@ export default async function UserEditPage({
   // Check if user has permission to edit posts
   await requirePermission({
     code: PERMISSIONS.USERS_WRITE,
-    redirectUrl: '/admin/no-permission',
+    redirectUrl: '/no-permission',
     locale,
   });
 

@@ -28,7 +28,7 @@ export default async function PaymentsPage({
   // Check if user has permission to read payments
   await requirePermission({
     code: PERMISSIONS.PAYMENTS_READ,
-    redirectUrl: '/admin/no-permission',
+    redirectUrl: '/no-permission',
     locale,
   });
 

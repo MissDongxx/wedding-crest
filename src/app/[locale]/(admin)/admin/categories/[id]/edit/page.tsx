@@ -25,7 +25,7 @@ export default async function CategoryEditPage({
   // Check if user has permission to edit categories
   await requirePermission({
     code: PERMISSIONS.CATEGORIES_WRITE,
-    redirectUrl: '/admin/no-permission',
+    redirectUrl: '/no-permission',
     locale,
   });
 

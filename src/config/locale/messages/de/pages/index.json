@@ -1,269 +1,192 @@
 {
+  "metadata": {
+    "title": "Wedding Crest Design — AI Wedding Crest & Monogram Maker",
+    "description": "Design a custom wedding crest in minutes. Six styles, 12 layouts, matching color palettes and typography — with full SVG downloads, monograms and mockups. Free to start."
+  },
   "page": {
     "show_sections": [
-      "tool",
-      "comparison",
       "hero",
+      "styles",
       "introduce",
       "benefits",
-      "features",
+      "examples",
       "pricing",
-      "stats",
       "faq",
       "cta"
     ],
     "sections": {
-      "tool": {
-        "block": "upload-zone-block",
-        "id": "tool",
-        "title": "KI-Wasserzeichen aus Gemini-Bildern entfernen",
-        "label": "Kostenloses Online-Tool",
-        "description": "Laden Sie Ihr KI-generiertes Bild hoch und entfernen Sie das Gemini-Wasserzeichen sofort. 100% lokale Verarbeitung — Ihre Bilder verlassen niemals Ihr Gerät.",
-        "comparison_tip": "Gedrückt halten, um das Ergebnis zu sehen"
-      },
-      "comparison": {
-        "block": "comparison-block",
-        "id": "comparison",
-        "title": "Professionelle Qualitätsergebnisse",
-        "label": "Vergleich",
-        "description": "Sehen Sie, wie unser browserbasiertes Tool KI-Wasserzeichen ohne Qualitätsverlust entfernt.",
-        "before_after": {
-          "before_image": "/images/examples/castle-before.jpg",
-          "after_image": "/images/examples/castle-after.jpg",
-          "before_label": "Vorher",
-          "after_label": "Nachher",
-          "before_alt": "KI-generiertes Bild mit sichtbarem Gemini-Wasserzeichen in der Ecke",
-          "after_alt": "Dasselbe Bild nach Entfernung des Gemini-Wasserzeichens ohne Qualitätsverlust",
-          "layout": "side-by-side"
-        }
-      },
       "hero": {
+        "block": "wedding-hero",
         "id": "hero",
-        "title": "KI-Wasserzeichen aus Gemini-Bildern entfernen",
-        "highlight_text": "Gemini-Bildern",
-        "description": "Kostenloses Browser-Tool zum Entfernen von Wasserzeichen aus Gemini-generierten Bildern.<br/>100% lokale Verarbeitung — Ihre Bilder verlassen niemals Ihr Gerät.",
+        "title": "Create a Wedding Crest That Feels Like You",
+        "description": "A custom wedding crest pulls your whole celebration together — invitations, signage, menus, and thank-you cards, all wearing the same beautiful mark. Describe your wedding once, and our AI illustrator draws it in your style.",
         "announcement": {
-          "badge": "Kostenlos",
-          "title": "✦ Gemini Wasserzeichen sofort entfernen",
-          "url": "/tools/gemini"
+          "badge": "New",
+          "title": "6 signature styles · 12 layouts · instant typography preview",
+          "url": "/#styles"
         },
-        "tip": "🔒 100% privat • kein Upload • funktioniert offline",
+        "tip": "No signup needed to try · Free preview with watermark",
         "buttons": [
           {
-            "title": "Wasserzeichen kostenlos entfernen",
+            "title": "Create My Wedding Crest",
             "icon": "Sparkles",
-            "url": "/tools/gemini",
+            "url": "/create",
             "target": "_self",
             "variant": "default"
           },
           {
-            "title": "Preise anzeigen",
-            "icon": "DollarSign",
-            "url": "/#pricing",
+            "title": "See Examples",
+            "icon": "RiEyeLine",
+            "url": "/examples",
             "target": "_self",
-            "variant": "blue"
-          },
-          {
-            "title": "iOS-Kurzbefehl",
-            "icon": "Command",
-            "url": "/shortcuts",
-            "target": "_self",
-            "variant": "emerald"
+            "variant": "outline"
           }
-        ],
-        "show_avatars": false,
-        "show_award": false
+        ]
+      },
+      "styles": {
+        "block": "wedding-styles",
+        "id": "styles",
+        "title": "Find Your Style",
+        "description": "Six illustrated styles, each with matching layouts, palettes, and typography. Pick the one that feels like your wedding."
       },
       "introduce": {
-        "block": "features-step",
         "id": "introduce",
-        "title": "So funktioniert es",
-        "label": "3 einfache Schritte",
-        "description": "Entfernen Sie KI-Wasserzeichen in Sekunden — keine Registrierung, kein Software-Download.",
+        "title": "How It Works",
+        "label": "3 Simple Steps",
+        "description": "From names to finished crest in under five minutes — no design skills needed.",
         "image_position": "left",
         "text_align": "center",
         "items": [
           {
-            "title": "Bild hochladen",
-            "description": "Drag & Drop oder Klick zum Hochladen Ihres KI-generierten Bildes. Unterstützt PNG, JPG und WebP bis zu 20MB.",
-            "icon": "RiUploadCloud2Line"
+            "title": "Tell Us About Yourselves",
+            "description": "Enter your names, date, and wedding details — venue, flowers, personal elements like your dog or the mountains where you got engaged.",
+            "icon": "RiQuillPenLine"
           },
           {
-            "title": "Wasserzeichen automatisch entfernen",
-            "description": "Unser Algorithmus erkennt und entfernt das Wasserzeichen mittels Reverse-Alpha-Blending — 100% in Ihrem Browser.",
+            "title": "Pick Style, Colors & Fonts",
+            "description": "Choose from six illustrated styles, seven curated palettes, and eight typography pairings. The layout updates live as you choose.",
+            "icon": "RiPaletteLine"
+          },
+          {
+            "title": "Get 3 Crests + Full Kit",
+            "description": "Our AI illustrates the artwork while typography is set programmatically for crisp results. Pick your favorite, then download SVG, monogram, mockups and more.",
             "icon": "RiMagicLine"
-          },
-          {
-            "title": "Sauberem Bild herunterladen",
-            "description": "Erhalten Sie Ihr sauberes Bild sofort im PNG-Format. Originalqualität ohne Artefakte.",
-            "icon": "RiDownloadLine"
           }
         ],
-        "className": "bg-muted"
+        "className": ""
       },
       "benefits": {
-        "block": "features-accordion",
         "id": "benefits",
-        "title": "Warum Gemini Wasserzeichen entfernen wählen",
-        "label": "Vorteile",
-        "description": "Das privatste und hochwertigste KI-Wasserzeichen-Entfernungstool auf dem Markt.",
+        "title": "One Crest, Everywhere",
+        "description": "A wedding crest is the single mark that ties your entire celebration together.",
         "items": [
           {
-            "title": "100% Privat — Kein Upload erforderlich",
-            "description": "Im Gegensatz zu anderen Tools werden Ihre Bilder vollständig in Ihrem Browser verarbeitet. Es werden niemals Daten an einen Server gesendet. Ihre kreativen Arbeiten bleiben privat.",
-            "icon": "RiShieldCheckLine",
-            "before_after": {
-              "before_image": "/images/examples/woman-after.jpg",
-              "after_image": "/images/examples/woman-before.jpg",
-              "before_label": "Sauber",
-              "after_label": "Mit Wasserzeichen",
-              "before_alt": "Saubereres KI-Bild mit entferntem Wasserzeichen",
-              "after_alt": "Originales KI-Bild mit Gemini-Wasserzeichen"
-            }
+            "title": "Cohesive Wedding Identity",
+            "description": "Invitations, save-the-dates, ceremony programs, dinner menus, welcome signs, favor tags, and your website — all sharing one beautiful mark.",
+            "icon": "RiHeart3Line"
           },
           {
-            "title": "Kein Qualitätsverlust",
-            "description": "Unser Reverse-Alpha-Blending-Algorithmus stellt die Originalpixel unter dem Wasserzeichen mathematisch wieder her. Keine Unschärfe, keine Artefakte, kein Qualitätsverlust.",
-            "icon": "RiImageEditLine",
-            "before_after": {
-              "before_image": "/images/examples/dog-before.jpg",
-              "after_image": "/images/examples/dog-after.jpg",
-              "before_label": "Mit Wasserzeichen",
-              "after_label": "Sauber",
-              "before_alt": "Originales KI-Bild eines Hundes mit Gemini-Wasserzeichen",
-              "after_alt": "Verarbeitetes Bild mit entferntem Wasserzeichen ohne Qualitätsverlust"
-            }
+            "title": "Crisp, Editable SVG",
+            "description": "Typography is composed programmatically, not AI-generated, so names and dates stay perfectly sharp at any size — from a wax seal to a welcome sign.",
+            "icon": "RiVectorLine"
           },
           {
-            "title": "Blitzschnelle Verarbeitung",
-            "description": "Verarbeiten Sie Bilder in unter 500ms mit der Canvas-API. Kein Warten auf Server-Antworten oder Verarbeitungswarteschlangen.",
-            "icon": "RiFlashlightLine",
-            "before_after": {
-              "before_image": "/images/examples/skater-before.jpg",
-              "after_image": "/images/examples/skater-after.jpg",
-              "before_label": "Mit Wasserzeichen",
-              "after_label": "Sauber",
-              "before_alt": "Originales KI-Bild eines Skaters mit Gemini-Wasserzeichen",
-              "after_alt": "Verarbeitetes Bild mit entferntem Wasserzeichen ohne Qualitätsverlust"
-            }
-          }
-        ]
-      },
-      "features": {
-        "id": "features",
-        "title": "Leistungsstarke Funktionen",
-        "description": "Alles, was Sie brauchen, um KI-generierte Bilder zu bereinigen.",
-        "items": [
-          {
-            "title": "Gemini Wasserzeichen entfernen",
-            "description": "Entfernen Sie sichtbare Wasserzeichen von Google Gemini Bildern (das ✦-Sternlogo).",
-            "icon": "RiRobot2Line"
-          },
-          {
-            "title": "Doppelschicht-Reinigung",
-            "description": "Entfernen Sie sowohl sichtbare Wasserzeichen (Logos, Sterne) als auch unsichtbare Metadaten (C2PA, EXIF-KI-Tags).",
-            "icon": "RiStackLine"
-          },
-          {
-            "title": "Browserbasierte Verarbeitung",
-            "description": "Die gesamte Verarbeitung erfolgt lokal in Ihrem Browser mittels Canvas-API. Funktioniert auch offline.",
-            "icon": "RiGlobalLine"
-          },
-          {
-            "title": "Stapelverarbeitung",
-            "description": "Pro-Nutzer können bis zu 100 Bilder gleichzeitig mit Drag & Drop-Stapelupload verarbeiten.",
-            "icon": "RiFileCopyLine"
-          },
-          {
-            "title": "Sofort-Download",
-            "description": "Laden Sie Ihre bereinigten Bilder sofort im hochwertigen PNG-Format herunter. Kein Warten, keine E-Mail erforderlich.",
-            "icon": "RiDownloadLine"
-          },
-          {
-            "title": "Dauerhaft kostenloses Paket",
-            "description": "Verarbeiten Sie 5 Bilder pro Tag komplett kostenlos. Keine Registrierung, keine Kreditkarte, keine Verpflichtungen.",
+            "title": "A Full Identity Kit",
+            "description": "Every design includes a monogram, simplified mark, black-and-white version, and four print mockups — everything a stationer would charge hundreds for.",
             "icon": "RiGiftLine"
+          },
+          {
+            "title": "Uniquely Yours",
+            "description": "Your flowers, your location, your dog, your story. No two crests are alike, and every element is one you chose.",
+            "icon": "RiLeafLine"
+          },
+          {
+            "title": "Real Fonts, Real Colors",
+            "description": "Eight curated font pairings and seven wedding palettes — or bring your own hex codes to match your stationery exactly.",
+            "icon": "RiDropLine"
+          },
+          {
+            "title": "See It In Place",
+            "description": "Instant mockups show your crest on an invitation, save-the-date, dinner menu, and welcome sign before you download a single file.",
+            "icon": "RiLayoutGridLine"
           }
         ]
       },
-      "stats": {
-        "id": "stats",
-        "title": "Vertraut von Kreativen weltweit",
-        "description": "Schließen Sie sich tausenden Kreativen an, die Gemini Wasserzeichen entfernen täglich nutzen.",
-        "items": [
+      "examples": {
+        "block": "wedding-examples",
+        "id": "examples",
+        "title": "Crests From Real Weddings",
+        "description": "Browse the gallery for inspiration — every example can be remixed with your own names and colors.",
+        "buttons": [
           {
-            "title": "50.000+",
-            "description": "Bereinigte Bilder"
-          },
-          {
-            "title": "5+",
-            "description": "KI-Plattformen"
-          },
-          {
-            "title": "100%",
-            "description": "Lokale Verarbeitung"
+            "title": "Browse All Examples",
+            "url": "/examples",
+            "target": "_self"
           }
-        ],
-        "className": "bg-muted"
+        ]
+      },
+      "pricing": {
+        "id": "pricing"
       },
       "faq": {
         "id": "faq",
-        "title": "Häufig gestellte Fragen",
-        "description": "Alles, was Sie über das Entfernen von KI-Wasserzeichen wissen müssen.",
+        "title": "Frequently Asked Questions",
+        "description": "Everything couples ask before designing their crest.",
         "items": [
           {
-            "question": "Ist es legal, KI-Wasserzeichen zu entfernen?",
-            "answer": "Das Entfernen von Wasserzeichen für den persönlichen Gebrauch ist in den meisten Rechtsgebieten generell legal. Wir empfehlen jedoch, die Nutzungsbedingungen der jeweiligen KI-Plattform und Ihre lokalen Gesetze zu prüfen. Unser Tool ist für legitime Anwendungsfälle wie persönliche Projekte und Portfolio-Arbeiten konzipiert."
+            "question": "What is a wedding crest?",
+            "answer": "A wedding crest is an illustrated emblem that represents you as a couple — typically combining your initials or names with decorative elements like florals, laurels, or arches in your wedding style. It appears on invitations, signage, menus, and favors to unify your entire celebration."
           },
           {
-            "question": "Lädt dieses Tool meine Bilder auf einen Server hoch?",
-            "answer": "Nein. Die gesamte Bildverarbeitung erfolgt zu 100% lokal in Ihrem Webbrowser mittels Canvas-API. Ihre Bilddaten verlassen niemals Ihr Gerät. Wir speichern, übertragen oder haben keinen Zugriff auf Ihre Bilder."
+            "question": "What's the difference between a wedding crest and a monogram?",
+            "answer": "A monogram is your initials arranged typographically (like 'E & J'). A wedding crest is a fuller emblem that surrounds your names or monogram with illustrated artwork — florals, wreaths, arches, or frames. Every crest you design here includes a standalone monogram too."
           },
           {
-            "question": "Welche KI-Wasserzeichen können entfernt werden?",
-            "answer": "Aktuell unterstützen wir die Entfernung sichtbarer Wasserzeichen von Google Gemini (das ✦-Sternlogo)."
+            "question": "Can I try it before signing up?",
+            "answer": "Yes! You can design and generate your first crest completely without an account — you'll see it with a light watermark. Create an account (free) to save your design, and unlock watermark-free high-resolution files with the Wedding Identity Pack."
           },
           {
-            "question": "Beeinträchtigt das Entfernen des Wasserzeichens die Bildqualität?",
-            "answer": "Unser Reverse-Alpha-Blending-Algorithmus stellt die originalen Pixelwerte mathematisch wieder her, was zu praktisch null Qualitätsverlust im Wasserzeichenbereich führt. Der Rest des Bildes bleibt völlig unberührt."
+            "question": "How many designs do I get?",
+            "answer": "Each generation produces three crest candidates to choose from. Free accounts can create one project and regenerate once. The Wedding Identity Pack unlocks three regenerations and the full download kit."
           },
           {
-            "question": "Wie viele Bilder kann ich kostenlos verarbeiten?",
-            "answer": "Sie können bis zu 5 Bilder pro Tag komplett kostenlos verarbeiten. Keine Registrierung oder Kreditkarte erforderlich. Für unbegrenzte Verarbeitung startet unser Pro-Tarif bei nur $9/Monat."
+            "question": "What files do I get?",
+            "answer": "The Wedding Identity Pack includes: your primary crest in SVG (standard and 3000px print-ready PNG-ready scale), a standalone monogram SVG, a simplified mark SVG, a black-and-white version, four print mockups, and a usage guide with your exact color codes and fonts."
           },
           {
-            "question": "Funktioniert es auf mobilen Geräten?",
-            "answer": "Ja! Unser Tool funktioniert in jedem modernen Webbrowser, einschließlich mobiler Browser auf iOS und Android. Die Verarbeitung ist leichtgewichtig genug, um auf den meisten Smartphones reibungslos zu laufen."
+            "question": "Are the names and dates crisp?",
+            "answer": "Yes — and this is what sets us apart. The AI illustrates only the artwork layer; all typography (your names, initials, and date) is composed programmatically in real fonts. So text is always pixel-perfect, never the wobbly lettering typical of AI images."
+          },
+          {
+            "question": "Can I use my own colors?",
+            "answer": "Absolutely. Choose from seven curated wedding palettes or enter your own hex codes — perfect for matching existing stationery or brand colors. You can select up to three colors per crest."
+          },
+          {
+            "question": "Can I make changes after generating?",
+            "answer": "Yes. Quick edits — reduce colors, remove a personal element, simplify the illustration — are one click. You can also change the typography pairing, layout, or name display anytime with instant preview, no regeneration needed."
           }
         ]
       },
       "cta": {
         "id": "cta",
-        "title": "KI-Wasserzeichen entfernen starten — Es ist kostenlos",
-        "description": "Keine Registrierung erforderlich. Verarbeiten Sie bis zu 5 Bilder täglich kostenlos.",
+        "title": "Your Crest Is Five Minutes Away",
+        "description": "Start with your names, leave with a complete wedding identity.",
         "buttons": [
           {
-            "title": "Wasserzeichen jetzt entfernen",
-            "url": "#tool",
+            "title": "Design My Crest",
+            "url": "/create",
             "target": "_self",
             "icon": "Sparkles"
           },
           {
-            "title": "Preise anzeigen",
+            "title": "View Pricing",
             "url": "/#pricing",
             "target": "_self",
-            "variant": "blue",
+            "variant": "outline",
             "icon": "DollarSign"
-          },
-          {
-            "title": "iOS-Kurzbefehl",
-            "url": "/shortcuts",
-            "target": "_self",
-            "variant": "emerald",
-            "icon": "Command"
           }
         ],
-        "className": "bg-muted"
+        "className": ""
       }
     }
   }

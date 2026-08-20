@@ -33,9 +33,24 @@ const inputSchema = z.object({
   model: z.string().trim().min(1).optional(),
 });
 
-function defaultModelFor(providerName: string) {
+/**
+ * Resolve the model for this generation.
+ *
+ * Priority: request body override → env override → provider's own configured
+ * model (e.g. `runware_model` in the admin config). We deliberately do NOT
+ * hardcode a Runware AIR id here, because the admin settings are the
+ * authoritative source of truth — a stale hardcoded default would override a
+ * freshly-saved provider model and produce invalid-model 400s.
+ */
+function pickModel(
+  providerName: string,
+  requested: string | undefined,
+  providerDefault: string | undefined
+) {
   return (
+    requested ||
     process.env.WEDDING_AI_MODEL ||
+    providerDefault ||
     (providerName === 'runware' ? 'runware:Flux-Schnell@1' : 'flux-schnell')
   );
 }
@@ -95,7 +110,11 @@ export async function POST(
       );
     }
 
-    const model = body.model || defaultModelFor(provider.name);
+    const model = pickModel(
+      provider.name,
+      body.model,
+      (provider as { configs?: { model?: string } }).configs?.model
+    );
 
     const versions = getWeddingVersions();
     const prompt = compileWeddingPrompt({

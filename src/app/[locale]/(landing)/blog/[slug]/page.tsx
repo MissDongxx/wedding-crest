@@ -88,7 +88,7 @@ export default async function BlogDetailPage({
       name: 'RemoveGeminiWatermark',
       logo: {
         '@type': 'ImageObject',
-        url: `${baseUrl}/logo.png`,
+        url: `${baseUrl}/logo.webp`,
       },
     },
     mainEntityOfPage: {

@@ -1,90 +1,92 @@
 {
   "metadata": {
-    "title": "가격 — RemoveGeminiWatermark",
-    "description": "무료로 AI 워터마크를 제거하세요. 무제한 처리를 원하시면 Pro로 업그레이드."
+    "title": "Pricing - Wedding Crest Design",
+    "description": "Design your wedding crest free, then unlock the complete Wedding Identity Pack with high-resolution SVG downloads, monograms and mockups for $19."
   },
   "page": {
-    "title": "RemoveGeminiWatermark 가격",
+    "title": "Wedding Crest Design Pricing",
     "sections": {
       "pricing": {
         "id": "pricing",
-        "title": "심플하고 투명한 가격",
-        "description": "무료로 시작하세요. 필요할 때 업그레이드.",
+        "title": "Simple, Honest Pricing",
+        "description": "Design free. Pay once, only if you love it.",
         "groups": [
           {
             "name": "one-time",
-            "title": "1회 결제",
+            "title": "Pay Once",
             "is_featured": true
           }
         ],
         "items": [
           {
-            "title": "무료",
-            "description": "리스크 없이 AI 워터마크 제거를 체험하세요.",
-            "features_title": "포함된 기능",
+            "title": "Free",
+            "description": "Design your crest and see it in full.",
+            "features_title": "Includes",
             "features": [
-              "하루 5장",
-              "제미니 워터마크 제거",
-              "100% 로컬 처리",
-              "PNG, JPG, WebP 지원",
-              "가입 불필요"
+              "1 saved wedding project",
+              "3 crest candidates per generation",
+              "1 regeneration",
+              "All 6 styles, layouts & palettes",
+              "Instant typography preview",
+              "Mockup previews with watermark"
             ],
             "interval": "one-time",
             "amount": 0,
             "currency": "USD",
             "price": "$0",
-            "unit": "영구 무료",
+            "unit": "forever",
             "is_featured": false,
-            "tip": "신용카드 불필요",
+            "tip": "No credit card required",
             "button": {
-              "title": "무료로 시작",
-              "url": "/tools/gemini",
+              "title": "Start Designing",
+              "url": "/create",
               "icon": "RiFlashlightFill"
             },
             "product_id": "free",
-            "product_name": "RemoveGeminiWatermark Free",
+            "product_name": "Wedding Crest Design Free",
             "credits": 0,
             "valid_days": 0,
             "group": "one-time"
           },
           {
-            "title": "평생",
-            "description": "전문가를 위한 무제한 워터마크 제거. 한 번 결제, 영구 사용.",
-            "label": "최고 가성비",
-            "features_title": "무료 플랜의 모든 기능 포함",
+            "title": "Wedding Identity Pack",
+            "description": "Unlock watermark-free, high-resolution files for one wedding project. Pay once - it's yours forever.",
+            "label": "Most Popular",
+            "features_title": "Everything in Free, plus",
             "features": [
-              "무제한 이미지",
-              "모든 AI 플랫폼 지원",
-              "일괄 처리(최대 100장)",
-              "C2PA/Exif 메타데이터 제거",
-              "우선 지원",
-              "iOS 단축어"
+              "Watermark-free high-resolution files",
+              "3 regenerations (9 more crest candidates)",
+              "Primary crest SVG + print-scale file",
+              "Standalone monogram SVG",
+              "Simplified mark & black-white versions",
+              "4 print mockups (invite, save-the-date, menu, sign)",
+              "Usage guide with exact hex codes & fonts",
+              "Commercial use for your wedding"
             ],
             "interval": "one-time",
-            "amount": 990,
+            "amount": 1900,
             "currency": "USD",
-            "price": "$9.9",
-            "unit": "",
+            "price": "$19",
+            "unit": "one-time",
             "is_featured": true,
-            "tip": "한 번 결제, 영구 사용",
+            "tip": "One payment · Yours forever",
             "button": {
-              "title": "평생 이용권 구매",
-              "url": "/#pricing",
-              "icon": "RiFlashlightFill"
+              "title": "Unlock My Crest",
+              "url": "/create",
+              "icon": "RiVipCrownLine"
             },
-            "product_id": "pro-lifetime",
-            "product_name": "RemoveGeminiWatermark Lifetime Pro",
-            "credits": 999999,
-            "valid_days": 36500,
-            "group": "one-time",
-            "plan_name": "평생"
+            "product_id": "wedding_identity_pack",
+            "product_name": "Wedding Identity Pack",
+            "credits": 0,
+            "valid_days": 0,
+            "group": "one-time"
           }
         ]
       }
     }
   },
   "messages": {
-    "current_plan": "현재 플랜",
-    "processing": "처리 중"
+    "current_plan": "Current Plan",
+    "processing": "Processing"
   }
 }

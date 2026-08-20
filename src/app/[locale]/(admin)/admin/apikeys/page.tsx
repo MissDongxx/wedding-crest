@@ -20,7 +20,7 @@ export default async function ApiKeysPage({
   // Check if user has permission to read api keys
   await requirePermission({
     code: PERMISSIONS.APIKEYS_READ,
-    redirectUrl: '/admin/no-permission',
+    redirectUrl: '/no-permission',
     locale,
   });
 

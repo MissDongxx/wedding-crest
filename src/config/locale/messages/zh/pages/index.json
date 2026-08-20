@@ -1,274 +1,192 @@
 {
+  "metadata": {
+    "title": "Wedding Crest Design — AI Wedding Crest & Monogram Maker",
+    "description": "Design a custom wedding crest in minutes. Six styles, 12 layouts, matching color palettes and typography — with full SVG downloads, monograms and mockups. Free to start."
+  },
   "page": {
     "show_sections": [
-      "tool",
-      "comparison",
       "hero",
+      "styles",
       "introduce",
       "benefits",
-      "features",
+      "examples",
       "pricing",
-      "stats",
       "faq",
       "cta"
     ],
     "sections": {
-      "tool": {
-        "block": "upload-zone-block",
-        "id": "tool",
-        "title": "移除 Gemini 图片的 AI 水印",
-        "label": "免费在线工具",
-        "description": "上传你的 AI 生成图片，立即移除 Gemini 水印。100% 本地处理 — 你的图片不会离开你的设备。",
-        "comparison_tip": "按住查看去除水印后效果"
-      },
       "hero": {
+        "block": "wedding-hero",
         "id": "hero",
-        "title": "移除 Gemini 图片的 AI 水印",
-        "highlight_text": "Gemini 图片",
-        "description": "免费浏览器工具，移除 Gemini 生成图片的水印。<br/>100% 本地处理 — 你的图片不会离开你的设备。",
+        "title": "Create a Wedding Crest That Feels Like You",
+        "description": "A custom wedding crest pulls your whole celebration together — invitations, signage, menus, and thank-you cards, all wearing the same beautiful mark. Describe your wedding once, and our AI illustrator draws it in your style.",
         "announcement": {
-          "badge": "免费",
-          "title": "✦ 即时移除 Gemini 水印",
-          "url": "/tools/gemini"
+          "badge": "New",
+          "title": "6 signature styles · 12 layouts · instant typography preview",
+          "url": "/#styles"
         },
-        "tip": "🔒 100% 隐私安全 • 无需上传 • 离线可用",
+        "tip": "No signup needed to try · Free preview with watermark",
         "buttons": [
           {
-            "title": "免费移除水印",
+            "title": "Create My Wedding Crest",
             "icon": "Sparkles",
-            "url": "/tools/gemini",
+            "url": "/create",
             "target": "_self",
             "variant": "default"
           },
           {
-            "title": "查看价格",
-            "icon": "DollarSign",
-            "url": "/#pricing",
+            "title": "See Examples",
+            "icon": "RiEyeLine",
+            "url": "/examples",
             "target": "_self",
-            "variant": "blue"
-          },
-          {
-            "title": "iOS 快捷指令",
-            "icon": "Command",
-            "url": "/shortcuts",
-            "target": "_self",
-            "variant": "emerald"
+            "variant": "outline"
           }
-        ],
-        "show_avatars": false,
-        "show_award": false
+        ]
       },
-      "comparison": {
-        "block": "comparison-block",
-        "id": "comparison",
-        "title": "专业级处理效果",
-        "label": "效果对比",
-        "description": "查看我们的浏览器处理工具如何在零画质损耗的前提下移除 AI 水印。",
-        "before_after": {
-          "before_image": "/images/examples/castle-before.jpg",
-          "after_image": "/images/examples/castle-after.jpg",
-          "before_label": "处理前",
-          "after_label": "处理后",
-          "before_alt": "带有 Gemini 水印的 AI 生成图片",
-          "after_alt": "移除 Gemini 水印后零画质损耗的图片",
-          "layout": "side-by-side"
-        }
+      "styles": {
+        "block": "wedding-styles",
+        "id": "styles",
+        "title": "Find Your Style",
+        "description": "Six illustrated styles, each with matching layouts, palettes, and typography. Pick the one that feels like your wedding."
       },
       "introduce": {
-        "block": "features-step",
         "id": "introduce",
-        "title": "使用方法",
-        "label": "三步搞定",
-        "description": "几秒内移除 AI 水印 — 无需注册，无需下载软件。",
+        "title": "How It Works",
+        "label": "3 Simple Steps",
+        "description": "From names to finished crest in under five minutes — no design skills needed.",
         "image_position": "left",
         "text_align": "center",
         "items": [
           {
-            "title": "上传图片",
-            "description": "拖拽或点击上传 AI 生成的图片。支持 PNG、JPG 和 WebP 格式，最大 20MB。",
-            "icon": "RiUploadCloud2Line"
+            "title": "Tell Us About Yourselves",
+            "description": "Enter your names, date, and wedding details — venue, flowers, personal elements like your dog or the mountains where you got engaged.",
+            "icon": "RiQuillPenLine"
           },
           {
-            "title": "自动移除水印",
-            "description": "我们的算法通过反向 Alpha 混合检测并移除水印 — 100% 在浏览器中完成。",
+            "title": "Pick Style, Colors & Fonts",
+            "description": "Choose from six illustrated styles, seven curated palettes, and eight typography pairings. The layout updates live as you choose.",
+            "icon": "RiPaletteLine"
+          },
+          {
+            "title": "Get 3 Crests + Full Kit",
+            "description": "Our AI illustrates the artwork while typography is set programmatically for crisp results. Pick your favorite, then download SVG, monogram, mockups and more.",
             "icon": "RiMagicLine"
-          },
-          {
-            "title": "下载干净图片",
-            "description": "立即获取 PNG 格式的干净图片。原始画质完整保留，零伪影。",
-            "icon": "RiDownloadLine"
           }
         ],
-        "className": "bg-muted"
+        "className": ""
       },
       "benefits": {
-        "block": "features-accordion",
         "id": "benefits",
-        "title": "为何选择 RemoveGeminiWatermark 移除 Gemini 水印",
-        "label": "产品优势",
-        "description": "最安全、最高质量的 AI 水印移除工具。",
+        "title": "One Crest, Everywhere",
+        "description": "A wedding crest is the single mark that ties your entire celebration together.",
         "items": [
           {
-            "title": "100% 隐私安全 — 无需上传",
-            "description": "与其他工具不同，您的图片完全在浏览器中处理。数据绝不会发送到任何服务器。您的创作始终私密。",
-            "icon": "RiShieldCheckLine",
-            "before_after": {
-              "before_image": "/images/examples/woman-after.jpg",
-              "after_image": "/images/examples/woman-before.jpg",
-              "before_label": "已清理",
-              "after_label": "含水印",
-              "before_alt": "移除水印后的干净 AI 图片",
-              "after_alt": "带有 Gemini 水印的原始 AI 图片"
-            }
+            "title": "Cohesive Wedding Identity",
+            "description": "Invitations, save-the-dates, ceremony programs, dinner menus, welcome signs, favor tags, and your website — all sharing one beautiful mark.",
+            "icon": "RiHeart3Line"
           },
           {
-            "title": "零画质损耗",
-            "description": "我们的反向 Alpha 混合算法可以从数学上恢复水印下的原始像素。无模糊、无伪影、无画质降低。",
-            "icon": "RiImageEditLine",
-            "before_after": {
-              "before_image": "/images/examples/dog-before.jpg",
-              "after_image": "/images/examples/dog-after.jpg",
-              "before_label": "含水印",
-              "after_label": "已清理",
-              "before_alt": "带有 Gemini 水印的 AI 狗狗图片",
-              "after_alt": "移除水印后零画质损耗的图片"
-            }
+            "title": "Crisp, Editable SVG",
+            "description": "Typography is composed programmatically, not AI-generated, so names and dates stay perfectly sharp at any size — from a wax seal to a welcome sign.",
+            "icon": "RiVectorLine"
           },
           {
-            "title": "秒级极速处理",
-            "description": "使用 Canvas API 在 500 毫秒内完成处理。无需等待服务器响应或处理队列。",
-            "icon": "RiFlashlightLine",
-            "before_after": {
-              "before_image": "/images/examples/skater-before.jpg",
-              "after_image": "/images/examples/skater-after.jpg",
-              "before_label": "含水印",
-              "after_label": "已清理",
-              "before_alt": "带有 Gemini 水印的 AI 滑板者图片",
-              "after_alt": "移除水印后零画质损耗的图片"
-            }
-          }
-        ]
-      },
-      "features": {
-        "id": "features",
-        "title": "移除 Gemini 水印的强大功能",
-        "description": "清理 AI 生成图片所需的一切工具。",
-        "items": [
-          {
-            "title": "Gemini 水印移除",
-            "description": "移除 Google Gemini 图片的可见水印（✦ 星标 Logo）。",
-            "icon": "RiRobot2Line"
-          },
-          {
-            "title": "双层清理",
-            "description": "同时移除可见水印（Logo、星标）和不可见元数据（C2PA、EXIF AI 标签）。",
-            "icon": "RiStackLine"
-          },
-          {
-            "title": "浏览器端处理",
-            "description": "所有处理均在浏览器中通过 Canvas API 本地完成，支持离线使用。",
-            "icon": "RiGlobalLine"
-          },
-          {
-            "title": "批量处理",
-            "description": "专业版用户支持拖拽批量上传，一次最多处理 100 张图片。",
-            "icon": "RiFileCopyLine"
-          },
-          {
-            "title": "即时下载",
-            "description": "立即下载高质量的 PNG 格式干净图片，无需等待，无需邮箱。",
-            "icon": "RiDownloadLine"
-          },
-          {
-            "title": "永久免费方案",
-            "description": "每天免费处理 5 张图片，无需注册、无需信用卡、没有任何附加条件。",
+            "title": "A Full Identity Kit",
+            "description": "Every design includes a monogram, simplified mark, black-and-white version, and four print mockups — everything a stationer would charge hundreds for.",
             "icon": "RiGiftLine"
+          },
+          {
+            "title": "Uniquely Yours",
+            "description": "Your flowers, your location, your dog, your story. No two crests are alike, and every element is one you chose.",
+            "icon": "RiLeafLine"
+          },
+          {
+            "title": "Real Fonts, Real Colors",
+            "description": "Eight curated font pairings and seven wedding palettes — or bring your own hex codes to match your stationery exactly.",
+            "icon": "RiDropLine"
+          },
+          {
+            "title": "See It In Place",
+            "description": "Instant mockups show your crest on an invitation, save-the-date, dinner menu, and welcome sign before you download a single file.",
+            "icon": "RiLayoutGridLine"
           }
         ]
       },
-      "stats": {
-        "id": "stats",
-        "title": "全球创作者信赖之选",
-        "description": "加入每天使用 RemoveGeminiWatermark 的数千名创作者。",
-        "items": [
+      "examples": {
+        "block": "wedding-examples",
+        "id": "examples",
+        "title": "Crests From Real Weddings",
+        "description": "Browse the gallery for inspiration — every example can be remixed with your own names and colors.",
+        "buttons": [
           {
-            "title": "50,000+",
-            "description": "已处理图片"
-          },
-          {
-            "title": "5+",
-            "description": "AI 平台支持"
-          },
-          {
-            "title": "100%",
-            "description": "本地处理"
+            "title": "Browse All Examples",
+            "url": "/examples",
+            "target": "_self"
           }
-        ],
-        "className": "bg-muted"
+        ]
+      },
+      "pricing": {
+        "id": "pricing"
       },
       "faq": {
         "id": "faq",
-        "title": "常见问题",
-        "description": "关于移除 AI 水印你需要了解的一切。",
+        "title": "Frequently Asked Questions",
+        "description": "Everything couples ask before designing their crest.",
         "items": [
           {
-            "question": "移除 AI 水印是否合法？",
-            "answer": "在大多数司法管辖区，出于个人使用目的移除水印通常是合法的。但我们建议您查看特定 AI 平台的服务条款以及当地法律。本工具旨在服务于个人项目和作品集等合法用途。"
+            "question": "What is a wedding crest?",
+            "answer": "A wedding crest is an illustrated emblem that represents you as a couple — typically combining your initials or names with decorative elements like florals, laurels, or arches in your wedding style. It appears on invitations, signage, menus, and favors to unify your entire celebration."
           },
           {
-            "question": "这个工具会将我的图片上传到服务器吗？",
-            "answer": "不会。所有图片处理完全在您的浏览器中通过 Canvas API 进行。您的图片数据绝不会离开您的设备。我们不存储、传输或访问您的任何图片。"
+            "question": "What's the difference between a wedding crest and a monogram?",
+            "answer": "A monogram is your initials arranged typographically (like 'E & J'). A wedding crest is a fuller emblem that surrounds your names or monogram with illustrated artwork — florals, wreaths, arches, or frames. Every crest you design here includes a standalone monogram too."
           },
           {
-            "question": "支持哪些 AI 水印？",
-            "answer": "目前支持移除 Google Gemini 的可见水印（✦ 星标 Logo）。"
+            "question": "Can I try it before signing up?",
+            "answer": "Yes! You can design and generate your first crest completely without an account — you'll see it with a light watermark. Create an account (free) to save your design, and unlock watermark-free high-resolution files with the Wedding Identity Pack."
           },
           {
-            "question": "移除水印会影响图片质量吗？",
-            "answer": "我们的反向 Alpha 混合算法从数学上恢复原始像素值，在水印区域实现几乎零画质损耗。图片的其余部分完全不受影响。"
+            "question": "How many designs do I get?",
+            "answer": "Each generation produces three crest candidates to choose from. Free accounts can create one project and regenerate once. The Wedding Identity Pack unlocks three regenerations and the full download kit."
           },
           {
-            "question": "每天可以免费处理多少张图片？",
-            "answer": "每天可以免费处理最多 5 张图片，无需注册或信用卡。如需无限处理，专业版方案仅需 $9/月。"
+            "question": "What files do I get?",
+            "answer": "The Wedding Identity Pack includes: your primary crest in SVG (standard and 3000px print-ready PNG-ready scale), a standalone monogram SVG, a simplified mark SVG, a black-and-white version, four print mockups, and a usage guide with your exact color codes and fonts."
           },
           {
-            "question": "支持移动设备吗？",
-            "answer": "支持！本工具可在任何现代浏览器中运行，包括 iOS 和 Android 的移动浏览器。处理过程足够轻量，在大多数智能手机上都能流畅运行。"
+            "question": "Are the names and dates crisp?",
+            "answer": "Yes — and this is what sets us apart. The AI illustrates only the artwork layer; all typography (your names, initials, and date) is composed programmatically in real fonts. So text is always pixel-perfect, never the wobbly lettering typical of AI images."
+          },
+          {
+            "question": "Can I use my own colors?",
+            "answer": "Absolutely. Choose from seven curated wedding palettes or enter your own hex codes — perfect for matching existing stationery or brand colors. You can select up to three colors per crest."
+          },
+          {
+            "question": "Can I make changes after generating?",
+            "answer": "Yes. Quick edits — reduce colors, remove a personal element, simplify the illustration — are one click. You can also change the typography pairing, layout, or name display anytime with instant preview, no regeneration needed."
           }
         ]
       },
       "cta": {
         "id": "cta",
-        "title": "立即开始移除 AI 水印 — 完全免费",
-        "description": "无需注册。每天免费处理最多 5 张图片。",
+        "title": "Your Crest Is Five Minutes Away",
+        "description": "Start with your names, leave with a complete wedding identity.",
         "buttons": [
           {
-            "title": "立即移除水印",
-            "url": "#tool",
+            "title": "Design My Crest",
+            "url": "/create",
             "target": "_self",
             "icon": "Sparkles"
           },
           {
-            "title": "查看价格",
+            "title": "View Pricing",
             "url": "/#pricing",
             "target": "_self",
-            "variant": "blue",
+            "variant": "outline",
             "icon": "DollarSign"
-          },
-          {
-            "title": "iOS 快捷指令",
-            "url": "/shortcuts",
-            "target": "_self",
-            "variant": "emerald",
-            "icon": "Command"
           }
         ],
-        "className": "bg-muted"
-      },
-      "partners": {
-        "id": "partners",
-        "block": "partners",
-        "title": "合作伙伴"
+        "className": ""
       }
     }
   }

@@ -622,6 +622,8 @@ export const weddingProject = table(
     typography: text('typography').notNull().default('editorial_rose'),
     palette: text('palette').notNull(),
     complexity: text('complexity').notNull().default('medium'),
+    nameDisplay: text('name_display').notNull().default('initials_amp'),
+    showDate: integer('show_date', { mode: 'boolean' }).default(true).notNull(),
     status: text('status').notNull().default('draft'),
     createdAt: integer('created_at', { mode: 'timestamp_ms' })
       .default(sqliteNowMs)

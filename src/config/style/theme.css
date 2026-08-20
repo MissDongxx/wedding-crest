@@ -1,10 +1,10 @@
 :root {
   --background: oklch(0.998 0.003 90);
-  --foreground: oklch(0.30 0.04 75);
+  --foreground: oklch(0.3 0.04 75);
   --card: oklch(0.995 0.008 90);
-  --card-foreground: oklch(0.30 0.04 75);
+  --card-foreground: oklch(0.3 0.04 75);
   --popover: oklch(0.995 0.008 90);
-  --popover-foreground: oklch(0.30 0.04 75);
+  --popover-foreground: oklch(0.3 0.04 75);
   --primary: oklch(0.72 0.16 85);
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.935 0.025 88);
@@ -21,19 +21,20 @@
   --chart-1: oklch(0.72 0.16 85);
   --chart-2: oklch(0.65 0.18 82);
   --chart-3: oklch(0.58 0.16 80);
-  --chart-4: oklch(0.50 0.14 78);
+  --chart-4: oklch(0.5 0.14 78);
   --chart-5: oklch(0.42 0.11 76);
   --sidebar: oklch(0.96 0.02 88);
-  --sidebar-foreground: oklch(0.30 0.04 75);
+  --sidebar-foreground: oklch(0.3 0.04 75);
   --sidebar-primary: oklch(0.72 0.16 85);
   --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: oklch(0.93 0.04 85);
   --sidebar-accent-foreground: oklch(0.38 0.035 75);
   --sidebar-border: oklch(0.88 0.03 82);
   --sidebar-ring: oklch(0.72 0.16 85);
-  --font-sans: Noto Sans Mono, ui-sans-serif, sans-serif, system-ui;
-  --font-serif: Merriweather, serif;
-  --font-mono: JetBrains Mono, monospace;
+  --wedding-ivory: oklch(0.972 0.012 92);
+  --font-sans: Manrope, 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
+  --font-mono: Manrope, ui-monospace, monospace;
   --radius: 0.5rem;
   --shadow-x: 0px;
   --shadow-y: 4px;
@@ -67,10 +68,10 @@
   --popover-foreground: oklch(0.92 0.015 88);
   --primary: oklch(0.78 0.15 85);
   --primary-foreground: oklch(0.18 0.03 75);
-  --secondary: oklch(0.30 0.03 80);
+  --secondary: oklch(0.3 0.03 80);
   --secondary-foreground: oklch(0.87 0.02 82);
   --muted: oklch(0.22 0.03 78);
-  --muted-foreground: oklch(0.70 0.025 82);
+  --muted-foreground: oklch(0.7 0.025 82);
   --accent: oklch(0.35 0.035 80);
   --accent-foreground: oklch(0.87 0.02 82);
   --destructive: oklch(0.6368 0.2078 25.3313);
@@ -82,7 +83,7 @@
   --chart-2: oklch(0.72 0.16 85);
   --chart-3: oklch(0.65 0.18 82);
   --chart-4: oklch(0.58 0.16 80);
-  --chart-5: oklch(0.50 0.14 78);
+  --chart-5: oklch(0.5 0.14 78);
   --sidebar: oklch(0.24 0.03 78);
   --sidebar-foreground: oklch(0.92 0.015 88);
   --sidebar-primary: oklch(0.78 0.15 85);
@@ -91,9 +92,10 @@
   --sidebar-accent-foreground: oklch(0.87 0.02 82);
   --sidebar-border: oklch(0.38 0.03 78);
   --sidebar-ring: oklch(0.78 0.15 85);
-  --font-sans: Noto Sans Mono, ui-sans-serif, sans-serif, system-ui;
-  --font-serif: Merriweather, serif;
-  --font-mono: JetBrains Mono, monospace;
+  --wedding-ivory: oklch(0.24 0.02 82);
+  --font-sans: Manrope, 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
+  --font-mono: Manrope, ui-monospace, monospace;
   --radius: 0.5rem;
   --shadow-x: 0px;
   --shadow-y: 4px;
@@ -149,6 +151,7 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-wedding-ivory: var(--wedding-ivory);
 
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);

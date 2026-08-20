@@ -25,7 +25,7 @@ export default async function CategoriesPage({
   // Check if user has permission to read categories
   await requirePermission({
     code: PERMISSIONS.CATEGORIES_READ,
-    redirectUrl: '/admin/no-permission',
+    redirectUrl: '/no-permission',
     locale,
   });
 

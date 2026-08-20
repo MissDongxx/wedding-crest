@@ -2,10 +2,10 @@
   "header": {
     "id": "header",
     "brand": {
-      "title": "제미니 워터마크 제거",
+      "title": "Wedding Crest Design",
       "logo": {
-        "src": "/logo.png",
-        "alt": "RemoveGeminiWatermark - 무료 제미니 워터마크 제거 도구",
+        "src": "/logo.webp",
+        "alt": "Wedding Crest Design - AI Wedding Crest Maker",
         "width": 100,
         "height": 100
       },
@@ -14,35 +14,51 @@
     "nav": {
       "items": [
         {
-          "title": "단축어",
-          "url": "/shortcuts",
-          "icon": "Command"
-        },
-        {
-          "title": "기능",
-          "url": "/#features",
+          "title": "Create",
+          "url": "/create",
           "icon": "Sparkles"
         },
         {
-          "title": "가격",
+          "title": "Styles",
+          "url": "/#styles",
+          "icon": "RiPaletteLine"
+        },
+        {
+          "title": "Examples",
+          "url": "/examples",
+          "icon": "RiEyeLine"
+        },
+        {
+          "title": "Pricing",
           "url": "/#pricing",
           "icon": "DollarSign"
         },
         {
-          "title": "블로그",
+          "title": "Blog",
           "url": "/blog",
           "icon": "Newspaper"
         }
       ]
     },
-    "buttons": [],
+    "buttons": [
+      {
+        "title": "My Designs",
+        "url": "/my-designs",
+        "icon": "RiFolderImageLine"
+      }
+    ],
     "user_nav": {
       "show_name": true,
-      "show_credits": true,
+      "show_credits": false,
       "show_sign_out": true,
       "items": [
         {
-          "title": "결제",
+          "title": "My Designs",
+          "url": "/my-designs",
+          "icon": "RiFolderImageLine"
+        },
+        {
+          "title": "Billing",
           "url": "/settings/billing",
           "icon": "CreditCard"
         }
@@ -55,11 +71,11 @@
   "footer": {
     "id": "footer",
     "brand": {
-      "title": "제미니 워터마크 제거",
-      "description": "제미니 생성 이미지의 워터마크를 제거하는 무료 브라우저 기반 도구. 100% 로컬 처리.",
+      "title": "Wedding Crest Design",
+      "description": "Design a custom wedding crest in minutes. AI-illustrated artwork, programmatic typography, and a complete identity kit for your celebration.",
       "logo": {
-        "src": "/logo.png",
-        "alt": "RemoveGeminiWatermark - 무료 제미니 워터마크 제거 도구",
+        "src": "/logo.webp",
+        "alt": "Wedding Crest Design - AI Wedding Crest Maker",
         "width": 1024,
         "height": 1024
       },
@@ -68,45 +84,100 @@
     "nav": {
       "items": [
         {
-          "title": "도구",
+          "title": "Product",
           "children": [
             {
-              "title": "제미니 제거기",
-              "url": "/tools/gemini",
+              "title": "Create a Crest",
+              "url": "/create",
               "target": "_self"
             },
             {
-              "title": "모든 기능",
-              "url": "/#features",
+              "title": "Wedding Crest Generator",
+              "url": "/wedding-crest-generator",
+              "target": "_self"
+            },
+            {
+              "title": "Wedding Monogram Maker",
+              "url": "/wedding-monogram-maker",
+              "target": "_self"
+            },
+            {
+              "title": "Wedding Logo Maker",
+              "url": "/wedding-logo-maker",
               "target": "_self"
             }
           ]
         },
         {
-          "title": "제품",
+          "title": "Styles",
           "children": [
             {
-              "title": "가격",
+              "title": "Botanical Watercolor",
+              "url": "/wedding-crest/botanical-watercolor",
+              "target": "_self"
+            },
+            {
+              "title": "Minimal Line Art",
+              "url": "/wedding-crest/minimal-line-art",
+              "target": "_self"
+            },
+            {
+              "title": "Vintage Engraving",
+              "url": "/wedding-crest/vintage-engraving",
+              "target": "_self"
+            },
+            {
+              "title": "Italian Romance",
+              "url": "/wedding-crest/italian-romance",
+              "target": "_self"
+            },
+            {
+              "title": "Coastal",
+              "url": "/wedding-crest/coastal",
+              "target": "_self"
+            },
+            {
+              "title": "Classic Luxury",
+              "url": "/wedding-crest/classic-luxury",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "Resources",
+          "children": [
+            {
+              "title": "Examples",
+              "url": "/examples",
+              "target": "_self"
+            },
+            {
+              "title": "Pricing",
               "url": "/#pricing",
               "target": "_self"
             },
             {
-              "title": "블로그",
+              "title": "My Designs",
+              "url": "/my-designs",
+              "target": "_self"
+            },
+            {
+              "title": "Blog",
               "url": "/blog",
               "target": "_self"
             }
           ]
         },
         {
-          "title": "법적 고지",
+          "title": "Legal",
           "children": [
             {
-              "title": "개인정보 처리방침",
+              "title": "Privacy Policy",
               "url": "/privacy-policy",
               "target": "_self"
             },
             {
-              "title": "이용약관",
+              "title": "Terms of Service",
               "url": "/terms-of-service",
               "target": "_self"
             }
@@ -119,13 +190,13 @@
         {
           "title": "X",
           "icon": "RiTwitterXFill",
-          "url": "https://x.com/RemoveGeminiWM",
+          "url": "https://x.com/",
           "target": "_blank"
         },
         {
-          "title": "이메일",
+          "title": "Email",
           "icon": "Mail",
-          "url": "mailto:support@removegeminiwatermark.org",
+          "url": "mailto:support@weddingcrestdesign.com",
           "target": "_self"
         }
       ]
@@ -133,11 +204,11 @@
     "agreement": {
       "items": [
         {
-          "title": "개인정보 처리방침",
+          "title": "Privacy Policy",
           "url": "/privacy-policy"
         },
         {
-          "title": "이용약관",
+          "title": "Terms of Service",
           "url": "/terms-of-service"
         }
       ]

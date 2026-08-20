@@ -3,7 +3,7 @@
     "brand": {
       "title": "RemoveGeminiWatermark",
       "logo": {
-        "src": "/logo.png",
+        "src": "/logo.webp",
         "alt": "RemoveGeminiWatermark"
       },
       "url": "/admin"

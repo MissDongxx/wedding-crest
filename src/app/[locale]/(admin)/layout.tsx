@@ -9,6 +9,12 @@ import { Sidebar as SidebarType } from '@/shared/types/blocks/dashboard';
 
 /**
  * Admin layout to manage datas
+ *
+ * The /admin/no-permission screen lives outside this group
+ * (see src/app/[locale]/no-permission/page.tsx) so users who lack
+ * admin.access can see the explanation page instead of being redirected
+ * into an infinite loop. Any code under (admin)/admin/* therefore has
+ * already passed requireAdminAccess at the layout level.
  */
 export default async function AdminLayout({
   children,

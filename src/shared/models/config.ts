@@ -1,6 +1,7 @@
-import { revalidateTag, unstable_cache } from 'next/cache';
+import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
 
 import { db } from '@/core/db';
+import { routing } from '@/core/i18n/config';
 import { envConfigs } from '@/config';
 import { config } from '@/config/db/schema';
 import { isCloudflareWorker } from '@/shared/lib/env';
@@ -16,6 +17,29 @@ export type UpdateConfig = Partial<Omit<NewConfig, 'name'>>;
 export type Configs = Record<string, string>;
 
 export const CACHE_TAG_CONFIGS = 'configs';
+
+// Revalidate the marketing site so admin uploads (logo, name, description,
+// etc.) become visible without waiting for the 1-hour ISR window. Only
+// called when a public-facing key was actually changed — internal config
+// edits don't need to bust the public page cache.
+function revalidatePublicSiteForChangedConfigs(
+  configs: Record<string, string>
+) {
+  const touchedPublicKey = Object.keys(configs).some((key) =>
+    publicSettingNames.includes(key)
+  );
+  if (!touchedPublicKey) return;
+
+  // Invalidate every locale-prefixed page that consumes publicConfigs.
+  // The public marketing pages have `revalidate = 3600`, so without this
+  // an admin logo change would not appear on the live site for up to an
+  // hour. Using `layout` scope covers the header/footer shared chrome
+  // where the brand logo is rendered.
+  for (const locale of routing.locales) {
+    revalidatePath(`/${locale}`, 'layout');
+  }
+  revalidatePath('/', 'layout');
+}
 
 export async function saveConfigs(configs: Record<string, string>) {
   const database = db();
@@ -37,6 +61,7 @@ export async function saveConfigs(configs: Record<string, string>) {
     const batchResults =
       queries.length > 0 ? await database.batch(queries) : [];
     revalidateTag(CACHE_TAG_CONFIGS);
+    revalidatePublicSiteForChangedConfigs(configs);
     return batchResults.flat();
   }
 
@@ -62,6 +87,7 @@ export async function saveConfigs(configs: Record<string, string>) {
 
   revalidateTag(CACHE_TAG_CONFIGS);
   invalidateConfigsCache();
+  revalidatePublicSiteForChangedConfigs(configs);
 
   return result;
 }
@@ -70,6 +96,7 @@ export async function addConfig(newConfig: NewConfig) {
   const [result] = await db().insert(config).values(newConfig).returning();
   revalidateTag(CACHE_TAG_CONFIGS);
   invalidateConfigsCache();
+  revalidatePublicSiteForChangedConfigs({ [newConfig.name]: newConfig.value ?? '' });
 
   return result;
 }

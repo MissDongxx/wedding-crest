@@ -1,269 +1,192 @@
 {
+  "metadata": {
+    "title": "Wedding Crest Design — AI Wedding Crest & Monogram Maker",
+    "description": "Design a custom wedding crest in minutes. Six styles, 12 layouts, matching color palettes and typography — with full SVG downloads, monograms and mockups. Free to start."
+  },
   "page": {
     "show_sections": [
-      "tool",
-      "comparison",
       "hero",
+      "styles",
       "introduce",
       "benefits",
-      "features",
+      "examples",
       "pricing",
-      "stats",
       "faq",
       "cta"
     ],
     "sections": {
-      "tool": {
-        "block": "upload-zone-block",
-        "id": "tool",
-        "title": "Supprimer le Filigrane IA des Images Gemini",
-        "label": "Outil en Ligne Gratuit",
-        "description": "Téléchargez votre image générée par IA et supprimez le filigrane Gemini instantanément. Traitement 100% local — vos images ne quittent jamais votre appareil.",
-        "comparison_tip": "Maintenez pour voir le résultat"
-      },
-      "comparison": {
-        "block": "comparison-block",
-        "id": "comparison",
-        "title": "Résultats de Qualité Professionnelle",
-        "label": "Comparaison",
-        "description": "Découvrez comment notre outil basé sur le navigateur supprime les filigranes IA sans aucune perte de qualité.",
-        "before_after": {
-          "before_image": "/images/examples/castle-before.jpg",
-          "after_image": "/images/examples/castle-after.jpg",
-          "before_label": "Avant",
-          "after_label": "Après",
-          "before_alt": "Image générée par IA avec filigrane Gemini visible dans le coin",
-          "after_alt": "Même image après suppression du filigrane Gemini sans perte de qualité",
-          "layout": "side-by-side"
-        }
-      },
       "hero": {
+        "block": "wedding-hero",
         "id": "hero",
-        "title": "Supprimer le Filigrane IA des Images Gemini",
-        "highlight_text": "Images Gemini",
-        "description": "Outil gratuit basé sur le navigateur pour supprimer les filigranes d'images générées par Gemini.<br/>Traitement 100% local — vos images ne quittent jamais votre appareil.",
+        "title": "Create a Wedding Crest That Feels Like You",
+        "description": "A custom wedding crest pulls your whole celebration together — invitations, signage, menus, and thank-you cards, all wearing the same beautiful mark. Describe your wedding once, and our AI illustrator draws it in your style.",
         "announcement": {
-          "badge": "Gratuit",
-          "title": "✦ Supprimer les Filigranes Gemini Instantanément",
-          "url": "/tools/gemini"
+          "badge": "New",
+          "title": "6 signature styles · 12 layouts · instant typography preview",
+          "url": "/#styles"
         },
-        "tip": "🔒 100% privé • aucun téléchargement • fonctionne hors ligne",
+        "tip": "No signup needed to try · Free preview with watermark",
         "buttons": [
           {
-            "title": "Supprimer le Filigrane Gratuitement",
+            "title": "Create My Wedding Crest",
             "icon": "Sparkles",
-            "url": "/tools/gemini",
+            "url": "/create",
             "target": "_self",
             "variant": "default"
           },
           {
-            "title": "Voir les Tarifs",
-            "icon": "DollarSign",
-            "url": "/#pricing",
+            "title": "See Examples",
+            "icon": "RiEyeLine",
+            "url": "/examples",
             "target": "_self",
-            "variant": "blue"
-          },
-          {
-            "title": "Raccourci iOS",
-            "icon": "Command",
-            "url": "/shortcuts",
-            "target": "_self",
-            "variant": "emerald"
+            "variant": "outline"
           }
-        ],
-        "show_avatars": false,
-        "show_award": false
+        ]
+      },
+      "styles": {
+        "block": "wedding-styles",
+        "id": "styles",
+        "title": "Find Your Style",
+        "description": "Six illustrated styles, each with matching layouts, palettes, and typography. Pick the one that feels like your wedding."
       },
       "introduce": {
-        "block": "features-step",
         "id": "introduce",
-        "title": "Comment Ça Marche",
-        "label": "3 Étapes Simples",
-        "description": "Supprimez les filigranes IA en quelques secondes — sans inscription, sans téléchargement de logiciel.",
+        "title": "How It Works",
+        "label": "3 Simple Steps",
+        "description": "From names to finished crest in under five minutes — no design skills needed.",
         "image_position": "left",
         "text_align": "center",
         "items": [
           {
-            "title": "Téléchargez Votre Image",
-            "description": "Glissez-déposez ou cliquez pour télécharger votre image générée par IA. Supporte PNG, JPG et WebP jusqu'à 20 Mo.",
-            "icon": "RiUploadCloud2Line"
+            "title": "Tell Us About Yourselves",
+            "description": "Enter your names, date, and wedding details — venue, flowers, personal elements like your dog or the mountains where you got engaged.",
+            "icon": "RiQuillPenLine"
           },
           {
-            "title": "Suppression Automatique du Filigrane",
-            "description": "Notre algorithme détecte et supprime le filigrane par fusion alpha inverse — 100% dans votre navigateur.",
+            "title": "Pick Style, Colors & Fonts",
+            "description": "Choose from six illustrated styles, seven curated palettes, and eight typography pairings. The layout updates live as you choose.",
+            "icon": "RiPaletteLine"
+          },
+          {
+            "title": "Get 3 Crests + Full Kit",
+            "description": "Our AI illustrates the artwork while typography is set programmatically for crisp results. Pick your favorite, then download SVG, monogram, mockups and more.",
             "icon": "RiMagicLine"
-          },
-          {
-            "title": "Téléchargez l'Image Propre",
-            "description": "Obtenez votre image propre instantanément au format PNG. Qualité originale préservée sans artefacts.",
-            "icon": "RiDownloadLine"
           }
         ],
-        "className": "bg-muted"
+        "className": ""
       },
       "benefits": {
-        "block": "features-accordion",
         "id": "benefits",
-        "title": "Pourquoi Choisir Supprimer le Watermark Gemini",
-        "label": "Avantages",
-        "description": "L'outil de suppression de filigranes IA le plus privé et de la plus haute qualité disponible.",
+        "title": "One Crest, Everywhere",
+        "description": "A wedding crest is the single mark that ties your entire celebration together.",
         "items": [
           {
-            "title": "100% Privé — Aucun Téléchargement Requis",
-            "description": "Contrairement aux autres outils, vos images sont traitées entièrement dans votre navigateur. Aucune donnée n'est envoyée à un serveur. Votre travail créatif reste privé.",
-            "icon": "RiShieldCheckLine",
-            "before_after": {
-              "before_image": "/images/examples/woman-after.jpg",
-              "after_image": "/images/examples/woman-before.jpg",
-              "before_label": "Propre",
-              "after_label": "Filigranée",
-              "before_alt": "Image IA propre avec filigrane supprimé",
-              "after_alt": "Image IA originale avec filigrane Gemini"
-            }
+            "title": "Cohesive Wedding Identity",
+            "description": "Invitations, save-the-dates, ceremony programs, dinner menus, welcome signs, favor tags, and your website — all sharing one beautiful mark.",
+            "icon": "RiHeart3Line"
           },
           {
-            "title": "Zéro Perte de Qualité",
-            "description": "Notre algorithme de fusion alpha inverse récupère mathématiquement les pixels originaux sous le filigrane. Pas de flou, pas d'artefacts, aucune dégradation.",
-            "icon": "RiImageEditLine",
-            "before_after": {
-              "before_image": "/images/examples/dog-before.jpg",
-              "after_image": "/images/examples/dog-after.jpg",
-              "before_label": "Filigranée",
-              "after_label": "Propre",
-              "before_alt": "Image IA originale d'un chien avec filigrane Gemini",
-              "after_alt": "Image traitée avec filigrane supprimé sans perte de qualité"
-            }
+            "title": "Crisp, Editable SVG",
+            "description": "Typography is composed programmatically, not AI-generated, so names and dates stay perfectly sharp at any size — from a wax seal to a welcome sign.",
+            "icon": "RiVectorLine"
           },
           {
-            "title": "Traitement Ultra Rapide",
-            "description": "Traitez des images en moins de 500 ms avec l'API Canvas. Pas d'attente de réponses serveur ou de files de traitement.",
-            "icon": "RiFlashlightLine",
-            "before_after": {
-              "before_image": "/images/examples/skater-before.jpg",
-              "after_image": "/images/examples/skater-after.jpg",
-              "before_label": "Filigranée",
-              "after_label": "Propre",
-              "before_alt": "Image IA originale d'un skateur avec filigrane Gemini",
-              "after_alt": "Image traitée avec filigrane supprimé sans perte de qualité"
-            }
-          }
-        ]
-      },
-      "features": {
-        "id": "features",
-        "title": "Fonctionnalités Puissantes",
-        "description": "Tout ce dont vous avez besoin pour nettoyer les images générées par IA.",
-        "items": [
-          {
-            "title": "Suppression Filigrane Gemini",
-            "description": "Supprimez les filigranes visibles des images Google Gemini (le logo étoile ✦).",
-            "icon": "RiRobot2Line"
-          },
-          {
-            "title": "Nettoyage Double Couche",
-            "description": "Supprimez à la fois les filigranes visibles (logos, étoiles) et les métadonnées invisibles (balises C2PA, EXIF IA).",
-            "icon": "RiStackLine"
-          },
-          {
-            "title": "Traitement dans le Navigateur",
-            "description": "Tout le traitement se fait localement dans votre navigateur avec l'API Canvas. Fonctionne aussi hors ligne.",
-            "icon": "RiGlobalLine"
-          },
-          {
-            "title": "Traitement par Lot",
-            "description": "Les utilisateurs Pro peuvent traiter jusqu'à 100 images à la fois par glisser-déposer.",
-            "icon": "RiFileCopyLine"
-          },
-          {
-            "title": "Téléchargement Instantané",
-            "description": "Téléchargez vos images propres immédiatement en PNG haute qualité. Pas d'attente, pas d'e-mail requis.",
-            "icon": "RiDownloadLine"
-          },
-          {
-            "title": "Plan Gratuit Pour Toujours",
-            "description": "Traitez 5 images par jour complètement gratuitement. Sans inscription, sans carte bancaire, sans engagement.",
+            "title": "A Full Identity Kit",
+            "description": "Every design includes a monogram, simplified mark, black-and-white version, and four print mockups — everything a stationer would charge hundreds for.",
             "icon": "RiGiftLine"
+          },
+          {
+            "title": "Uniquely Yours",
+            "description": "Your flowers, your location, your dog, your story. No two crests are alike, and every element is one you chose.",
+            "icon": "RiLeafLine"
+          },
+          {
+            "title": "Real Fonts, Real Colors",
+            "description": "Eight curated font pairings and seven wedding palettes — or bring your own hex codes to match your stationery exactly.",
+            "icon": "RiDropLine"
+          },
+          {
+            "title": "See It In Place",
+            "description": "Instant mockups show your crest on an invitation, save-the-date, dinner menu, and welcome sign before you download a single file.",
+            "icon": "RiLayoutGridLine"
           }
         ]
       },
-      "stats": {
-        "id": "stats",
-        "title": "La Confiance des Créateurs du Monde Entier",
-        "description": "Rejoignez des milliers de créateurs qui utilisent Supprimer le Watermark Gemini chaque jour.",
-        "items": [
+      "examples": {
+        "block": "wedding-examples",
+        "id": "examples",
+        "title": "Crests From Real Weddings",
+        "description": "Browse the gallery for inspiration — every example can be remixed with your own names and colors.",
+        "buttons": [
           {
-            "title": "50 000+",
-            "description": "Images Nettoyées"
-          },
-          {
-            "title": "5+",
-            "description": "Plateformes IA"
-          },
-          {
-            "title": "100%",
-            "description": "Traitement Local"
+            "title": "Browse All Examples",
+            "url": "/examples",
+            "target": "_self"
           }
-        ],
-        "className": "bg-muted"
+        ]
+      },
+      "pricing": {
+        "id": "pricing"
       },
       "faq": {
         "id": "faq",
-        "title": "Questions Fréquentes",
-        "description": "Tout ce que vous devez savoir sur la suppression des filigranes IA.",
+        "title": "Frequently Asked Questions",
+        "description": "Everything couples ask before designing their crest.",
         "items": [
           {
-            "question": "Est-il légal de supprimer les filigranes IA ?",
-            "answer": "La suppression des filigranes pour un usage personnel est généralement légale dans la plupart des juridictions. Cependant, nous vous recommandons de vérifier les conditions d'utilisation de la plateforme IA spécifique et vos lois locales. Notre outil est conçu pour des cas d'usage légitimes tels que les projets personnels et le travail de portfolio."
+            "question": "What is a wedding crest?",
+            "answer": "A wedding crest is an illustrated emblem that represents you as a couple — typically combining your initials or names with decorative elements like florals, laurels, or arches in your wedding style. It appears on invitations, signage, menus, and favors to unify your entire celebration."
           },
           {
-            "question": "Cet outil télécharge-t-il mes images sur un serveur ?",
-            "answer": "Non. Tout le traitement des images se fait à 100% localement dans votre navigateur web avec l'API Canvas. Les données de vos images ne quittent jamais votre appareil. Nous ne stockons, ne transmettons ni n'avons accès à aucune de vos images."
+            "question": "What's the difference between a wedding crest and a monogram?",
+            "answer": "A monogram is your initials arranged typographically (like 'E & J'). A wedding crest is a fuller emblem that surrounds your names or monogram with illustrated artwork — florals, wreaths, arches, or frames. Every crest you design here includes a standalone monogram too."
           },
           {
-            "question": "Quels filigranes IA peuvent être supprimés ?",
-            "answer": "Actuellement, nous supportons la suppression des filigranes visibles de Google Gemini (le logo étoile ✦)."
+            "question": "Can I try it before signing up?",
+            "answer": "Yes! You can design and generate your first crest completely without an account — you'll see it with a light watermark. Create an account (free) to save your design, and unlock watermark-free high-resolution files with the Wedding Identity Pack."
           },
           {
-            "question": "La suppression du filigrane affectera-t-elle la qualité de l'image ?",
-            "answer": "Notre algorithme de fusion alpha inverse récupère mathématiquement les valeurs de pixels originales, entraînant une perte de qualité pratiquement nulle dans la zone du filigrane. Le reste de l'image reste complètement intact."
+            "question": "How many designs do I get?",
+            "answer": "Each generation produces three crest candidates to choose from. Free accounts can create one project and regenerate once. The Wedding Identity Pack unlocks three regenerations and the full download kit."
           },
           {
-            "question": "Combien d'images puis-je traiter gratuitement ?",
-            "answer": "Vous pouvez traiter jusqu'à 5 images par jour complètement gratuitement. Sans inscription ni carte bancaire requise. Pour un traitement illimité, notre plan Pro commence à seulement 9 $/mois."
+            "question": "What files do I get?",
+            "answer": "The Wedding Identity Pack includes: your primary crest in SVG (standard and 3000px print-ready PNG-ready scale), a standalone monogram SVG, a simplified mark SVG, a black-and-white version, four print mockups, and a usage guide with your exact color codes and fonts."
           },
           {
-            "question": "Fonctionne-t-il sur les appareils mobiles ?",
-            "answer": "Oui ! Notre outil fonctionne dans tout navigateur web moderne, y compris les navigateurs mobiles sur iOS et Android. Le traitement est suffisamment léger pour fonctionner fluidement sur la plupart des smartphones."
+            "question": "Are the names and dates crisp?",
+            "answer": "Yes — and this is what sets us apart. The AI illustrates only the artwork layer; all typography (your names, initials, and date) is composed programmatically in real fonts. So text is always pixel-perfect, never the wobbly lettering typical of AI images."
+          },
+          {
+            "question": "Can I use my own colors?",
+            "answer": "Absolutely. Choose from seven curated wedding palettes or enter your own hex codes — perfect for matching existing stationery or brand colors. You can select up to three colors per crest."
+          },
+          {
+            "question": "Can I make changes after generating?",
+            "answer": "Yes. Quick edits — reduce colors, remove a personal element, simplify the illustration — are one click. You can also change the typography pairing, layout, or name display anytime with instant preview, no regeneration needed."
           }
         ]
       },
       "cta": {
         "id": "cta",
-        "title": "Commencez à Supprimer les Filigranes IA — C'est Gratuit",
-        "description": "Aucune inscription requise. Traitez jusqu'à 5 images par jour gratuitement.",
+        "title": "Your Crest Is Five Minutes Away",
+        "description": "Start with your names, leave with a complete wedding identity.",
         "buttons": [
           {
-            "title": "Supprimer le Filigrane Maintenant",
-            "url": "#tool",
+            "title": "Design My Crest",
+            "url": "/create",
             "target": "_self",
             "icon": "Sparkles"
           },
           {
-            "title": "Voir les Tarifs",
+            "title": "View Pricing",
             "url": "/#pricing",
             "target": "_self",
-            "variant": "blue",
+            "variant": "outline",
             "icon": "DollarSign"
-          },
-          {
-            "title": "Raccourci iOS",
-            "url": "/shortcuts",
-            "target": "_self",
-            "variant": "emerald",
-            "icon": "Command"
           }
         ],
-        "className": "bg-muted"
+        "className": ""
       }
     }
   }

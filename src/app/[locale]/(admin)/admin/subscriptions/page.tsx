@@ -27,7 +27,7 @@ export default async function SubscriptionsPage({
   // Check if user has permission to read subscriptions
   await requirePermission({
     code: PERMISSIONS.SUBSCRIPTIONS_READ,
-    redirectUrl: '/admin/no-permission',
+    redirectUrl: '/no-permission',
     locale,
   });
 

@@ -25,7 +25,7 @@ export default async function CategoryAddPage({
   // Check if user has permission to add categories
   await requirePermission({
     code: PERMISSIONS.CATEGORIES_WRITE,
-    redirectUrl: '/admin/no-permission',
+    redirectUrl: '/no-permission',
     locale,
   });
 

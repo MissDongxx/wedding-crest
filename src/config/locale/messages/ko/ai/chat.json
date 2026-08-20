@@ -4,7 +4,7 @@
       "brand": {
         "title": "RemoveGeminiWatermark 채팅",
         "logo": {
-          "src": "/logo.png",
+          "src": "/logo.webp",
           "alt": "RemoveGeminiWatermark 채팅"
         },
         "url": "/chat"

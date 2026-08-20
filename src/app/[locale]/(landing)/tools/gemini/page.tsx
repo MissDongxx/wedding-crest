@@ -82,7 +82,7 @@ export default async function GeminiToolPage({
   const imageJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ImageObject',
-    contentUrl: `${baseUrl}/logo.png`,
+    contentUrl: `${baseUrl}/logo.webp`,
     description:
       'RemoveGeminiWatermark - Free Gemini AI Watermark Removal Tool',
   };

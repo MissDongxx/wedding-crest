@@ -2,7 +2,7 @@
   "header": {
     "brand": {
       "title": "Supprimer le Watermark Gemini",
-      "logo": { "src": "/logo.png", "alt": "Supprimer le Watermark Gemini" },
+      "logo": { "src": "/logo.webp", "alt": "Supprimer le Watermark Gemini" },
       "url": "/admin"
     },
     "show_trigger": false

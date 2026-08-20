@@ -28,7 +28,7 @@ export default async function UserEditRolesPage({
   // Check if user has permission to edit posts
   await requireAllPermissions({
     codes: [PERMISSIONS.USERS_WRITE, PERMISSIONS.ROLES_WRITE],
-    redirectUrl: '/admin/no-permission',
+    redirectUrl: '/no-permission',
     locale,
   });
 

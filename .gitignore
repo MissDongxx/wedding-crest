@@ -65,3 +65,4 @@ src/config/db/migrations*
 .chats
 
 chrome-extension/
+.gstack/

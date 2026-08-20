@@ -20,7 +20,7 @@ export default async function ChatsPage({
   // Check if user has permission to read api keys
   await requirePermission({
     code: PERMISSIONS.AITASKS_READ,
-    redirectUrl: '/admin/no-permission',
+    redirectUrl: '/no-permission',
     locale,
   });
 

@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import './theme.css';
+@import './wedding-fonts.css';
 
 @custom-variant dark (&:is(.dark *));
 

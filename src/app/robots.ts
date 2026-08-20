@@ -17,6 +17,8 @@ export default function robots(): MetadataRoute.Robots {
         '/activity/*',
         '/admin/*',
         '/api/*',
+        '/my-designs',
+        '/design/*',
       ],
     },
     sitemap: `${appUrl}/sitemap.xml`,
