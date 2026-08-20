@@ -64,6 +64,57 @@ const uploadImageFile = async (file: File) => {
   return result.data.urls[0] as string;
 };
 
+/**
+ * Re-encode an uploaded image to webp on the client. This keeps storage
+ * small and matches the spec that admin-uploaded logos are stored as webp.
+ * Skips conversion for inputs that are already webp, svg, or animated gif.
+ * Quality: 0.9, max edge 2048 px (preserves crisp display at retina sizes).
+ */
+const convertToWebpIfPossible = async (file: File): Promise<File> => {
+  // Skip conversion for already-webp, svg, gif, and very small files.
+  if (
+    file.type === 'image/webp' ||
+    file.type === 'image/svg+xml' ||
+    file.type === 'image/gif' ||
+    file.size < 8 * 1024
+  ) {
+    return file;
+  }
+  if (!file.type.startsWith('image/')) return file;
+  if (typeof window === 'undefined') return file;
+
+  try {
+    const bitmap = await createImageBitmap(file);
+    const MAX_EDGE = 2048;
+    const scale = Math.min(
+      1,
+      MAX_EDGE / Math.max(bitmap.width, bitmap.height)
+    );
+    const width = Math.round(bitmap.width * scale);
+    const height = Math.round(bitmap.height * scale);
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return file;
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, 'image/webp', 0.9)
+    );
+    bitmap.close?.();
+    if (!blob) return file;
+    const newName = file.name.replace(/\.[^.]+$/, '') + '.webp';
+    return new File([blob], newName, {
+      type: 'image/webp',
+      lastModified: Date.now(),
+    });
+  } catch (err) {
+    // Conversion failed (unsupported image, sandbox, etc.) — keep the
+    // original file so the upload still succeeds.
+    return file;
+  }
+};
+
 export function ImageUploader({
   allowMultiple = false,
   maxImages = 1,
@@ -198,7 +249,8 @@ export function ImageUploader({
         })
       );
 
-      uploadImageFile(file)
+      convertToWebpIfPossible(file).then((uploadable) => {
+        uploadImageFile(uploadable)
         .then((url) => {
           setItems((prev) =>
             prev.map((item) => {
@@ -233,6 +285,7 @@ export function ImageUploader({
         .finally(() => {
           if (inputRef.current) inputRef.current.value = '';
         });
+      });
     });
   };
 
@@ -317,11 +370,12 @@ export function ImageUploader({
 
     setItems((prev) => [...prev, ...newItems]);
 
-    // Upload in parallel
+    // Upload in parallel (each file is converted to webp first)
     Promise.all(
       newItems.map(async (item) => {
         try {
-          const url = await uploadImageFile(item.file as File);
+          const webp = await convertToWebpIfPossible(item.file as File);
+          const url = await uploadImageFile(webp);
           setItems((prev) => {
             const next = prev.map((current) => {
               if (current.id === item.id) {

@@ -43,7 +43,13 @@ function NavigationMenuTrigger(
   return <RawNavigationMenuTrigger {...props} />;
 }
 
-export function Header({ header }: { header: HeaderType }) {
+export function Header({
+  header,
+  appLogo,
+}: {
+  header: HeaderType;
+  appLogo?: string;
+}) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const isScrolledRef = useRef(false);
@@ -263,7 +269,7 @@ export function Header({ header }: { header: HeaderType }) {
             <div className="relative flex flex-wrap items-center justify-between lg:py-5">
               <div className="flex justify-between gap-8 max-lg:h-14 max-lg:w-full max-lg:border-b">
                 {/* Brand Logo */}
-                {header.brand && <BrandLogo brand={header.brand} />}
+                {header.brand && <BrandLogo brand={header.brand} appLogo={appLogo} />}
 
                 {/* Desktop Navigation Menu */}
                 {isLarge && <NavMenu />}

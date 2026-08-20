@@ -10,7 +10,13 @@ import { SmartIcon } from '@/shared/blocks/common/smart-icon';
 import { NavItem } from '@/shared/types/blocks/common';
 import { Footer as FooterType } from '@/shared/types/blocks/landing';
 
-export function Footer({ footer }: { footer: FooterType }) {
+export function Footer({
+  footer,
+  appLogo,
+}: {
+  footer: FooterType;
+  appLogo?: string;
+}) {
   return (
     <footer
       id={footer.id}
@@ -20,7 +26,7 @@ export function Footer({ footer }: { footer: FooterType }) {
       <div className="container space-y-8 overflow-x-hidden">
         <div className="grid min-w-0 gap-12 md:grid-cols-5">
           <div className="min-w-0 space-y-4 break-words md:col-span-2 md:space-y-6">
-            {footer.brand ? <BrandLogo brand={footer.brand} /> : null}
+            {footer.brand ? <BrandLogo brand={footer.brand} appLogo={appLogo} /> : null}
 
             {footer.brand?.description ? (
               <p

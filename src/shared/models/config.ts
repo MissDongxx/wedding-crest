@@ -61,6 +61,7 @@ export async function saveConfigs(configs: Record<string, string>) {
   });
 
   revalidateTag(CACHE_TAG_CONFIGS);
+  invalidateConfigsCache();
 
   return result;
 }
@@ -68,8 +69,26 @@ export async function saveConfigs(configs: Record<string, string>) {
 export async function addConfig(newConfig: NewConfig) {
   const [result] = await db().insert(config).values(newConfig).returning();
   revalidateTag(CACHE_TAG_CONFIGS);
+  invalidateConfigsCache();
 
   return result;
+}
+
+// Invalidate the in-memory cache so the next getAllConfigs() call re-reads
+// from the database. Called from saveConfigs() and any other code path that
+// mutates the config table.
+export function invalidateConfigsCache() {
+  cachedAllConfigs = null;
+  // Also clear any module-level AI service cache so a freshly-saved key
+  // (e.g. runware_api_key) takes effect on the very next request.
+  // The import is lazy to avoid a circular dep at module load.
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { invalidateAIService } = require('@/shared/services/ai');
+    invalidateAIService();
+  } catch {
+    /* ai service not available in this context; safe to ignore */
+  }
 }
 
 async function getConfigsFromDb(): Promise<Configs> {

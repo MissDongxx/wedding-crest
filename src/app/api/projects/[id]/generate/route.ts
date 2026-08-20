@@ -4,17 +4,25 @@ import { AIMediaType, AITaskStatus } from '@/extensions/ai';
 import { getUuid } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
 import { createAITask } from '@/shared/models/ai_task';
-import { getRemainingCredits } from '@/shared/models/credit';
 import { getUserInfo } from '@/shared/models/user';
 import {
   canAccessWeddingProject,
   claimWeddingProject,
+  countProjectsWithGenerations,
+  countWeddingGenerationBatches,
   createWeddingGeneration,
+  getActiveWeddingPromptTemplate,
   getWeddingProject,
+  hasPaidWeddingOrder,
   updateWeddingProject,
+  upsertWeddingPromptTemplate,
 } from '@/shared/models/wedding';
 import { getAIService } from '@/shared/services/ai';
-import { WEDDING_MAX_CANDIDATES } from '@/shared/wedding/config';
+import {
+  decideGenerationAllowance,
+  WEDDING_MAX_CANDIDATES,
+  WEDDING_PACK_PRODUCT_ID,
+} from '@/shared/wedding/config';
 import {
   compileWeddingPrompt,
   getWeddingVersions,
@@ -25,34 +33,69 @@ const inputSchema = z.object({
   model: z.string().trim().min(1).optional(),
 });
 
+function defaultModelFor(providerName: string) {
+  return (
+    process.env.WEDDING_AI_MODEL ||
+    (providerName === 'runware' ? 'runware:Flux-Schnell@1' : 'flux-schnell')
+  );
+}
+
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
+    // Guests may run their first generation before any account exists.
     const user = await getUserInfo();
-    if (!user) return respErr('sign in is required before generation');
     const guestId = request.headers.get('x-wedding-guest-id') || undefined;
     const project = await getWeddingProject(id);
     if (
       !project ||
-      !(await canAccessWeddingProject({ id, userId: user.id, guestId }))
+      !(await canAccessWeddingProject({ id, userId: user?.id, guestId }))
     )
       return respErr('project not found');
 
-    if (!project.userId) await claimWeddingProject(id, user.id);
+    if (user && !project.userId) await claimWeddingProject(id, user.id);
+
+    // Hard generation quota (spec: cost protection).
+    const [batches, paid, projectsWithGenerations] = await Promise.all([
+      countWeddingGenerationBatches(id, WEDDING_MAX_CANDIDATES),
+      user ? hasPaidWeddingOrder(user.id, id) : Promise.resolve(false),
+      countProjectsWithGenerations(
+        user ? { userId: user.id } : { guestId: guestId ?? '__none__' }
+      ),
+    ]);
+    const allowance = decideGenerationAllowance({
+      batches,
+      paid,
+      isGuest: !user,
+      projectsWithGenerations,
+    });
+    if (!allowance.allowed)
+      return respErr(allowance.reason ?? 'generation limit reached');
+
     const body = inputSchema.parse(await request.json().catch(() => ({})));
+    // Bypass the 1-minute in-memory cache so a freshly-saved admin key
+    // is picked up immediately on the next Generate click.
+    const { invalidateConfigsCache } = await import(
+      '@/shared/models/config'
+    );
+    invalidateConfigsCache();
     const aiService = await getAIService();
     const provider = body.provider
       ? aiService.getProvider(body.provider)
       : aiService.getDefaultProvider();
-    if (!provider) return respErr('no AI provider configured');
+    if (!provider) {
+      const configured = aiService.getProviderNames();
+      return respErr(
+        configured.length === 0
+          ? 'no AI image provider configured yet. Ask the studio admin to set a Runware API key in admin → settings.'
+          : `requested provider "${body.provider}" is not configured (available: ${configured.join(', ')})`
+      );
+    }
 
-    const model = body.model || process.env.WEDDING_AI_MODEL || 'flux-schnell';
-    const remainingCredits = await getRemainingCredits(user.id);
-    if (remainingCredits < WEDDING_MAX_CANDIDATES * 2)
-      return respErr('insufficient credits for three candidates');
+    const model = body.model || defaultModelFor(provider.name);
 
     const versions = getWeddingVersions();
     const prompt = compileWeddingPrompt({
@@ -60,9 +103,23 @@ export async function POST(
       styleVersion: versions.styleVersion,
       promptVersion: versions.promptVersion,
     });
-    const created = [];
+
+    // Versioned prompt template persistence (spec: prompt versioning).
+    const activeTemplate = await getActiveWeddingPromptTemplate(project.style);
+    if (!activeTemplate || activeTemplate.template !== prompt) {
+      await upsertWeddingPromptTemplate({
+        id: getUuid(),
+        name: `${project.style}-${versions.promptVersion}`,
+        version: versions.promptVersion,
+        style: project.style,
+        template: prompt,
+        active: true,
+      });
+    }
+
     await updateWeddingProject(id, 'generating');
 
+    const created = [];
     for (
       let candidateIndex = 0;
       candidateIndex < WEDDING_MAX_CANDIDATES;
@@ -82,28 +139,32 @@ export async function POST(
           `AI provider did not return a task id for candidate ${candidateIndex + 1}`
         );
 
-      const aiTask = await createAITask({
-        id: getUuid(),
-        userId: user.id,
-        mediaType: AIMediaType.IMAGE,
-        provider: provider.name,
-        model,
-        prompt,
-        options: JSON.stringify({ projectId: id, candidateIndex }),
-        status: result.taskStatus || AITaskStatus.PENDING,
-        taskId: result.taskId,
-        taskInfo: result.taskInfo ? JSON.stringify(result.taskInfo) : null,
-        taskResult: result.taskResult
-          ? JSON.stringify(result.taskResult)
-          : null,
-        costCredits: 2,
-        scene: 'text-to-image',
-      });
+      // ai_task rows require a FK'd user; guests are tracked in
+      // wedding_generation only.
+      const aiTask = user
+        ? await createAITask({
+            id: getUuid(),
+            userId: user.id,
+            mediaType: AIMediaType.IMAGE,
+            provider: provider.name,
+            model,
+            prompt,
+            options: JSON.stringify({ projectId: id, candidateIndex }),
+            status: result.taskStatus || AITaskStatus.PENDING,
+            taskId: result.taskId,
+            taskInfo: result.taskInfo ? JSON.stringify(result.taskInfo) : null,
+            taskResult: result.taskResult
+              ? JSON.stringify(result.taskResult)
+              : null,
+            costCredits: 0,
+            scene: 'text-to-image',
+          })
+        : null;
       created.push(
         await createWeddingGeneration({
           id: getUuid(),
           projectId: id,
-          aiTaskId: aiTask.id,
+          aiTaskId: aiTask?.id ?? null,
           candidateIndex,
           provider: provider.name,
           model,
@@ -114,7 +175,7 @@ export async function POST(
           status: 'generating',
           providerTaskId: result.taskId,
           sourceImageUrl: result.taskInfo?.images?.[0]?.imageUrl ?? null,
-          cost: 2,
+          cost: 0,
         })
       );
     }
@@ -124,6 +185,7 @@ export async function POST(
       projectId: id,
       candidates: created.map((candidate) => candidate.id),
       status: 'generating',
+      productForUnlock: WEDDING_PACK_PRODUCT_ID,
     });
   } catch (error) {
     return respErr(

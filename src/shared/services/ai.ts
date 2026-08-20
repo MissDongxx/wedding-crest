@@ -78,3 +78,13 @@ export async function getAIService(configs?: Configs): Promise<AIManager> {
 
   return aiService;
 }
+
+/**
+ * Force the next getAIService() call to re-read configs and rebuild the
+ * provider list. Call this from any code path that mutates the underlying
+ * configs (admin settings save, env reload, etc.) so a freshly-saved
+ * Runware API key is picked up on the very next request.
+ */
+export function invalidateAIService() {
+  aiService = null;
+}

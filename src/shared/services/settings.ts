@@ -999,6 +999,15 @@ export async function getSettings() {
 }
 
 export const publicSettingNames = [
+  // app identity — read by the public marketing header/footer/not-found etc.
+  // via getPublicConfigs(). Keeping these public lets the admin-configured
+  // logo, name, and description flow into the public site without exposing
+  // any sensitive settings.
+  'app_logo',
+  'app_favicon',
+  'app_preview_image',
+  'app_name',
+  'app_description',
   'email_auth_enabled',
   'email_verification_enabled',
   'google_auth_enabled',
