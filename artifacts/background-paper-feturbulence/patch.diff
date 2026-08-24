@@ -1,0 +1,26 @@
+diff --git a/src/config/style/global.css b/src/config/style/global.css
+index e18111b..e4b42be 100644
+--- a/src/config/style/global.css
++++ b/src/config/style/global.css
+@@ -12,6 +12,10 @@
+   }
+   body {
+     @apply bg-background text-foreground font-sans;
++    background-color: #f6f6f4;
++    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='paper' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.72' numOctaves='3' seed='37' stitchTiles='stitch' result='noise'/%3E%3CfeColorMatrix in='noise' type='saturate' values='0' result='gray'/%3E%3CfeComponentTransfer in='gray'%3E%3CfeFuncR type='table' tableValues='.42 .58'/%3E%3CfeFuncG type='table' tableValues='.42 .58'/%3E%3CfeFuncB type='table' tableValues='.42 .58'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paper)' opacity='.08'/%3E%3C/svg%3E");
++    background-size: 180px 180px;
++    background-attachment: fixed;
+   }
+ }
+ 
+diff --git a/src/config/style/theme.css b/src/config/style/theme.css
+index b93a48a..2a56d17 100644
+--- a/src/config/style/theme.css
++++ b/src/config/style/theme.css
+@@ -1,5 +1,5 @@
+ :root {
+-  --background: oklch(0.998 0.003 90);
++  --background: #f6f6f4;
+   --foreground: oklch(0.3 0.04 75);
+   --card: oklch(0.995 0.008 90);
+   --card-foreground: oklch(0.3 0.04 75);

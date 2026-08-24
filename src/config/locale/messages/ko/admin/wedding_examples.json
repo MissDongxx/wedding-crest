@@ -1,0 +1,43 @@
+{
+  "fields": {
+    "name": "이름",
+    "style": "스타일",
+    "image_url": "사진",
+    "alt_text": "대체 텍스트",
+    "sort_order": "정렬",
+    "is_active": "활성",
+    "actions": "작업"
+  },
+  "values": {
+    "active": "활성",
+    "inactive": "비활성",
+    "edit": "편집",
+    "delete": "삭제"
+  },
+  "list": {
+    "title": "웨딩 예시",
+    "crumbs": {
+      "admin": "관리",
+      "examples": "예시"
+    },
+    "buttons": {
+      "add": "예시 추가"
+    },
+    "empty": "아직 예시가 없습니다. 추가해 주세요."
+  },
+  "add": {
+    "title": "예시 추가",
+    "crumbs": {
+      "add": "추가"
+    },
+    "buttons": {
+      "submit": "예시 저장"
+    }
+  },
+  "edit": {
+    "title": "예시 편집",
+    "buttons": {
+      "submit": "변경사항 저장"
+    }
+  }
+}

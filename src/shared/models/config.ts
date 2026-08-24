@@ -151,9 +151,17 @@ export const getConfigs = isCloudflareWorker
       tags: [CACHE_TAG_CONFIGS],
     });
 
-// In-memory cache for configurations to avoid repeated unstable_cache/DB overHead
+// In-memory cache for configurations to avoid repeated unstable_cache/DB overHead.
+// 5 minutes is safe because:
+//  - every admin write goes through `invalidateConfigsCache()` which clears
+//    `cachedAllConfigs` immediately, AND
+//  - `unstable_cache` (the underlying cache used off-Workers) is revalidated
+//    by `CACHE_TAG_CONFIGS`.
+// So a saved config value still propagates on the next request. A 1-minute
+// TTL was hammering the config table on every anonymous page load on
+// Cloudflare Workers (no `unstable_cache` support there).
 let cachedAllConfigs: { data: Configs; timestamp: number } | null = null;
-const CACHE_TTL_MS = 60 * 1000; // 1 minute
+const CACHE_TTL_MS = 5 * 60 * 1000;
 
 export async function getAllConfigs(): Promise<Configs> {
   const now = Date.now();

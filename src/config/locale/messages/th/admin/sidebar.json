@@ -146,5 +146,22 @@
     "show_theme": true,
     "show_locale": false
   },
-  "variant": "sidebar"
+  "variant": "sidebar",
+  "main_navs": [
+    {
+      "title": "งานแต่งงาน",
+      "items": [
+        {
+          "title": "กรอบ",
+          "url": "/admin/wedding/frames",
+          "icon": "Frame"
+        },
+        {
+          "title": "ตัวอย่าง",
+          "url": "/admin/wedding/examples",
+          "icon": "Image"
+        }
+      ]
+    }
+  ]
 }

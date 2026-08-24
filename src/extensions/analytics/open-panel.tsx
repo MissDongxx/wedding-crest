@@ -32,10 +32,10 @@ export class OpenPanelAnalyticsProvider implements AnalyticsProvider {
   getHeadScripts(): ReactNode {
     return (
       <>
-        {/* OpenPanel Analytics */}
+        {/* OpenPanel Analytics — observational only. */}
         <Script
           id={this.name}
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `
               window.op = window.op||function(...args){(window.op.q=window.op.q||[]).push(args);};
@@ -50,7 +50,7 @@ export class OpenPanelAnalyticsProvider implements AnalyticsProvider {
         />
         <Script
           src="https://openpanel.dev/op1.js"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           defer
           async
         />

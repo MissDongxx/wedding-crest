@@ -1,0 +1,270 @@
+--- a/src/app/api/jobs/[id]/route.ts
++++ b/src/app/api/jobs/[id]/route.ts
+@@ -20,6 +20,7 @@
+ import {
+   decideGenerationAllowance,
+   decideReview,
++  WEDDING_MAX_CANDIDATES,
+ } from '@/shared/wedding/config';
+ 
+ function extractImageUrl(result: any) {
+@@ -200,7 +201,10 @@
+         ? await countProjectsWithGenerations({ guestId: ownerGuestId })
+         : 0;
+     const ownerBatches = finalProject
+-      ? await countWeddingGenerationBatches(finalProject.id, 3)
++      ? await countWeddingGenerationBatches(
++          finalProject.id,
++          WEDDING_MAX_CANDIDATES
++        )
+       : 0;
+     const allowance = decideGenerationAllowance({
+       batches: ownerBatches,
+--- a/src/config/locale/messages/de/pages/create.json
++++ b/src/config/locale/messages/de/pages/create.json
+@@ -48,7 +48,7 @@
+   "back": "Back",
+   "continue": "Continue",
+   "generate": "Generate my crest",
+-  "generate_hint": "We will compose 3 candidate crests for you.",
++  "generate_hint": "We will compose one crest for you.",
+   "submitting": "Composing…",
+   "submit_error": "Something went wrong. Please try again.",
+   "add": "Add"
+--- a/src/config/locale/messages/de/pages/design.json
++++ b/src/config/locale/messages/de/pages/design.json
+@@ -2,7 +2,7 @@
+   "meta_title": "Your wedding crest",
+   "meta_description": "Fine-tune your crest and unlock the wedding identity pack.",
+   "title": "Your wedding crest",
+-  "subtitle": "Pick a candidate, fine-tune the typography, and unlock the full wedding identity pack.",
++  "subtitle": "Fine-tune the typography and unlock the full wedding identity pack.",
+   "loading": "Composing your crest…",
+   "error_title": "We couldn't load your design",
+   "load_error": "Something went wrong while loading the design.",
+@@ -10,7 +10,7 @@
+   "start_over": "Start a new design",
+   "update_error": "Could not update the design.",
+   "regenerate_title": "Want a new set?",
+-  "regenerate_hint": "Regenerate to see three fresh candidates.",
++  "regenerate_hint": "Regenerate to see a fresh crest.",
+   "regenerate_cta": "Regenerate",
+   "generating_hint": "Composing {stage}…",
+   "stages": {
+--- a/src/config/locale/messages/en/pages/create.json
++++ b/src/config/locale/messages/en/pages/create.json
+@@ -48,7 +48,7 @@
+   "back": "Back",
+   "continue": "Continue",
+   "generate": "Generate my crest",
+-  "generate_hint": "We will compose 3 candidate crests for you.",
++  "generate_hint": "We will compose one crest for you.",
+   "submitting": "Composing…",
+   "submit_error": "Something went wrong. Please try again.",
+   "add": "Add"
+--- a/src/config/locale/messages/en/pages/design.json
++++ b/src/config/locale/messages/en/pages/design.json
+@@ -2,7 +2,7 @@
+   "meta_title": "Your wedding crest",
+   "meta_description": "Fine-tune your crest and unlock the wedding identity pack.",
+   "title": "Your wedding crest",
+-  "subtitle": "Pick a candidate, fine-tune the typography, and unlock the full wedding identity pack.",
++  "subtitle": "Fine-tune the typography and unlock the full wedding identity pack.",
+   "loading": "Composing your crest…",
+   "error_title": "We couldn't load your design",
+   "load_error": "Something went wrong while loading the design.",
+@@ -10,7 +10,7 @@
+   "start_over": "Start a new design",
+   "update_error": "Could not update the design.",
+   "regenerate_title": "Want a new set?",
+-  "regenerate_hint": "Regenerate to see three fresh candidates.",
++  "regenerate_hint": "Regenerate to see a fresh crest.",
+   "regenerate_cta": "Regenerate",
+   "generating_hint": "Composing {stage}…",
+   "stages": {
+--- a/src/config/locale/messages/fr/pages/create.json
++++ b/src/config/locale/messages/fr/pages/create.json
+@@ -48,7 +48,7 @@
+   "back": "Back",
+   "continue": "Continue",
+   "generate": "Generate my crest",
+-  "generate_hint": "We will compose 3 candidate crests for you.",
++  "generate_hint": "We will compose one crest for you.",
+   "submitting": "Composing…",
+   "submit_error": "Something went wrong. Please try again.",
+   "add": "Add"
+--- a/src/config/locale/messages/fr/pages/design.json
++++ b/src/config/locale/messages/fr/pages/design.json
+@@ -2,7 +2,7 @@
+   "meta_title": "Your wedding crest",
+   "meta_description": "Fine-tune your crest and unlock the wedding identity pack.",
+   "title": "Your wedding crest",
+-  "subtitle": "Pick a candidate, fine-tune the typography, and unlock the full wedding identity pack.",
++  "subtitle": "Fine-tune the typography and unlock the full wedding identity pack.",
+   "loading": "Composing your crest…",
+   "error_title": "We couldn't load your design",
+   "load_error": "Something went wrong while loading the design.",
+@@ -10,7 +10,7 @@
+   "start_over": "Start a new design",
+   "update_error": "Could not update the design.",
+   "regenerate_title": "Want a new set?",
+-  "regenerate_hint": "Regenerate to see three fresh candidates.",
++  "regenerate_hint": "Regenerate to see a fresh crest.",
+   "regenerate_cta": "Regenerate",
+   "generating_hint": "Composing {stage}…",
+   "stages": {
+--- a/src/config/locale/messages/it/pages/create.json
++++ b/src/config/locale/messages/it/pages/create.json
+@@ -48,7 +48,7 @@
+   "back": "Back",
+   "continue": "Continue",
+   "generate": "Generate my crest",
+-  "generate_hint": "We will compose 3 candidate crests for you.",
++  "generate_hint": "We will compose one crest for you.",
+   "submitting": "Composing…",
+   "submit_error": "Something went wrong. Please try again.",
+   "add": "Add"
+--- a/src/config/locale/messages/it/pages/design.json
++++ b/src/config/locale/messages/it/pages/design.json
+@@ -2,7 +2,7 @@
+   "meta_title": "Your wedding crest",
+   "meta_description": "Fine-tune your crest and unlock the wedding identity pack.",
+   "title": "Your wedding crest",
+-  "subtitle": "Pick a candidate, fine-tune the typography, and unlock the full wedding identity pack.",
++  "subtitle": "Fine-tune the typography and unlock the full wedding identity pack.",
+   "loading": "Composing your crest…",
+   "error_title": "We couldn't load your design",
+   "load_error": "Something went wrong while loading the design.",
+@@ -10,7 +10,7 @@
+   "start_over": "Start a new design",
+   "update_error": "Could not update the design.",
+   "regenerate_title": "Want a new set?",
+-  "regenerate_hint": "Regenerate to see three fresh candidates.",
++  "regenerate_hint": "Regenerate to see a fresh crest.",
+   "regenerate_cta": "Regenerate",
+   "generating_hint": "Composing {stage}…",
+   "stages": {
+--- a/src/config/locale/messages/ko/pages/create.json
++++ b/src/config/locale/messages/ko/pages/create.json
+@@ -48,7 +48,7 @@
+   "back": "Back",
+   "continue": "Continue",
+   "generate": "Generate my crest",
+-  "generate_hint": "We will compose 3 candidate crests for you.",
++  "generate_hint": "We will compose one crest for you.",
+   "submitting": "Composing…",
+   "submit_error": "Something went wrong. Please try again.",
+   "add": "Add"
+--- a/src/config/locale/messages/ko/pages/design.json
++++ b/src/config/locale/messages/ko/pages/design.json
+@@ -2,7 +2,7 @@
+   "meta_title": "Your wedding crest",
+   "meta_description": "Fine-tune your crest and unlock the wedding identity pack.",
+   "title": "Your wedding crest",
+-  "subtitle": "Pick a candidate, fine-tune the typography, and unlock the full wedding identity pack.",
++  "subtitle": "Fine-tune the typography and unlock the full wedding identity pack.",
+   "loading": "Composing your crest…",
+   "error_title": "We couldn't load your design",
+   "load_error": "Something went wrong while loading the design.",
+@@ -10,7 +10,7 @@
+   "start_over": "Start a new design",
+   "update_error": "Could not update the design.",
+   "regenerate_title": "Want a new set?",
+-  "regenerate_hint": "Regenerate to see three fresh candidates.",
++  "regenerate_hint": "Regenerate to see a fresh crest.",
+   "regenerate_cta": "Regenerate",
+   "generating_hint": "Composing {stage}…",
+   "stages": {
+--- a/src/config/locale/messages/pt-BR/pages/create.json
++++ b/src/config/locale/messages/pt-BR/pages/create.json
+@@ -48,7 +48,7 @@
+   "back": "Back",
+   "continue": "Continue",
+   "generate": "Generate my crest",
+-  "generate_hint": "We will compose 3 candidate crests for you.",
++  "generate_hint": "We will compose one crest for you.",
+   "submitting": "Composing…",
+   "submit_error": "Something went wrong. Please try again.",
+   "add": "Add"
+--- a/src/config/locale/messages/pt-BR/pages/design.json
++++ b/src/config/locale/messages/pt-BR/pages/design.json
+@@ -2,7 +2,7 @@
+   "meta_title": "Your wedding crest",
+   "meta_description": "Fine-tune your crest and unlock the wedding identity pack.",
+   "title": "Your wedding crest",
+-  "subtitle": "Pick a candidate, fine-tune the typography, and unlock the full wedding identity pack.",
++  "subtitle": "Fine-tune the typography and unlock the full wedding identity pack.",
+   "loading": "Composing your crest…",
+   "error_title": "We couldn't load your design",
+   "load_error": "Something went wrong while loading the design.",
+@@ -10,7 +10,7 @@
+   "start_over": "Start a new design",
+   "update_error": "Could not update the design.",
+   "regenerate_title": "Want a new set?",
+-  "regenerate_hint": "Regenerate to see three fresh candidates.",
++  "regenerate_hint": "Regenerate to see a fresh crest.",
+   "regenerate_cta": "Regenerate",
+   "generating_hint": "Composing {stage}…",
+   "stages": {
+--- a/src/config/locale/messages/th/pages/create.json
++++ b/src/config/locale/messages/th/pages/create.json
+@@ -48,7 +48,7 @@
+   "back": "Back",
+   "continue": "Continue",
+   "generate": "Generate my crest",
+-  "generate_hint": "We will compose 3 candidate crests for you.",
++  "generate_hint": "We will compose one crest for you.",
+   "submitting": "Composing…",
+   "submit_error": "Something went wrong. Please try again.",
+   "add": "Add"
+--- a/src/config/locale/messages/th/pages/design.json
++++ b/src/config/locale/messages/th/pages/design.json
+@@ -2,7 +2,7 @@
+   "meta_title": "Your wedding crest",
+   "meta_description": "Fine-tune your crest and unlock the wedding identity pack.",
+   "title": "Your wedding crest",
+-  "subtitle": "Pick a candidate, fine-tune the typography, and unlock the full wedding identity pack.",
++  "subtitle": "Fine-tune the typography and unlock the full wedding identity pack.",
+   "loading": "Composing your crest…",
+   "error_title": "We couldn't load your design",
+   "load_error": "Something went wrong while loading the design.",
+@@ -10,7 +10,7 @@
+   "start_over": "Start a new design",
+   "update_error": "Could not update the design.",
+   "regenerate_title": "Want a new set?",
+-  "regenerate_hint": "Regenerate to see three fresh candidates.",
++  "regenerate_hint": "Regenerate to see a fresh crest.",
+   "regenerate_cta": "Regenerate",
+   "generating_hint": "Composing {stage}…",
+   "stages": {
+--- a/src/config/locale/messages/zh/pages/create.json
++++ b/src/config/locale/messages/zh/pages/create.json
+@@ -48,7 +48,7 @@
+   "back": "Back",
+   "continue": "Continue",
+   "generate": "Generate my crest",
+-  "generate_hint": "We will compose 3 candidate crests for you.",
++  "generate_hint": "We will compose one crest for you.",
+   "submitting": "Composing…",
+   "submit_error": "Something went wrong. Please try again.",
+   "add": "Add"
+--- a/src/config/locale/messages/zh/pages/design.json
++++ b/src/config/locale/messages/zh/pages/design.json
+@@ -2,7 +2,7 @@
+   "meta_title": "Your wedding crest",
+   "meta_description": "Fine-tune your crest and unlock the wedding identity pack.",
+   "title": "Your wedding crest",
+-  "subtitle": "Pick a candidate, fine-tune the typography, and unlock the full wedding identity pack.",
++  "subtitle": "Fine-tune the typography and unlock the full wedding identity pack.",
+   "loading": "Composing your crest…",
+   "error_title": "We couldn't load your design",
+   "load_error": "Something went wrong while loading the design.",
+@@ -10,7 +10,7 @@
+   "start_over": "Start a new design",
+   "update_error": "Could not update the design.",
+   "regenerate_title": "Want a new set?",
+-  "regenerate_hint": "Regenerate to see three fresh candidates.",
++  "regenerate_hint": "Regenerate to see a fresh crest.",
+   "regenerate_cta": "Regenerate",
+   "generating_hint": "Composing {stage}…",
+   "stages": {

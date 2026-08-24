@@ -69,6 +69,7 @@ const patchSchema = z.object({
       'initials_amp',
       'initials_joined',
       'initials_spaced',
+      'initials_only',
       'full_names',
       'surname',
     ])

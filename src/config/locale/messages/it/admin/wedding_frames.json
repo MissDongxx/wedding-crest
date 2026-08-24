@@ -1,0 +1,45 @@
+{
+  "fields": {
+    "name": "Nome",
+    "style": "Stile",
+    "url": "Immagine cornice",
+    "thumbnail_url": "Miniatura",
+    "alt_text": "Testo alternativo",
+    "sort_order": "Ordine",
+    "is_active": "Attivo",
+    "actions": "Azioni"
+  },
+  "values": {
+    "active": "Attivo",
+    "inactive": "Inattivo",
+    "all_styles": "Tutti gli stili",
+    "edit": "Modifica",
+    "delete": "Elimina"
+  },
+  "list": {
+    "title": "Cornici matrimonio",
+    "crumbs": {
+      "admin": "Admin",
+      "frames": "Cornici"
+    },
+    "buttons": {
+      "add": "Aggiungi cornice"
+    },
+    "empty": "Nessuna cornice. Aggiungine una per iniziare."
+  },
+  "add": {
+    "title": "Aggiungi cornice",
+    "crumbs": {
+      "add": "Aggiungi"
+    },
+    "buttons": {
+      "submit": "Salva cornice"
+    }
+  },
+  "edit": {
+    "title": "Modifica cornice",
+    "buttons": {
+      "submit": "Salva modifiche"
+    }
+  }
+}

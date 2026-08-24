@@ -32,3 +32,5 @@ export const weddingGeneration = activeSchema.weddingGeneration;
 export const weddingGenerationReview = activeSchema.weddingGenerationReview;
 export const weddingAsset = activeSchema.weddingAsset;
 export const weddingPromptTemplate = activeSchema.weddingPromptTemplate;
+export const weddingFrame = activeSchema.weddingFrame;
+export const weddingExample = activeSchema.weddingExample;

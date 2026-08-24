@@ -1,0 +1,45 @@
+{
+  "fields": {
+    "name": "Nom",
+    "style": "Style",
+    "url": "Image du cadre",
+    "thumbnail_url": "Miniature",
+    "alt_text": "Texte alternatif",
+    "sort_order": "Ordre",
+    "is_active": "Actif",
+    "actions": "Actions"
+  },
+  "values": {
+    "active": "Actif",
+    "inactive": "Inactif",
+    "all_styles": "Tous les styles",
+    "edit": "Modifier",
+    "delete": "Supprimer"
+  },
+  "list": {
+    "title": "Cadres de mariage",
+    "crumbs": {
+      "admin": "Admin",
+      "frames": "Cadres"
+    },
+    "buttons": {
+      "add": "Ajouter un cadre"
+    },
+    "empty": "Aucun cadre. Ajoutez-en un pour commencer."
+  },
+  "add": {
+    "title": "Ajouter un cadre",
+    "crumbs": {
+      "add": "Ajouter"
+    },
+    "buttons": {
+      "submit": "Enregistrer le cadre"
+    }
+  },
+  "edit": {
+    "title": "Modifier le cadre",
+    "buttons": {
+      "submit": "Enregistrer les modifications"
+    }
+  }
+}

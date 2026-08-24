@@ -1,0 +1,43 @@
+{
+  "fields": {
+    "name": "Nome",
+    "style": "Stile",
+    "image_url": "Foto",
+    "alt_text": "Testo alternativo",
+    "sort_order": "Ordine",
+    "is_active": "Attivo",
+    "actions": "Azioni"
+  },
+  "values": {
+    "active": "Attivo",
+    "inactive": "Inattivo",
+    "edit": "Modifica",
+    "delete": "Elimina"
+  },
+  "list": {
+    "title": "Esempi matrimonio",
+    "crumbs": {
+      "admin": "Admin",
+      "examples": "Esempi"
+    },
+    "buttons": {
+      "add": "Aggiungi esempio"
+    },
+    "empty": "Nessun esempio. Aggiungine uno per la home."
+  },
+  "add": {
+    "title": "Aggiungi esempio",
+    "crumbs": {
+      "add": "Aggiungi"
+    },
+    "buttons": {
+      "submit": "Salva esempio"
+    }
+  },
+  "edit": {
+    "title": "Modifica esempio",
+    "buttons": {
+      "submit": "Salva modifiche"
+    }
+  }
+}

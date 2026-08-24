@@ -617,7 +617,7 @@ export const weddingProject = table(
     weddingDate: text('wedding_date'),
     location: text('location'),
     venue: text('venue'),
-    style: text('style').notNull(),
+    style: text('style'), // null means the frame applies to every style
     layout: text('layout').notNull(),
     typography: text('typography').notNull().default('editorial_rose'),
     palette: text('palette').notNull(),
@@ -758,5 +758,50 @@ export const weddingPromptTemplate = table(
   },
   (table) => [
     index('idx_wedding_prompt_active_style').on(table.style, table.active),
+  ]
+);
+
+export const weddingFrame = table(
+  'wedding_frame',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    style: text('style').notNull(),
+    url: text('url').notNull(),
+    thumbnailUrl: text('thumbnail_url'),
+    altText: text('alt_text'),
+    isActive: integer('is_active', { mode: 'boolean' }).default(true).notNull(),
+    sortOrder: integer('sort_order').notNull().default(0),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .notNull(),
+  },
+  (table) => [
+    index('idx_wedding_frame_active_style').on(table.style, table.isActive),
+  ]
+);
+
+export const weddingExample = table(
+  'wedding_example',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    style: text('style').notNull(),
+    imageUrl: text('image_url').notNull(),
+    altText: text('alt_text'),
+    isActive: integer('is_active', { mode: 'boolean' }).default(true).notNull(),
+    sortOrder: integer('sort_order').notNull().default(0),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .notNull(),
+  },
+  (table) => [
+    index('idx_wedding_example_active_style').on(table.style, table.isActive),
   ]
 );

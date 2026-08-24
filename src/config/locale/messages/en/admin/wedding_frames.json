@@ -1,0 +1,45 @@
+{
+  "fields": {
+    "name": "Name",
+    "style": "Style",
+    "url": "Frame image",
+    "thumbnail_url": "Thumbnail",
+    "alt_text": "Alt text",
+    "sort_order": "Order",
+    "is_active": "Active",
+    "actions": "Actions"
+  },
+  "values": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "all_styles": "All styles",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "list": {
+    "title": "Wedding Frames",
+    "crumbs": {
+      "admin": "Admin",
+      "frames": "Frames"
+    },
+    "buttons": {
+      "add": "Add Frame"
+    },
+    "empty": "No frames yet. Add one to get started."
+  },
+  "add": {
+    "title": "Add Frame",
+    "crumbs": {
+      "add": "Add"
+    },
+    "buttons": {
+      "submit": "Add Frame"
+    }
+  },
+  "edit": {
+    "title": "Edit Frame",
+    "buttons": {
+      "submit": "Save Changes"
+    }
+  }
+}

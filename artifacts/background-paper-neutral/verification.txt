@@ -1,0 +1,33 @@
+Neutral paper background correction verification
+
+Change
+- Base background changed from warm oklch(0.985 0.006 90) to neutral #f6f6f4.
+- Fiber overlays changed from yellow-green tinted shadows to neutral gray.
+- Intended visible range: approximately #F3F3F1 through #F9F9F7.
+
+Static checks
+$ pnpm exec prettier --check src/config/style/global.css src/config/style/theme.css
+Checking formatting...
+All matched files use Prettier code style!
+exit=0
+$ git diff --check
+exit=0
+$ sh -n artifacts/background-paper-neutral/rollback.sh
+exit=0
+
+Rollback check
+$ artifacts/background-paper-neutral/rollback.sh
+Rolled back neutral paper background styling.
+$ cmp original snapshots against source files
+exit=0 (rollback_verified=1)
+$ restore modified snapshots and cmp against source files
+exit=0 (modified_restored=1)
+
+Browser verification on live localhost:3000
+- Home computed backgroundColor: rgb(246, 246, 244)
+- Home computed backgroundImage: two radial-gradient layers plus one linear-gradient layer
+- Home computed backgroundSize: 11px 13px, 17px 19px, 100% 100%
+- Home visible hero confirmed; console error count: 0
+- Design computed backgroundColor: rgb(246, 246, 244)
+- Design computed texture: present with neutral fiber layer
+- Design console error count: 0

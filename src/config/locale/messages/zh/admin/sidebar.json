@@ -89,6 +89,21 @@
           "icon": "MessageCircle"
         }
       ]
+    },
+    {
+      "title": "婚礼",
+      "items": [
+        {
+          "title": "边框",
+          "url": "/admin/wedding/frames",
+          "icon": "Frame"
+        },
+        {
+          "title": "示例",
+          "url": "/admin/wedding/examples",
+          "icon": "Image"
+        }
+      ]
     }
   ],
   "bottom_nav": {

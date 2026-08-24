@@ -27,15 +27,18 @@ export class GoogleAnalyticsProvider implements AnalyticsProvider {
   getHeadScripts(): ReactNode {
     return (
       <>
-        {/* Google tag (gtag.js) */}
+        {/* Google tag (gtag.js) — analytics only, never on the
+            critical path. `lazyOnload` waits for the browser to be
+            idle, which is fine for page-view tracking (a few seconds
+            of delay is invisible in the GA dashboard). */}
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${this.configs.gaId}`}
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           async
         />
         <Script
           id={this.name}
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];

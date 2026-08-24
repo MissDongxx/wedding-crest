@@ -1,0 +1,44 @@
+diff --git a/src/config/style/global.css b/src/config/style/global.css
+index e18111b..52252df 100644
+--- a/src/config/style/global.css
++++ b/src/config/style/global.css
+@@ -12,6 +12,28 @@
+   }
+   body {
+     @apply bg-background text-foreground font-sans;
++    position: relative;
++    background:
++      radial-gradient(
++        circle at 30% 20%,
++        rgba(255, 255, 255, 0.25),
++        transparent 40%
++      ),
++      radial-gradient(
++        circle at 70% 80%,
++        rgba(180, 170, 160, 0.04),
++        transparent 45%
++      ),
++      #f6f6f4;
++  }
++
++  body::before {
++    content: '';
++    position: fixed;
++    inset: 0;
++    pointer-events: none;
++    opacity: 0.08;
++    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+   }
+ }
+ 
+diff --git a/src/config/style/theme.css b/src/config/style/theme.css
+index b93a48a..2a56d17 100644
+--- a/src/config/style/theme.css
++++ b/src/config/style/theme.css
+@@ -1,5 +1,5 @@
+ :root {
+-  --background: oklch(0.998 0.003 90);
++  --background: #f6f6f4;
+   --foreground: oklch(0.3 0.04 75);
+   --card: oklch(0.995 0.008 90);
+   --card-foreground: oklch(0.3 0.04 75);

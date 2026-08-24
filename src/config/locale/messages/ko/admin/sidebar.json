@@ -89,6 +89,21 @@
           "icon": "MessageCircle"
         }
       ]
+    },
+    {
+      "title": "웨딩",
+      "items": [
+        {
+          "title": "프레임",
+          "url": "/admin/wedding/frames",
+          "icon": "Frame"
+        },
+        {
+          "title": "예시",
+          "url": "/admin/wedding/examples",
+          "icon": "Image"
+        }
+      ]
     }
   ],
   "bottom_nav": {

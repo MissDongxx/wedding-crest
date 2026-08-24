@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 
-import { Link, usePathname, useRouter } from '@/core/i18n/navigation';
+import { Link, usePathname } from '@/core/i18n/navigation';
 import { SmartIcon } from '@/shared/blocks/common/smart-icon';
 import {
   Collapsible,
@@ -25,12 +25,18 @@ import { NavItem, type Nav as NavType } from '@/shared/types/blocks/common';
 
 export function Nav({ nav, className }: { nav: NavType; className?: string }) {
   const pathname = usePathname();
-  const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Radix Collapsible generates its content id with useId(). Rendering the
+  // navigation only after hydration keeps those ids out of the server/client
+  // comparison and prevents hydration mismatches in the dashboard sidebar.
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <SidebarGroup className={className}>

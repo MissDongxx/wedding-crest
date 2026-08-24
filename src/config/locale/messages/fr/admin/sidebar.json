@@ -2,7 +2,10 @@
   "header": {
     "brand": {
       "title": "Supprimer le Watermark Gemini",
-      "logo": { "src": "/logo.webp", "alt": "Supprimer le Watermark Gemini" },
+      "logo": {
+        "src": "/logo.webp",
+        "alt": "Supprimer le Watermark Gemini"
+      },
       "url": "/admin"
     },
     "show_trigger": false
@@ -16,8 +19,16 @@
           "icon": "User",
           "is_expand": true,
           "children": [
-            { "title": "Utilisateurs", "url": "/admin/users", "icon": "User" },
-            { "title": "Rôles", "url": "/admin/roles", "icon": "Users" },
+            {
+              "title": "Utilisateurs",
+              "url": "/admin/users",
+              "icon": "User"
+            },
+            {
+              "title": "Rôles",
+              "url": "/admin/roles",
+              "icon": "Users"
+            },
             {
               "title": "Permissions",
               "url": "/admin/permissions",
@@ -34,7 +45,11 @@
               "icon": "Folder",
               "url": "/admin/categories"
             },
-            { "title": "Articles", "icon": "FileText", "url": "/admin/posts" }
+            {
+              "title": "Articles",
+              "icon": "FileText",
+              "url": "/admin/posts"
+            }
           ]
         },
         {
@@ -51,7 +66,11 @@
               "url": "/admin/subscriptions",
               "icon": "CreditCard"
             },
-            { "title": "Crédits", "url": "/admin/credits", "icon": "Coins" }
+            {
+              "title": "Crédits",
+              "url": "/admin/credits",
+              "icon": "Coins"
+            }
           ]
         }
       ]
@@ -59,8 +78,31 @@
     {
       "title": "Business",
       "items": [
-        { "title": "Tâches IA", "url": "/admin/ai-tasks", "icon": "Brain" },
-        { "title": "Chats IA", "url": "/admin/chats", "icon": "MessageCircle" }
+        {
+          "title": "Tâches IA",
+          "url": "/admin/ai-tasks",
+          "icon": "Brain"
+        },
+        {
+          "title": "Chats IA",
+          "url": "/admin/chats",
+          "icon": "MessageCircle"
+        }
+      ]
+    },
+    {
+      "title": "Mariage",
+      "items": [
+        {
+          "title": "Cadres",
+          "url": "/admin/wedding/frames",
+          "icon": "Frame"
+        },
+        {
+          "title": "Exemples",
+          "url": "/admin/wedding/examples",
+          "icon": "Image"
+        }
       ]
     }
   ],
@@ -71,7 +113,11 @@
         "url": "/admin/settings/general",
         "icon": "Settings"
       },
-      { "title": "Clés API", "url": "/admin/apikeys", "icon": "Key" }
+      {
+        "title": "Clés API",
+        "url": "/admin/apikeys",
+        "icon": "Key"
+      }
     ]
   },
   "user": {
@@ -92,7 +138,12 @@
   "footer": {
     "nav": {
       "items": [
-        { "title": "Accueil", "url": "/", "icon": "Home", "target": "_blank" },
+        {
+          "title": "Accueil",
+          "url": "/",
+          "icon": "Home",
+          "target": "_blank"
+        },
         {
           "title": "GitHub",
           "url": "https://github.com/your-app-name",

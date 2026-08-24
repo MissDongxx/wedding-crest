@@ -73,22 +73,37 @@ export class RunwareProvider implements AIProvider {
     const taskUUID = getUuid();
     const width = options?.width ?? 1024;
     const height = options?.height ?? 1024;
+    // Reference images switch the request into image-conditioned mode
+    // (used by multimodal models like google:nano-banana@2-lite). Runware's
+    // spec for these models: nest the URLs under `inputs.referenceImages`
+    // and OMIT width/height — "either provide referenceImages or specify
+    // width/height", not both.
+    const referenceImages = Array.isArray(options?.referenceImages)
+      ? (options.referenceImages as unknown[]).filter(
+          (url): url is string => typeof url === 'string' && url.length > 0
+        )
+      : [];
 
     const task: Record<string, any> = {
       taskType: 'imageInference',
       taskUUID,
       model: selectedModel,
       positivePrompt: prompt,
-      width,
-      height,
       outputFormat: 'png',
       includeCost: true,
       // async delivery: results are fetched through getResponse polling
       deliveryMethod: 'async',
     };
+    if (referenceImages.length > 0) {
+      task.inputs = { referenceImages };
+    } else {
+      task.width = width;
+      task.height = height;
+    }
     // Only include negativePrompt when the caller explicitly passes one —
     // some models (e.g. Kling via Runware) reject this as an
-    // unsupportedParameter with status 400.
+    // unsupportedParameter with status 400. Also: multimodal models like
+    // google:nano-banana do not expose negativePrompt at all.
     if (options?.negativePrompt) {
       task.negativePrompt = options.negativePrompt;
     }

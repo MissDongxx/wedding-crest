@@ -2,17 +2,19 @@ import { z } from 'zod';
 
 import { getUuid } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
-import { getUserInfo } from '@/shared/models/user';
+import { getWeddingExample } from '@/shared/models/wedding';
 import {
   createWeddingProject,
   listWeddingProjectsForGuest,
   listWeddingProjectsForUser,
 } from '@/shared/models/wedding';
+import { getUserInfo } from '@/shared/models/user';
 import { selectLayout } from '@/shared/wedding/config';
 import {
   WEDDING_MAX_FLOWERS,
   WEDDING_MAX_PALETTE_COLORS,
   WEDDING_MAX_PERSONAL_ELEMENTS,
+  isWeddingExampleStyle,
   weddingStyles,
 } from '@/shared/wedding/types';
 
@@ -60,6 +62,7 @@ const createSchema = z.object({
       'initials_spaced',
       'full_names',
       'surname',
+      'initials_only',
     ])
     .optional(),
   showDate: z.boolean().optional(),
@@ -67,6 +70,29 @@ const createSchema = z.object({
   personalElements: z
     .array(cleanText(60))
     .max(WEDDING_MAX_PERSONAL_ELEMENTS)
+    .optional(),
+  // Reference photo URLs the user already uploaded. Limited to 2 to keep
+  // multimodal generation cost bounded and the prompt focused. Each URL
+  // must point to an http(s) resource or a local path the storage service
+  // can resolve at generation time.
+  personalImages: z
+    .array(z.string().trim().min(1).max(2000))
+    .max(2)
+    .optional(),
+  frameId: z.string().trim().min(1).max(80).nullable().optional(),
+  // "Same as example" wiring. The client only sends the example id — the
+  // server resolves it to the active example's imageUrl and validates the
+  // style so the wizard can never get a user-uploaded attacker URL into
+  // the prompt. The four flags map to the four wizard steps that surface
+  // a "Same as example" option.
+  exampleId: z.string().trim().min(1).max(80).optional(),
+  matchExample: z
+    .object({
+      border: z.boolean().optional(),
+      palette: z.boolean().optional(),
+      flowers: z.boolean().optional(),
+      elements: z.boolean().optional(),
+    })
     .optional(),
 });
 
@@ -79,6 +105,38 @@ export async function POST(request: Request) {
     const styleConfig = weddingStyles.find((s) => s.id === body.style);
     if (!styleConfig) return respErr('unknown wedding style');
     const layout = selectLayout(body.style, body.layout);
+
+    // Resolve the example reference image server-side. We deliberately do
+    // NOT trust a client-supplied imageUrl: the wizard sends only the id,
+    // we look it up and verify the row is active and tagged with one of
+    // the known example styles. If anything fails, we silently drop the
+    // example wiring and let the project fall back to the regular flow.
+    let exampleImage: string | null = null;
+    let matchExample:
+      | {
+          border: boolean;
+          palette: boolean;
+          flowers: boolean;
+          elements: boolean;
+        }
+      | null = null;
+    if (body.exampleId) {
+      const example = await getWeddingExample(body.exampleId);
+      if (
+        example?.isActive &&
+        isWeddingExampleStyle(example.style) &&
+        /^https?:\/\//.test(example.imageUrl)
+      ) {
+        exampleImage = example.imageUrl;
+        const flags = body.matchExample ?? {};
+        matchExample = {
+          border: Boolean(flags.border),
+          palette: Boolean(flags.palette),
+          flowers: Boolean(flags.flowers),
+          elements: Boolean(flags.elements),
+        };
+      }
+    }
 
     const project = await createWeddingProject({
       userId: user?.id,
@@ -98,6 +156,10 @@ export async function POST(request: Request) {
       showDate: body.showDate !== false,
       flowers: body.flowers ?? [],
       personalElements: body.personalElements ?? [],
+      personalImages: body.personalImages ?? [],
+      frameId: body.frameId ?? null,
+      exampleImage,
+      matchExample,
       status: 'draft',
     });
 

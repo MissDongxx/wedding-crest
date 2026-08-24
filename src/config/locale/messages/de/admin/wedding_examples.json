@@ -1,0 +1,43 @@
+{
+  "fields": {
+    "name": "Name",
+    "style": "Stil",
+    "image_url": "Foto",
+    "alt_text": "Alt-Text",
+    "sort_order": "Reihenfolge",
+    "is_active": "Aktiv",
+    "actions": "Aktionen"
+  },
+  "values": {
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "edit": "Bearbeiten",
+    "delete": "Löschen"
+  },
+  "list": {
+    "title": "Hochzeitsbeispiele",
+    "crumbs": {
+      "admin": "Admin",
+      "examples": "Beispiele"
+    },
+    "buttons": {
+      "add": "Beispiel hinzufügen"
+    },
+    "empty": "Noch keine Beispiele. Fügen Sie eines hinzu."
+  },
+  "add": {
+    "title": "Beispiel hinzufügen",
+    "crumbs": {
+      "add": "Hinzufügen"
+    },
+    "buttons": {
+      "submit": "Beispiel speichern"
+    }
+  },
+  "edit": {
+    "title": "Beispiel bearbeiten",
+    "buttons": {
+      "submit": "Änderungen speichern"
+    }
+  }
+}

@@ -60,6 +60,14 @@ export const PERMISSIONS = {
   AITASKS_READ: 'admin.ai-tasks.read',
   AITASKS_WRITE: 'admin.ai-tasks.write',
   AITASKS_DELETE: 'admin.ai-tasks.delete',
+
+  // Wedding Crest Studio admin
+  WEDDING_FRAMES_READ: 'admin.wedding.frames.read',
+  WEDDING_FRAMES_WRITE: 'admin.wedding.frames.write',
+  WEDDING_FRAMES_DELETE: 'admin.wedding.frames.delete',
+  WEDDING_EXAMPLES_READ: 'admin.wedding.examples.read',
+  WEDDING_EXAMPLES_WRITE: 'admin.wedding.examples.write',
+  WEDDING_EXAMPLES_DELETE: 'admin.wedding.examples.delete',
 } as const;
 
 /**

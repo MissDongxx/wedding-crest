@@ -1,0 +1,43 @@
+{
+  "fields": {
+    "name": "名称",
+    "style": "风格",
+    "image_url": "示例图",
+    "alt_text": "替代文字",
+    "sort_order": "排序",
+    "is_active": "启用",
+    "actions": "操作"
+  },
+  "values": {
+    "active": "启用",
+    "inactive": "停用",
+    "edit": "编辑",
+    "delete": "删除"
+  },
+  "list": {
+    "title": "婚礼示例",
+    "crumbs": {
+      "admin": "管理",
+      "examples": "示例"
+    },
+    "buttons": {
+      "add": "新增示例"
+    },
+    "empty": "还没有示例图，先添加一张。"
+  },
+  "add": {
+    "title": "新增示例",
+    "crumbs": {
+      "add": "新增"
+    },
+    "buttons": {
+      "submit": "保存示例"
+    }
+  },
+  "edit": {
+    "title": "编辑示例",
+    "buttons": {
+      "submit": "保存修改"
+    }
+  }
+}

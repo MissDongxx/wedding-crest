@@ -1,0 +1,43 @@
+{
+  "fields": {
+    "name": "Name",
+    "style": "Style",
+    "image_url": "Photo",
+    "alt_text": "Alt text",
+    "sort_order": "Order",
+    "is_active": "Active",
+    "actions": "Actions"
+  },
+  "values": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "list": {
+    "title": "Wedding Examples",
+    "crumbs": {
+      "admin": "Admin",
+      "examples": "Examples"
+    },
+    "buttons": {
+      "add": "Add Example"
+    },
+    "empty": "No example photos yet. Add one to show on the home page."
+  },
+  "add": {
+    "title": "Add Example",
+    "crumbs": {
+      "add": "Add"
+    },
+    "buttons": {
+      "submit": "Add Example"
+    }
+  },
+  "edit": {
+    "title": "Edit Example",
+    "buttons": {
+      "submit": "Save Changes"
+    }
+  }
+}

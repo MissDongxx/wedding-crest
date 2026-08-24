@@ -1,0 +1,45 @@
+{
+  "fields": {
+    "name": "名称",
+    "style": "风格",
+    "url": "边框图",
+    "thumbnail_url": "缩略图",
+    "alt_text": "替代文字",
+    "sort_order": "排序",
+    "is_active": "启用",
+    "actions": "操作"
+  },
+  "values": {
+    "active": "启用",
+    "inactive": "停用",
+    "all_styles": "所有风格",
+    "edit": "编辑",
+    "delete": "删除"
+  },
+  "list": {
+    "title": "婚礼边框",
+    "crumbs": {
+      "admin": "管理",
+      "frames": "边框"
+    },
+    "buttons": {
+      "add": "新增边框"
+    },
+    "empty": "还没有边框，先添加一个。"
+  },
+  "add": {
+    "title": "新增边框",
+    "crumbs": {
+      "add": "新增"
+    },
+    "buttons": {
+      "submit": "保存边框"
+    }
+  },
+  "edit": {
+    "title": "编辑边框",
+    "buttons": {
+      "submit": "保存修改"
+    }
+  }
+}

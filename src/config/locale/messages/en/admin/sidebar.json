@@ -89,6 +89,21 @@
           "icon": "MessageCircle"
         }
       ]
+    },
+    {
+      "title": "Wedding",
+      "items": [
+        {
+          "title": "Frames",
+          "url": "/admin/wedding/frames",
+          "icon": "Frame"
+        },
+        {
+          "title": "Examples",
+          "url": "/admin/wedding/examples",
+          "icon": "Image"
+        }
+      ]
     }
   ],
   "bottom_nav": {

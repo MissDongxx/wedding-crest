@@ -27,13 +27,15 @@ export class PromoteKitAffiliateProvider implements AffiliateProvider {
   getHeadScripts(): ReactNode {
     return (
       <>
+        {/* PromoteKit — fires on conversion events, no need to be
+            ready at first paint. */}
         <Script
           id={`${this.name}-script`}
           async
           defer
           src="https://cdn.promotekit.com/promotekit.js"
           data-promotekit={this.configs.promotekitId}
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
       </>
     );

@@ -88,7 +88,14 @@ export async function POST(
       projectsWithGenerations,
     });
     if (!allowance.allowed)
-      return respErr(allowance.reason ?? 'generation limit reached');
+      // 402 Payment Required: the user's free quota (or paid regeneration
+      // quota) is exhausted. Returning a real 4xx lets the wizard branch
+      // on status and avoid logging a console.error for what is a normal
+      // product state ("you've used your free generation, buy the pack").
+      return respErr(
+        allowance.reason ?? 'generation limit reached',
+        402
+      );
 
     const body = inputSchema.parse(await request.json().catch(() => ({})));
     // Bypass the 1-minute in-memory cache so a freshly-saved admin key
@@ -115,6 +122,28 @@ export async function POST(
       body.model,
       (provider as { configs?: { model?: string } }).configs?.model
     );
+
+    // When the user attached reference photos (personal elements) we need a
+    // multimodal model — flux-schnell is text-only. Auto-switch to Google's
+    // nano-banana@2-lite on Runware, which accepts `inputs.referenceImages`.
+    // Admin-set model / WEDDING_AI_MODEL / explicit body.model can still
+    // override this by passing body.model themselves.
+    //
+    // The example reference image (when the user arrived via ?exampleId=)
+    // is the first reference image so the model can match its style.
+    // Personal photos follow. If neither is present we stay on the
+    // configured text-to-image model.
+    const personalImages = project.input.personalImages ?? [];
+    const exampleImage = project.input.exampleImage ?? null;
+    const referenceImages = [
+      ...(exampleImage ? [exampleImage] : []),
+      ...personalImages,
+    ];
+    const effectiveModel = body.model
+      ? model
+      : referenceImages.length > 0
+        ? 'google:nano-banana@2-lite'
+        : model;
 
     const versions = getWeddingVersions();
     const prompt = compileWeddingPrompt({
@@ -144,13 +173,26 @@ export async function POST(
       candidateIndex < WEDDING_MAX_CANDIDATES;
       candidateIndex += 1
     ) {
+      // Build per-candidate options. Runware's nano-banana forbids passing
+      // width/height alongside inputs.referenceImages ("either provide
+      // referenceImages or specify width/height", not both), so the shape
+      // of this object depends on whether the project carries reference
+      // photos.
+      const baseOptions: Record<string, unknown> = { candidateIndex };
+      if (referenceImages.length === 0) {
+        baseOptions.width = 1024;
+        baseOptions.height = 1024;
+      } else {
+        baseOptions.referenceImages = referenceImages;
+      }
+
       const result = await provider.generate({
         params: {
           mediaType: AIMediaType.IMAGE,
-          model,
+          model: effectiveModel,
           prompt,
           async: true,
-          options: { width: 1024, height: 1024, candidateIndex },
+          options: baseOptions,
         },
       });
       if (!result?.taskId)
@@ -166,7 +208,7 @@ export async function POST(
             userId: user.id,
             mediaType: AIMediaType.IMAGE,
             provider: provider.name,
-            model,
+            model: effectiveModel,
             prompt,
             options: JSON.stringify({ projectId: id, candidateIndex }),
             status: result.taskStatus || AITaskStatus.PENDING,
@@ -176,7 +218,7 @@ export async function POST(
               ? JSON.stringify(result.taskResult)
               : null,
             costCredits: 0,
-            scene: 'text-to-image',
+            scene: referenceImages.length > 0 ? 'image-to-image' : 'text-to-image',
           })
         : null;
       created.push(
@@ -186,7 +228,7 @@ export async function POST(
           aiTaskId: aiTask?.id ?? null,
           candidateIndex,
           provider: provider.name,
-          model,
+          model: effectiveModel,
           promptVersion: versions.promptVersion,
           styleVersion: versions.styleVersion,
           layoutVersion: versions.layoutVersion,

@@ -2,7 +2,7 @@
   "meta_title": "Your wedding crest",
   "meta_description": "Fine-tune your crest and unlock the wedding identity pack.",
   "title": "Your wedding crest",
-  "subtitle": "Pick a candidate, fine-tune the typography, and unlock the full wedding identity pack.",
+  "subtitle": "Fine-tune the typography and unlock the full wedding identity pack.",
   "loading": "Composing your crest…",
   "error_title": "We couldn't load your design",
   "load_error": "Something went wrong while loading the design.",
@@ -10,7 +10,7 @@
   "start_over": "Start a new design",
   "update_error": "Could not update the design.",
   "regenerate_title": "Want a new set?",
-  "regenerate_hint": "Regenerate to see three fresh candidates.",
+  "regenerate_hint": "Regenerate to see a fresh crest.",
   "regenerate_cta": "Regenerate",
   "generating_hint": "Composing {stage}…",
   "stages": {

@@ -1,0 +1,66 @@
+# Verification record: crest generation = one
+
+Workspace: `/Users/xumingyue/Downloads/MyProjects/wedding-crest2`
+Input: change Create Crest generation from three outputs to one output.
+
+## Baseline command
+
+Command:
+
+```sh
+grep -nE 'WEDDING_MAX_CANDIDATES|countWeddingGenerationBatches\(finalProject.id' \
+  artifacts/crest-generation-one/original/src/shared/wedding/config.ts.snapshot \
+  artifacts/crest-generation-one/original/src/app/api/jobs/'[id]'/route.ts.snapshot
+```
+
+Literal output, exit `0`:
+
+```text
+...config.ts.snapshot:6:export const WEDDING_MAX_CANDIDATES = 1;
+...route.ts.snapshot:203:      ? await countWeddingGenerationBatches(finalProject.id, 3)
+```
+
+The candidate constant was already `1` in the pre-edit worktree; this change
+closes the remaining hard-coded `3` path and synchronizes the copy.
+
+## Modified command
+
+Command:
+
+```sh
+grep -nE 'WEDDING_MAX_CANDIDATES|countWeddingGenerationBatches\(' \
+  src/shared/wedding/config.ts src/app/api/jobs/'[id]'/route.ts
+```
+
+Literal output, exit `0`:
+
+```text
+src/shared/wedding/config.ts:6:export const WEDDING_MAX_CANDIDATES = 1;
+src/app/api/jobs/[id]/route.ts:23:  WEDDING_MAX_CANDIDATES,
+src/app/api/jobs/[id]/route.ts:204:      ? await countWeddingGenerationBatches(
+src/app/api/jobs/[id]/route.ts:206:          WEDDING_MAX_CANDIDATES
+```
+
+## Verification commands
+
+- `git diff --check` — exit `0`, no output.
+- `node --import tsx scripts/verify-wedding.ts` — exit `0`, literal result:
+  `98/98 passed`.
+- `npm run lint` — exit `0`, `0 errors and 262 warnings`; warnings are
+  pre-existing repository lint findings.
+- `npm run build` — exit `0`; Next compiled successfully and included
+  `/[locale]/create`, `/[locale]/design/[id]`, and `/api/projects/[id]/generate`.
+- Locale JSON parse command — exit `0`, literal result: `16 locale JSON files parsed`.
+- Stale-copy search — exit `0`, literal result: `0` matching files.
+- `test -x artifacts/crest-generation-one/rollback.sh` — exit `0`, literal
+  result: `rollback.sh executable`.
+- Development server restart — exit `0`; Next reported `Ready in 2.3s` at
+  `http://localhost:3000`.
+- Rollback integration test in `/tmp/crest-rollback-test` — exit `0`, literal
+  result: `rollback test passed`.
+
+## Rollback
+
+```sh
+./artifacts/crest-generation-one/rollback.sh
+```

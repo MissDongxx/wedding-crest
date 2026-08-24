@@ -1,0 +1,43 @@
+Reference-matched paper texture verification
+
+Reference analysis
+- Empty reference regions sampled from the supplied image measured approximately RGB(245,245,243).
+- Empty paper regions had local grayscale standard deviation approximately 2.8.
+- The visual pattern contains a broad uneven paper field plus fine fiber grain.
+
+Implementation
+- Base color: #f5f5f3.
+- Body: two subtle radial gradients for broad paper unevenness.
+- body::before: two tiled SVG feTurbulence layers:
+  - coarse cloud: 420px tile, baseFrequency .035, 3 octaves
+  - fine fiber: 200px tile, baseFrequency .8, 4 octaves
+- Noise layer: opacity .28, multiply blend, pointer-events none.
+- body children remain above the background layer with z-index 1.
+
+Static checks
+$ pnpm exec prettier --check src/config/style/global.css src/config/style/theme.css
+Checking formatting...
+All matched files use Prettier code style!
+exit=0
+$ git diff --check
+exit=0
+$ sh -n artifacts/background-paper-reference-match/rollback.sh
+exit=0
+
+Rollback check
+$ artifacts/background-paper-reference-match/rollback.sh
+Rolled back reference-matched paper texture.
+$ cmp original snapshots against source files
+exit=0 (rollback_verified=1)
+$ restore modified snapshots and cmp against source files
+exit=0 (modified_restored=1)
+
+Browser verification on localhost:3000
+- Homepage screenshot visibly shows broad paper variation and fine grain.
+- Create page screenshot visibly shows the same paper texture.
+- Homepage computed body color: rgb(245, 245, 243)
+- Homepage computed noise sizes: 420px 420px, 200px 200px
+- Create page computed body color: rgb(245, 245, 243)
+- Create page computed noise contains feTurbulence
+- Homepage console error count: 0
+- Create page console error count: 0

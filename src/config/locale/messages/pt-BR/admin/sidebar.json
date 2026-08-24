@@ -19,8 +19,16 @@
           "icon": "User",
           "is_expand": true,
           "children": [
-            { "title": "Usuários", "url": "/admin/users", "icon": "User" },
-            { "title": "Funções", "url": "/admin/roles", "icon": "Users" },
+            {
+              "title": "Usuários",
+              "url": "/admin/users",
+              "icon": "User"
+            },
+            {
+              "title": "Funções",
+              "url": "/admin/roles",
+              "icon": "Users"
+            },
             {
               "title": "Permissões",
               "url": "/admin/permissions",
@@ -37,7 +45,11 @@
               "icon": "Folder",
               "url": "/admin/categories"
             },
-            { "title": "Artigos", "icon": "FileText", "url": "/admin/posts" }
+            {
+              "title": "Artigos",
+              "icon": "FileText",
+              "url": "/admin/posts"
+            }
           ]
         },
         {
@@ -54,7 +66,11 @@
               "url": "/admin/subscriptions",
               "icon": "CreditCard"
             },
-            { "title": "Créditos", "url": "/admin/credits", "icon": "Coins" }
+            {
+              "title": "Créditos",
+              "url": "/admin/credits",
+              "icon": "Coins"
+            }
           ]
         }
       ]
@@ -62,11 +78,30 @@
     {
       "title": "Negócios",
       "items": [
-        { "title": "Tarefas de IA", "url": "/admin/ai-tasks", "icon": "Brain" },
+        {
+          "title": "Tarefas de IA",
+          "url": "/admin/ai-tasks",
+          "icon": "Brain"
+        },
         {
           "title": "Chats de IA",
           "url": "/admin/chats",
           "icon": "MessageCircle"
+        }
+      ]
+    },
+    {
+      "title": "Casamento",
+      "items": [
+        {
+          "title": "Molduras",
+          "url": "/admin/wedding/frames",
+          "icon": "Frame"
+        },
+        {
+          "title": "Exemplos",
+          "url": "/admin/wedding/examples",
+          "icon": "Image"
         }
       ]
     }
@@ -78,7 +113,11 @@
         "url": "/admin/settings/general",
         "icon": "Settings"
       },
-      { "title": "Chaves de API", "url": "/admin/apikeys", "icon": "Key" }
+      {
+        "title": "Chaves de API",
+        "url": "/admin/apikeys",
+        "icon": "Key"
+      }
     ]
   },
   "user": {
@@ -99,7 +138,12 @@
   "footer": {
     "nav": {
       "items": [
-        { "title": "Início", "url": "/", "icon": "Home", "target": "_blank" },
+        {
+          "title": "Início",
+          "url": "/",
+          "icon": "Home",
+          "target": "_blank"
+        },
         {
           "title": "GitHub",
           "url": "https://github.com/your-app-name",

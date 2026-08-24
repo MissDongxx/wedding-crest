@@ -1,0 +1,43 @@
+{
+  "fields": {
+    "name": "Nom",
+    "style": "Style",
+    "image_url": "Photo",
+    "alt_text": "Texte alternatif",
+    "sort_order": "Ordre",
+    "is_active": "Actif",
+    "actions": "Actions"
+  },
+  "values": {
+    "active": "Actif",
+    "inactive": "Inactif",
+    "edit": "Modifier",
+    "delete": "Supprimer"
+  },
+  "list": {
+    "title": "Exemples de mariage",
+    "crumbs": {
+      "admin": "Admin",
+      "examples": "Exemples"
+    },
+    "buttons": {
+      "add": "Ajouter un exemple"
+    },
+    "empty": "Aucun exemple. Ajoutez-en un pour la page d accueil."
+  },
+  "add": {
+    "title": "Ajouter un exemple",
+    "crumbs": {
+      "add": "Ajouter"
+    },
+    "buttons": {
+      "submit": "Enregistrer l exemple"
+    }
+  },
+  "edit": {
+    "title": "Modifier l exemple",
+    "buttons": {
+      "submit": "Enregistrer les modifications"
+    }
+  }
+}

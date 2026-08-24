@@ -38,11 +38,113 @@ import {
 const WIZARD_STEPS = [
   { key: 'names', label: 'Names' },
   { key: 'style', label: 'Style' },
+  { key: 'border', label: 'Border' },
   { key: 'palette', label: 'Colors' },
   { key: 'details', label: 'Details' },
   { key: 'personal', label: 'Personal' },
   { key: 'review', label: 'Review' },
 ] as const;
+
+const WIZARD_STORAGE_KEY = 'wedding_wizard_state_v1';
+
+const MATCH_EXAMPLE_DEFAULT = {
+  border: false,
+  palette: false,
+  flowers: false,
+  elements: false,
+};
+
+type MatchExampleFlags = typeof MATCH_EXAMPLE_DEFAULT;
+
+/**
+ * Shape of the wizard state we round-trip through localStorage. Bump
+ * `WIZARD_STORAGE_KEY` to a new version (v2, ...) whenever the schema
+ * changes in a way that would make older payloads break parsing — the
+ * read helper just discards unknown keys, but renamed/removed fields
+ * would otherwise leak through as undefined.
+ */
+interface PersistedWizardState {
+  step: number;
+  partner1: string;
+  partner2: string;
+  weddingDate: string;
+  nameDisplay: WeddingProjectInput['nameDisplay'];
+  style: string;
+  composition: string;
+  typography: string;
+  frameId: string | null;
+  palette: string[];
+  customHex: string;
+  location: string;
+  venue: string;
+  flowers: string[];
+  customFlower: string;
+  personalElements: string[];
+  customElement: string;
+  personalImages: string[];
+  complexity: WeddingProjectInput['complexity'];
+  matchExample: MatchExampleFlags;
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string');
+}
+
+function isMatchExample(value: unknown): value is MatchExampleFlags {
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as Record<string, unknown>;
+  return (
+    typeof candidate.border === 'boolean' &&
+    typeof candidate.palette === 'boolean' &&
+    typeof candidate.flowers === 'boolean' &&
+    typeof candidate.elements === 'boolean'
+  );
+}
+
+function isWeddingComplexity(value: unknown): value is WeddingProjectInput['complexity'] {
+  return value === 'minimal' || value === 'medium' || value === 'rich';
+}
+
+function isWeddingNameDisplay(value: unknown): value is WeddingProjectInput['nameDisplay'] {
+  return (
+    value === 'initials_amp' ||
+    value === 'initials_joined' ||
+    value === 'initials_spaced' ||
+    value === 'initials_only' ||
+    value === 'full_names' ||
+    value === 'surname'
+  );
+}
+
+/**
+ * Reads the persisted wizard state from localStorage. Returns an empty
+ * object on SSR, on parse errors, or when no prior state exists. The
+ * wizard's individual useState calls use this to seed their initial
+ * values, so the very first render after a refresh already shows the
+ * restored form — no flash of empty inputs.
+ */
+function readPersistedWizardState(): Partial<PersistedWizardState> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = window.localStorage.getItem(WIZARD_STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return {};
+    return parsed as Partial<PersistedWizardState>;
+  } catch {
+    // Corrupt JSON, private-browsing quota errors, etc. — start fresh.
+    return {};
+  }
+}
+
+function clearPersistedWizardState() {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.removeItem(WIZARD_STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+}
 
 /**
  * Typography pairing suggested for each name display mode. Pairings the
@@ -57,11 +159,19 @@ const recommendedTypographyFor: Record<
   initials_amp: 'editorial_rose',
   initials_joined: 'modern_serif',
   initials_spaced: 'editorial_italic',
+  initials_only: 'editorial_rose',
   full_names: 'modern_serif',
   surname: 'classic_caps',
 };
 
 const CUSTOM_HEX_RE = /^#[0-9a-fA-F]{6}$/;
+
+type ApiEnvelope<T> = {
+  code?: number;
+  message?: string;
+  data?: T;
+  error?: string;
+};
 
 function initialsFromNames(partner1: string, partner2: string): string[] {
   return [partner1.charAt(0).toUpperCase(), partner2.charAt(0).toUpperCase()];
@@ -97,38 +207,205 @@ export function WeddingWizard() {
   const t = useTranslations('pages.create');
   const searchParams = useSearchParams();
 
+  // Read any persisted state once at mount. The individual useState calls
+  // seed from this so a refresh restores the form in the very first
+  // render — no flash of empty fields while an effect runs.
+  const persisted = useMemo(() => readPersistedWizardState(), []);
+
   // step 1: names
-  const [partner1, setPartner1] = useState('');
-  const [partner2, setPartner2] = useState('');
-  const [weddingDate, setWeddingDate] = useState('');
-  const [nameDisplay, setNameDisplay] =
-    useState<WeddingProjectInput['nameDisplay']>('initials_amp');
+  const [partner1, setPartner1] = useState(
+    typeof persisted.partner1 === 'string' ? persisted.partner1 : ''
+  );
+  const [partner2, setPartner2] = useState(
+    typeof persisted.partner2 === 'string' ? persisted.partner2 : ''
+  );
+  const [weddingDate, setWeddingDate] = useState(
+    typeof persisted.weddingDate === 'string' ? persisted.weddingDate : ''
+  );
+  const [nameDisplay, setNameDisplay] = useState<
+    WeddingProjectInput['nameDisplay']
+  >(
+    isWeddingNameDisplay(persisted.nameDisplay)
+      ? persisted.nameDisplay
+      : 'initials_amp'
+  );
 
   // step 2: style
-  const [style, setStyle] = useState('botanical_watercolor');
-  const [composition, setComposition] = useState('');
-  const [typography, setTypography] = useState('editorial_rose');
+  const [style, setStyle] = useState(
+    typeof persisted.style === 'string' &&
+      weddingStyles.some((s) => s.id === persisted.style)
+      ? persisted.style
+      : 'botanical_watercolor'
+  );
+  const [composition, setComposition] = useState(
+    typeof persisted.composition === 'string' ? persisted.composition : ''
+  );
+  const [typography, setTypography] = useState(
+    typeof persisted.typography === 'string'
+      ? persisted.typography
+      : 'editorial_rose'
+  );
 
-  // step 3: palette
-  const [palette, setPalette] = useState<string[]>(weddingPalettes[0].colors);
-  const [customHex, setCustomHex] = useState('');
+  // step 3: border (admin-managed frame library)
+  // null = no border; otherwise the wedding_frame.id the user picked.
+  const [frameId, setFrameId] = useState<string | null>(
+    typeof persisted.frameId === 'string' ? persisted.frameId : null
+  );
+  const [frames, setFrames] = useState<
+    Array<{
+      id: string;
+      name: string;
+      style: string | null;
+      url: string;
+      thumbnailUrl: string | null;
+    }>
+  >([]);
+  const [framesLoading, setFramesLoading] = useState(false);
 
-  // step 4: details
-  const [location, setLocation] = useState('');
-  const [venue, setVenue] = useState('');
-  const [flowers, setFlowers] = useState<string[]>([]);
-  const [customFlower, setCustomFlower] = useState('');
+  // step 4: palette
+  const [palette, setPalette] = useState<string[]>(
+    isStringArray(persisted.palette) && persisted.palette.length > 0
+      ? persisted.palette
+      : weddingPalettes[0].colors
+  );
+  const [customHex, setCustomHex] = useState(
+    typeof persisted.customHex === 'string' ? persisted.customHex : ''
+  );
 
-  // step 5: personal elements
-  const [personalElements, setPersonalElements] = useState<string[]>([]);
-  const [customElement, setCustomElement] = useState('');
+  // step 5: details
+  const [location, setLocation] = useState(
+    typeof persisted.location === 'string' ? persisted.location : ''
+  );
+  const [venue, setVenue] = useState(
+    typeof persisted.venue === 'string' ? persisted.venue : ''
+  );
+  const [flowers, setFlowers] = useState<string[]>(
+    isStringArray(persisted.flowers) ? persisted.flowers : []
+  );
+  const [customFlower, setCustomFlower] = useState(
+    typeof persisted.customFlower === 'string' ? persisted.customFlower : ''
+  );
 
-  // step 6: review
-  const [complexity, setComplexity] =
-    useState<WeddingProjectInput['complexity']>('medium');
+  // step 6: personal elements
+  const [personalElements, setPersonalElements] = useState<string[]>(
+    isStringArray(persisted.personalElements) ? persisted.personalElements : []
+  );
+  const [customElement, setCustomElement] = useState(
+    typeof persisted.customElement === 'string' ? persisted.customElement : ''
+  );
+  // Reference photos uploaded by the user. Stored as storage URLs;
+  // sent as `personalImages` in the project payload, which the generate
+  // route forwards to Runware as `inputs.referenceImages` (auto-switches
+  // the model to google:nano-banana@2-lite when present).
+  const [personalImages, setPersonalImages] = useState<string[]>(
+    isStringArray(persisted.personalImages) ? persisted.personalImages : []
+  );
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const MAX_PERSONAL_IMAGES = 2;
 
-  const [step, setStep] = useState(0);
+  // step 7: review
+  const [complexity, setComplexity] = useState<
+    WeddingProjectInput['complexity']
+  >(
+    isWeddingComplexity(persisted.complexity) ? persisted.complexity : 'medium'
+  );
+
+  const [step, setStep] = useState(
+    typeof persisted.step === 'number' &&
+      persisted.step >= 0 &&
+      persisted.step < WIZARD_STEPS.length
+      ? persisted.step
+      : 0
+  );
   const [submitting, setSubmitting] = useState(false);
+
+  // Reference image the user arrived with (?exampleId= deep link). Drives
+  // the live preview panel: show this photo instead of the SVG preview, or
+  // hide the preview entirely when no example was attached (e.g. links
+  // from the home hero).
+  const [exampleImage, setExampleImage] = useState<{ url: string; alt: string } | null>(
+    null
+  );
+  const [examplePending, setExamplePending] = useState(false);
+  // Set to the example's style id once the exampleId fetch resolves
+  // successfully. Step 2 uses it to hide the style picker (the example
+  // already implies the style), and the rest of the wizard reads it to
+  // show "from your example" hints.
+  const [fromExampleStyle, setFromExampleStyle] = useState<string | null>(null);
+  // Per-property "match the example image" flags. Default OFF for every
+  // user; flipped to all-true when an example is attached so the wizard
+  // starts in "make me the same thing" mode and the user can override
+  // individual properties. The flags travel to the API as `matchExample`
+  // and the prompt compiler swaps the corresponding lines for "match the
+  // reference example image" wording.
+  const [matchExample, setMatchExample] = useState<MatchExampleFlags>(
+    isMatchExample(persisted.matchExample)
+      ? persisted.matchExample
+      : MATCH_EXAMPLE_DEFAULT
+  );
+
+  // Persist the form state to localStorage on every change. Writing on
+  // every state mutation is fine here — the payload is small (a few
+  // strings/arrays), and localStorage.setItem is synchronous and fast
+  // for this size. We intentionally do NOT persist transient values:
+  // - exampleImage / fromExampleStyle are re-derived from the URL on
+  //   every mount by the example effect, so persisting them would just
+  //   get overwritten on the next render.
+  // - submitting / examplePending / uploadingImages are flags that would
+  //   look stuck if a refresh happens mid-flight.
+  // - frames are refetched from the API based on `style`.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const payload: PersistedWizardState = {
+        step,
+        partner1,
+        partner2,
+        weddingDate,
+        nameDisplay,
+        style,
+        composition,
+        typography,
+        frameId,
+        palette,
+        customHex,
+        location,
+        venue,
+        flowers,
+        customFlower,
+        personalElements,
+        customElement,
+        personalImages,
+        complexity,
+        matchExample,
+      };
+      window.localStorage.setItem(WIZARD_STORAGE_KEY, JSON.stringify(payload));
+    } catch {
+      // Quota exceeded or storage disabled — non-fatal, the wizard
+      // still works in memory.
+    }
+  }, [
+    step,
+    partner1,
+    partner2,
+    weddingDate,
+    nameDisplay,
+    style,
+    composition,
+    typography,
+    frameId,
+    palette,
+    customHex,
+    location,
+    venue,
+    flowers,
+    customFlower,
+    personalElements,
+    customElement,
+    personalImages,
+    complexity,
+    matchExample,
+  ]);
 
   // preselect style from ?style= deep link (used by style cards + SEO pages)
   useEffect(() => {
@@ -140,6 +417,125 @@ export function WeddingWizard() {
         setComposition(first.composition);
       }
     }
+  }, [searchParams]);
+
+  // Prefill from ?exampleId= deep link (used by Find Your Style example
+  // thumbnails). The link usually carries ?style= too, so we only set the
+  // style from the example when no style param is present, avoiding a race
+  // with the effect above.
+  //
+  // Persistence interaction: the example-derived matchExample defaults
+  // (all-false when no example, all-true when an example is attached) only
+  // apply on the very first visit. Once the user has any persisted state,
+  // we leave matchExample alone so a refresh preserves the toggles they
+  // already set. The exampleImage / fromExampleStyle are still re-derived
+  // from the URL every time, so the live preview always reflects the
+  // current link.
+  useEffect(() => {
+    const exampleId = searchParams.get('exampleId');
+    // Cheap probe: did the user already have wizard state saved? The
+    // `persisted` memo above already ran on mount; instead of re-reading
+    // localStorage, we just keep a boolean around by checking for any
+    // non-default signal. The empty-{} case means "no prior state".
+    const hasPersistedState =
+      typeof window !== 'undefined' &&
+      (() => {
+        try {
+          return window.localStorage.getItem(WIZARD_STORAGE_KEY) !== null;
+        } catch {
+          return false;
+        }
+      })();
+    const applyMatchExampleDefaults = (next: MatchExampleFlags) => {
+      if (hasPersistedState) return;
+      setMatchExample(next);
+    };
+
+    if (!exampleId) {
+      // No example in the URL — the preview panel should not show any
+      // image. (User came from the home hero or directly from /create.)
+      setExampleImage(null);
+      setExamplePending(false);
+      setFromExampleStyle(null);
+      applyMatchExampleDefaults(MATCH_EXAMPLE_DEFAULT);
+      return;
+    }
+    let cancelled = false;
+    setExamplePending(true);
+    (async () => {
+      try {
+        const resp = await fetch(
+          `/api/wedding/examples?id=${encodeURIComponent(exampleId)}`
+        );
+        const json: ApiEnvelope<{
+          items: Array<{
+            id: string;
+            name: string;
+            style: string;
+            imageUrl: string;
+            altText?: string | null;
+          }>;
+        }> = await resp.json();
+        if (cancelled) return;
+        const example = json?.data?.items?.[0];
+        if (!example) {
+          setExampleImage(null);
+          setFromExampleStyle(null);
+          applyMatchExampleDefaults(MATCH_EXAMPLE_DEFAULT);
+          return;
+        }
+
+        // Names are intentionally NOT prefilled — the user types their
+        // own. We only carry over the example's style so the wizard
+        // skips the style picker on step 2.
+
+        // Style: only when the URL didn't pin one already.
+        const styleChanged =
+          !searchParams.get('style') &&
+          weddingStyles.some((s) => s.id === example.style);
+        if (styleChanged) {
+          setStyle(example.style);
+          const first = layoutsForStyle(example.style)[0];
+          if (first) setComposition(first.composition);
+        }
+
+        // Remember the example's style so step 2 can hide the style
+        // picker (even when the URL already pinned it).
+        setFromExampleStyle(
+          weddingStyles.some((s) => s.id === example.style)
+            ? example.style
+            : null
+        );
+
+        // Default all four "match the example" toggles to ON — the user
+        // arrived with an example, so the "make me the same one" path is
+        // the most useful default. They can override any property by
+        // picking a concrete value (which flips its flag back to false).
+        applyMatchExampleDefaults({
+          border: true,
+          palette: true,
+          flowers: true,
+          elements: true,
+        });
+
+        // Surface the source image in the live preview panel.
+        setExampleImage({
+          url: example.imageUrl,
+          alt: example.altText ?? example.name,
+        });
+      } catch {
+        if (!cancelled) {
+          setExampleImage(null);
+          setFromExampleStyle(null);
+          applyMatchExampleDefaults(MATCH_EXAMPLE_DEFAULT);
+        }
+      } finally {
+        if (!cancelled) setExamplePending(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [searchParams]);
 
   // keep composition valid for the selected style
@@ -175,27 +571,84 @@ export function WeddingWizard() {
     }
   }, [nameDisplay, style]);
 
+  // Fetch frames matching the current style when the user reaches the
+  // border step (or changes style). The list is short and public, so we
+  // refetch instead of hydrating the full set up front.
+  useEffect(() => {
+    let cancelled = false;
+    const fetchFrames = async () => {
+      setFramesLoading(true);
+      try {
+        const url = `/api/wedding/frames?style=${encodeURIComponent(style)}`;
+        const resp = await fetch(url);
+        const json: ApiEnvelope<{
+          items: Array<{
+            id: string;
+            name: string;
+            style: string | null;
+            url: string;
+            thumbnailUrl: string | null;
+          }>;
+        }> = await resp.json();
+        if (!cancelled && json?.data?.items) {
+          setFrames(json.data.items);
+        }
+      } catch {
+        if (!cancelled) setFrames([]);
+      } finally {
+        if (!cancelled) setFramesLoading(false);
+      }
+    };
+    fetchFrames();
+    return () => {
+      cancelled = true;
+    };
+  }, [style]);
+
+  // Drop a frame selection that isn't offered for the current style (e.g.
+  // the user picked a frame, then went back and switched styles). Without
+  // this, the previous frame stays "selected" while the new style's frame
+  // list doesn't include it - the preview would render nothing but the
+  // summary step still shows the old frame name.
+  //
+  // We also need to be careful not to drop a restored frameId from
+  // localStorage while the frames are still loading: if we ran on every
+  // frames=[] render we'd wipe the user's selection on the very first
+  // render after a refresh. The `framesLoading` guard short-circuits
+  // until the fetch has resolved.
+  useEffect(() => {
+    if (framesLoading) return;
+    setFrameId((current) =>
+      current && frames.some((frame) => frame.id === current) ? current : null
+    );
+  }, [frames, framesLoading]);
+
   const previewInput = useMemo(
-    () => ({
-      partner1: partner1 || 'Emma',
-      partner2: partner2 || 'James',
-      initials: initialsFromNames(partner1 || 'Emma', partner2 || 'James'),
-      weddingDate: weddingDate || null,
-      style,
-      layout:
-        styleLayouts.find((l) => l.composition === composition)?.id ??
-        styleLayouts[0]?.id ??
-        'BOTANICAL_OVAL_01',
-      typography,
-      palette,
-      location: null,
-      venue: null,
-      flowers,
-      personalElements,
-      complexity,
-      nameDisplay,
-      showDate: Boolean(weddingDate),
-    }),
+    () => {
+      const selectedFrame = frames.find((frame) => frame.id === frameId);
+      return {
+        partner1: partner1 || 'Emma',
+        partner2: partner2 || 'James',
+        initials: initialsFromNames(partner1 || 'Emma', partner2 || 'James'),
+        weddingDate: weddingDate || null,
+        style,
+        layout:
+          styleLayouts.find((l) => l.composition === composition)?.id ??
+          styleLayouts[0]?.id ??
+          'BOTANICAL_OVAL_01',
+        typography,
+        palette,
+        location: null,
+        venue: null,
+        flowers,
+        personalElements,
+        complexity,
+        nameDisplay,
+        showDate: Boolean(weddingDate),
+        frameId,
+        frameUrl: selectedFrame?.url ?? null,
+      };
+    },
     [
       partner1,
       partner2,
@@ -209,16 +662,11 @@ export function WeddingWizard() {
       personalElements,
       complexity,
       nameDisplay,
+      frameId,
+      frames,
     ]
   );
 
-  const previewSvg = useMemo(
-    () => composeWeddingCrest(previewInput),
-    [previewInput]
-  );
-
-  // Same texts the live preview renders, reused by the typography specimen
-  // cards so each pairing shows the couple's real names and date.
   const previewTexts = useMemo(
     () => resolveWeddingDisplayTexts(previewInput),
     [previewInput]
@@ -233,7 +681,7 @@ export function WeddingWizard() {
         partner2.trim().length <= 40
       );
     }
-    if (step === 2) {
+    if (step === 3) {
       return (
         palette.length >= 1 && palette.length <= WEDDING_MAX_PALETTE_COLORS
       );
@@ -275,6 +723,11 @@ export function WeddingWizard() {
       }
       return [...current, element];
     });
+    // Picking a concrete personal element is a deliberate override of
+    // "match the example's elements" mode.
+    setMatchExample((current) =>
+      current.elements ? { ...current, elements: false } : current
+    );
   };
 
   const togglePaletteColor = (color: string) => {
@@ -309,6 +762,11 @@ export function WeddingWizard() {
           ? current
           : [...current, hex]
       );
+      // Adding a custom color is a deliberate color pick — drop out of
+      // "match the example's palette" mode.
+      setMatchExample((current) =>
+        current.palette ? { ...current, palette: false } : current
+      );
     }
     setCustomHex('');
   };
@@ -321,6 +779,9 @@ export function WeddingWizard() {
       flowers.length < WEDDING_MAX_FLOWERS
     ) {
       setFlowers((current) => [...current, value]);
+      setMatchExample((current) =>
+        current.flowers ? { ...current, flowers: false } : current
+      );
     }
     setCustomFlower('');
   };
@@ -333,8 +794,85 @@ export function WeddingWizard() {
       personalElements.length < WEDDING_MAX_PERSONAL_ELEMENTS
     ) {
       setPersonalElements((current) => [...current, value]);
+      setMatchExample((current) =>
+        current.elements ? { ...current, elements: false } : current
+      );
     }
     setCustomElement('');
+  };
+
+  // Reset the wizard to its initial state and forget any persisted draft.
+  // Used by the "Start over" button in the header so users can wipe their
+  // in-progress form without opening devtools. The reset keeps the URL
+  // intact (?exampleId=, ?style=) — those are read by the example /
+  // style effects on the next render and will re-apply their defaults.
+  const resetWizard = () => {
+    setStep(0);
+    setPartner1('');
+    setPartner2('');
+    setWeddingDate('');
+    setNameDisplay('initials_amp');
+    setStyle('botanical_watercolor');
+    setComposition('');
+    setTypography('editorial_rose');
+    setFrameId(null);
+    setPalette(weddingPalettes[0].colors);
+    setCustomHex('');
+    setLocation('');
+    setVenue('');
+    setFlowers([]);
+    setCustomFlower('');
+    setPersonalElements([]);
+    setCustomElement('');
+    setPersonalImages([]);
+    setComplexity('medium');
+    setMatchExample(MATCH_EXAMPLE_DEFAULT);
+    clearPersistedWizardState();
+  };
+
+  // Upload reference photos to the shared storage service. The returned
+  // public URL is what Runware will fetch later as a reference image, so
+  // it MUST be a stable public URL (the upload route already returns
+  // one). The same file uploaded twice dedupes server-side via md5.
+  const handlePersonalImageFiles = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = Array.from(event.target.files ?? []);
+    event.target.value = ''; // allow re-selecting the same file
+    if (files.length === 0) return;
+    const remaining = MAX_PERSONAL_IMAGES - personalImages.length;
+    if (remaining <= 0) {
+      toast.info(t('personal_image_max_reached'));
+      return;
+    }
+    const toUpload = files.slice(0, remaining);
+    setUploadingImages(true);
+    try {
+      const formData = new FormData();
+      toUpload.forEach((file) => formData.append('files', file));
+      const response = await fetch('/api/storage/upload-image', {
+        method: 'POST',
+        body: formData,
+      });
+      const text = await response.text();
+      const body = text ? JSON.parse(text) : {};
+      if (!response.ok) {
+        toast.error(body?.error || t('personal_image_upload_error'));
+        return;
+      }
+      const urls: string[] = body?.urls ?? [];
+      if (urls.length === 0) {
+        toast.error(t('personal_image_upload_error'));
+        return;
+      }
+      setPersonalImages((current) => [...current, ...urls].slice(0, MAX_PERSONAL_IMAGES));
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : t('personal_image_upload_error')
+      );
+    } finally {
+      setUploadingImages(false);
+    }
   };
 
   const submit = async () => {
@@ -366,30 +904,47 @@ export function WeddingWizard() {
           venue: venue.trim() || null,
           flowers,
           personalElements,
+          personalImages,
+          frameId,
           complexity,
           nameDisplay,
           showDate: Boolean(weddingDate),
+          // "Same as example" wiring. The exampleId is read from the URL
+          // (we kept it as a search param so deep links survive a refresh)
+          // and the matchExample flags carry the four "match the example
+          // image" toggles the user set on the wizard's property pickers.
+          // The server resolves the id, fetches the active example, and
+          // validates the image URL before persisting it.
+          exampleId: searchParams.get('exampleId') || undefined,
+          matchExample,
         }),
       });
 
       // Read raw text first so a non-JSON (e.g. 500 HTML) response still
       // surfaces a useful error instead of a generic "Something went wrong".
       const rawText = await response.text();
-      let data: { error?: string; project?: { id: string }; guestId?: string } =
-        {};
+      let envelope: ApiEnvelope<{
+        project?: { id: string };
+        guestId?: string;
+      }> = {};
       if (rawText) {
         try {
-          data = JSON.parse(rawText);
+          envelope = JSON.parse(rawText);
         } catch {
-          data = {
+          envelope = {
             error: `${response.status} ${response.statusText || ''}`.trim(),
           };
         }
       }
-      if (!response.ok) {
+      const data = envelope.data ?? {};
+      const apiError = envelope.error || envelope.message;
+      if (
+        !response.ok ||
+        (envelope.code !== undefined && envelope.code !== 0)
+      ) {
         const statusLine = `${response.status} ${response.statusText || ''}`.trim();
-        const detailed = data?.error
-          ? `${statusLine}: ${data.error}`
+        const detailed = apiError
+          ? `${statusLine}: ${apiError}`
           : statusLine || t('submit_error');
         toast.error(detailed, { duration: 8000 });
         // eslint-disable-next-line no-console
@@ -421,34 +976,61 @@ export function WeddingWizard() {
         }
       );
       const generateRaw = await generateResponse.text();
-      let generateData: { error?: string } = {};
+      let generateEnvelope: ApiEnvelope<{ candidates?: string[] }> = {};
       if (generateRaw) {
         try {
-          generateData = JSON.parse(generateRaw);
+          generateEnvelope = JSON.parse(generateRaw);
         } catch {
-          generateData = {
+          generateEnvelope = {
             error: `${generateResponse.status} ${generateResponse.statusText || ''}`.trim(),
           };
         }
       }
-      if (!generateResponse.ok) {
-        // Show the actual server error (or HTTP status if no body) so the
-        // user can tell us WHY generation failed instead of seeing a generic
-        // "Something went wrong" toast.
-        const statusLine = `${generateResponse.status} ${generateResponse.statusText || ''}`.trim();
-        const detailed = generateData?.error
-          ? `${statusLine}: ${generateData.error}`
-          : statusLine || t('submit_error');
+      if (
+        !generateResponse.ok ||
+        (generateEnvelope.code !== undefined && generateEnvelope.code !== 0)
+      ) {
+        const generateError =
+          generateEnvelope.error || generateEnvelope.message;
+        // 4xx means the request was understood but the server is telling
+        // the user something they need to act on (e.g. "free plan
+        // exhausted" -> 402, "project not found" -> 404). Surface the
+        // server's message verbatim and DO NOT log to console.error --
+        // this is a normal product state, not a bug to debug.
+        const isUserFacing =
+          generateResponse.status >= 400 && generateResponse.status < 500;
+        const detailed = isUserFacing
+          ? generateError || t('submit_error')
+          : generateError
+            ? t('submit_error')
+            : `${generateResponse.status} ${generateResponse.statusText || ''}`.trim() ||
+              t('submit_error');
         toast.error(detailed, { duration: 8000 });
-        // eslint-disable-next-line no-console
-        console.error('[wedding-wizard] generate failed', {
-          status: generateResponse.status,
-          body: generateRaw,
-        });
+        if (!isUserFacing) {
+          // System errors (5xx, network failures, unexpected 200+code:-1
+          // from routes that haven't migrated to 4xx yet). Log the full
+          // response so a misconfigured provider / model name is visible
+          // in dev tools. Next.js's console-error reporter collapses
+          // objects whose properties are all strings to `{}`, so we
+          // coerce the body to a string here.
+          // eslint-disable-next-line no-console
+          console.error('[wedding-wizard] generate failed', {
+            status: generateResponse.status,
+            statusText: generateResponse.statusText,
+            url: generateResponse.url,
+            ok: generateResponse.ok,
+            body: generateRaw || '(empty)',
+            envelope: generateEnvelope,
+          });
+        }
         return;
       }
 
       window.location.href = `/design/${data.project.id}`;
+      // Clear the in-progress draft so the next visit to /create starts
+      // fresh. We do this after the redirect is queued so the
+      // localStorage write doesn't race the navigation.
+      clearPersistedWizardState();
     } catch (error) {
       // Network failure, AbortError, JSON parse, etc.
       const message =
@@ -469,11 +1051,50 @@ export function WeddingWizard() {
   // cards visually echo the style chosen earlier in the same step.
   const styleAccent = styleConfig?.previewColor ?? 'currentColor';
 
+  // When the user lands via ?exampleId=, the example already implies a
+  // style — there's no point making them re-pick it on step 2. We hide
+  // the style picker and just show a read-only "from your example" hint.
+  const hideStylePicker = fromExampleStyle !== null;
+
+  // One composed SVG per layout in the current style, used as thumbnails
+  // in the composition picker. The sample is intentionally neutral and
+  // stable so the grid doesn't thrash as the user types their names.
+  const compositionPreviews = useMemo(() => {
+    return styleLayouts.map((layout) => {
+      const svg = composeWeddingCrest({
+        partner1: 'Sample',
+        partner2: 'Sample',
+        initials: ['S', 'S'],
+        weddingDate: '2027-06-12',
+        style,
+        layout: layout.id,
+        typography,
+        palette,
+        flowers: [],
+        personalElements: [],
+        complexity: 'medium',
+        nameDisplay: 'initials_amp',
+        showDate: true,
+        frameId: null,
+        frameUrl: null,
+        location: null,
+        venue: null,
+      });
+      return { layout, svg };
+    });
+  }, [styleLayouts, style, typography, palette]);
+
+  // The preview panel only appears when an example photo is attached
+  // (?exampleId= in the URL). Without it, the right column would just hold
+  // a misleading placeholder, so the entire panel (and its grid track)
+  // is hidden.
+  const showPreviewPanel = exampleImage !== null || examplePending;
+
   return (
     <div className="bg-background min-h-screen">
       <div className="mx-auto max-w-6xl px-4 py-10 md:py-16">
         <ScrollAnimation>
-          <div className="mx-auto mb-8 max-w-2xl text-center">
+          <div className="mx-auto mb-3 max-w-2xl text-center">
             <h1 className="font-serif text-3xl font-medium text-balance md:text-4xl">
               {t('title')}
             </h1>
@@ -482,6 +1103,42 @@ export function WeddingWizard() {
             </p>
           </div>
         </ScrollAnimation>
+
+        {/* Manual reset. Wipes the in-memory form state AND the
+            localStorage draft so a refresh after this lands on a blank
+            wizard instead of the just-cleared form. We only render the
+            button when there's actually something to reset — otherwise
+            it'd be visual noise on the very first visit. The form is
+            considered "started" as soon as any of these is non-default;
+            we keep the predicate simple so the cost is one short-circuit
+            per render. */}
+        {(partner1 ||
+          partner2 ||
+          weddingDate ||
+          location ||
+          venue ||
+          flowers.length > 0 ||
+          personalElements.length > 0 ||
+          personalImages.length > 0 ||
+          customHex ||
+          customFlower ||
+          customElement ||
+          frameId !== null ||
+          step > 0 ||
+          matchExample.border ||
+          matchExample.palette ||
+          matchExample.flowers ||
+          matchExample.elements) && (
+          <div className="mb-6 flex justify-center">
+            <button
+              type="button"
+              onClick={resetWizard}
+              className="text-muted-foreground hover:text-foreground text-xs underline-offset-4 transition-colors hover:underline"
+            >
+              {t('start_over')}
+            </button>
+          </div>
+        )}
 
         {/* step indicator */}
         <div className="mb-10">
@@ -522,9 +1179,14 @@ export function WeddingWizard() {
           />
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[1fr_400px]">
+        <div
+          className={cn(
+            'grid gap-8',
+            showPreviewPanel && 'lg:grid-cols-[1fr_400px]'
+          )}
+        >
           {/* controls */}
-          <div className="order-2 lg:order-1">
+          <div className="order-2 min-w-0 lg:order-1">
             {step === 0 && (
               <div className="space-y-6">
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -596,54 +1258,94 @@ export function WeddingWizard() {
 
             {step === 1 && (
               <div className="space-y-8">
-                <div className="space-y-3">
-                  <Label>{t('choose_style')}</Label>
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                    {weddingStyles.map((styleOption) => (
-                      <button
-                        key={styleOption.id}
-                        type="button"
-                        onClick={() => setStyle(styleOption.id)}
-                        className={cn(
-                          'rounded-xl border p-3 text-left transition-colors',
-                          style === styleOption.id
-                            ? 'border-primary bg-accent'
-                            : 'hover:border-primary/40'
-                        )}
-                      >
-                        <div
-                          className="mb-2 h-2 w-8 rounded-full"
-                          style={{ background: styleOption.previewColor }}
-                        />
-                        <p className="text-sm font-medium">
-                          {styleOption.name}
-                        </p>
-                        <p className="text-muted-foreground text-xs">
-                          {styleOption.tagline}
-                        </p>
-                      </button>
-                    ))}
+                {hideStylePicker ? (
+                  // Arrived from a real product photo — the example's
+                  // style is locked in. Show it as a read-only hint so
+                  // the user understands why they don't see the picker.
+                  <div className="bg-muted/40 flex items-center gap-3 rounded-xl border px-4 py-3">
+                    <div
+                      aria-hidden
+                      className="size-2.5 shrink-0 rounded-full"
+                      style={{ background: styleConfig?.previewColor ?? 'currentColor' }}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs tracking-widest uppercase text-muted-foreground">
+                        {t('choose_style')}
+                      </p>
+                      <p className="truncate text-sm font-medium">
+                        {styleConfig?.name ?? fromExampleStyle}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="space-y-3">
+                    <Label>{t('choose_style')}</Label>
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                      {weddingStyles.map((styleOption) => (
+                        <button
+                          key={styleOption.id}
+                          type="button"
+                          onClick={() => setStyle(styleOption.id)}
+                          className={cn(
+                            'rounded-xl border p-3 text-left transition-colors',
+                            style === styleOption.id
+                              ? 'border-primary bg-accent'
+                              : 'hover:border-primary/40'
+                          )}
+                        >
+                          <div
+                            className="mb-2 h-2 w-8 rounded-full"
+                            style={{ background: styleOption.previewColor }}
+                          />
+                          <p className="text-sm font-medium">
+                            {styleOption.name}
+                          </p>
+                          <p className="text-muted-foreground text-xs">
+                            {styleOption.tagline}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="space-y-3">
                   <Label>{t('choose_composition')}</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {styleLayouts.map((layoutOption) => (
-                      <button
-                        key={layoutOption.id}
-                        type="button"
-                        onClick={() => setComposition(layoutOption.composition)}
-                        className={cn(
-                          'rounded-full border px-4 py-2 text-sm transition-colors',
-                          composition === layoutOption.composition
-                            ? 'border-primary bg-accent'
-                            : 'hover:border-primary/40'
-                        )}
-                      >
-                        {layoutOption.composition}
-                      </button>
-                    ))}
+                  {/* Image-first composition picker. The text descriptions
+                      ("symmetrical oval arrangement...") weren't
+                      scannable, so we render a tiny composed crest per
+                      layout — the shape is what the user is actually
+                      choosing between. The selected card gets a
+                      primary-color ring; everything else is a quiet
+                      border. */}
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {compositionPreviews.map(({ layout, svg }) => {
+                      const isSelected = composition === layout.composition;
+                      return (
+                        <button
+                          key={layout.id}
+                          type="button"
+                          onClick={() => setComposition(layout.composition)}
+                          aria-label={layout.shape}
+                          className={cn(
+                            'bg-wedding-ivory group block overflow-hidden rounded-xl border-2 text-left transition-colors',
+                            isSelected
+                              ? 'border-primary'
+                              : 'border-transparent hover:border-primary/40'
+                          )}
+                        >
+                          <div
+                            className="aspect-square w-full p-2 [&>svg]:h-full [&>svg]:w-full"
+                            role="img"
+                            aria-hidden
+                            dangerouslySetInnerHTML={{ __html: svg }}
+                          />
+                          <div className="bg-background/90 truncate px-2 py-1.5 text-xs capitalize">
+                            {layout.shape}
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -728,6 +1430,107 @@ export function WeddingWizard() {
             )}
 
             {step === 2 && (
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <Label className="text-base">{t('border')}</Label>
+                  <p className="text-muted-foreground text-sm">
+                    {t('border_hint')}
+                  </p>
+                </div>
+
+                {framesLoading ? (
+                  <div className="text-muted-foreground py-6 text-center text-sm">
+                    {t('border_loading')}
+                  </div>
+                ) : frames.length === 0 ? (
+                  <div className="text-muted-foreground py-6 text-center text-sm">
+                    {t('border_empty')}
+                  </div>
+                ) : (
+                  // Horizontal scroll row. The shadcn embla carousel we used
+                  // previously positioned prev/next buttons absolutely on the
+                  // page edge which clipped off-screen on mobile, and its
+                  // `object-cover` thumbnails were cropping the top/bottom of
+                  // square frame ornaments. A plain overflow-x-auto row with
+                  // `object-contain` solves both: no page overflow, and the
+                  // whole border is visible.
+                  <div className="-mx-1 flex snap-x gap-3 overflow-x-auto px-1 pb-2">
+                    {/* "Same as example" lives at the front of the row so it
+                        reads as the default choice. The example's border is
+                        baked into its reference image, so selecting this
+                        option tells the generate route to skip the
+                        frameId-driven SVG frame layer and let the AI draw
+                        the border itself. */}
+                    {exampleImage ? (
+                      <button
+                        key="__same_as_example__"
+                        type="button"
+                        onClick={() => {
+                          setFrameId(null);
+                          setMatchExample((current) => ({
+                            ...current,
+                            border: true,
+                          }));
+                        }}
+                        className={cn(
+                          'w-36 shrink-0 snap-start overflow-hidden rounded-xl border-2 text-left transition-colors sm:w-44',
+                          matchExample.border
+                            ? 'border-primary'
+                            : 'border-transparent hover:border-primary/40'
+                        )}
+                      >
+                        <div className="bg-muted/40 relative aspect-square w-full p-1">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={exampleImage.url}
+                            alt={exampleImage.alt}
+                            className="size-full object-cover"
+                          />
+                          <span className="bg-background/80 absolute right-1 bottom-1 rounded-full px-2 py-0.5 text-[10px] font-medium tracking-wide uppercase shadow">
+                            {t('same_as_example')}
+                          </span>
+                        </div>
+                        <div className="bg-background/90 truncate px-2 py-1 text-xs">
+                          {t('same_as_example')}
+                        </div>
+                      </button>
+                    ) : null}
+                    {frames.map((frame) => (
+                      <button
+                        key={frame.id}
+                        type="button"
+                        onClick={() => {
+                          setFrameId(frame.id);
+                          setMatchExample((current) => ({
+                            ...current,
+                            border: false,
+                          }));
+                        }}
+                        className={cn(
+                          'w-36 shrink-0 snap-start overflow-hidden rounded-xl border-2 text-left transition-colors sm:w-44',
+                          !matchExample.border && frameId === frame.id
+                            ? 'border-primary'
+                            : 'border-transparent hover:border-primary/40'
+                        )}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={frame.thumbnailUrl ?? frame.url}
+                          alt={frame.name}
+                          className="bg-wedding-ivory aspect-square w-full object-contain p-1"
+                          loading="lazy"
+                        />
+                        <div className="bg-background/90 truncate px-2 py-1 text-xs">
+                          {frame.name}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {step === 3 && (
               <div className="space-y-8">
                 <div className="space-y-3">
                   <Label>
@@ -737,14 +1540,69 @@ export function WeddingWizard() {
                     </span>
                   </Label>
                   <div className="grid gap-3 sm:grid-cols-2">
+                    {/* "Same as example" first. Selecting it tells the AI to
+                        match the example's palette directly. The current
+                        `palette` state is left untouched so the SVG text
+                        composer still has colors for the names/date overlay
+                        (AI illustration vs. typography overlay are
+                        independent concerns). */}
+                    {exampleImage ? (
+                      <button
+                        key="__same_as_example__"
+                        type="button"
+                        onClick={() => {
+                          setMatchExample((current) => ({
+                            ...current,
+                            palette: true,
+                          }));
+                        }}
+                        className={cn(
+                          'rounded-xl border p-3 text-left transition-colors',
+                          matchExample.palette
+                            ? 'border-primary bg-accent'
+                            : 'hover:border-primary/40'
+                        )}
+                      >
+                        <div className="mb-2 flex gap-1">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={exampleImage.url}
+                            alt={exampleImage.alt}
+                            className="h-5 w-5 rounded-full border border-black/10 object-cover"
+                          />
+                          <span
+                            aria-hidden
+                            className="h-5 w-5 rounded-full border border-black/10 bg-muted"
+                          />
+                          <span
+                            aria-hidden
+                            className="h-5 w-5 rounded-full border border-black/10 bg-muted"
+                          />
+                          <span
+                            aria-hidden
+                            className="h-5 w-5 rounded-full border border-black/10 bg-muted"
+                          />
+                        </div>
+                        <p className="text-sm font-medium">
+                          {t('same_as_example')}
+                        </p>
+                      </button>
+                    ) : null}
                     {weddingPalettes.map((paletteOption) => (
                       <button
                         key={paletteOption.id}
                         type="button"
-                        onClick={() => setPalette(paletteOption.colors)}
+                        onClick={() => {
+                          setPalette(paletteOption.colors);
+                          setMatchExample((current) => ({
+                            ...current,
+                            palette: false,
+                          }));
+                        }}
                         className={cn(
                           'rounded-xl border p-3 text-left transition-colors',
-                          palette.join(',') === paletteOption.colors.join(',')
+                          !matchExample.palette &&
+                            palette.join(',') === paletteOption.colors.join(',')
                             ? 'border-primary bg-accent'
                             : 'hover:border-primary/40'
                         )}
@@ -808,7 +1666,7 @@ export function WeddingWizard() {
               </div>
             )}
 
-            {step === 3 && (
+            {step === 4 && (
               <div className="space-y-6">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
@@ -840,14 +1698,41 @@ export function WeddingWizard() {
                     </span>
                   </Label>
                   <div className="flex flex-wrap gap-2">
+                    {exampleImage ? (
+                      <button
+                        key="__same_as_example__"
+                        type="button"
+                        onClick={() => {
+                          setMatchExample((current) => ({
+                            ...current,
+                            flowers: true,
+                          }));
+                        }}
+                        className={cn(
+                          'rounded-full border px-4 py-2 text-sm transition-colors',
+                          matchExample.flowers
+                            ? 'border-primary bg-accent'
+                            : 'hover:border-primary/40'
+                        )}
+                      >
+                        {t('same_as_example')}
+                      </button>
+                    ) : null}
                     {weddingFlowerOptions.map((flower) => (
                       <button
                         key={flower}
                         type="button"
-                        onClick={() => toggleFlower(flower)}
+                        onClick={() => {
+                          toggleFlower(flower);
+                          setMatchExample((current) =>
+                            current.flowers
+                              ? { ...current, flowers: false }
+                              : current
+                          );
+                        }}
                         className={cn(
                           'rounded-full border px-4 py-2 text-sm transition-colors',
-                          flowers.includes(flower)
+                          !matchExample.flowers && flowers.includes(flower)
                             ? 'border-primary bg-accent'
                             : 'hover:border-primary/40'
                         )}
@@ -876,20 +1761,39 @@ export function WeddingWizard() {
               </div>
             )}
 
-            {step === 4 && (
+            {step === 5 && (
               <div className="space-y-6">
                 <div className="space-y-3">
                   <Label>
                     {t('personal_elements')}{' '}
                     <span className="text-muted-foreground text-xs">
-                      ({personalElements.length}/{WEDDING_MAX_PERSONAL_ELEMENTS}
-                      )
+                      ({personalElements.length}/{WEDDING_MAX_PERSONAL_ELEMENTS})
                     </span>
                   </Label>
                   <p className="text-muted-foreground text-sm">
                     {t('personal_elements_hint')}
                   </p>
                   <div className="flex flex-wrap gap-2">
+                    {exampleImage ? (
+                      <button
+                        key="__same_as_example__"
+                        type="button"
+                        onClick={() => {
+                          setMatchExample((current) => ({
+                            ...current,
+                            elements: true,
+                          }));
+                        }}
+                        className={cn(
+                          'rounded-full border px-4 py-2 text-sm transition-colors',
+                          matchExample.elements
+                            ? 'border-primary bg-accent'
+                            : 'hover:border-primary/40'
+                        )}
+                      >
+                        {t('same_as_example')}
+                      </button>
+                    ) : null}
                     {weddingPersonalElementOptions.map((element) => (
                       <button
                         key={element}
@@ -897,7 +1801,7 @@ export function WeddingWizard() {
                         onClick={() => toggleElement(element)}
                         className={cn(
                           'rounded-full border px-4 py-2 text-sm transition-colors',
-                          personalElements.includes(element)
+                          !matchExample.elements && personalElements.includes(element)
                             ? 'border-primary bg-accent'
                             : 'hover:border-primary/40'
                         )}
@@ -921,6 +1825,64 @@ export function WeddingWizard() {
                     >
                       {t('add')}
                     </Button>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <Label>
+                    {t('personal_image_upload_label')}{' '}
+                    <span className="text-muted-foreground text-xs">
+                      ({personalImages.length}/{MAX_PERSONAL_IMAGES})
+                    </span>
+                  </Label>
+                  <p className="text-muted-foreground text-sm">
+                    {t('personal_image_upload_hint')}
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    {personalImages.map((url, index) => (
+                      <div
+                        key={url}
+                        className="border-border/60 bg-muted/30 relative size-24 overflow-hidden rounded-lg border"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={url}
+                          alt={t('personal_image_upload_label')}
+                          className="size-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          aria-label={t('remove')}
+                          onClick={() =>
+                            setPersonalImages((current) =>
+                              current.filter((_, i) => i !== index)
+                            )
+                          }
+                          className="bg-background/80 absolute top-1 right-1 rounded-full px-2 py-0.5 text-xs shadow"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                    {personalImages.length < MAX_PERSONAL_IMAGES && (
+                      <label
+                        className={cn(
+                          'border-border/60 hover:border-primary/40',
+                          'flex size-24 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed text-sm transition-colors',
+                          uploadingImages && 'pointer-events-none opacity-60'
+                        )}
+                      >
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/jpg,image/png,image/webp"
+                          multiple
+                          className="hidden"
+                          onChange={handlePersonalImageFiles}
+                        />
+                        {uploadingImages
+                          ? t('personal_image_uploading')
+                          : t('personal_image_add')}
+                      </label>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-3">
@@ -956,7 +1918,7 @@ export function WeddingWizard() {
               </div>
             )}
 
-            {step === 5 && (
+            {step === 6 && (
               <div className="space-y-6">
                 <div className="rounded-2xl border p-5">
                   <h3 className="font-serif text-lg">{t('summary')}</h3>
@@ -994,32 +1956,57 @@ export function WeddingWizard() {
                       <dd>{typographyConfig?.name}</dd>
                     </div>
                     <div className="flex justify-between gap-4">
+                      <dt className="text-muted-foreground">{t('border')}</dt>
+                      <dd>
+                        {matchExample.border
+                          ? t('same_as_example')
+                          : frames.find((frame) => frame.id === frameId)?.name ??
+                            t('border_none')}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-4">
                       <dt className="text-muted-foreground">
                         {t('choose_palette')}
                       </dt>
                       <dd className="flex gap-1">
-                        {palette.map((color) => (
-                          <span
-                            key={color}
-                            className="h-4 w-4 rounded-full border border-black/10"
-                            style={{ background: color }}
-                          />
-                        ))}
+                        {matchExample.palette ? (
+                          <span className="text-sm">
+                            {t('same_as_example')}
+                          </span>
+                        ) : (
+                          palette.map((color) => (
+                            <span
+                              key={color}
+                              className="h-4 w-4 rounded-full border border-black/10"
+                              style={{ background: color }}
+                            />
+                          ))
+                        )}
                       </dd>
                     </div>
                     <div className="flex justify-between gap-4">
-                      <dt className="text-muted-foreground">{t('location')}</dt>
+                      <dt className="text-muted-foreground">
+                        {t('location')}
+                      </dt>
                       <dd>{location || '—'}</dd>
                     </div>
                     <div className="flex justify-between gap-4">
                       <dt className="text-muted-foreground">{t('flowers')}</dt>
-                      <dd>{flowers.join(', ') || '—'}</dd>
+                      <dd>
+                        {matchExample.flowers
+                          ? t('same_as_example')
+                          : flowers.join(', ') || '—'}
+                      </dd>
                     </div>
                     <div className="flex justify-between gap-4">
                       <dt className="text-muted-foreground">
                         {t('personal_elements')}
                       </dt>
-                      <dd>{personalElements.join(', ') || '—'}</dd>
+                      <dd>
+                        {matchExample.elements
+                          ? t('same_as_example')
+                          : personalElements.join(', ') || '—'}
+                      </dd>
                     </div>
                   </dl>
                 </div>
@@ -1057,23 +2044,37 @@ export function WeddingWizard() {
             </div>
           </div>
 
-          {/* live preview */}
-          <div className="order-1 lg:order-2">
-            <div className="bg-wedding-ivory sticky top-24 rounded-2xl border p-6">
-              <p className="text-muted-foreground mb-4 text-center text-xs tracking-[0.2em] uppercase">
-                {t('live_preview')}
-              </p>
-              <div
-                className="mx-auto w-full max-w-xs"
-                role="img"
-                aria-label={t('live_preview')}
-                dangerouslySetInnerHTML={{ __html: previewSvg }}
-              />
-              <p className="text-muted-foreground mt-4 text-center text-xs">
-                {t('preview_note')}
-              </p>
+          {/* live preview — only rendered when an ?exampleId= image is
+              attached. Without one (home hero, direct /create visit) the
+              right column is hidden so users aren't shown a misleading
+              placeholder before their crest is generated. */}
+          {showPreviewPanel ? (
+            <div className="order-1 min-w-0 lg:order-2">
+              <div className="bg-wedding-ivory sticky top-24 rounded-2xl border p-6">
+                <p className="text-muted-foreground mb-4 text-center text-xs tracking-[0.2em] uppercase">
+                  {t('live_preview')}
+                </p>
+                {exampleImage ? (
+                  <div className="mx-auto w-full max-w-xs">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={exampleImage.url}
+                      alt={exampleImage.alt}
+                      className="w-full rounded-xl"
+                    />
+                  </div>
+                ) : (
+                  <div
+                    aria-hidden
+                    className="bg-muted/40 mx-auto aspect-square w-full max-w-xs animate-pulse rounded-xl"
+                  />
+                )}
+                <p className="text-muted-foreground mt-4 text-center text-xs">
+                  {t('preview_note')}
+                </p>
+              </div>
             </div>
-          </div>
+          ) : null}
         </div>
       </div>
     </div>

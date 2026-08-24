@@ -1,0 +1,45 @@
+{
+  "fields": {
+    "name": "이름",
+    "style": "스타일",
+    "url": "프레임 이미지",
+    "thumbnail_url": "썸네일",
+    "alt_text": "대체 텍스트",
+    "sort_order": "정렬",
+    "is_active": "활성",
+    "actions": "작업"
+  },
+  "values": {
+    "active": "활성",
+    "inactive": "비활성",
+    "all_styles": "모든 스타일",
+    "edit": "편집",
+    "delete": "삭제"
+  },
+  "list": {
+    "title": "웨딩 프레임",
+    "crumbs": {
+      "admin": "관리",
+      "frames": "프레임"
+    },
+    "buttons": {
+      "add": "프레임 추가"
+    },
+    "empty": "아직 프레임이 없습니다. 추가해 주세요."
+  },
+  "add": {
+    "title": "프레임 추가",
+    "crumbs": {
+      "add": "추가"
+    },
+    "buttons": {
+      "submit": "프레임 저장"
+    }
+  },
+  "edit": {
+    "title": "프레임 편집",
+    "buttons": {
+      "submit": "변경사항 저장"
+    }
+  }
+}

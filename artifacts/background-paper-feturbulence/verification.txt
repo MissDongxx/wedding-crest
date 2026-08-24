@@ -1,0 +1,34 @@
+CSS base + SVG feTurbulence paper texture verification
+
+Implementation
+- Base: #f6f6f4.
+- Texture: inline SVG data URI using feTurbulence type=fractalNoise, baseFrequency=.72, numOctaves=3, seed=37, stitchTiles=stitch.
+- Texture tile: 180px x 180px, opacity=.08, neutral grayscale transfer.
+
+Static checks
+$ pnpm exec prettier --check src/config/style/global.css src/config/style/theme.css
+Checking formatting...
+All matched files use Prettier code style!
+exit=0
+$ git diff --check
+exit=0
+$ sh -n artifacts/background-paper-feturbulence/rollback.sh
+exit=0
+
+Rollback check
+$ artifacts/background-paper-feturbulence/rollback.sh
+Rolled back SVG feTurbulence paper texture.
+$ cmp original snapshots against source files
+exit=0 (rollback_verified=1)
+$ restore modified snapshots and cmp against source files
+exit=0 (modified_restored=1)
+
+Browser verification on localhost:3000
+- Home computed backgroundColor: rgb(246, 246, 244)
+- Home computed backgroundImage: data:image/svg+xml containing feTurbulence
+- Home computed backgroundSize: 180px 180px
+- Home visible hero and Create a Crest link confirmed
+- Home browser console error count: 0
+- Create route computed backgroundColor: rgb(246, 246, 244)
+- Create route computed backgroundImage: data:image/svg+xml containing feTurbulence
+- Create route browser console error count: 0

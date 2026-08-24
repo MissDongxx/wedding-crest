@@ -1,3 +1,4 @@
+import { revalidatePath } from 'next/cache';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { PERMISSIONS, requireAllPermissions } from '@/core/rbac';
@@ -56,6 +57,11 @@ export default async function SettingsPage({
     });
 
     await saveConfigs(configs);
+
+    // Public pages are ISR-cached and the favicon link comes from the
+    // root layout. Purge the cache so a new App Logo (favicon) shows up
+    // on the next page load instead of waiting for the next revalidate.
+    revalidatePath('/', 'layout');
 
     return {
       status: 'success',

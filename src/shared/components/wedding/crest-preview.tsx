@@ -14,6 +14,13 @@ export interface CrestPreviewConfig {
   weddingDate?: string;
   nameDisplay?: WeddingProjectInput['nameDisplay'];
   showDate?: boolean;
+  /**
+   * When set, the composer layers this real product image as the crest
+   * background (and adds a soft wash so the text stays legible). Used by
+   * the home-page examples tile — admin uploads the photo, the tile
+   * shows the real rendered crest.
+   */
+  illustrationUrl?: string;
 }
 
 /** Sample crests used across marketing surfaces (hero, styles, gallery). */
@@ -85,6 +92,7 @@ export function CrestPreview({
     complexity: 'medium',
     nameDisplay: config.nameDisplay ?? 'initials_amp',
     showDate: config.showDate !== false,
+    illustrationUrl: config.illustrationUrl,
   });
   return (
     <div

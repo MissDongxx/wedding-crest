@@ -1,0 +1,50 @@
+Background paper texture final-pass verification
+
+Changed branch/field:
+- src/config/style/theme.css: :root --background -> #fefefc base, with rendered page texture bringing the measured surface into the requested F3F3F1-F9F9F7 paper range.
+- src/config/style/global.css: body background layer and fixed non-interactive paper overlay using /paper-noise.svg?v=paper-v4.
+- public/paper-noise.svg: SVG feTurbulence paper-cloud and fine-fiber layers with stitchTiles="stitch".
+
+Baseline artifact hashes (before this final pass):
+95fbb8c428bf3cc1987be9de255d68c3a921e0bf72ed166c3f492a48d9ae512  original/global.css.snapshot
+faa27830f7878cac56b4b8384629fe6c49cb6539ae732497755eaad69a9a9ad6  original/theme.css.snapshot
+
+Modified artifact hashes:
+025292e1cd86f6e7cf45cbf35049f84b305137804d82f8aafcbd4448eeef6d09  /Users/xumingyue/Downloads/MyProjects/wedding-crest2/artifacts/background-paper-final-pass/modified/global.css.snapshot
+b9e0fed46c90d8147fe0463712983a8f80c49232a53160cb50a21afaf100b7d4  /Users/xumingyue/Downloads/MyProjects/wedding-crest2/artifacts/background-paper-final-pass/modified/theme.css.snapshot
+98b6809540f8d89a12e35f966bfdd60c0870b968fd43991eb2b90686f4506631  /Users/xumingyue/Downloads/MyProjects/wedding-crest2/artifacts/background-paper-final-pass/modified/paper-noise.svg.snapshot
+
+Static checks:
+$ pnpm exec prettier --check src/config/style/global.css src/config/style/theme.css public/paper-noise.svg
+All matched files use Prettier code style!
+exit status: 0
+$ git diff --check
+exit status: 0
+
+Production build:
+$ pnpm run build
+Result: compiled successfully; exit status: 0.
+Known pre-existing Next config warnings and repository ESLint warnings were emitted; no build failure.
+
+Browser verification input:
+URL: http://localhost:3000/create?paper-test=console-final
+Viewport screenshot: /tmp/paper-final-fresh.png
+Computed body background: rgb(254, 254, 252)
+Computed body::before background-image: url("http://localhost:3000/paper-noise.svg?v=paper-v4") 0 0 / 240px 240px repeat
+Computed body::before opacity: 0.7
+Computed body::before z-index: 20
+Fresh-page browser console errors: []
+
+Reference/sample comparison:
+$ magick reference -crop 70x250+0+250 -colorspace gray -format 'mean=%[mean] sd=%[standard-deviation]' info:
+mean=62804.1 sd=772.479
+$ magick /tmp/paper-final-fresh.png -crop 70x250+0+250 -colorspace gray -format 'mean=%[mean] sd=%[standard-deviation]' info:
+mean=63001.2 sd=389.376
+
+Rollback verification:
+$ sh -n rollback.sh
+exit status: 0
+$ ./rollback.sh && cmp original/global.css.snapshot src/config/style/global.css && cmp original/theme.css.snapshot src/config/style/theme.css && test ! -e ../../public/paper-noise.svg
+Result: original files restored and new SVG removed.
+$ restore modified snapshots + modified/paper-noise.svg; cmp all modified files
+Result: final modified artifact restored byte-for-byte.

@@ -79,9 +79,27 @@ export type WeddingNameDisplay =
   | 'initials_joined'
   | 'initials_spaced'
   | 'full_names'
-  | 'surname';
+  | 'surname'
+  | 'initials_only';
 
 export type WeddingComplexity = 'minimal' | 'medium' | 'rich';
+
+/**
+ * Per-property flags the user can flip to "use the example reference image
+ * instead of a concrete value" for that attribute. The four booleans map
+ * 1:1 to the wizard steps that surface a "Same as example" option.
+ * When a flag is true the prompt compiler omits the concrete value for
+ * that property and instead instructs the multimodal model to match the
+ * example image. Palette/typography are still used by the SVG text
+ * composer regardless of the flag (AI illustration vs. typography
+ * overlay are independent concerns).
+ */
+export interface WeddingMatchExampleFlags {
+  border: boolean;
+  palette: boolean;
+  flowers: boolean;
+  elements: boolean;
+}
 
 /** Normalized project input consumed by the prompt compiler and composer. */
 export interface WeddingProjectInput {
@@ -97,9 +115,28 @@ export interface WeddingProjectInput {
   venue?: string | null;
   flowers: string[];
   personalElements: string[];
+  /** URLs of user-uploaded reference photos whose main subject should be
+   *  incorporated into the generated crest. Drives auto model selection
+   *  to a multimodal provider (e.g. google:nano-banana@2-lite on Runware). */
+  personalImages?: string[];
   complexity: WeddingComplexity | string;
   nameDisplay: WeddingNameDisplay;
   showDate: boolean;
+  /** Optional id of a `wedding_frame` row whose image the composer should
+   *  layer behind the crest at compose time. null/undefined = no border. */
+  frameId?: string | null;
+  /** Resolved frame asset URL used by the SVG composer. This is hydrated from
+   *  frameId on the server and populated from the picker for live preview. */
+  frameUrl?: string | null;
+  /** URL of the `wedding_example` reference image the user came in with
+   *  (hydrated server-side from the `example_image` element). When set,
+   *  the generate route forwards it to the multimodal model as the first
+   *  reference image so flagged properties can match it. */
+  exampleImage?: string | null;
+  /** Per-property "match the example image" flags. Each property with
+   *  flag=true tells the prompt compiler to use "match the reference
+   *  example image" phrasing instead of the concrete value. */
+  matchExample?: WeddingMatchExampleFlags | null;
 }
 
 export interface WeddingPromptRequest extends WeddingProjectInput {
@@ -244,6 +281,31 @@ export const weddingStyles: WeddingStyle[] = [
     previewColor: '#4A4E69',
   },
 ];
+
+/**
+ * Curated categories used by the Examples library. Mirrors the six
+ * generator styles so admin can attach an example image to any style
+ * shown in the Find Your Style home section.
+ */
+export const weddingExampleStyles = [
+  { id: 'botanical_watercolor', name: 'Botanical Watercolor' },
+  { id: 'minimal_line_art', name: 'Minimal Line Art' },
+  { id: 'vintage_engraving', name: 'Vintage Engraving' },
+  { id: 'italian_romance', name: 'Italian Romance' },
+  { id: 'coastal', name: 'Coastal' },
+  { id: 'classic_luxury', name: 'Classic Luxury' },
+] as const;
+
+export type WeddingExampleStyleId = (typeof weddingExampleStyles)[number]['id'];
+export const weddingExampleStyleIds = weddingExampleStyles.map(
+  (style) => style.id
+);
+
+export function isWeddingExampleStyle(
+  style: string
+): style is WeddingExampleStyleId {
+  return weddingExampleStyleIds.includes(style as WeddingExampleStyleId);
+}
 
 /* -------------------------------------------------------------------------- */
 /* Layouts - 12 fixed composition templates                                    */

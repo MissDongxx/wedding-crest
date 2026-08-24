@@ -115,6 +115,7 @@
       "examples": {
         "block": "wedding-examples",
         "id": "examples",
+        "disabled": true,
         "title": "Crests From Real Weddings",
         "description": "Browse the gallery for inspiration — every example can be remixed with your own names and colors.",
         "buttons": [

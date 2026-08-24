@@ -1,0 +1,45 @@
+{
+  "fields": {
+    "name": "Nome",
+    "style": "Estilo",
+    "url": "Imagem da moldura",
+    "thumbnail_url": "Miniatura",
+    "alt_text": "Texto alternativo",
+    "sort_order": "Ordem",
+    "is_active": "Ativo",
+    "actions": "Ações"
+  },
+  "values": {
+    "active": "Ativo",
+    "inactive": "Inativo",
+    "all_styles": "Todos os estilos",
+    "edit": "Editar",
+    "delete": "Excluir"
+  },
+  "list": {
+    "title": "Molduras de casamento",
+    "crumbs": {
+      "admin": "Admin",
+      "frames": "Molduras"
+    },
+    "buttons": {
+      "add": "Adicionar moldura"
+    },
+    "empty": "Nenhuma moldura ainda. Adicione uma para começar."
+  },
+  "add": {
+    "title": "Adicionar moldura",
+    "crumbs": {
+      "add": "Adicionar"
+    },
+    "buttons": {
+      "submit": "Salvar moldura"
+    }
+  },
+  "edit": {
+    "title": "Editar moldura",
+    "buttons": {
+      "submit": "Salvar alterações"
+    }
+  }
+}

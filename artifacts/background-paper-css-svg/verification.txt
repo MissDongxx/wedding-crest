@@ -1,0 +1,35 @@
+CSS base + body::before SVG Noise verification
+
+Implementation
+- body uses CSS radial-gradient layers plus #f6f6f4 base color.
+- body::before is fixed, pointer-events:none, opacity:0.08.
+- body::before background-image is an inline SVG data URI with feTurbulence type=fractalNoise, baseFrequency=.8, numOctaves=4, stitchTiles=stitch.
+
+Static checks
+$ pnpm exec prettier --check src/config/style/global.css src/config/style/theme.css
+Checking formatting...
+All matched files use Prettier code style!
+exit=0
+$ git diff --check
+exit=0
+$ sh -n artifacts/background-paper-css-svg/rollback.sh
+exit=0
+
+Rollback check
+$ artifacts/background-paper-css-svg/rollback.sh
+Rolled back CSS + SVG Noise paper background.
+$ cmp original snapshots against source files
+exit=0 (rollback_verified=1)
+$ restore modified snapshots and cmp against source files
+exit=0 (modified_restored=1)
+
+Browser verification on localhost:3000
+- body backgroundColor: rgb(246, 246, 244)
+- body backgroundImage: two radial-gradient layers plus base color
+- body position: relative
+- body::before position: fixed
+- body::before opacity: 0.08
+- body::before pointer-events: none
+- body::before backgroundImage: inline SVG data URI containing feTurbulence
+- Home visible hero confirmed
+- Browser console error count: 0

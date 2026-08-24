@@ -1,0 +1,43 @@
+{
+  "fields": {
+    "name": "Nome",
+    "style": "Estilo",
+    "image_url": "Foto",
+    "alt_text": "Texto alternativo",
+    "sort_order": "Ordem",
+    "is_active": "Ativo",
+    "actions": "Ações"
+  },
+  "values": {
+    "active": "Ativo",
+    "inactive": "Inativo",
+    "edit": "Editar",
+    "delete": "Excluir"
+  },
+  "list": {
+    "title": "Exemplos de casamento",
+    "crumbs": {
+      "admin": "Admin",
+      "examples": "Exemplos"
+    },
+    "buttons": {
+      "add": "Adicionar exemplo"
+    },
+    "empty": "Nenhum exemplo ainda. Adicione um para a página inicial."
+  },
+  "add": {
+    "title": "Adicionar exemplo",
+    "crumbs": {
+      "add": "Adicionar"
+    },
+    "buttons": {
+      "submit": "Salvar exemplo"
+    }
+  },
+  "edit": {
+    "title": "Editar exemplo",
+    "buttons": {
+      "submit": "Salvar alterações"
+    }
+  }
+}

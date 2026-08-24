@@ -89,6 +89,21 @@
           "icon": "MessageCircle"
         }
       ]
+    },
+    {
+      "title": "Matrimonio",
+      "items": [
+        {
+          "title": "Cornici",
+          "url": "/admin/wedding/frames",
+          "icon": "Frame"
+        },
+        {
+          "title": "Esempi",
+          "url": "/admin/wedding/examples",
+          "icon": "Image"
+        }
+      ]
     }
   ],
   "bottom_nav": {

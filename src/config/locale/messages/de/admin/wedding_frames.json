@@ -1,0 +1,45 @@
+{
+  "fields": {
+    "name": "Name",
+    "style": "Stil",
+    "url": "Rahmenbild",
+    "thumbnail_url": "Vorschaubild",
+    "alt_text": "Alt-Text",
+    "sort_order": "Reihenfolge",
+    "is_active": "Aktiv",
+    "actions": "Aktionen"
+  },
+  "values": {
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "all_styles": "Alle Stile",
+    "edit": "Bearbeiten",
+    "delete": "Löschen"
+  },
+  "list": {
+    "title": "Hochzeitsrahmen",
+    "crumbs": {
+      "admin": "Admin",
+      "frames": "Rahmen"
+    },
+    "buttons": {
+      "add": "Rahmen hinzufügen"
+    },
+    "empty": "Noch keine Rahmen. Fügen Sie einen hinzu."
+  },
+  "add": {
+    "title": "Rahmen hinzufügen",
+    "crumbs": {
+      "add": "Hinzufügen"
+    },
+    "buttons": {
+      "submit": "Rahmen speichern"
+    }
+  },
+  "edit": {
+    "title": "Rahmen bearbeiten",
+    "buttons": {
+      "submit": "Änderungen speichern"
+    }
+  }
+}

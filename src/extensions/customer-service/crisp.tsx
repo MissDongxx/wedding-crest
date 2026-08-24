@@ -27,9 +27,11 @@ export class CrispCustomerServiceProvider implements CustomerServiceProvider {
   getHeadScripts(): ReactNode {
     return (
       <>
+        {/* Crisp chat widget — the bubble only matters once a user
+            needs help, so we defer it until the browser is idle. */}
         <Script
           id={`${this.name}-script`}
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `
                 window.$crisp=[];

@@ -27,9 +27,12 @@ export class ClarityAnalyticsProvider implements AnalyticsProvider {
   getHeadScripts(): ReactNode {
     return (
       <>
+        {/* Clarity is a session-recording analytics tool — purely
+            observational, no business logic depends on it. Defer until
+            the browser is idle. */}
         <Script
           id={`${this.name}-script`}
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `
                 (function(c,l,a,r,i,t,y){

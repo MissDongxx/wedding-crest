@@ -6,31 +6,29 @@ import NextTopLoader from 'nextjs-toploader';
 import { envConfigs } from '@/config';
 import { locales } from '@/config/locale';
 import { UtmCapture } from '@/shared/blocks/common/utm-capture';
-import { getAllConfigs } from '@/shared/models/config';
-import { getAdsService } from '@/shared/services/ads';
-import { getAffiliateService } from '@/shared/services/affiliate';
-import { getAnalyticsService } from '@/shared/services/analytics';
-import { getCustomerService } from '@/shared/services/customer_service';
+import { Configs, getAllConfigs } from '@/shared/models/config';
+import { getAdsManagerWithConfigs } from '@/shared/services/ads';
+import { getAffiliateManagerWithConfigs } from '@/shared/services/affiliate';
+import { getAnalyticsManagerWithConfigs } from '@/shared/services/analytics';
+import { getCustomerServiceWithConfigs } from '@/shared/services/customer_service';
 
-// Resolve the favicon URL once per render from the merged env+DB config.
-// We deliberately reuse the same `app_logo` value the marketing header shows,
-// so the favicon follows whatever the admin uploads — there is no separate
-// `app_favicon` to keep in sync. `NEXT_PUBLIC_APP_FAVICON` is still honored
-// as a hard override when it is *explicitly* set in the environment
-// (we detect "explicit" by reading the raw env var, not the defaulted
-// `envConfigs.app_favicon` value, otherwise the default `/favicon.webp`
-// would always win and the admin upload would never reach the favicon).
-async function resolveFaviconHref() {
-  const explicitFavicon = process.env.NEXT_PUBLIC_APP_FAVICON;
-  if (explicitFavicon && explicitFavicon.length > 0) {
-    return explicitFavicon;
-  }
-  try {
-    const configs = await getAllConfigs();
-    return configs.app_logo || envConfigs.app_logo || '/logo.webp';
-  } catch {
-    return envConfigs.app_logo || '/logo.webp';
-  }
+// Resolve the favicon from a pre-fetched `configs` object so the root
+// layout only calls `getAllConfigs()` once per request (it was being
+// awaited twice — once for the services and once here). The DB-backed
+// config cache is the slow path; a 1-minute TTL was hitting it for every
+// anonymous request.
+async function resolveFaviconHref(configs: Awaited<
+  ReturnType<typeof getAllConfigs>
+> | null) {
+  // The admin-configured App Logo wins so the favicon always matches the
+  // brand. Env fallbacks cover fresh installs before any logo is uploaded
+  // or override scenarios where ops needs to pin a specific icon.
+  return (
+    (configs && configs.app_logo) ||
+    process.env.NEXT_PUBLIC_APP_FAVICON ||
+    envConfigs.app_logo ||
+    '/logo.webp'
+  );
 }
 
 // Fonts are self-hosted OFL families loaded through
@@ -70,42 +68,50 @@ export default async function RootLayout({
   let customerServiceHeadScripts = null;
   let customerServiceBodyScripts = null;
 
+  // Pre-fetched configs (single DB read on the cold path; subsequent
+  // calls within the 5-minute in-memory TTL are free). Used by the
+  // service constructors and by `resolveFaviconHref` so we don't
+  // re-await `getAllConfigs()` a second time. Always fetched — the
+  // favicon needs the admin-configured logo even outside
+  // production/debug, and getAllConfigs() is a no-op when no DB is
+  // configured (it just falls back to env vars).
+  let configs: Configs | null = null;
+  configs = await getAllConfigs();
+
   if (isProduction || isDebug) {
-    const configs = await getAllConfigs();
+    // Service construction is purely sync — building a manager with the
+    // pre-fetched configs avoids the previous `Promise.all` of async
+    // wrappers that each called `getAllConfigs()` if `configs` was
+    // omitted. We pass the configs through directly.
+    const adsService = getAdsManagerWithConfigs(configs);
+    const analyticsService = getAnalyticsManagerWithConfigs(configs);
+    const affiliateService = getAffiliateManagerWithConfigs(configs);
+    const customerService = getCustomerServiceWithConfigs(configs);
 
-    const [adsService, analyticsService, affiliateService, customerService] =
-      await Promise.all([
-        getAdsService(configs),
-        getAnalyticsService(configs),
-        getAffiliateService(configs),
-        getCustomerService(configs),
-      ]);
-
-    // get ads components
+    // get ads components — keep meta tags in <head> synchronously for
+    // SEO (e.g. <meta name="google-adsense-account"> must be in the
+    // initial HTML so crawlers see it). Head/body scripts are moved to
+    // the body, where each provider now uses `next/script` with
+    // `lazyOnload` / `afterInteractive` so they no longer block render.
     adsMetaTags = adsService.getMetaTags();
-    adsHeadScripts = adsService.getHeadScripts();
-    adsBodyScripts = adsService.getBodyScripts();
-
-    // get analytics components
     analyticsMetaTags = analyticsService.getMetaTags();
-    analyticsHeadScripts = analyticsService.getHeadScripts();
-    analyticsBodyScripts = analyticsService.getBodyScripts();
-
-    // get affiliate components
     affiliateMetaTags = affiliateService.getMetaTags();
-    affiliateHeadScripts = affiliateService.getHeadScripts();
-    affiliateBodyScripts = affiliateService.getBodyScripts();
-
-    // get customer service components
     customerServiceMetaTags = customerService.getMetaTags();
+
+    adsHeadScripts = adsService.getHeadScripts();
+    analyticsHeadScripts = analyticsService.getHeadScripts();
+    affiliateHeadScripts = affiliateService.getHeadScripts();
     customerServiceHeadScripts = customerService.getHeadScripts();
+
+    adsBodyScripts = adsService.getBodyScripts();
+    analyticsBodyScripts = analyticsService.getBodyScripts();
+    affiliateBodyScripts = affiliateService.getBodyScripts();
     customerServiceBodyScripts = customerService.getBodyScripts();
   }
 
-  // Resolve the favicon from the merged config (admin-controlled) regardless
-  // of the production flag — the favicon should reflect the studio logo even
-  // in dev/preview.
-  const faviconHref = await resolveFaviconHref();
+  // Resolve the favicon from the same configs object we already fetched —
+  // no second `getAllConfigs()` call.
+  const faviconHref = await resolveFaviconHref(configs);
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -117,8 +123,10 @@ export default async function RootLayout({
               'if(typeof globalThis.__name==="undefined"){globalThis.__name=function(){}}',
           }}
         />
-        <link rel="icon" href={faviconHref} type="image/webp" />
-        <link rel="alternate icon" href={faviconHref} type="image/webp" />
+        {/* No explicit `type` so browsers can fetch and sniff whichever
+            format the admin uploaded (webp, png, svg, ico, ...). */}
+        <link rel="icon" href={faviconHref} />
+        <link rel="alternate icon" href={faviconHref} />
         <link rel="apple-touch-icon" href={faviconHref} />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 

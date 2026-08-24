@@ -1,0 +1,45 @@
+{
+  "fields": {
+    "name": "ชื่อ",
+    "style": "สไตล์",
+    "url": "รูปกรอบ",
+    "thumbnail_url": "ภาพย่อ",
+    "alt_text": "ข้อความแทน",
+    "sort_order": "ลำดับ",
+    "is_active": "เปิดใช้",
+    "actions": "การทำงาน"
+  },
+  "values": {
+    "active": "เปิดใช้",
+    "inactive": "ปิด",
+    "all_styles": "ทุกสไตล์",
+    "edit": "แก้ไข",
+    "delete": "ลบ"
+  },
+  "list": {
+    "title": "กรอบงานแต่งงาน",
+    "crumbs": {
+      "admin": "ผู้ดูแล",
+      "frames": "กรอบ"
+    },
+    "buttons": {
+      "add": "เพิ่มกรอบ"
+    },
+    "empty": "ยังไม่มีกรอบ เพิ่มกรอบแรกของคุณ"
+  },
+  "add": {
+    "title": "เพิ่มกรอบ",
+    "crumbs": {
+      "add": "เพิ่ม"
+    },
+    "buttons": {
+      "submit": "บันทึกกรอบ"
+    }
+  },
+  "edit": {
+    "title": "แก้ไขกรอบ",
+    "buttons": {
+      "submit": "บันทึกการเปลี่ยนแปลง"
+    }
+  }
+}

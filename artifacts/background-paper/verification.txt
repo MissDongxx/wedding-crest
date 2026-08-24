@@ -1,0 +1,33 @@
+Background paper texture verification
+
+Baseline preservation
+- original/global.css.snapshot and original/theme.css.snapshot were created before editing.
+- Baseline SHA-256:
+  fd211c5d176ed2c2cd2d719b19fc9945ca64c6e8517531489bcb6bfd00765544  src/config/style/global.css
+  3b9a720e7f50841f2193fa0d8e284f20a119f1b109f4af03bb6b4839efee903b  src/config/style/theme.css
+
+Static checks
+$ pnpm exec prettier --check src/config/style/global.css src/config/style/theme.css
+Checking formatting...
+All matched files use Prettier code style!
+exit=0
+$ git diff --check
+exit=0
+$ sh -n artifacts/background-paper/rollback.sh
+exit=0
+
+Rollback check
+$ artifacts/background-paper/rollback.sh
+Rolled back background paper styling.
+$ cmp original snapshots against source files
+exit=0 (rollback_verified=1)
+$ restore modified snapshots and cmp against source files
+exit=0 (modified_restored=1)
+
+Browser verification
+- URL: http://localhost:3000/design/b75044cf-ef37-4538-94a3-3c8de7944af5
+- Computed body backgroundColor: lab(98.2912 -0.012666 2.29008)
+- Computed body backgroundImage: 2 radial-gradient layers plus 1 linear-gradient layer
+- Computed body backgroundSize: 11px 13px, 17px 19px, 100% 100%
+- Computed body backgroundAttachment: fixed, fixed, fixed
+- Visible page content confirmed: Your wedding crest, Typography controls, Stationery mockups, Regenerate

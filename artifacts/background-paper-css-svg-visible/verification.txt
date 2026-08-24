@@ -1,0 +1,37 @@
+Visible paper texture verification
+
+Root cause found
+- The previous pseudo-element was present but its effective contrast was too low to be visible in the rendered homepage.
+- The page root was made a positioned layer above the fixed noise layer so the texture remains a background effect without intercepting input.
+
+Implementation
+- body background: two soft radial gradients plus #f6f6f4.
+- body::before: fixed SVG feTurbulence noise, 200px tile, opacity .42, mix-blend-mode:multiply, pointer-events:none.
+- body > *: position relative; z-index:1.
+
+Static checks
+$ pnpm exec prettier --check src/config/style/global.css src/config/style/theme.css
+Checking formatting...
+All matched files use Prettier code style!
+exit=0
+$ git diff --check
+exit=0
+$ sh -n artifacts/background-paper-css-svg-visible/rollback.sh
+exit=0
+
+Rollback check
+$ artifacts/background-paper-css-svg-visible/rollback.sh
+Rolled back visible CSS + SVG Noise paper texture.
+$ cmp original snapshots against source files
+exit=0 (rollback_verified=1)
+$ restore modified snapshots and cmp against source files
+exit=0 (modified_restored=1)
+
+Browser verification on localhost:3000
+- Rendered screenshot visibly shows continuous paper grain across the homepage background.
+- body computed backgroundColor: rgb(246, 246, 244)
+- body::before computed opacity: 0.42
+- body::before computed backgroundSize: 200px 200px
+- body::before computed backgroundImage contains feTurbulence
+- Hero and Create My Wedding Crest content confirmed
+- Browser console error count: 0

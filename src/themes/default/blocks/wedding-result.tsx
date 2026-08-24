@@ -47,6 +47,8 @@ interface ProjectData {
   nameDisplay: WeddingNameDisplay;
   showDate: boolean;
   complexity: 'minimal' | 'medium' | 'rich';
+  frameId?: string | null;
+  frameUrl?: string | null;
 }
 
 interface JobResponse {
@@ -61,6 +63,13 @@ interface JobResponse {
     reason?: string;
     maxBatches?: number;
   };
+}
+
+interface ApiEnvelope<T> {
+  code?: number;
+  message?: string;
+  data?: T;
+  error?: string;
 }
 
 const STAGE_STATUS_COPY: Record<string, string> = {
@@ -102,15 +111,27 @@ export function WeddingResult({ projectId }: { projectId: string }) {
         headers: guestId ? { 'x-wedding-guest-id': guestId } : {},
         cache: 'no-store',
       });
-      if (!response.ok) {
-        const body = await response.json().catch(() => ({}));
-        setError(body?.error || t('load_error'));
+      const envelope = (await response.json().catch(() => ({}))) as ApiEnvelope<JobResponse>;
+      if (
+        !response.ok ||
+        (envelope.code !== undefined && envelope.code !== 0)
+      ) {
+        setError(envelope.error || envelope.message || t('load_error'));
         return null;
       }
-      const body = (await response.json()) as JobResponse;
+      const body = envelope.data ?? (envelope as unknown as JobResponse);
+      const rawProject = body.project as ProjectData & {
+        input?: Partial<ProjectData>;
+      };
+      const normalizedBody: JobResponse = rawProject.input
+        ? {
+            ...body,
+            project: { ...rawProject, ...rawProject.input },
+          }
+        : body;
       setError(null);
-      setData(body);
-      return body;
+      setData(normalizedBody);
+      return normalizedBody;
     } catch {
       setError(t('load_error'));
       return null;
@@ -181,6 +202,8 @@ export function WeddingResult({ projectId }: { projectId: string }) {
       complexity: project.complexity,
       nameDisplay: project.nameDisplay,
       showDate: project.showDate,
+      frameId: project.frameId,
+      frameUrl: project.frameUrl,
       illustrationUrl: showTypography
         ? (selectedGeneration?.sourceImageUrl ?? undefined)
         : undefined,
@@ -752,6 +775,8 @@ function CrestMini({
     complexity: project.complexity,
     nameDisplay: project.nameDisplay,
     showDate: project.showDate,
+    frameId: project.frameId,
+    frameUrl: project.frameUrl,
     illustrationUrl: generation.sourceImageUrl ?? undefined,
     previewWatermark: !paid,
   });
@@ -788,6 +813,8 @@ function CrestMockup({
     complexity: project.complexity,
     nameDisplay: project.nameDisplay,
     showDate: project.showDate,
+    frameId: project.frameId,
+    frameUrl: project.frameUrl,
     illustrationUrl: generation?.sourceImageUrl ?? undefined,
     previewWatermark: !paid,
   };

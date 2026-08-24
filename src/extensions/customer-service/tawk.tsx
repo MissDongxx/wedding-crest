@@ -28,9 +28,11 @@ export class TawkCustomerServiceProvider implements CustomerServiceProvider {
   getHeadScripts(): ReactNode {
     return (
       <>
+        {/* Tawk chat widget — same reasoning as Crisp: defer until
+            idle so it doesn't compete with the page's own scripts. */}
         <Script
           id={`${this.name}-script`}
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `
                 var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();

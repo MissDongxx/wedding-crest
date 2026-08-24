@@ -120,6 +120,10 @@ export function resolveWeddingDisplayTexts(
     case 'initials_spaced':
       headline = `${a} ${b}`;
       break;
+    case 'initials_only':
+      headline = `${a} ${b}`;
+      names = '';
+      break;
     case 'full_names':
       headline = fullNames;
       names = '';
@@ -410,6 +414,16 @@ function crestInner(
       `<rect x="0" y="0" width="${CANVAS}" height="${CANVAS}" fill="${normalizePalette(request.palette)[1]}"/>`,
       `<ellipse cx="500" cy="555" rx="300" ry="230" fill="#ffffff" opacity="0.55"/>`,
       buildStyleOrnament(style.id, request.palette, layout.shape)
+    );
+  }
+
+  // Frame assets are transparent border/ornament layers selected from the
+  // admin-managed library. Render them above the illustration and below the
+  // programmatic typography so the uploaded artwork is visible in previews,
+  // generated results, mockups, and downloaded SVGs.
+  if (request.frameUrl) {
+    parts.push(
+      `<image href="${escapeXml(request.frameUrl)}" x="0" y="0" width="${CANVAS}" height="${CANVAS}" preserveAspectRatio="xMidYMid meet"${variant === 'bw' ? ' filter="url(#wc-bw-filter)"' : ''}/>`
     );
   }
 

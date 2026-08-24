@@ -720,3 +720,52 @@ export const weddingPromptTemplate = table(
     index('idx_wedding_prompt_active_style').on(table.style, table.active),
   ]
 );
+
+// Admin-managed library of crest borders/frames the wizard can attach. The
+// illustration is a fully-rendered PNG/SVG ornament; the wizard overlays SVG
+// text on top at compose time. is_active lets us soft-hide entries without
+// breaking projects that already reference the row.
+export const weddingFrame = table(
+  'wedding_frame',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    style: text('style'), // null means the frame applies to every style
+    url: text('url').notNull(), // full ornament image
+    thumbnailUrl: text('thumbnail_url'), // smaller preview for the wizard tile
+    altText: text('alt_text'),
+    isActive: boolean('is_active').default(true).notNull(),
+    sortOrder: integer('sort_order').notNull().default(0),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_wedding_frame_active_style').on(table.style, table.isActive),
+  ]
+);
+
+// Real product photos the studio shows on the home page as "examples" and
+// that the wizard offers as "make a similar crest" reference images.
+export const weddingExample = table(
+  'wedding_example',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    style: text('style').notNull(),
+    imageUrl: text('image_url').notNull(),
+    altText: text('alt_text'),
+    isActive: boolean('is_active').default(true).notNull(),
+    sortOrder: integer('sort_order').notNull().default(0),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_wedding_example_active_style').on(table.style, table.isActive),
+  ]
+);

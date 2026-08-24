@@ -1,0 +1,36 @@
+diff --git a/src/config/style/global.css b/src/config/style/global.css
+index e18111b..30ddb16 100644
+--- a/src/config/style/global.css
++++ b/src/config/style/global.css
+@@ -12,6 +12,20 @@
+   }
+   body {
+     @apply bg-background text-foreground font-sans;
++    background-image:
++      radial-gradient(rgba(255, 255, 255, 0.55) 0.7px, transparent 0.85px),
++      radial-gradient(rgba(105, 110, 103, 0.035) 0.55px, transparent 0.7px),
++      linear-gradient(
++        115deg,
++        rgba(255, 255, 255, 0.2),
++        transparent 42%,
++        rgba(100, 105, 98, 0.018)
++      );
++    background-size:
++      11px 13px,
++      17px 19px,
++      100% 100%;
++    background-attachment: fixed;
+   }
+ }
+ 
+diff --git a/src/config/style/theme.css b/src/config/style/theme.css
+index b93a48a..73d9341 100644
+--- a/src/config/style/theme.css
++++ b/src/config/style/theme.css
+@@ -1,5 +1,5 @@
+ :root {
+-  --background: oklch(0.998 0.003 90);
++  --background: oklch(0.985 0.006 90);
+   --foreground: oklch(0.3 0.04 75);
+   --card: oklch(0.995 0.008 90);
+   --card-foreground: oklch(0.3 0.04 75);
