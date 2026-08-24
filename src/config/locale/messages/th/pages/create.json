@@ -67,5 +67,10 @@
   "border_empty": "ยังไม่มีกรอบสำหรับสไตล์นี้",
   "border_frame": "กรอบ",
   "same_as_example": "เหมือนตัวอย่าง",
-  "start_over": "เริ่มใหม่"
+  "start_over": "เริ่มใหม่",
+  "required": "จำเป็น",
+  "optional": "ไม่บังคับ",
+  "remove": "ลบ",
+  "one_generated_project": "โปรเจกต์ที่สร้างแล้ว",
+  "dismiss": "ปิด"
 }

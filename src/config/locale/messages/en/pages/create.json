@@ -67,5 +67,10 @@
   "border_empty": "No borders available for this style yet.",
   "border_frame": "Frame",
   "same_as_example": "Same as example",
-  "start_over": "Start over"
+  "start_over": "Start over",
+  "required": "Required",
+  "optional": "Optional",
+  "remove": "Remove",
+  "one_generated_project": "one generated project",
+  "dismiss": "Dismiss"
 }

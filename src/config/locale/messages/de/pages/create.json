@@ -67,5 +67,10 @@
   "border_empty": "Für diesen Stil sind noch keine Rahmen verfügbar.",
   "border_frame": "Rahmen",
   "same_as_example": "Wie im Beispiel",
-  "start_over": "Neu beginnen"
+  "start_over": "Neu beginnen",
+  "required": "Pflicht",
+  "optional": "Optional",
+  "remove": "Entfernen",
+  "one_generated_project": "generiertes Projekt",
+  "dismiss": "Schließen"
 }

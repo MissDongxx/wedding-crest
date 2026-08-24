@@ -5,8 +5,10 @@ import { Button } from '@/shared/components/ui/button';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import { getUserInfo } from '@/shared/models/user';
 import {
+  getWeddingProject,
   listWeddingProjectsForUser,
   type WeddingProject,
+  type WeddingProjectRow,
 } from '@/shared/models/wedding';
 import { composeWeddingCrest } from '@/shared/wedding/composer';
 import { weddingPalettes } from '@/shared/wedding/types';
@@ -38,7 +40,12 @@ export default async function MyDesignsPage({
 
   let projects: WeddingProject[] = [];
   if (user) {
-    projects = await listWeddingProjectsForUser(user.id);
+    const rows = await listWeddingProjectsForUser(user.id);
+    projects = (
+      await Promise.all(
+        rows.map((row: WeddingProjectRow) => getWeddingProject(row.id))
+      )
+    ).filter((project): project is WeddingProject => project !== null);
   }
 
   return (
@@ -73,7 +80,7 @@ export default async function MyDesignsPage({
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
-            <DesignCard key={project.id} project={project} locale={locale} />
+            <DesignCard key={project.id} project={project} />
           ))}
         </div>
       )}
@@ -83,10 +90,8 @@ export default async function MyDesignsPage({
 
 function DesignCard({
   project,
-  locale: _locale,
 }: {
   project: WeddingProject;
-  locale: string;
 }) {
   const fallback = composeWeddingCrest({
     ...project.input,

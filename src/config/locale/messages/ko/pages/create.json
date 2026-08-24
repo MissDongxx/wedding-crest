@@ -67,5 +67,10 @@
   "border_empty": "이 스타일에는 아직 테두리가 없습니다.",
   "border_frame": "테두리",
   "same_as_example": "예시와 동일하게",
-  "start_over": "다시 시작"
+  "start_over": "다시 시작",
+  "required": "필수",
+  "optional": "선택",
+  "remove": "삭제",
+  "one_generated_project": "생성된 프로젝트",
+  "dismiss": "닫기"
 }

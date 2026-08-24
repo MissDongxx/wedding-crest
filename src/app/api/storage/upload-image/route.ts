@@ -33,6 +33,18 @@ const extFromMime = (mimeType: string) => {
   return map[mimeType] || '';
 };
 
+const mimeFromFilename = (filename: string) => {
+  const extension = filename.toLowerCase().split('.').pop() ?? '';
+  const map: Record<string, string> = {
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    png: 'image/png',
+    webp: 'image/webp',
+    svg: 'image/svg+xml',
+  };
+  return map[extension] ?? '';
+};
+
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
@@ -46,13 +58,22 @@ export async function POST(req: Request) {
     const uploadResults = [];
 
     for (const file of files) {
+      // Some browsers report PNG files as application/octet-stream (or leave
+      // the MIME type blank). Prefer the trusted image extension in that
+      // case so a valid PNG is not rejected by the server-side check.
+      const reportedMime = file.type.trim().toLowerCase();
+      const inferredMime = mimeFromFilename(file.name);
+      const mimeType = ALLOWED_MIMES.has(reportedMime)
+        ? reportedMime
+        : inferredMime;
+
       // Validate file type
-      if (!file.type.startsWith('image/')) {
+      if (!mimeType || !mimeType.startsWith('image/')) {
         return respErr(`File ${file.name} is not an image`);
       }
-      if (!ALLOWED_MIMES.has(file.type)) {
+      if (!ALLOWED_MIMES.has(mimeType)) {
         return respErr(
-          `File ${file.name} has unsupported type ${file.type}. Allowed: ${Array.from(ALLOWED_MIMES).join(', ')}`
+          `File ${file.name} has unsupported type ${reportedMime || inferredMime}. Allowed: ${Array.from(ALLOWED_MIMES).join(', ')}`
         );
       }
       if (file.size > MAX_FILE_BYTES) {
@@ -89,7 +110,7 @@ export async function POST(req: Request) {
       const result = await storageService.uploadFile({
         body,
         key: key,
-        contentType: file.type,
+        contentType: mimeType,
         disposition: 'inline',
       });
 

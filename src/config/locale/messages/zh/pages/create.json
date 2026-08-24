@@ -67,5 +67,10 @@
   "border_empty": "这个风格还没有可选的边框。",
   "border_frame": "边框",
   "same_as_example": "和样例一样",
-  "start_over": "重新开始"
+  "start_over": "重新开始",
+  "required": "必填",
+  "optional": "选填",
+  "remove": "移除",
+  "one_generated_project": "已有的生成项目",
+  "dismiss": "关闭"
 }

@@ -246,7 +246,7 @@ export async function createWeddingProject(params: CreateWeddingProjectParams) {
           params.partner2.trim().charAt(0).toUpperCase(),
         ];
 
-  const [row] = await db()
+  await db()
     .insert(weddingProject)
     .values({
       id,
@@ -463,6 +463,36 @@ export async function countProjectsWithGenerations(params: {
     .from(weddingGeneration)
     .where(inArray(weddingGeneration.projectId, ids));
   return rows.length;
+}
+
+/** Return one existing project that already contains a generation. */
+export async function findWeddingProjectWithGeneration(params: {
+  userId?: string;
+  guestId?: string;
+}) {
+  const owners = await db()
+    .select({ id: weddingProject.id })
+    .from(weddingProject)
+    .where(
+      params.userId
+        ? eq(weddingProject.userId, params.userId)
+        : eq(weddingProject.guestId, params.guestId ?? '__none__')
+    );
+  if (owners.length === 0) return null;
+
+  const [row] = await db()
+    .select({ projectId: weddingGeneration.projectId })
+    .from(weddingGeneration)
+    .where(
+      inArray(
+        weddingGeneration.projectId,
+        owners.map((owner: { id: string }) => owner.id)
+      )
+    )
+    .orderBy(asc(weddingGeneration.createdAt))
+    .limit(1);
+
+  return row?.projectId ?? null;
 }
 
 /* -------------------------------------------------------------------------- */

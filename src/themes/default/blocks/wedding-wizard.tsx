@@ -7,6 +7,7 @@ import {
   useState,
   type CSSProperties,
 } from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -17,11 +18,8 @@ import { Label } from '@/shared/components/ui/label';
 import { Progress } from '@/shared/components/ui/progress';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import { cn } from '@/shared/lib/utils';
-import {
-  composeWeddingCrest,
-  resolveWeddingDisplayTexts,
-} from '@/shared/wedding/composer';
-import { getWeddingTypography, layoutsForStyle } from '@/shared/wedding/config';
+import { resolveWeddingDisplayTexts } from '@/shared/wedding/composer';
+import { getWeddingTypography } from '@/shared/wedding/config';
 import {
   WEDDING_MAX_FLOWERS,
   WEDDING_MAX_PALETTE_COLORS,
@@ -70,7 +68,6 @@ interface PersistedWizardState {
   weddingDate: string;
   nameDisplay: WeddingProjectInput['nameDisplay'];
   style: string;
-  composition: string;
   typography: string;
   frameId: string | null;
   palette: string[];
@@ -119,9 +116,8 @@ function isWeddingNameDisplay(value: unknown): value is WeddingProjectInput['nam
 /**
  * Reads the persisted wizard state from localStorage. Returns an empty
  * object on SSR, on parse errors, or when no prior state exists. The
- * wizard's individual useState calls use this to seed their initial
- * values, so the very first render after a refresh already shows the
- * restored form — no flash of empty inputs.
+ * The state is restored in an effect after hydration so the server and
+ * client render the same initial tree.
  */
 function readPersistedWizardState(): Partial<PersistedWizardState> {
   if (typeof window === 'undefined') return {};
@@ -207,10 +203,11 @@ export function WeddingWizard() {
   const t = useTranslations('pages.create');
   const searchParams = useSearchParams();
 
-  // Read any persisted state once at mount. The individual useState calls
-  // seed from this so a refresh restores the form in the very first
-  // render — no flash of empty fields while an effect runs.
-  const persisted = useMemo(() => readPersistedWizardState(), []);
+  // Keep the server render deterministic. localStorage is restored in an
+  // effect below; reading it during render would make the first client tree
+  // differ from the server tree and trigger a hydration mismatch.
+  const persisted = useMemo<Partial<PersistedWizardState>>(() => ({}), []);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   // step 1: names
   const [partner1, setPartner1] = useState(
@@ -236,9 +233,6 @@ export function WeddingWizard() {
       weddingStyles.some((s) => s.id === persisted.style)
       ? persisted.style
       : 'botanical_watercolor'
-  );
-  const [composition, setComposition] = useState(
-    typeof persisted.composition === 'string' ? persisted.composition : ''
   );
   const [typography, setTypography] = useState(
     typeof persisted.typography === 'string'
@@ -340,9 +334,58 @@ export function WeddingWizard() {
   // reference example image" wording.
   const [matchExample, setMatchExample] = useState<MatchExampleFlags>(
     isMatchExample(persisted.matchExample)
-      ? persisted.matchExample
+      ? { ...persisted.matchExample, elements: false }
       : MATCH_EXAMPLE_DEFAULT
   );
+
+  // Restore the saved draft only after hydration. This keeps SSR markup
+  // stable while retaining the draft across refreshes. The persistence
+  // effect below is gated by isHydrated so the default state never
+  // overwrites the saved draft during the same mount.
+  useEffect(() => {
+    const saved = readPersistedWizardState();
+
+    if (typeof saved.partner1 === 'string') setPartner1(saved.partner1);
+    if (typeof saved.partner2 === 'string') setPartner2(saved.partner2);
+    if (typeof saved.weddingDate === 'string') setWeddingDate(saved.weddingDate);
+    if (isWeddingNameDisplay(saved.nameDisplay)) setNameDisplay(saved.nameDisplay);
+    if (
+      typeof saved.style === 'string' &&
+      weddingStyles.some((candidate) => candidate.id === saved.style)
+    ) {
+      setStyle(saved.style);
+    }
+    if (typeof saved.typography === 'string') setTypography(saved.typography);
+    if (typeof saved.frameId === 'string' || saved.frameId === null) {
+      setFrameId(saved.frameId);
+    }
+    if (isStringArray(saved.palette) && saved.palette.length > 0) {
+      setPalette(saved.palette);
+    }
+    if (typeof saved.customHex === 'string') setCustomHex(saved.customHex);
+    if (typeof saved.location === 'string') setLocation(saved.location);
+    if (typeof saved.venue === 'string') setVenue(saved.venue);
+    if (isStringArray(saved.flowers)) setFlowers(saved.flowers);
+    if (typeof saved.customFlower === 'string') setCustomFlower(saved.customFlower);
+    if (isStringArray(saved.personalElements)) {
+      setPersonalElements(saved.personalElements);
+    }
+    if (typeof saved.customElement === 'string') setCustomElement(saved.customElement);
+    if (isStringArray(saved.personalImages)) setPersonalImages(saved.personalImages);
+    if (isWeddingComplexity(saved.complexity)) setComplexity(saved.complexity);
+    if (
+      typeof saved.step === 'number' &&
+      saved.step >= 0 &&
+      saved.step < WIZARD_STEPS.length
+    ) {
+      setStep(saved.step);
+    }
+    if (isMatchExample(saved.matchExample)) {
+      setMatchExample({ ...saved.matchExample, elements: false });
+    }
+
+    setIsHydrated(true);
+  }, []);
 
   // Persist the form state to localStorage on every change. Writing on
   // every state mutation is fine here — the payload is small (a few
@@ -355,7 +398,7 @@ export function WeddingWizard() {
   //   look stuck if a refresh happens mid-flight.
   // - frames are refetched from the API based on `style`.
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (!isHydrated || typeof window === 'undefined') return;
     try {
       const payload: PersistedWizardState = {
         step,
@@ -364,7 +407,6 @@ export function WeddingWizard() {
         weddingDate,
         nameDisplay,
         style,
-        composition,
         typography,
         frameId,
         palette,
@@ -391,7 +433,6 @@ export function WeddingWizard() {
     weddingDate,
     nameDisplay,
     style,
-    composition,
     typography,
     frameId,
     palette,
@@ -405,6 +446,7 @@ export function WeddingWizard() {
     personalImages,
     complexity,
     matchExample,
+    isHydrated,
   ]);
 
   // preselect style from ?style= deep link (used by style cards + SEO pages)
@@ -412,10 +454,6 @@ export function WeddingWizard() {
     const requested = searchParams.get('style');
     if (requested && weddingStyles.some((s) => s.id === requested)) {
       setStyle(requested);
-      const first = layoutsForStyle(requested)[0];
-      if (first) {
-        setComposition(first.composition);
-      }
     }
   }, [searchParams]);
 
@@ -495,8 +533,6 @@ export function WeddingWizard() {
           weddingStyles.some((s) => s.id === example.style);
         if (styleChanged) {
           setStyle(example.style);
-          const first = layoutsForStyle(example.style)[0];
-          if (first) setComposition(first.composition);
         }
 
         // Remember the example's style so step 2 can hide the style
@@ -515,7 +551,7 @@ export function WeddingWizard() {
           border: true,
           palette: true,
           flowers: true,
-          elements: true,
+          elements: false,
         });
 
         // Surface the source image in the live preview panel.
@@ -537,17 +573,6 @@ export function WeddingWizard() {
       cancelled = true;
     };
   }, [searchParams]);
-
-  // keep composition valid for the selected style
-  const styleLayouts = useMemo(() => layoutsForStyle(style), [style]);
-  useEffect(() => {
-    if (
-      !composition ||
-      !styleLayouts.some((l) => l.composition === composition)
-    ) {
-      setComposition(styleLayouts[0]?.composition ?? '');
-    }
-  }, [styleLayouts, composition]);
 
   // keep typography valid for the selected style
   useEffect(() => {
@@ -633,8 +658,7 @@ export function WeddingWizard() {
         weddingDate: weddingDate || null,
         style,
         layout:
-          styleLayouts.find((l) => l.composition === composition)?.id ??
-          styleLayouts[0]?.id ??
+          weddingStyles.find((candidate) => candidate.id === style)?.layouts[0] ??
           'BOTANICAL_OVAL_01',
         typography,
         palette,
@@ -654,8 +678,6 @@ export function WeddingWizard() {
       partner2,
       weddingDate,
       style,
-      styleLayouts,
-      composition,
       typography,
       palette,
       flowers,
@@ -730,6 +752,14 @@ export function WeddingWizard() {
     );
   };
 
+  const selectFrame = (id: string) => {
+    setFrameId(id);
+    setMatchExample((current) => ({
+      ...current,
+      border: false,
+    }));
+  };
+
   const togglePaletteColor = (color: string) => {
     setPalette((current) => {
       if (current.includes(color)) {
@@ -788,16 +818,25 @@ export function WeddingWizard() {
 
   const addCustomElement = () => {
     const value = customElement.trim();
-    if (
-      value &&
-      !personalElements.includes(value) &&
-      personalElements.length < WEDDING_MAX_PERSONAL_ELEMENTS
-    ) {
-      setPersonalElements((current) => [...current, value]);
-      setMatchExample((current) =>
-        current.elements ? { ...current, elements: false } : current
-      );
+    if (!value) return;
+    if (personalElements.includes(value)) {
+      setCustomElement('');
+      return;
     }
+    if (personalElements.length >= WEDDING_MAX_PERSONAL_ELEMENTS) {
+      toast.info(
+        t('max_items', {
+          count: WEDDING_MAX_PERSONAL_ELEMENTS,
+          items: t('max_items_personal'),
+        })
+      );
+      return;
+    }
+
+    setPersonalElements((current) => [...current, value]);
+    setMatchExample((current) =>
+      current.elements ? { ...current, elements: false } : current
+    );
     setCustomElement('');
   };
 
@@ -813,7 +852,6 @@ export function WeddingWizard() {
     setWeddingDate('');
     setNameDisplay('initials_amp');
     setStyle('botanical_watercolor');
-    setComposition('');
     setTypography('editorial_rose');
     setFrameId(null);
     setPalette(weddingPalettes[0].colors);
@@ -856,13 +894,19 @@ export function WeddingWizard() {
       });
       const text = await response.text();
       const body = text ? JSON.parse(text) : {};
-      if (!response.ok) {
-        toast.error(body?.error || t('personal_image_upload_error'));
+      const payload = body?.data ?? body;
+      if (
+        !response.ok ||
+        (body?.code !== undefined && body.code !== 0)
+      ) {
+        toast.error(
+          body?.message || body?.error || t('personal_image_upload_error')
+        );
         return;
       }
-      const urls: string[] = body?.urls ?? [];
+      const urls: string[] = payload?.urls ?? [];
       if (urls.length === 0) {
-        toast.error(t('personal_image_upload_error'));
+        toast.error(body?.message || t('personal_image_upload_error'));
         return;
       }
       setPersonalImages((current) => [...current, ...urls].slice(0, MAX_PERSONAL_IMAGES));
@@ -897,7 +941,6 @@ export function WeddingWizard() {
           partner2: partner2.trim(),
           weddingDate: weddingDate || null,
           style,
-          composition,
           typography,
           palette,
           location: location.trim() || null,
@@ -976,7 +1019,10 @@ export function WeddingWizard() {
         }
       );
       const generateRaw = await generateResponse.text();
-      let generateEnvelope: ApiEnvelope<{ candidates?: string[] }> = {};
+      let generateEnvelope: ApiEnvelope<{
+        candidates?: string[];
+        generatedProjectId?: string | null;
+      }> = {};
       if (generateRaw) {
         try {
           generateEnvelope = JSON.parse(generateRaw);
@@ -1005,7 +1051,40 @@ export function WeddingWizard() {
             ? t('submit_error')
             : `${generateResponse.status} ${generateResponse.statusText || ''}`.trim() ||
               t('submit_error');
-        toast.error(detailed, { duration: 8000 });
+        const generatedProjectId =
+          generateEnvelope.data?.generatedProjectId;
+        if (generatedProjectId) {
+          toast.custom(
+            (toastId) => (
+              <div
+                role="alert"
+                className="bg-background text-foreground flex max-w-md items-start gap-3 rounded-lg border p-4 text-sm shadow-lg"
+              >
+                <p className="flex-1 leading-5">
+                  {detailed}{' '}
+                  <Link
+                    href={`/design/${generatedProjectId}`}
+                    className="text-primary font-medium underline underline-offset-2"
+                    onClick={() => toast.dismiss(toastId)}
+                  >
+                    {t('one_generated_project')}
+                  </Link>
+                </p>
+                <button
+                  type="button"
+                  aria-label={t('dismiss')}
+                  className="text-muted-foreground hover:text-foreground -mt-1 -mr-1 px-1 text-lg leading-none"
+                  onClick={() => toast.dismiss(toastId)}
+                >
+                  ×
+                </button>
+              </div>
+            ),
+            { duration: Infinity }
+          );
+        } else {
+          toast.error(detailed, { duration: 8000 });
+        }
         if (!isUserFacing) {
           // System errors (5xx, network failures, unexpected 200+code:-1
           // from routes that haven't migrated to 4xx yet). Log the full
@@ -1056,34 +1135,6 @@ export function WeddingWizard() {
   // the style picker and just show a read-only "from your example" hint.
   const hideStylePicker = fromExampleStyle !== null;
 
-  // One composed SVG per layout in the current style, used as thumbnails
-  // in the composition picker. The sample is intentionally neutral and
-  // stable so the grid doesn't thrash as the user types their names.
-  const compositionPreviews = useMemo(() => {
-    return styleLayouts.map((layout) => {
-      const svg = composeWeddingCrest({
-        partner1: 'Sample',
-        partner2: 'Sample',
-        initials: ['S', 'S'],
-        weddingDate: '2027-06-12',
-        style,
-        layout: layout.id,
-        typography,
-        palette,
-        flowers: [],
-        personalElements: [],
-        complexity: 'medium',
-        nameDisplay: 'initials_amp',
-        showDate: true,
-        frameId: null,
-        frameUrl: null,
-        location: null,
-        venue: null,
-      });
-      return { layout, svg };
-    });
-  }, [styleLayouts, style, typography, palette]);
-
   // The preview panel only appears when an example photo is attached
   // (?exampleId= in the URL). Without it, the right column would just hold
   // a misleading placeholder, so the entire panel (and its grid track)
@@ -1100,6 +1151,10 @@ export function WeddingWizard() {
             </h1>
             <p className="text-muted-foreground mt-3 text-balance">
               {t('description')}
+            </p>
+            <p className="text-muted-foreground mt-2 text-xs">
+              <span className="font-medium text-foreground">*</span>{' '}
+              {t('required')} · {t('optional')}
             </p>
           </div>
         </ScrollAnimation>
@@ -1191,7 +1246,9 @@ export function WeddingWizard() {
               <div className="space-y-6">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="partner1">{t('partner1')}</Label>
+                    <Label htmlFor="partner1">
+                      {t('partner1')} <span aria-hidden>*</span>
+                    </Label>
                     <Input
                       id="partner1"
                       value={partner1}
@@ -1201,7 +1258,9 @@ export function WeddingWizard() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="partner2">{t('partner2')}</Label>
+                    <Label htmlFor="partner2">
+                      {t('partner2')} <span aria-hidden>*</span>
+                    </Label>
                     <Input
                       id="partner2"
                       value={partner2}
@@ -1212,7 +1271,12 @@ export function WeddingWizard() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="weddingDate">{t('wedding_date')}</Label>
+                  <Label htmlFor="weddingDate">
+                    {t('wedding_date')}{' '}
+                    <span className="text-muted-foreground text-xs">
+                      ({t('optional')})
+                    </span>
+                  </Label>
                   <Input
                     id="weddingDate"
                     type="date"
@@ -1221,7 +1285,12 @@ export function WeddingWizard() {
                   />
                 </div>
                 <div className="space-y-3">
-                  <Label>{t('name_display')}</Label>
+                  <Label>
+                    {t('name_display')}{' '}
+                    <span className="text-muted-foreground text-xs">
+                      ({t('optional')})
+                    </span>
+                  </Label>
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                     {(
                       [
@@ -1270,7 +1339,7 @@ export function WeddingWizard() {
                     />
                     <div className="min-w-0 flex-1">
                       <p className="text-xs tracking-widest uppercase text-muted-foreground">
-                        {t('choose_style')}
+                        {t('choose_style')} <span aria-hidden>*</span>
                       </p>
                       <p className="truncate text-sm font-medium">
                         {styleConfig?.name ?? fromExampleStyle}
@@ -1279,7 +1348,9 @@ export function WeddingWizard() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <Label>{t('choose_style')}</Label>
+                    <Label>
+                      {t('choose_style')} <span aria-hidden>*</span>
+                    </Label>
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                       {weddingStyles.map((styleOption) => (
                         <button
@@ -1310,47 +1381,9 @@ export function WeddingWizard() {
                 )}
 
                 <div className="space-y-3">
-                  <Label>{t('choose_composition')}</Label>
-                  {/* Image-first composition picker. The text descriptions
-                      ("symmetrical oval arrangement...") weren't
-                      scannable, so we render a tiny composed crest per
-                      layout — the shape is what the user is actually
-                      choosing between. The selected card gets a
-                      primary-color ring; everything else is a quiet
-                      border. */}
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                    {compositionPreviews.map(({ layout, svg }) => {
-                      const isSelected = composition === layout.composition;
-                      return (
-                        <button
-                          key={layout.id}
-                          type="button"
-                          onClick={() => setComposition(layout.composition)}
-                          aria-label={layout.shape}
-                          className={cn(
-                            'bg-wedding-ivory group block overflow-hidden rounded-xl border-2 text-left transition-colors',
-                            isSelected
-                              ? 'border-primary'
-                              : 'border-transparent hover:border-primary/40'
-                          )}
-                        >
-                          <div
-                            className="aspect-square w-full p-2 [&>svg]:h-full [&>svg]:w-full"
-                            role="img"
-                            aria-hidden
-                            dangerouslySetInnerHTML={{ __html: svg }}
-                          />
-                          <div className="bg-background/90 truncate px-2 py-1.5 text-xs capitalize">
-                            {layout.shape}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <Label>{t('choose_typography')}</Label>
+                  <Label>
+                    {t('choose_typography')} <span aria-hidden>*</span>
+                  </Label>
                   <div className="grid gap-2 sm:grid-cols-2">
                     {(
                       weddingStyles.find((s) => s.id === style)?.typography ??
@@ -1432,7 +1465,12 @@ export function WeddingWizard() {
             {step === 2 && (
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <Label className="text-base">{t('border')}</Label>
+                  <Label className="text-base">
+                    {t('border')}{' '}
+                    <span className="text-muted-foreground text-xs">
+                      ({t('optional')})
+                    </span>
+                  </Label>
                   <p className="text-muted-foreground text-sm">
                     {t('border_hint')}
                   </p>
@@ -1472,10 +1510,12 @@ export function WeddingWizard() {
                             border: true,
                           }));
                         }}
+                        aria-pressed={matchExample.border}
+                        data-selected={matchExample.border}
                         className={cn(
                           'w-36 shrink-0 snap-start overflow-hidden rounded-xl border-2 text-left transition-colors sm:w-44',
                           matchExample.border
-                            ? 'border-primary'
+                            ? 'border-primary bg-accent ring-primary/30 ring-2 shadow-sm'
                             : 'border-transparent hover:border-primary/40'
                         )}
                       >
@@ -1489,6 +1529,14 @@ export function WeddingWizard() {
                           <span className="bg-background/80 absolute right-1 bottom-1 rounded-full px-2 py-0.5 text-[10px] font-medium tracking-wide uppercase shadow">
                             {t('same_as_example')}
                           </span>
+                          {matchExample.border ? (
+                            <span
+                              aria-hidden
+                              className="bg-primary text-primary-foreground absolute top-2 right-2 flex size-5 items-center justify-center rounded-full text-xs font-bold shadow"
+                            >
+                              ✓
+                            </span>
+                          ) : null}
                         </div>
                         <div className="bg-background/90 truncate px-2 py-1 text-xs">
                           {t('same_as_example')}
@@ -1499,29 +1547,38 @@ export function WeddingWizard() {
                       <button
                         key={frame.id}
                         type="button"
-                        onClick={() => {
-                          setFrameId(frame.id);
-                          setMatchExample((current) => ({
-                            ...current,
-                            border: false,
-                          }));
-                        }}
+                        onClick={() => selectFrame(frame.id)}
+                        aria-pressed={!matchExample.border && frameId === frame.id}
+                        data-selected={!matchExample.border && frameId === frame.id}
                         className={cn(
                           'w-36 shrink-0 snap-start overflow-hidden rounded-xl border-2 text-left transition-colors sm:w-44',
                           !matchExample.border && frameId === frame.id
-                            ? 'border-primary'
+                            ? 'border-primary bg-accent ring-primary/30 ring-2 shadow-sm'
                             : 'border-transparent hover:border-primary/40'
                         )}
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={frame.thumbnailUrl ?? frame.url}
-                          alt={frame.name}
-                          className="bg-wedding-ivory aspect-square w-full object-contain p-1"
-                          loading="lazy"
-                        />
-                        <div className="bg-background/90 truncate px-2 py-1 text-xs">
+                        <div className="bg-wedding-ivory relative aspect-square w-full p-1">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={frame.thumbnailUrl ?? frame.url}
+                            alt={frame.name}
+                            className="size-full object-contain"
+                            loading="lazy"
+                          />
+                          {!matchExample.border && frameId === frame.id ? (
+                            <span
+                              aria-hidden
+                              className="bg-primary text-primary-foreground absolute top-2 right-2 flex size-5 items-center justify-center rounded-full text-xs font-bold shadow"
+                            >
+                              ✓
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="bg-background/90 flex items-center justify-between gap-2 truncate px-2 py-1 text-xs">
                           {frame.name}
+                          {!matchExample.border && frameId === frame.id ? (
+                            <span className="text-primary shrink-0 font-semibold">✓</span>
+                          ) : null}
                         </div>
                       </button>
                     ))}
@@ -1534,7 +1591,7 @@ export function WeddingWizard() {
               <div className="space-y-8">
                 <div className="space-y-3">
                   <Label>
-                    {t('choose_palette')}{' '}
+                    {t('choose_palette')} <span aria-hidden>*</span>{' '}
                     <span className="text-muted-foreground text-xs">
                       ({palette.length}/{WEDDING_MAX_PALETTE_COLORS})
                     </span>
@@ -1625,7 +1682,12 @@ export function WeddingWizard() {
                 </div>
 
                 <div className="space-y-3">
-                  <Label>{t('custom_colors')}</Label>
+                  <Label>
+                    {t('custom_colors')}{' '}
+                    <span className="text-muted-foreground text-xs">
+                      ({t('optional')})
+                    </span>
+                  </Label>
                   <div className="flex flex-wrap gap-2">
                     {palette.map((color) => (
                       <button
@@ -1668,31 +1730,12 @@ export function WeddingWizard() {
 
             {step === 4 && (
               <div className="space-y-6">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="location">{t('location')}</Label>
-                    <Input
-                      id="location"
-                      value={location}
-                      maxLength={80}
-                      placeholder={t('location_placeholder')}
-                      onChange={(e) => setLocation(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="venue">{t('venue')}</Label>
-                    <Input
-                      id="venue"
-                      value={venue}
-                      maxLength={80}
-                      placeholder={t('venue_placeholder')}
-                      onChange={(e) => setVenue(e.target.value)}
-                    />
-                  </div>
-                </div>
                 <div className="space-y-3">
                   <Label>
                     {t('flowers')}{' '}
+                    <span className="text-muted-foreground text-xs">
+                      ({t('optional')})
+                    </span>{' '}
                     <span className="text-muted-foreground text-xs">
                       ({flowers.length}/{WEDDING_MAX_FLOWERS})
                     </span>
@@ -1758,6 +1801,38 @@ export function WeddingWizard() {
                     </Button>
                   </div>
                 </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="location">
+                      {t('location')}{' '}
+                      <span className="text-muted-foreground text-xs">
+                        ({t('optional')})
+                      </span>
+                    </Label>
+                    <Input
+                      id="location"
+                      value={location}
+                      maxLength={80}
+                      placeholder={t('location_placeholder')}
+                      onChange={(e) => setLocation(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="venue">
+                      {t('venue')}{' '}
+                      <span className="text-muted-foreground text-xs">
+                        ({t('optional')})
+                      </span>
+                    </Label>
+                    <Input
+                      id="venue"
+                      value={venue}
+                      maxLength={80}
+                      placeholder={t('venue_placeholder')}
+                      onChange={(e) => setVenue(e.target.value)}
+                    />
+                  </div>
+                </div>
               </div>
             )}
 
@@ -1767,6 +1842,9 @@ export function WeddingWizard() {
                   <Label>
                     {t('personal_elements')}{' '}
                     <span className="text-muted-foreground text-xs">
+                      ({t('optional')})
+                    </span>{' '}
+                    <span className="text-muted-foreground text-xs">
                       ({personalElements.length}/{WEDDING_MAX_PERSONAL_ELEMENTS})
                     </span>
                   </Label>
@@ -1774,26 +1852,6 @@ export function WeddingWizard() {
                     {t('personal_elements_hint')}
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {exampleImage ? (
-                      <button
-                        key="__same_as_example__"
-                        type="button"
-                        onClick={() => {
-                          setMatchExample((current) => ({
-                            ...current,
-                            elements: true,
-                          }));
-                        }}
-                        className={cn(
-                          'rounded-full border px-4 py-2 text-sm transition-colors',
-                          matchExample.elements
-                            ? 'border-primary bg-accent'
-                            : 'hover:border-primary/40'
-                        )}
-                      >
-                        {t('same_as_example')}
-                      </button>
-                    ) : null}
                     {weddingPersonalElementOptions.map((element) => (
                       <button
                         key={element}
@@ -1809,6 +1867,20 @@ export function WeddingWizard() {
                         {element}
                       </button>
                     ))}
+                    {personalElements
+                      .filter(
+                        (element) => !weddingPersonalElementOptions.includes(element)
+                      )
+                      .map((element) => (
+                        <button
+                          key={element}
+                          type="button"
+                          onClick={() => toggleElement(element)}
+                          className="border-primary bg-accent rounded-full border px-4 py-2 text-sm transition-colors"
+                        >
+                          {element} ×
+                        </button>
+                      ))}
                   </div>
                   <div className="flex gap-2">
                     <Input
@@ -1830,6 +1902,9 @@ export function WeddingWizard() {
                 <div className="space-y-3">
                   <Label>
                     {t('personal_image_upload_label')}{' '}
+                    <span className="text-muted-foreground text-xs">
+                      ({t('optional')})
+                    </span>{' '}
                     <span className="text-muted-foreground text-xs">
                       ({personalImages.length}/{MAX_PERSONAL_IMAGES})
                     </span>
@@ -1886,7 +1961,12 @@ export function WeddingWizard() {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <Label>{t('complexity')}</Label>
+                  <Label>
+                    {t('complexity')}{' '}
+                    <span className="text-muted-foreground text-xs">
+                      ({t('optional')})
+                    </span>
+                  </Label>
                   <div className="grid gap-2 sm:grid-cols-3">
                     {(
                       [
@@ -1942,12 +2022,6 @@ export function WeddingWizard() {
                         {t('choose_style')}
                       </dt>
                       <dd>{styleConfig?.name}</dd>
-                    </div>
-                    <div className="flex justify-between gap-4">
-                      <dt className="text-muted-foreground">
-                        {t('choose_composition')}
-                      </dt>
-                      <dd>{composition}</dd>
                     </div>
                     <div className="flex justify-between gap-4">
                       <dt className="text-muted-foreground">

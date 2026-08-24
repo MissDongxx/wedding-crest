@@ -67,5 +67,10 @@
   "border_empty": "Nenhuma moldura disponível para este estilo.",
   "border_frame": "Moldura",
   "same_as_example": "Igual ao exemplo",
-  "start_over": "Recomeçar"
+  "start_over": "Recomeçar",
+  "required": "Obrigatório",
+  "optional": "Opcional",
+  "remove": "Remover",
+  "one_generated_project": "projeto gerado",
+  "dismiss": "Fechar"
 }

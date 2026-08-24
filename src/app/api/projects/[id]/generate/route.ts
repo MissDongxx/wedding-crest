@@ -11,6 +11,7 @@ import {
   countProjectsWithGenerations,
   countWeddingGenerationBatches,
   createWeddingGeneration,
+  findWeddingProjectWithGeneration,
   getActiveWeddingPromptTemplate,
   getWeddingProject,
   hasPaidWeddingOrder,
@@ -94,7 +95,16 @@ export async function POST(
       // product state ("you've used your free generation, buy the pack").
       return respErr(
         allowance.reason ?? 'generation limit reached',
-        402
+        402,
+        batches === 0 &&
+        projectsWithGenerations >= 1 &&
+        user
+          ? {
+              generatedProjectId: await findWeddingProjectWithGeneration({
+                userId: user.id,
+              }),
+            }
+          : undefined
       );
 
     const body = inputSchema.parse(await request.json().catch(() => ({})));

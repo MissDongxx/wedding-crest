@@ -14,8 +14,8 @@ export function respOk() {
  * be able to branch on — e.g. 402 Payment Required for a quota-exceeded
  * response, 404 for missing rows, 500 for unhandled server errors.
  */
-export function respErr(message: string, status: number = 200) {
-  return respJson(-1, message, undefined, status);
+export function respErr(message: string, status: number = 200, data?: any) {
+  return respJson(-1, message, data, status);
 }
 
 export function respJson(

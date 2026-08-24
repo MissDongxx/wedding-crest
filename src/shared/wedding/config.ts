@@ -4,7 +4,9 @@ export const WEDDING_PROMPT_VERSION = 'wedding-illustration-v1';
 export const WEDDING_STYLE_VERSION = 'style-system-v1';
 export const WEDDING_LAYOUT_VERSION = 'layout-engine-v1';
 export const WEDDING_MAX_CANDIDATES = 1;
-export const WEDDING_FREE_REGENERATIONS = 1;
+// Free users get five total generation batches: the initial generation plus
+// four regenerations.
+export const WEDDING_FREE_REGENERATIONS = 4;
 export const WEDDING_PAID_REGENERATIONS = 3;
 export const WEDDING_PACK_PRODUCT_ID = 'wedding_identity_pack';
 
@@ -80,7 +82,7 @@ export interface GenerationAllowance {
 
 /**
  * Hard generation quota (spec: cost protection). Guests get one generation
- * per device; signed-in free users get one project plus one regeneration;
+ * per device; signed-in free users get one project plus four regenerations;
  * paid users unlock three regenerations on the purchased project.
  */
 export function decideGenerationAllowance(
@@ -125,7 +127,7 @@ export function decideGenerationAllowance(
     return {
       allowed: false,
       reason:
-        'The free plan includes one regeneration. Unlock the Wedding Identity Pack for three more.',
+        'The free plan includes four regenerations. Unlock the Wedding Identity Pack for three more.',
       maxBatches: WEDDING_FREE_MAX_BATCHES,
     };
   }

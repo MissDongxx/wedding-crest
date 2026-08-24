@@ -67,5 +67,10 @@
   "border_empty": "Aucun cadre disponible pour ce style.",
   "border_frame": "Cadre",
   "same_as_example": "Comme l'exemple",
-  "start_over": "Recommencer"
+  "start_over": "Recommencer",
+  "required": "Obligatoire",
+  "optional": "Facultatif",
+  "remove": "Supprimer",
+  "one_generated_project": "projet généré",
+  "dismiss": "Fermer"
 }

@@ -67,5 +67,10 @@
   "border_empty": "Nessuna cornice disponibile per questo stile.",
   "border_frame": "Cornice",
   "same_as_example": "Come nell'esempio",
-  "start_over": "Ricomincia"
+  "start_over": "Ricomincia",
+  "required": "Obbligatorio",
+  "optional": "Facoltativo",
+  "remove": "Rimuovi",
+  "one_generated_project": "progetto generato",
+  "dismiss": "Chiudi"
 }

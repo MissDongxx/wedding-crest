@@ -138,7 +138,7 @@ group('Limits & quota', () => {
   );
   check('max palette colors = 3', WEDDING_MAX_PALETTE_COLORS === 3);
   check('guest max batches = 1', WEDDING_GUEST_MAX_BATCHES === 1);
-  check('free max batches = 2', WEDDING_FREE_MAX_BATCHES === 2);
+  check('free max batches = 5', WEDDING_FREE_MAX_BATCHES === 5);
   check('paid max batches = 4', WEDDING_PAID_MAX_BATCHES >= 4);
   check('free max projects = 1', WEDDING_FREE_MAX_PROJECTS === 1);
 
@@ -162,18 +162,18 @@ group('Limits & quota', () => {
     }).allowed
   );
   check(
-    'free user with 1 project + 2 batches NOT allowed',
+    'free user with 1 project + 5 batches NOT allowed',
     !decideGenerationAllowance({
-      batches: 2,
+      batches: 5,
       paid: false,
       isGuest: false,
       projectsWithGenerations: 1,
     }).allowed
   );
   check(
-    'free user with 1 project + 1 batch allowed',
+    'free user with 1 project + 4 batches allowed',
     decideGenerationAllowance({
-      batches: 1,
+      batches: 4,
       paid: false,
       isGuest: false,
       projectsWithGenerations: 1,
