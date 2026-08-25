@@ -1,13 +1,13 @@
 {
-  "name": "remove-gemini-watermark",
+  "name": "wedding-crest-design",
   "version": "1.8.2",
   "private": true,
-  "author": "RemoveGeminiWatermark Team",
+  "author": "Wedding Crest Design Team",
   "keywords": [
-    "remove-gemini-watermark",
-    "watermark-remover",
-    "gemini",
-    "ai-image-tool"
+    "wedding-crest-design",
+    "wedding-crest",
+    "wedding-monogram",
+    "ai-design-tool"
   ],
   "scripts": {
     "dev": "next dev --turbopack",

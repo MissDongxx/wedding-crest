@@ -78,14 +78,14 @@ export default async function BlogDetailPage({
     description: post.description,
     author: {
       '@type': 'Person',
-      name: post.author_name || 'RemoveGeminiWatermark',
+      name: post.author_name || 'Wedding Crest Design',
       ...(post.author_image ? { image: post.author_image } : {}),
     },
     datePublished: post.created_at,
     url: `${baseUrl}/blog/${slug}`,
     publisher: {
       '@type': 'Organization',
-      name: 'RemoveGeminiWatermark',
+      name: 'Wedding Crest Design',
       logo: {
         '@type': 'ImageObject',
         url: `${baseUrl}/logo.webp`,

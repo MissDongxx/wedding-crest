@@ -120,7 +120,7 @@ export async function getAuthOptions(
   ) {
     // If we're on Cloudflare but getting localhost, it means the default envConfig was used.
     // We should fallback to the known production domain as a last resort.
-    runtimeBaseURL = 'https://removegeminiwatermark.org';
+    runtimeBaseURL = 'https://weddingcrestdesign.com';
   }
 
   if (process.env.NODE_ENV !== 'production' || configs.debug === 'true') {

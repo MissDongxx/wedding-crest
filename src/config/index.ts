@@ -1,6 +1,7 @@
 import packageJson from '../../package.json';
 
 export const WEDDING_DB_SCHEMA = 'wedding-crest';
+const DEFAULT_APP_URL = 'https://weddingcrestdesign.com';
 
 const databaseProvider = process.env.DATABASE_PROVIDER ?? 'postgresql';
 
@@ -10,7 +11,7 @@ const databaseProvider = process.env.DATABASE_PROVIDER ?? 'postgresql';
 export type ConfigMap = Record<string, string>;
 
 export const envConfigs: ConfigMap = {
-  app_url: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
+  app_url: process.env.NEXT_PUBLIC_APP_URL?.trim() || DEFAULT_APP_URL,
   app_name: process.env.NEXT_PUBLIC_APP_NAME ?? 'Wedding Crest Design',
   app_description: process.env.NEXT_PUBLIC_APP_DESCRIPTION ?? '',
   app_logo: process.env.NEXT_PUBLIC_APP_LOGO ?? '/logo.webp',
@@ -40,7 +41,10 @@ export const envConfigs: ConfigMap = {
     process.env.DB_MIGRATIONS_OUT ?? './src/config/db/migrations',
   db_singleton_enabled: process.env.DB_SINGLETON_ENABLED || 'false',
   db_max_connections: process.env.DB_MAX_CONNECTIONS || '1',
-  auth_url: process.env.AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || '',
+  auth_url:
+    process.env.AUTH_URL?.trim() ||
+    process.env.NEXT_PUBLIC_APP_URL?.trim() ||
+    DEFAULT_APP_URL,
   auth_secret: process.env.AUTH_SECRET ?? '', // openssl rand -base64 32
   version: packageJson.version,
   locale_detect_enabled:

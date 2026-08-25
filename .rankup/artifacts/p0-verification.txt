@@ -1,0 +1,30 @@
+# P0 verification record
+
+Working directory: `/Users/xumingyue/Downloads/MyProjects/wedding-crest2`
+
+Baseline hash record (before P0 edits): `/tmp/wedding-crest2-p0-baseline-20260825.txt`
+
+1. `pnpm exec tsc --noEmit --pretty false`
+   exit: 0
+
+2. Targeted ESLint over changed TypeScript/TSX files
+   exit: 0
+   result: 0 errors; existing warnings only.
+
+3. Locale JSON parse walk over `src/config/locale/messages`
+   exit: 0
+   result: all locale JSON files parsed successfully.
+
+4. `git diff --check`
+   exit: 0
+
+5. `pnpm build`
+   exit: 0
+   result: compiled successfully; static pages 35/35 generated.
+   known warnings: existing Next config/workspace-root warnings and repository lint warnings.
+
+6. Runtime homepage check
+   command: `curl -sS -L --max-time 30 http://localhost:3000/`
+   result: HTTP 200, 369846 bytes (after initial dev compilation).
+   assertions: title, description, H1, one-Crest pricing copy matched; old `3 crest candidates` and `9 more crest candidates` did not match.
+   server log: GET `/` 200; no runtime exception observed.

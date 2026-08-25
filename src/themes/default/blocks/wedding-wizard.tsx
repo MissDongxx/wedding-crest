@@ -8,7 +8,7 @@ import {
   type CSSProperties,
 } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
@@ -202,12 +202,22 @@ function fontSpecStyle(
 export function WeddingWizard() {
   const t = useTranslations('pages.create');
   const searchParams = useSearchParams();
+  // When the result page sends the user back to the create flow to make
+  // tweaks, it links to /create?edit=<projectId>. The wizard then runs
+  // in "edit mode": prefill from the project, persist the final values
+  // via PATCH instead of POST, and end in /design/<id> (regenerate).
+  const editId = searchParams.get('edit') ?? null;
+  const isEditMode = editId !== null;
 
   // Keep the server render deterministic. localStorage is restored in an
   // effect below; reading it during render would make the first client tree
   // differ from the server tree and trigger a hydration mismatch.
   const persisted = useMemo<Partial<PersistedWizardState>>(() => ({}), []);
   const [isHydrated, setIsHydrated] = useState(false);
+  // True once the edit-mode prefill from GET /api/projects/<id> has
+  // landed. Submission stays disabled until then so we never post back
+  // an empty form to the server.
+  const [isEditPrefilled, setIsEditPrefilled] = useState(!isEditMode);
 
   // step 1: names
   const [partner1, setPartner1] = useState(
@@ -338,11 +348,27 @@ export function WeddingWizard() {
       : MATCH_EXAMPLE_DEFAULT
   );
 
+  // Real product photos the user can start from on Step 2. Only loaded
+  // for users who arrived without an example (?exampleId=), to give them
+  // a one-click shortcut into a fully styled wizard. Fetched on demand
+  // when they reach the style step so the initial render stays light.
+  const [startExamples, setStartExamples] = useState<
+    Array<{ id: string; name: string; style: string; imageUrl: string; altText?: string | null }>
+  >([]);
+  const [startExamplesLoading, setStartExamplesLoading] = useState(false);
+  const router = useRouter();
+
   // Restore the saved draft only after hydration. This keeps SSR markup
   // stable while retaining the draft across refreshes. The persistence
   // effect below is gated by isHydrated so the default state never
-  // overwrites the saved draft during the same mount.
+  // overwrites the saved draft during the same mount. Edit mode skips
+  // this: the project prefill effect below hydrates state from the
+  // server, and we don't want a stale draft to clobber it.
   useEffect(() => {
+    if (isEditMode) {
+      setIsHydrated(true);
+      return;
+    }
     const saved = readPersistedWizardState();
 
     if (typeof saved.partner1 === 'string') setPartner1(saved.partner1);
@@ -385,7 +411,86 @@ export function WeddingWizard() {
     }
 
     setIsHydrated(true);
-  }, []);
+  }, [isEditMode]);
+
+  // Edit-mode prefill: when the result page links back to /create?edit=<id>
+  // we fetch the project, hydrate every wizard field from its current
+  // state, and land the user on the review step so they can pick what
+  // to change. We do NOT touch localStorage in edit mode (the persist
+  // effect below is gated on isEditMode), so a stale draft from a prior
+  // fresh-wizard session doesn't pollute the edit.
+  useEffect(() => {
+    if (!isEditMode || !editId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const guestId =
+          typeof window !== 'undefined'
+            ? localStorage.getItem('wedding_guest_id')
+            : null;
+        const response = await fetch(`/api/projects/${editId}`, {
+          headers: guestId ? { 'x-wedding-guest-id': guestId } : {},
+          cache: 'no-store',
+        });
+        if (!response.ok) {
+          toast.error(t('edit_load_error'));
+          return;
+        }
+        const envelope = await response.json().catch(() => ({}));
+        const project = envelope?.data?.project;
+        if (cancelled || !project) {
+          toast.error(t('edit_load_error'));
+          return;
+        }
+        const input = project.input ?? {};
+        if (typeof project.partner1 === 'string') setPartner1(project.partner1);
+        if (typeof project.partner2 === 'string') setPartner2(project.partner2);
+        if (typeof project.weddingDate === 'string' && project.weddingDate) {
+          setWeddingDate(project.weddingDate);
+        }
+        if (isWeddingNameDisplay(input.nameDisplay)) setNameDisplay(input.nameDisplay);
+        if (
+          typeof project.style === 'string' &&
+          weddingStyles.some((candidate) => candidate.id === project.style)
+        ) {
+          setStyle(project.style);
+        }
+        if (typeof project.typography === 'string') {
+          setTypography(project.typography);
+        }
+        if (input.frameId === null || typeof input.frameId === 'string') {
+          setFrameId(input.frameId ?? null);
+        }
+        if (Array.isArray(input.palette) && input.palette.length > 0) {
+          setPalette(input.palette);
+        }
+        if (typeof input.location === 'string') setLocation(input.location);
+        if (typeof input.venue === 'string') setVenue(input.venue);
+        if (Array.isArray(input.flowers)) setFlowers(input.flowers);
+        if (Array.isArray(input.personalElements)) {
+          setPersonalElements(input.personalElements);
+        }
+        if (Array.isArray(input.personalImages)) {
+          setPersonalImages(input.personalImages);
+        }
+        if (isWeddingComplexity(input.complexity)) setComplexity(input.complexity);
+        // Land the user on the review step so they see the summary of
+        // the existing design and only navigate back to change a field.
+        const reviewStep = WIZARD_STEPS.length - 1;
+        setStep(reviewStep);
+        setIsEditPrefilled(true);
+      } catch (error) {
+        if (!cancelled) {
+          toast.error(
+            error instanceof Error ? error.message : t('edit_load_error')
+          );
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [editId, isEditMode, t]);
 
   // Persist the form state to localStorage on every change. Writing on
   // every state mutation is fine here — the payload is small (a few
@@ -397,7 +502,11 @@ export function WeddingWizard() {
   // - submitting / examplePending / uploadingImages are flags that would
   //   look stuck if a refresh happens mid-flight.
   // - frames are refetched from the API based on `style`.
+  // Edit mode is excluded: the project is the source of truth and any
+  // local draft from a prior fresh-wizard session would otherwise leak
+  // back into it on the next visit.
   useEffect(() => {
+    if (isEditMode) return;
     if (!isHydrated || typeof window === 'undefined') return;
     try {
       const payload: PersistedWizardState = {
@@ -427,6 +536,7 @@ export function WeddingWizard() {
       // still works in memory.
     }
   }, [
+    isEditMode,
     step,
     partner1,
     partner2,
@@ -647,6 +757,54 @@ export function WeddingWizard() {
       current && frames.some((frame) => frame.id === current) ? current : null
     );
   }, [frames, framesLoading]);
+
+  // When the user reaches the Style step (step 1) without an example
+  // attached, fetch a small set of real product photos for the currently
+  // selected style. Showing them under the style card gives the user a
+  // one-click "start from this look" shortcut — they tap a photo and
+  // the wizard refills with that example's image and palette. We only
+  // refetch when the selected style changes to keep the bandwidth small.
+  useEffect(() => {
+    if (step !== 1) return;
+    if (fromExampleStyle) return;
+    if (exampleImage || examplePending) return;
+    let cancelled = false;
+    setStartExamplesLoading(true);
+    (async () => {
+      try {
+        const resp = await fetch(
+          `/api/wedding/examples?style=${encodeURIComponent(style)}`
+        );
+        const json: ApiEnvelope<{
+          items: Array<{
+            id: string;
+            name: string;
+            style: string;
+            imageUrl: string;
+            altText?: string | null;
+          }>;
+        }> = await resp.json();
+        if (cancelled) return;
+        const items = (json?.data?.items ?? []).filter(
+          (item): item is {
+            id: string;
+            name: string;
+            style: string;
+            imageUrl: string;
+            altText?: string | null;
+          } => Boolean(item?.imageUrl)
+        );
+        setStartExamples(items.slice(0, 8));
+      } catch {
+        if (!cancelled) setStartExamples([]);
+      } finally {
+        if (!cancelled) setStartExamplesLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [step, style, fromExampleStyle, exampleImage, examplePending]);
 
   const previewInput = useMemo(
     () => {
@@ -930,37 +1088,46 @@ export function WeddingWizard() {
           ? localStorage.getItem('wedding_guest_id')
           : null;
 
-      const response = await fetch('/api/projects', {
-        method: 'POST',
+      // Edit mode: send a PATCH so the existing project (and its
+      // generation history) is updated in place. Create mode still
+      // POSTs a brand-new project as before.
+      const payload = {
+        partner1: partner1.trim(),
+        partner2: partner2.trim(),
+        weddingDate: weddingDate || null,
+        style,
+        typography,
+        palette,
+        location: location.trim() || null,
+        venue: venue.trim() || null,
+        flowers,
+        personalElements,
+        personalImages,
+        frameId,
+        complexity,
+        nameDisplay,
+        showDate: Boolean(weddingDate),
+        // "Same as example" wiring. The exampleId is read from the URL
+        // (we kept it as a search param so deep links survive a refresh)
+        // and the matchExample flags carry the four "match the example
+        // image" toggles the user set on the wizard's property pickers.
+        // The server resolves the id, fetches the active example, and
+        // validates the image URL before persisting it.
+        exampleId: searchParams.get('exampleId') || undefined,
+        matchExample,
+      };
+
+      const requestUrl = isEditMode && editId
+        ? `/api/projects/${editId}`
+        : '/api/projects';
+      const requestMethod = isEditMode ? 'PATCH' : 'POST';
+      const response = await fetch(requestUrl, {
+        method: requestMethod,
         headers: {
           'Content-Type': 'application/json',
           ...(guestId ? { 'x-wedding-guest-id': guestId } : {}),
         },
-        body: JSON.stringify({
-          partner1: partner1.trim(),
-          partner2: partner2.trim(),
-          weddingDate: weddingDate || null,
-          style,
-          typography,
-          palette,
-          location: location.trim() || null,
-          venue: venue.trim() || null,
-          flowers,
-          personalElements,
-          personalImages,
-          frameId,
-          complexity,
-          nameDisplay,
-          showDate: Boolean(weddingDate),
-          // "Same as example" wiring. The exampleId is read from the URL
-          // (we kept it as a search param so deep links survive a refresh)
-          // and the matchExample flags carry the four "match the example
-          // image" toggles the user set on the wizard's property pickers.
-          // The server resolves the id, fetches the active example, and
-          // validates the image URL before persisting it.
-          exampleId: searchParams.get('exampleId') || undefined,
-          matchExample,
-        }),
+        body: JSON.stringify(payload),
       });
 
       // Read raw text first so a non-JSON (e.g. 500 HTML) response still
@@ -991,13 +1158,18 @@ export function WeddingWizard() {
           : statusLine || t('submit_error');
         toast.error(detailed, { duration: 8000 });
         // eslint-disable-next-line no-console
-        console.error('[wedding-wizard] create failed', {
+        console.error('[wedding-wizard] save failed', {
           status: response.status,
+          method: requestMethod,
           body: rawText,
         });
         return;
       }
-      if (!data.project?.id) {
+      // The PATCH response wraps the updated project under
+      // `data.project`; the POST response also does. Normalize the
+      // project id either way.
+      const projectId = data.project?.id ?? (isEditMode ? editId : null);
+      if (!projectId) {
         toast.error(t('submit_error'));
         return;
       }
@@ -1007,7 +1179,7 @@ export function WeddingWizard() {
       }
 
       const generateResponse = await fetch(
-        `/api/projects/${data.project.id}/generate`,
+        `/api/projects/${projectId}/generate`,
         {
           method: 'POST',
           headers: {
@@ -1105,10 +1277,12 @@ export function WeddingWizard() {
         return;
       }
 
-      window.location.href = `/design/${data.project.id}`;
+      window.location.href = `/design/${projectId}`;
       // Clear the in-progress draft so the next visit to /create starts
       // fresh. We do this after the redirect is queued so the
-      // localStorage write doesn't race the navigation.
+      // localStorage write doesn't race the navigation. Edit mode
+      // doesn't write a draft in the first place (the persistence
+      // effect is gated), so this is a no-op there.
       clearPersistedWizardState();
     } catch (error) {
       // Network failure, AbortError, JSON parse, etc.
@@ -1147,11 +1321,21 @@ export function WeddingWizard() {
         <ScrollAnimation>
           <div className="mx-auto mb-3 max-w-2xl text-center">
             <h1 className="font-serif text-3xl font-medium text-balance md:text-4xl">
-              {t('title')}
+              {isEditMode ? t('edit_title') : t('title')}
             </h1>
             <p className="text-muted-foreground mt-3 text-balance">
-              {t('description')}
+              {isEditMode ? t('edit_description') : t('description')}
             </p>
+            {isEditMode && editId && (
+              <p className="text-muted-foreground mt-3 text-xs">
+                <Link
+                  href={`/design/${editId}`}
+                  className="underline underline-offset-4 hover:text-foreground"
+                >
+                  {t('edit_back_to_crest')}
+                </Link>
+              </p>
+            )}
             <p className="text-muted-foreground mt-2 text-xs">
               <span className="font-medium text-foreground">*</span>{' '}
               {t('required')} · {t('optional')}
@@ -1347,36 +1531,115 @@ export function WeddingWizard() {
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    <Label>
-                      {t('choose_style')} <span aria-hidden>*</span>
-                    </Label>
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                      {weddingStyles.map((styleOption) => (
-                        <button
-                          key={styleOption.id}
-                          type="button"
-                          onClick={() => setStyle(styleOption.id)}
-                          className={cn(
-                            'rounded-xl border p-3 text-left transition-colors',
-                            style === styleOption.id
-                              ? 'border-primary bg-accent'
-                              : 'hover:border-primary/40'
-                          )}
-                        >
-                          <div
-                            className="mb-2 h-2 w-8 rounded-full"
-                            style={{ background: styleOption.previewColor }}
-                          />
-                          <p className="text-sm font-medium">
-                            {styleOption.name}
-                          </p>
-                          <p className="text-muted-foreground text-xs">
-                            {styleOption.tagline}
-                          </p>
-                        </button>
-                      ))}
+                  <div className="space-y-5">
+                    <div className="space-y-3">
+                      <Label>
+                        {t('choose_style')} <span aria-hidden>*</span>
+                      </Label>
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                        {weddingStyles.map((styleOption) => (
+                          <button
+                            key={styleOption.id}
+                            type="button"
+                            onClick={() => setStyle(styleOption.id)}
+                            className={cn(
+                              'rounded-xl border p-3 text-left transition-colors',
+                              style === styleOption.id
+                                ? 'border-primary bg-accent'
+                                : 'hover:border-primary/40'
+                            )}
+                          >
+                            <div
+                              className="mb-2 h-2 w-8 rounded-full"
+                              style={{ background: styleOption.previewColor }}
+                            />
+                            <p className="text-sm font-medium">
+                              {styleOption.name}
+                            </p>
+                            <p className="text-muted-foreground text-xs">
+                              {styleOption.tagline}
+                            </p>
+                          </button>
+                        ))}
+                      </div>
                     </div>
+
+                    {/* Quick-start from a real example: shows a row of
+                        admin-uploaded crests for the *currently selected*
+                        style. Tapping a thumbnail rewrites the URL with
+                        ?exampleId= and ?style= so the example effect
+                        refills the wizard with the photo + palette, and
+                        the user's style choice is preserved. Hidden while
+                        an example is already attached (the read-only
+                        "from your example" panel above already implies a
+                        one-pick shortcut) and during the initial fetch so
+                        the row never flickers. */}
+                    {startExamples.length > 0 ? (
+                      <div className="space-y-3">
+                        <div className="flex items-baseline justify-between gap-2">
+                          <p className="text-muted-foreground text-xs tracking-[0.2em] uppercase">
+                            {t('start_from_example')}
+                          </p>
+                          <Link
+                            href="/examples"
+                            className="text-muted-foreground hover:text-foreground text-xs underline-offset-4 hover:underline"
+                          >
+                            {t('see_more_examples')}
+                          </Link>
+                        </div>
+                        <div className="-mx-1 flex snap-x gap-3 overflow-x-auto px-1 pb-1">
+                          {startExamples.map((example) => {
+                            const names = example.name
+                              .split('&')
+                              .map((n) => n.trim());
+                            const [p1, p2] =
+                              names.length === 2
+                                ? [names[0], names[1]]
+                                : [example.name, ''];
+                            return (
+                              <button
+                                key={example.id}
+                                type="button"
+                                onClick={() => {
+                                  // Carry the user's current style choice
+                                  // through the deep link so the example's
+                                  // style doesn't override it.
+                                  const params = new URLSearchParams();
+                                  params.set('style', style);
+                                  params.set('exampleId', example.id);
+                                  router.push(`/create?${params.toString()}`);
+                                }}
+                                className="border-border/60 hover:border-primary/40 group w-28 shrink-0 snap-start overflow-hidden rounded-xl border text-left transition-colors sm:w-32"
+                                title={example.altText ?? example.name}
+                                aria-label={example.altText ?? example.name}
+                              >
+                                <div className="bg-wedding-ivory relative aspect-square w-full">
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img
+                                    src={example.imageUrl}
+                                    alt={example.altText ?? example.name}
+                                    className="size-full object-cover"
+                                    loading="lazy"
+                                  />
+                                </div>
+                                <div className="bg-background/90 px-2 py-1.5 text-xs">
+                                  <p className="truncate font-medium">
+                                    {p2 ? `${p1} & ${p2}` : p1}
+                                  </p>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <p className="text-muted-foreground text-xs">
+                          {t('start_from_example_hint')}
+                        </p>
+                      </div>
+                    ) : startExamplesLoading ? (
+                      <div className="text-muted-foreground text-xs">
+                        {t('start_from_example_loading')}
+                      </div>
+                    ) : null}
                   </div>
                 )}
 
@@ -2090,10 +2353,14 @@ export function WeddingWizard() {
                 <Button
                   size="lg"
                   className="w-full sm:w-auto"
-                  disabled={submitting}
+                  disabled={submitting || !isEditPrefilled}
                   onClick={submit}
                 >
-                  {submitting ? t('submitting') : t('generate')}
+                  {submitting
+                    ? t('submitting')
+                    : isEditMode
+                      ? t('edit_generate')
+                      : t('generate')}
                 </Button>
               </div>
             )}

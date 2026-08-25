@@ -13,8 +13,8 @@ export async function sendContactEmail(data: ContactFormData) {
   try {
     const emailService = await getEmailService();
 
-    const supportEmail = 'support@removegeminiwatermark.org';
-    const siteName = 'RemoveGeminiWatermark';
+    const supportEmail = 'support@weddingcrestdesign.com';
+    const siteName = 'Wedding Crest Design';
 
     const result = await emailService.sendEmail({
       to: supportEmail,

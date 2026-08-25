@@ -56,7 +56,7 @@ export async function WeddingHero({
   return (
     <section
       id={section.id}
-      className={`pt-12 pb-4 md:pt-20 ${className ?? ''}`}
+      className={`pt-24 pb-4 md:pt-48 lg:pt-56 ${className ?? ''}`}
     >
       <div className="mx-auto max-w-full px-4 text-center md:max-w-5xl">
         <ScrollAnimation>

@@ -1,7 +1,11 @@
 {
   "meta_title": "Wedding crest examples — Wedding Crest Design",
-  "meta_description": "Browse real wedding crests designed for couples. Tap any crest to start your own.",
+  "meta_description": "Browse real wedding crests designed for couples, grouped by style. Tap any crest to start your own.",
   "title": "Wedding crest examples",
-  "description": "Browse real crests designed for couples. Tap any crest to start your own with that style.",
+  "description": "Browse real crests designed for couples, grouped by style. Tap any crest to start your own with that style.",
+  "empty": "No examples yet. Check back soon or start from a blank crest.",
+  "browse_all": "Browse this style",
+  "start_from_this": "Start from this",
+  "couple_format": "{p1} & {p2}",
   "detail_meta_title": "{title} — wedding crest example"
 }

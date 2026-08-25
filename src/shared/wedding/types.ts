@@ -55,6 +55,13 @@ export interface WeddingTypographyPairing {
   id: string;
   name: string;
   description: string;
+  /**
+   * Lettering style description sent verbatim to the image model when
+   * the AI renders the couple's inscriptions into the crest artwork.
+   * Describes the *look* of the lettering (e.g. "classical Roman
+   * capital engraving") rather than font file names.
+   */
+  prompt: string;
   initialsFont: WeddingFontSpec;
   namesFont: WeddingFontSpec;
   dateFont: WeddingFontSpec;
@@ -163,8 +170,6 @@ export const weddingStyles: WeddingStyle[] = [
     medium: 'delicate hand-painted watercolor',
     aesthetic: ['luxury wedding stationery', 'editorial', 'romantic'],
     forbidden: [
-      'text',
-      'letters',
       '3d rendering',
       'cartoon style',
       'clip art',
@@ -184,8 +189,6 @@ export const weddingStyles: WeddingStyle[] = [
     medium: 'refined single-line ink drawing',
     aesthetic: ['modern', 'minimal', 'architectural'],
     forbidden: [
-      'text',
-      'letters',
       'watercolor',
       'shading',
       'cartoon style',
@@ -205,8 +208,6 @@ export const weddingStyles: WeddingStyle[] = [
     medium: 'classic copperplate engraving',
     aesthetic: ['heirloom', 'estate', 'european classic'],
     forbidden: [
-      'text',
-      'letters',
       'watercolor',
       'gradient',
       'cartoon style',
@@ -226,8 +227,6 @@ export const weddingStyles: WeddingStyle[] = [
     medium: 'soft expressive gouache painting',
     aesthetic: ['italian villa', 'golden hour', 'romantic'],
     forbidden: [
-      'text',
-      'letters',
       '3d rendering',
       'cartoon style',
       'clip art',
@@ -247,8 +246,6 @@ export const weddingStyles: WeddingStyle[] = [
     medium: 'airy watercolor with fine ink accents',
     aesthetic: ['seaside', 'destination wedding', 'sun-washed'],
     forbidden: [
-      'text',
-      'letters',
       '3d rendering',
       'cartoon style',
       'clip art',
@@ -268,8 +265,6 @@ export const weddingStyles: WeddingStyle[] = [
     medium: 'rich classical oil-painted detail',
     aesthetic: ['black tie', 'ballroom', 'refined luxury'],
     forbidden: [
-      'text',
-      'letters',
       'watercolor',
       'cartoon style',
       'clip art',
@@ -470,6 +465,8 @@ export const weddingTypography: WeddingTypographyPairing[] = [
     id: 'editorial_rose',
     name: 'Editorial Rose',
     description: 'Elegant serif initials with classic supporting text.',
+    prompt:
+      'elegant high-contrast serif lettering with refined editorial grace (in the spirit of Cormorant Garamond)',
     initialsFont: {
       family: 'Cormorant Garamond',
       weight: 500,
@@ -487,6 +484,8 @@ export const weddingTypography: WeddingTypographyPairing[] = [
     id: 'classic_caps',
     name: 'Classic Capitals',
     description: 'Roman capitals with small-caps detail.',
+    prompt:
+      'classical engraved Roman capital lettering (in the spirit of Trajan and Cinzel), timeless and formal',
     initialsFont: { family: 'Cinzel', weight: 500, letterSpacing: 8 },
     namesFont: { family: 'Libre Baskerville', weight: 400, letterSpacing: 2 },
     dateFont: {
@@ -500,6 +499,8 @@ export const weddingTypography: WeddingTypographyPairing[] = [
     id: 'modern_serif',
     name: 'Modern Serif',
     description: 'Contemporary serif balanced by a clean sans.',
+    prompt:
+      'contemporary serif lettering with a soft, slightly quirky character (in the spirit of Fraunces), balanced and modern',
     initialsFont: { family: 'Fraunces', weight: 500, letterSpacing: 4 },
     namesFont: { family: 'DM Sans', weight: 400, letterSpacing: 2 },
     dateFont: {
@@ -513,6 +514,8 @@ export const weddingTypography: WeddingTypographyPairing[] = [
     id: 'editorial_italic',
     name: 'Editorial Italic',
     description: 'Magazine-style italic with airy captions.',
+    prompt:
+      'graceful italic serif lettering with an airy magazine feel (in the spirit of EB Garamond italic)',
     initialsFont: {
       family: 'EB Garamond',
       weight: 500,
@@ -531,6 +534,8 @@ export const weddingTypography: WeddingTypographyPairing[] = [
     id: 'romantic_script',
     name: 'Romantic Script',
     description: 'Softly romantic serif with delicate spacing.',
+    prompt:
+      'softly romantic italic serif lettering with delicate flowing strokes (in the spirit of Cormorant Garamond italic)',
     initialsFont: {
       family: 'Cormorant Garamond',
       weight: 500,
@@ -549,6 +554,8 @@ export const weddingTypography: WeddingTypographyPairing[] = [
     id: 'minimal_sans',
     name: 'Minimal Sans',
     description: 'Understated modern sans throughout.',
+    prompt:
+      'clean minimal sans-serif lettering with generous letter spacing (in the spirit of Manrope)',
     initialsFont: { family: 'Manrope', weight: 500, letterSpacing: 10 },
     namesFont: { family: 'Manrope', weight: 400, letterSpacing: 3 },
     dateFont: {
@@ -562,6 +569,8 @@ export const weddingTypography: WeddingTypographyPairing[] = [
     id: 'vintage_engraving',
     name: 'Vintage Engraving',
     description: 'Engraved capitals with old-style serif text.',
+    prompt:
+      'vintage engraved capital lettering with old-style serif details (in the spirit of Cinzel), heirloom quality',
     initialsFont: { family: 'Cinzel', weight: 400, letterSpacing: 10 },
     namesFont: {
       family: 'EB Garamond',
@@ -580,6 +589,8 @@ export const weddingTypography: WeddingTypographyPairing[] = [
     id: 'coastal_light',
     name: 'Coastal Light',
     description: 'Light airy sans with a serif accent.',
+    prompt:
+      'light, airy sans-serif lettering (in the spirit of Source Sans Light), breezy and understated',
     initialsFont: { family: 'Source Sans 3', weight: 300, letterSpacing: 9 },
     namesFont: { family: 'Cormorant Garamond', weight: 500, letterSpacing: 2 },
     dateFont: {

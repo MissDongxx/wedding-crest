@@ -47,7 +47,12 @@ export function BrandLogo({
         />
       )}
       {brand.title && (
-        <span className="text-lg font-medium">{brand.title}</span>
+        <span
+          className="text-xl font-medium italic"
+          style={{ fontFamily: "'Fraunces', Georgia, serif" }}
+        >
+          {brand.title}
+        </span>
       )}
     </Link>
   );

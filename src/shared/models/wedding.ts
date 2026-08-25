@@ -349,6 +349,65 @@ export async function updateWeddingProject(
   return getWeddingProject(id);
 }
 
+/** Element types whose rows can be replaced wholesale by the edit flow. */
+export type WeddingElementPatch = {
+  flowers?: string[];
+  personalElements?: string[];
+  personalImages?: string[];
+  frameId?: string | null;
+};
+
+/**
+ * Replace the element rows for any field present in the patch. Each
+ * provided field deletes its existing rows of that type and inserts the
+ * new values, so the project's flowers / personal elements / reference
+ * photos / frame always mirror exactly what the edit flow sent. Fields
+ * absent from the patch keep their current rows untouched, so the
+ * caller can update a single field without touching the others.
+ */
+export async function updateWeddingProjectElements(
+  id: string,
+  patch: WeddingElementPatch
+) {
+  const byType: { type: string; values: string[] }[] = [];
+  if (patch.flowers) byType.push({ type: 'flower', values: patch.flowers });
+  if (patch.personalElements)
+    byType.push({ type: 'personal', values: patch.personalElements });
+  if (patch.personalImages)
+    byType.push({
+      type: 'personal_image',
+      values: patch.personalImages.filter(
+        (url) => /^https?:\/\//.test(url) || url.startsWith('/')
+      ),
+    });
+  if (patch.frameId !== undefined)
+    byType.push({
+      type: 'frame',
+      values: patch.frameId ? [patch.frameId] : [],
+    });
+
+  for (const { type, values } of byType) {
+    await db()
+      .delete(weddingProjectElement)
+      .where(
+        and(
+          eq(weddingProjectElement.projectId, id),
+          eq(weddingProjectElement.type, type)
+        )
+      );
+    if (values.length > 0) {
+      await db().insert(weddingProjectElement).values(
+        values.map((value) => ({
+          id: getUuid(),
+          projectId: id,
+          type,
+          value,
+        }))
+      );
+    }
+  }
+}
+
 export async function claimWeddingProject(id: string, userId: string) {
   const [row] = await db()
     .update(weddingProject)

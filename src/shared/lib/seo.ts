@@ -126,7 +126,7 @@ export function getMetadata(
         title,
         description,
         images: [imageUrl.toString()],
-        site: '@RemoveGeminiWM',
+        site: '@WeddingCrestDesign',
       },
 
       robots: {

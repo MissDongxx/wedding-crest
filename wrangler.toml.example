@@ -1,4 +1,4 @@
-name = "your-app-name"
+name = "wedding-crest-design"
 main = ".open-next/worker.js"
 compatibility_date = "2025-03-01"
 compatibility_flags = ["nodejs_compat"]
@@ -23,8 +23,8 @@ enabled = true
 
 [vars]
 # app
-NEXT_PUBLIC_APP_URL = "http://localhost:3000"
-NEXT_PUBLIC_APP_NAME = "Your App Name"
+NEXT_PUBLIC_APP_URL = "https://weddingcrestdesign.com"
+NEXT_PUBLIC_APP_NAME = "Wedding Crest Design"
 
 # theme
 NEXT_PUBLIC_THEME = "default"

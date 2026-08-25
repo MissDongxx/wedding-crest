@@ -29,7 +29,10 @@ import {
   WEDDING_GUEST_MAX_BATCHES,
   WEDDING_PAID_MAX_BATCHES,
 } from '../src/shared/wedding/config';
-import { compileWeddingPrompt } from '../src/shared/wedding/prompt-compiler';
+import {
+  compileWeddingPrompt,
+  compileWeddingTextEditPrompt,
+} from '../src/shared/wedding/prompt-compiler';
 import {
   WEDDING_MAX_FLOWERS,
   WEDDING_MAX_PALETTE_COLORS,
@@ -226,16 +229,40 @@ group('Composer output', () => {
   );
   const autoLayout = selectLayout(input.style as never);
   check('selectLayout returns valid id', Boolean(autoLayout));
+  // Placeholder crest (no illustration): typography is still painted
+  // programmatically so style previews, gallery cards and the pre-generation
+  // frame carry the couple's lettering.
   const crest = composeWeddingCrest(input);
   check(
-    'crest is well-formed SVG',
+    'crest (placeholder) is well-formed SVG',
     crest.startsWith('<svg') && crest.endsWith('</svg>')
   );
-  check('crest contains partner initial E', crest.includes('>E'));
-  check('crest contains partner initial J', crest.includes('J<'));
   check(
-    'crest contains formatted date "June 12, 2027"',
+    'crest (placeholder) contains partner initial E',
+    crest.includes('>E')
+  );
+  check(
+    'crest (placeholder) contains partner initial J',
+    crest.includes('J<')
+  );
+  check(
+    'crest (placeholder) contains formatted date "June 12, 2027"',
     crest.includes('June 12, 2027')
+  );
+  // With an illustration: the AI already painted the lettering. The composer
+  // MUST NOT overlay programmatic text on top of the image, otherwise we'd
+  // double-render the names and dates.
+  const crestWithIllustration = composeWeddingCrest({
+    ...input,
+    illustrationUrl: 'https://example.com/illustration.png',
+  });
+  check(
+    'crest (with illustration) does NOT overlay programmatic text',
+    !crestWithIllustration.includes('dominant-baseline')
+  );
+  check(
+    'crest (with illustration) embeds the illustration image',
+    crestWithIllustration.includes('href="https://example.com/illustration.png"')
   );
   check(
     'crest escapes ampersand in surname variant',
@@ -251,7 +278,10 @@ group('Composer output', () => {
     showDate: false,
     weddingDate: null,
   });
-  check('no date when showDate=false', !noDate.includes('June 12, 2027'));
+  check(
+    'no date when showDate=false',
+    !noDate.includes('June 12, 2027')
+  );
   const watermark = composeWeddingCrest({
     ...input,
     previewWatermark: true,
@@ -311,35 +341,54 @@ group('Prompt compilation', () => {
   const input = sampleInput();
   const prompt = compileWeddingPrompt(input);
   check('prompt is non-empty', prompt.length > 50);
+  // The AI now renders the lettering directly into the illustration, so
+  // the prompt MUST spell out every inscription the user typed and the
+  // chosen lettering style.
   check(
-    'prompt does NOT mention partner names (illustration layer is name-free)',
-    !prompt.includes('Emma') && !prompt.includes('James')
+    'prompt includes headline "E & J" (initials_amp)',
+    prompt.includes('"E & J"')
+  );
+  check(
+    'prompt includes names line "Emma & James"',
+    prompt.includes('"Emma & James"')
+  );
+  check(
+    'prompt includes date line "June 12, 2027"',
+    prompt.includes('"June 12, 2027"')
+  );
+  check(
+    'prompt references the chosen typography pairing',
+    prompt.toLowerCase().includes('lettering style:')
+  );
+  check(
+    'prompt requests a transparent background',
+    /background:\s*fully transparent/i.test(prompt) &&
+      prompt.toLowerCase().includes('alpha channel')
+  );
+  check(
+    'lettering-edit prompt preserves the transparent background',
+    /background fully transparent/i.test(
+      compileWeddingTextEditPrompt(input)
+    )
   );
   check(
     'prompt includes style name',
     prompt.toLowerCase().includes('botanical')
   );
+  // The model should paint everything together - no longer asked to leave
+  // a clear center for an SVG overlay.
   check(
-    'prompt contains "no ..." exclusion line',
-    /no\s+[\w\s,]+/.test(prompt.toLowerCase())
+    'prompt does NOT request a blank center for overlay',
+    !prompt.toLowerCase().includes('leave the center clear')
   );
-  // The prompt must explicitly mention forbidden text-like artifacts in its
-  // "no ..." exclusion line, so the model knows to avoid them.
-  for (const forbidden of [
-    'letters',
-    'initials',
-    'numbers',
-    'dates',
-    'logos',
-    'watermark',
-  ]) {
-    check(
-      `prompt excludes forbidden "${forbidden}"`,
-      prompt.toLowerCase().includes(forbidden)
-    );
-  }
   check('prompt includes location', prompt.includes('Lake Como'));
   check('prompt includes flowers', prompt.toLowerCase().includes('rose'));
+  // The "no ..." exclusion line still exists, but only for things the
+  // prompt forbids anywhere in the image (mockup, paper texture).
+  check(
+    'prompt contains an "Avoid" line',
+    /\bavoid\s*:/i.test(prompt)
+  );
 });
 
 group('Date formatting', () => {

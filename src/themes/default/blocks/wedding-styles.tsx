@@ -65,6 +65,9 @@ export async function WeddingStyles({
               {section.title}
             </h2>
             <p className="text-muted-foreground">{section.description}</p>
+            <p className="text-muted-foreground mt-3 text-sm">
+              {section.tip}
+            </p>
           </div>
         </ScrollAnimation>
 

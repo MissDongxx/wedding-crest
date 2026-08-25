@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "skill": "rankup",
+  "source": "yan-labs/yan-skills",
+  "installedVersion": "2.43.0",
+  "latestVersion": "2.43.0",
+  "installedAt": "2026-08-24T17:12:08.926Z",
+  "lastCheckedAt": null,
+  "lastUpdatedAt": null,
+  "lastOutcome": "blocked",
+  "lastReason": "remote-check-failed",
+  "scope": "global"
+}

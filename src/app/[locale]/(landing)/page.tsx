@@ -4,9 +4,14 @@ import { getThemePage } from '@/core/theme';
 import { envConfigs } from '@/config';
 import { getCurrentSubscription } from '@/shared/models/subscription';
 import { getUserInfo } from '@/shared/models/user';
+import { getMetadata } from '@/shared/lib/seo';
 import { DynamicPage } from '@/shared/types/blocks/landing';
 
 export const revalidate = 3600;
+export const generateMetadata = getMetadata({
+  metadataKey: 'pages.index.metadata',
+  canonicalUrl: '/',
+});
 
 // JSON-LD structured data for homepage
 const baseUrl = envConfigs.app_url;

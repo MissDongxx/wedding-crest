@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "title": "Wedding Crest Design — AI Wedding Crest & Monogram Maker",
-    "description": "Design a custom wedding crest in minutes. Six styles, 12 layouts, matching color palettes and typography — with full SVG downloads, monograms and mockups. Free to start."
+    "title": "Wedding Crest Design — Create a Custom Wedding Crest",
+    "description": "Wedding crest design made personal. Create a custom AI wedding crest with six styles, 12 layouts, curated palettes, editorial typography, and a downloadable SVG identity kit."
   },
   "page": {
     "show_sections": [
@@ -18,13 +18,8 @@
       "hero": {
         "block": "wedding-hero",
         "id": "hero",
-        "title": "Create a Wedding Crest That Feels Like You",
-        "description": "A custom wedding crest pulls your whole celebration together — invitations, signage, menus, and thank-you cards, all wearing the same beautiful mark. Describe your wedding once, and our AI illustrator draws it in your style.",
-        "announcement": {
-          "badge": "New",
-          "title": "6 signature styles · 12 layouts · instant typography preview",
-          "url": "/#styles"
-        },
+        "title": "Create a Wedding Crest Design That Feels Like You",
+        "description": "Design a custom wedding crest for invitations, signage, menus, and thank-you cards. Choose your style, colors, and typography, then get one polished crest design to make your celebration feel cohesive.",
         "tip": "No signup needed to try · Free preview with watermark",
         "buttons": [
           {
@@ -47,7 +42,7 @@
         "block": "wedding-styles",
         "id": "styles",
         "title": "Find Your Style",
-        "description": "Six illustrated styles, each with matching layouts, palettes, and typography. Pick the one that feels like your wedding."
+        "description": "Explore six illustrated wedding crest design styles, each with matching layouts, palettes, and typography. Pick the one that feels like your wedding."
       },
       "introduce": {
         "id": "introduce",
@@ -68,8 +63,8 @@
             "icon": "RiPaletteLine"
           },
           {
-            "title": "Get 3 Crests + Full Kit",
-            "description": "Our AI illustrates the artwork while typography is set programmatically for crisp results. Pick your favorite, then download SVG, monogram, mockups and more.",
+            "title": "Get One Finished Crest + Full Kit",
+            "description": "Our AI illustrates one crest while typography is composed programmatically for crisp results. Refine the design, then download your SVG, monogram, mockups, and full identity kit.",
             "icon": "RiMagicLine"
           }
         ],
@@ -148,7 +143,7 @@
           },
           {
             "question": "How many designs do I get?",
-            "answer": "Each generation produces three crest candidates to choose from. Free accounts can create one project with five total generations. The Wedding Identity Pack unlocks three regenerations and the full download kit."
+            "answer": "Each generation produces one finished crest design. Free accounts can create one project with five total generations. The Wedding Identity Pack unlocks three regenerations and the full download kit."
           },
           {
             "question": "What files do I get?",

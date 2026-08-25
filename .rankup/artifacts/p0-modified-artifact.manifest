@@ -1,0 +1,24 @@
+# P0 modified artifact manifest
+
+Date: 2026-08-25
+Scope: production URL defaults, single-Crest copy, homepage SEO metadata, core brand identity.
+
+Primary modified artifact: the working tree at `/Users/xumingyue/Downloads/MyProjects/wedding-crest2`.
+Focused diff: `.rankup/artifacts/p0-changes.diff`.
+
+Key files:
+- `src/config/index.ts`
+- `src/shared/models/config.ts`
+- `src/app/[locale]/(landing)/page.tsx`
+- `src/config/locale/messages/*/pages/index.json`
+- `src/config/locale/messages/*/pages/pricing.json`
+- `src/config/locale/messages/*/pages/design.json`
+- `src/config/locale/messages/*/pages/seo.json`
+- `.env.example`, `wrangler.toml.example`
+- core brand/auth/contact metadata files
+
+Resulting facts:
+- Production default URL: `https://weddingcrestdesign.com`.
+- Local `.env.local` remains `http://localhost:3000`.
+- `WEDDING_MAX_CANDIDATES` remains `1`; copy now says one finished crest design per generation.
+- Homepage primary phrase is `wedding crest design` in metadata, H1, and style description.

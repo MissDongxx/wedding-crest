@@ -1,12 +1,22 @@
 /**
  * Wedding Crest SVG Composer.
  *
- * Core product principle: the AI provider only paints the illustration layer.
- * Typography, layout and variants are composed programmatically here, so
- * names, initials and dates can never be misspelled or warped by a model.
+ * Core product principle: the AI provider paints the full crest - illustration
+ * AND the lettering (names, supporting line, date) - directly into the
+ * artwork. Names and dates can no longer be misspelled or warped because the
+ * prompt spells them out, the model renders them in the chosen lettering
+ * style, and the compose step stays out of the way.
+ *
+ * Programmatic typography is still produced for two cases:
+ *  1. The pre-generation placeholder (marketing previews, style cards, any
+ *     surface rendered before the AI illustration exists) where the SVG
+ *     frame is the only visual.
+ *  2. Vector-only pack assets (monogram, simplified single-initial mark)
+ *     that are part of the Wedding Identity Pack and intentionally stay as
+ *     text-on-vector.
  *
  * This module is isomorphic (pure string building) so the client wizard and
- * result page can re-compose locally for instant typography previews.
+ * result page can re-compose locally for instant previews.
  */
 
 import {
@@ -351,17 +361,14 @@ export function buildStyleOrnament(
 /* -------------------------------------------------------------------------- */
 
 function typographyLayer(input: WeddingComposeRequest, ink: string): string {
+  // Only used on the deterministic pre-generation placeholder (marketing
+  // previews and style cards). The AI illustration already carries its
+  // own baked-in lettering, so the compose step never overlays text on
+  // top of a generated image.
   const layout = getWeddingLayout(input.layout);
   const typography = getWeddingTypography(input.typography);
   const texts = resolveWeddingDisplayTexts(input);
   const parts: string[] = [];
-
-  // Soft wash behind the text so type stays legible over the illustration.
-  if (input.illustrationUrl) {
-    parts.push(
-      `<ellipse cx="500" cy="555" rx="285" ry="215" fill="${normalizePalette(input.palette)[1]}" opacity="0.55"/>`
-    );
-  }
 
   const headlineFontSize = headlineSize(texts.headline, 118);
   parts.push(
@@ -427,7 +434,12 @@ function crestInner(
     );
   }
 
-  parts.push(typographyLayer(request, ink));
+  // The AI-rendered crest already includes the couple's lettering baked
+  // into the artwork; only the pre-generation placeholder branch needs
+  // the programmatic typography layer.
+  if (!request.illustrationUrl) {
+    parts.push(typographyLayer(request, ink));
+  }
   if (request.previewWatermark) parts.push(watermarkLayer());
   return parts.join('');
 }
