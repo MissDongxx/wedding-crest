@@ -1,0 +1,485 @@
+diff --git a/src/app/[locale]/(landing)/layout.tsx b/src/app/[locale]/(landing)/layout.tsx
+index 595afee..3d2c634 100644
+--- a/src/app/[locale]/(landing)/layout.tsx
++++ b/src/app/[locale]/(landing)/layout.tsx
+@@ -2,7 +2,8 @@ import { ReactNode } from 'react';
+ import { getTranslations } from 'next-intl/server';
+ 
+ import { getThemeLayout } from '@/core/theme';
+-import { LocaleDetector, TopBanner } from '@/shared/blocks/common';
++import { LocaleDetector } from '@/shared/blocks/common/locale-detector';
++import { TopBanner } from '@/shared/blocks/common/top-banner';
+ import {
+   Footer as FooterType,
+   Header as HeaderType,
+diff --git a/src/app/[locale]/(landing)/page.tsx b/src/app/[locale]/(landing)/page.tsx
+index 7a79174..56dca4b 100644
+--- a/src/app/[locale]/(landing)/page.tsx
++++ b/src/app/[locale]/(landing)/page.tsx
+@@ -1,13 +1,32 @@
+ import { getTranslations, setRequestLocale } from 'next-intl/server';
+ 
+-import { getThemePage } from '@/core/theme';
+ import { envConfigs } from '@/config';
+-import { getCurrentSubscription } from '@/shared/models/subscription';
+-import { getUserInfo } from '@/shared/models/user';
++import { locales } from '@/config/locale';
+ import { getMetadata } from '@/shared/lib/seo';
++import {
++  listWeddingExamples,
++  type WeddingExampleRow,
++} from '@/shared/models/wedding';
+ import { DynamicPage } from '@/shared/types/blocks/landing';
++import HomePage from '@/themes/default/pages/home-page';
+ 
+ export const revalidate = 3600;
++export const dynamic = 'force-static';
++export const dynamicParams = false;
++
++export function generateStaticParams() {
++  return locales.map((locale) => ({ locale }));
++}
++
++async function getLandingExamples(): Promise<WeddingExampleRow[]> {
++  try {
++    return await listWeddingExamples({ activeOnly: true });
++  } catch {
++    // The home page remains renderable when the optional examples table is
++    // unavailable during a static build or a transient database outage.
++    return [];
++  }
++}
+ export const generateMetadata = getMetadata({
+   metadataKey: 'pages.index.metadata',
+   canonicalUrl: '/',
+@@ -64,13 +83,12 @@ export default async function LandingPage({
+   // TEMP-DEBUG: surface SSR errors into the response body so we can
+   // see what fails on Cloudflare Workers (wrangler tail is silent
+   // here). Remove once the home page renders cleanly.
+-  let user: any, t: any, tp: any, Page: any;
++  let t: any, tp: any, weddingExamples: WeddingExampleRow[];
+   try {
+-    [user, t, tp, Page] = await Promise.all([
+-      getUserInfo(),
++    [t, tp, weddingExamples] = await Promise.all([
+       getTranslations('pages.index'),
+       getTranslations('pages.pricing'),
+-      getThemePage('dynamic-page'),
++      getLandingExamples(),
+     ]);
+   } catch (e: any) {
+     return (
+@@ -101,29 +119,26 @@ export default async function LandingPage({
+     }>) || [];
+   const faqJsonLd = buildFaqJsonLd(faqItems);
+ 
+-  // get current subscription
+-  let currentSubscription;
+-  if (user) {
+-    try {
+-      currentSubscription = await getCurrentSubscription(user.id);
+-    } catch {
+-      // subscription lookup failed, continue without it
+-    }
+-  }
+-
+   // inject pricing section
+   if (page.sections) {
+     page.sections.pricing = {
+       ...tp.raw('page.sections.pricing'),
+-      data: {
+-        currentSubscription,
+-      },
+     };
++
++    for (const key of ['hero', 'styles']) {
++      const section = page.sections[key];
++      if (section) {
++        section.data = {
++          ...(section.data || {}),
++          weddingExamples,
++        };
++      }
++    }
+   }
+ 
+   let pageNode: React.ReactNode;
+   try {
+-    pageNode = <Page locale={locale} page={page} />;
++    pageNode = <HomePage page={page} />;
+   } catch (e: any) {
+     pageNode = (
+       <pre
+diff --git a/src/themes/default/blocks/benefits.tsx b/src/themes/default/blocks/benefits.tsx
+index 30ce4f1..b74e5df 100644
+--- a/src/themes/default/blocks/benefits.tsx
++++ b/src/themes/default/blocks/benefits.tsx
+@@ -1,7 +1,5 @@
+ 'use client';
+ 
+-import { SmartIcon } from '@/shared/blocks/common';
+-import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
+ import { Section } from '@/shared/types/blocks/landing';
+ 
+ import { FeaturesList } from './features-list';
+diff --git a/src/themes/default/blocks/blog-detail.tsx b/src/themes/default/blocks/blog-detail.tsx
+index 223e32f..a80aef7 100644
+--- a/src/themes/default/blocks/blog-detail.tsx
++++ b/src/themes/default/blocks/blog-detail.tsx
+@@ -4,7 +4,7 @@ import { TOCItems, TOCProvider } from 'fumadocs-ui/components/layout/toc';
+ import { CalendarIcon, ListIcon } from 'lucide-react';
+ import { useTranslations } from 'next-intl';
+ 
+-import { MarkdownPreview } from '@/shared/blocks/common';
++import { MarkdownPreview } from '@/shared/blocks/common/markdown-preview';
+ import { Crumb } from '@/shared/blocks/common/crumb';
+ import { type Post as PostType } from '@/shared/types/blocks/blog';
+ import { NavItem } from '@/shared/types/blocks/common';
+diff --git a/src/themes/default/blocks/features-accordion.tsx b/src/themes/default/blocks/features-accordion.tsx
+index e2cab73..aff8276 100644
+--- a/src/themes/default/blocks/features-accordion.tsx
++++ b/src/themes/default/blocks/features-accordion.tsx
+@@ -3,7 +3,8 @@
+ import { useState } from 'react';
+ import { AnimatePresence, motion } from 'motion/react';
+ 
+-import { LazyImage, SmartIcon } from '@/shared/blocks/common';
++import { LazyImage } from '@/shared/blocks/common/lazy-image';
++import { SmartIcon } from '@/shared/blocks/common/smart-icon';
+ import { BorderBeam } from '@/shared/components/magicui/border-beam';
+ import {
+   Accordion,
+diff --git a/src/themes/default/blocks/features-flow.tsx b/src/themes/default/blocks/features-flow.tsx
+index d15b5fc..928ab92 100644
+--- a/src/themes/default/blocks/features-flow.tsx
++++ b/src/themes/default/blocks/features-flow.tsx
+@@ -2,7 +2,7 @@
+ 
+ import { motion } from 'framer-motion';
+ 
+-import { LazyImage } from '@/shared/blocks/common';
++import { LazyImage } from '@/shared/blocks/common/lazy-image';
+ import { cn } from '@/shared/lib/utils';
+ import { Section } from '@/shared/types/blocks/landing';
+ 
+diff --git a/src/themes/default/blocks/features-list.tsx b/src/themes/default/blocks/features-list.tsx
+index 9d4c02f..f86600a 100644
+--- a/src/themes/default/blocks/features-list.tsx
++++ b/src/themes/default/blocks/features-list.tsx
+@@ -1,7 +1,8 @@
+ 'use client';
+ 
+ import { Link } from '@/core/i18n/navigation';
+-import { LazyImage, SmartIcon } from '@/shared/blocks/common';
++import { LazyImage } from '@/shared/blocks/common/lazy-image';
++import { SmartIcon } from '@/shared/blocks/common/smart-icon';
+ import { Button } from '@/shared/components/ui/button';
+ import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
+ import { cn } from '@/shared/lib/utils';
+diff --git a/src/themes/default/blocks/features-media.tsx b/src/themes/default/blocks/features-media.tsx
+index 2aa4cb9..11d025d 100644
+--- a/src/themes/default/blocks/features-media.tsx
++++ b/src/themes/default/blocks/features-media.tsx
+@@ -2,7 +2,8 @@
+ 
+ import { motion } from 'framer-motion';
+ 
+-import { LazyImage, SmartIcon } from '@/shared/blocks/common';
++import { LazyImage } from '@/shared/blocks/common/lazy-image';
++import { SmartIcon } from '@/shared/blocks/common/smart-icon';
+ import { cn } from '@/shared/lib/utils';
+ import { Section } from '@/shared/types/blocks/landing';
+ 
+diff --git a/src/themes/default/blocks/features-step.tsx b/src/themes/default/blocks/features-step.tsx
+index 6a09035..28fe293 100644
+--- a/src/themes/default/blocks/features-step.tsx
++++ b/src/themes/default/blocks/features-step.tsx
+@@ -2,7 +2,7 @@
+ 
+ import { ArrowBigRight } from 'lucide-react';
+ 
+-import { SmartIcon } from '@/shared/blocks/common';
++import { SmartIcon } from '@/shared/blocks/common/smart-icon';
+ import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
+ import { cn } from '@/shared/lib/utils';
+ import { Section } from '@/shared/types/blocks/landing';
+diff --git a/src/themes/default/blocks/footer.tsx b/src/themes/default/blocks/footer.tsx
+index 3e11529..2c7f34a 100644
+--- a/src/themes/default/blocks/footer.tsx
++++ b/src/themes/default/blocks/footer.tsx
+@@ -1,11 +1,9 @@
+ import { Link } from '@/core/i18n/navigation';
+-import {
+-  BrandLogo,
+-  BuiltWith,
+-  Copyright,
+-  LocaleSelector,
+-  ThemeToggler,
+-} from '@/shared/blocks/common';
++import { BrandLogo } from '@/shared/blocks/common/brand-logo';
++import { BuiltWith } from '@/shared/blocks/common/built-with';
++import { Copyright } from '@/shared/blocks/common/copyright';
++import { LocaleSelector } from '@/shared/blocks/common/locale-selector';
++import { ThemeToggler } from '@/shared/blocks/common/theme-toggler';
+ import { SmartIcon } from '@/shared/blocks/common/smart-icon';
+ import { NavItem } from '@/shared/types/blocks/common';
+ import { Footer as FooterType } from '@/shared/types/blocks/landing';
+diff --git a/src/themes/default/blocks/header.tsx b/src/themes/default/blocks/header.tsx
+index 8c0c56e..06c5486 100644
+--- a/src/themes/default/blocks/header.tsx
++++ b/src/themes/default/blocks/header.tsx
+@@ -4,13 +4,10 @@ import { useEffect, useRef, useState } from 'react';
+ import { Menu, X } from 'lucide-react';
+ 
+ import { Link, usePathname } from '@/core/i18n/navigation';
+-import {
+-  BrandLogo,
+-  LocaleSelector,
+-  SignUser,
+-  SmartIcon,
+-  ThemeToggler,
+-} from '@/shared/blocks/common';
++import { BrandLogo } from '@/shared/blocks/common/brand-logo';
++import { LocaleSelector } from '@/shared/blocks/common/locale-selector';
++import { SmartIcon } from '@/shared/blocks/common/smart-icon';
++import { ThemeToggler } from '@/shared/blocks/common/theme-toggler';
+ import {
+   Accordion,
+   AccordionContent,
+@@ -29,6 +26,7 @@ import { useMedia } from '@/shared/hooks/use-media';
+ import { cn } from '@/shared/lib/utils';
+ import { NavItem } from '@/shared/types/blocks/common';
+ import { Header as HeaderType } from '@/shared/types/blocks/landing';
++import { SignUser } from '@/shared/blocks/sign/sign-user';
+ 
+ // For Next.js hydration mismatch warning, conditionally render NavigationMenuTrigger only after mount to avoid inconsistency between server/client render
+ function NavigationMenuTrigger(
+diff --git a/src/themes/default/blocks/hero.tsx b/src/themes/default/blocks/hero.tsx
+index ee9487a..ecfb112 100644
+--- a/src/themes/default/blocks/hero.tsx
++++ b/src/themes/default/blocks/hero.tsx
+@@ -2,7 +2,7 @@ import Image from 'next/image';
+ import { ArrowRight } from 'lucide-react';
+ 
+ import { Link } from '@/core/i18n/navigation';
+-import { SmartIcon } from '@/shared/blocks/common';
++import { SmartIcon } from '@/shared/blocks/common/smart-icon';
+ import { Button } from '@/shared/components/ui/button';
+ import { Highlighter } from '@/shared/components/ui/highlighter';
+ import { cn } from '@/shared/lib/utils';
+diff --git a/src/themes/default/blocks/introduce.tsx b/src/themes/default/blocks/introduce.tsx
+index d931f38..012c902 100644
+--- a/src/themes/default/blocks/introduce.tsx
++++ b/src/themes/default/blocks/introduce.tsx
+@@ -1,6 +1,5 @@
+ 'use client';
+ 
+-import { SmartIcon } from '@/shared/blocks/common';
+ import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
+ import { Section } from '@/shared/types/blocks/landing';
+ 
+diff --git a/src/themes/default/blocks/logos.tsx b/src/themes/default/blocks/logos.tsx
+index 9344c1d..6568624 100644
+--- a/src/themes/default/blocks/logos.tsx
++++ b/src/themes/default/blocks/logos.tsx
+@@ -1,6 +1,6 @@
+ 'use client';
+ 
+-import { LazyImage } from '@/shared/blocks/common';
++import { LazyImage } from '@/shared/blocks/common/lazy-image';
+ import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
+ import { cn } from '@/shared/lib/utils';
+ import { Section } from '@/shared/types/blocks/landing';
+diff --git a/src/themes/default/blocks/page-detail.tsx b/src/themes/default/blocks/page-detail.tsx
+index ee8001b..6e43f09 100644
+--- a/src/themes/default/blocks/page-detail.tsx
++++ b/src/themes/default/blocks/page-detail.tsx
+@@ -1,6 +1,6 @@
+ import { CalendarIcon, TimerIcon } from 'lucide-react';
+ 
+-import { MarkdownPreview } from '@/shared/blocks/common';
++import { MarkdownPreview } from '@/shared/blocks/common/markdown-preview';
+ import { type Post as PostType } from '@/shared/types/blocks/blog';
+ 
+ import '@/config/style/docs.css';
+diff --git a/src/themes/default/blocks/pricing.tsx b/src/themes/default/blocks/pricing.tsx
+index be7dda2..d22fff2 100644
+--- a/src/themes/default/blocks/pricing.tsx
++++ b/src/themes/default/blocks/pricing.tsx
+@@ -5,7 +5,7 @@ import { Check, Loader2 } from 'lucide-react';
+ import { useLocale, useTranslations } from 'next-intl';
+ import { toast } from 'sonner';
+ 
+-import { SmartIcon } from '@/shared/blocks/common';
++import { SmartIcon } from '@/shared/blocks/common/smart-icon';
+ import { PaymentModal } from '@/shared/blocks/payment/payment-modal';
+ import { Badge } from '@/shared/components/ui/badge';
+ import { Button } from '@/shared/components/ui/button';
+diff --git a/src/themes/default/blocks/showcases-flow.tsx b/src/themes/default/blocks/showcases-flow.tsx
+index 695ea7c..87bd9c6 100644
+--- a/src/themes/default/blocks/showcases-flow.tsx
++++ b/src/themes/default/blocks/showcases-flow.tsx
+@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
+ import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+ 
+ import { Link } from '@/core/i18n/navigation';
+-import { LazyImage } from '@/shared/blocks/common';
++import { LazyImage } from '@/shared/blocks/common/lazy-image';
+ import { SmartIcon } from '@/shared/blocks/common/smart-icon';
+ import { Button } from '@/shared/components/ui/button';
+ import { cn } from '@/shared/lib/utils';
+diff --git a/src/themes/default/blocks/testimonials.tsx b/src/themes/default/blocks/testimonials.tsx
+index 006948b..ad0c5fe 100644
+--- a/src/themes/default/blocks/testimonials.tsx
++++ b/src/themes/default/blocks/testimonials.tsx
+@@ -1,6 +1,6 @@
+ 'use client';
+ 
+-import { LazyImage } from '@/shared/blocks/common';
++import { LazyImage } from '@/shared/blocks/common/lazy-image';
+ import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
+ import { Section, SectionItem } from '@/shared/types/blocks/landing';
+ 
+diff --git a/src/themes/default/blocks/wedding-hero.tsx b/src/themes/default/blocks/wedding-hero.tsx
+index fd4d6b8..5593989 100644
+--- a/src/themes/default/blocks/wedding-hero.tsx
++++ b/src/themes/default/blocks/wedding-hero.tsx
+@@ -34,14 +34,17 @@ function shuffle<T>(items: T[]): T[] {
+  */
+ export async function WeddingHero({
+   section,
++  weddingExamples,
+   className,
+ }: {
+   section: Section;
++  weddingExamples?: WeddingExampleRow[];
+   className?: string;
+ }) {
+   const allowedStyles = new Set<string>(weddingExampleStyleIds);
+   const allExamples = (
+-    (await listWeddingExamples({ activeOnly: true })) as WeddingExampleRow[]
++    (weddingExamples ??
++      (await listWeddingExamples({ activeOnly: true }))) as WeddingExampleRow[]
+   ).filter((example) =>
+     allowedStyles.has(example.style as (typeof weddingExampleStyleIds)[number])
+   );
+diff --git a/src/themes/default/blocks/wedding-styles.tsx b/src/themes/default/blocks/wedding-styles.tsx
+index 62e21ca..d33fbe9 100644
+--- a/src/themes/default/blocks/wedding-styles.tsx
++++ b/src/themes/default/blocks/wedding-styles.tsx
+@@ -26,15 +26,18 @@ const EXAMPLES_PER_STYLE = 3;
+  */
+ export async function WeddingStyles({
+   section,
++  weddingExamples,
+   className,
+ }: {
+   section: Section;
++  weddingExamples?: WeddingExampleRow[];
+   className?: string;
+ }) {
+   // One DB read; group by style and cap at EXAMPLES_PER_STYLE per style.
+   const allowedStyles = new Set<string>(weddingExampleStyleIds);
+   const examples = (
+-    (await listWeddingExamples({ activeOnly: true })) as WeddingExampleRow[]
++    (weddingExamples ??
++      (await listWeddingExamples({ activeOnly: true }))) as WeddingExampleRow[]
+   ).filter((example) =>
+     allowedStyles.has(example.style as (typeof weddingExampleStyleIds)[number])
+   );
+diff --git a/src/themes/default/layouts/landing.tsx b/src/themes/default/layouts/landing.tsx
+index 4de1f03..27e8482 100644
+--- a/src/themes/default/layouts/landing.tsx
++++ b/src/themes/default/layouts/landing.tsx
+@@ -1,11 +1,12 @@
+ import { ReactNode } from 'react';
+ 
+-import { getThemeBlock } from '@/core/theme';
+ import { getPublicConfigs } from '@/shared/models/config';
+ import {
+   Footer as FooterType,
+   Header as HeaderType,
+ } from '@/shared/types/blocks/landing';
++import { Footer } from '@/themes/default/blocks/footer';
++import { Header } from '@/themes/default/blocks/header';
+ 
+ export default async function LandingLayout({
+   children,
+@@ -16,9 +17,6 @@ export default async function LandingLayout({
+   header: HeaderType;
+   footer: FooterType;
+ }) {
+-  const Header = await getThemeBlock('header');
+-  const Footer = await getThemeBlock('footer');
+-
+   // Read merged env+DB public configs once per layout render so the header
+   // and footer can show the admin-configured logo without each child having
+   // to be a server component. The Header is a client component, so the
+
+diff --git a/src/themes/default/pages/home-page.tsx b/src/themes/default/pages/home-page.tsx
+new file mode 100644
+index 0000000..91ba8ca
+--- /dev/null
++++ b/src/themes/default/pages/home-page.tsx
+@@ -0,0 +1,61 @@
++import type { ComponentType } from 'react';
++
++import { Benefits } from '../blocks/benefits';
++import { Cta } from '../blocks/cta';
++import { Faq } from '../blocks/faq';
++import { Introduce } from '../blocks/introduce';
++import { Pricing } from '../blocks/pricing';
++import { WeddingHero } from '../blocks/wedding-hero';
++import { WeddingStyles } from '../blocks/wedding-styles';
++import type { DynamicPage as DynamicPageType } from '@/shared/types/blocks/landing';
++
++// The home page has a fixed, small set of blocks. Keeping this registry local
++// avoids making the generic theme block import context part of the home-page
++// client graph (which otherwise pulls blog/admin/editor blocks into first load).
++const homeBlocks: Record<string, ComponentType<any>> = {
++  'wedding-hero': WeddingHero,
++  'wedding-styles': WeddingStyles,
++  introduce: Introduce,
++  benefits: Benefits,
++  pricing: Pricing,
++  faq: Faq,
++  cta: Cta,
++};
++
++export default async function HomePage({
++  page,
++}: {
++  page: DynamicPageType;
++}) {
++  const sectionKeys = Object.keys(page.sections || {});
++  const renderedSections = await Promise.all(
++    sectionKeys.map(async (sectionKey) => {
++      const section = page.sections?.[sectionKey];
++      if (!section || section.disabled === true) return null;
++      if (page.show_sections && !page.show_sections.includes(sectionKey)) {
++        return null;
++      }
++
++      const blockName = section.block || section.id || sectionKey;
++      const Block = homeBlocks[blockName];
++      if (!Block) return null;
++
++      return (
++        <Block
++          key={sectionKey}
++          section={section}
++          {...(section.data || {})}
++        />
++      );
++    })
++  );
++
++  return (
++    <>
++      {page.title && !page.sections?.hero && (
++        <h1 className="sr-only">{page.title}</h1>
++      )}
++      {renderedSections}
++    </>
++  );
++}

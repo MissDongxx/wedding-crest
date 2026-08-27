@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { Link, useRouter } from '@/core/i18n/navigation';
+import { useRouter } from '@/core/i18n/navigation';
 import { SmartIcon } from '@/shared/blocks/common/smart-icon';
 import { Button } from '@/shared/components/ui/button';
 import { toast } from 'sonner';
@@ -24,7 +24,10 @@ export function DeleteFrameButtonClient({
       const resp = await fetch(`/api/admin/wedding/frames/${id}`, {
         method: 'DELETE',
       });
-      const json = await resp.json();
+      const json = (await resp.json()) as {
+        code?: number;
+        message?: string;
+      };
       if (!resp.ok || json?.code !== 0) {
         throw new Error(json?.message || 'delete failed');
       }

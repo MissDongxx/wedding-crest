@@ -1,11 +1,12 @@
 import { ReactNode } from 'react';
 
-import { getThemeBlock } from '@/core/theme';
 import { getPublicConfigs } from '@/shared/models/config';
 import {
   Footer as FooterType,
   Header as HeaderType,
 } from '@/shared/types/blocks/landing';
+import { Footer } from '@/themes/default/blocks/footer';
+import { Header } from '@/themes/default/blocks/header';
 
 export default async function LandingLayout({
   children,
@@ -16,9 +17,6 @@ export default async function LandingLayout({
   header: HeaderType;
   footer: FooterType;
 }) {
-  const Header = await getThemeBlock('header');
-  const Footer = await getThemeBlock('footer');
-
   // Read merged env+DB public configs once per layout render so the header
   // and footer can show the admin-configured logo without each child having
   // to be a server component. The Header is a client component, so the

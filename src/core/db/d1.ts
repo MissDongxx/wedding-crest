@@ -8,6 +8,7 @@ type D1Database = {
   batch(statements: any[]): Promise<any[]>;
   exec(query: string): Promise<any>;
   dump(): Promise<ArrayBuffer>;
+  withSession(...args: any[]): any;
 };
 
 // D1 singleton instance (reused across requests in the same isolate)

@@ -1,0 +1,31 @@
+Cloudflare deployment verification
+Date: 2026-08-27
+
+Command:
+  pnpm run cf:deploy
+Result:
+  OpenNext build complete.
+  Uploaded 28 files (632 already uploaded)
+  Uploaded wedding-crest-design
+  Deployed wedding-crest-design triggers
+  Current Version ID: d60be3b9-bba8-48e6-97c1-9c92a60e14d4
+Status: deployment succeeded; the local wrapper remained open after the successful upload and was stopped manually.
+
+Deployment verification:
+Command:
+  pnpm exec wrangler deployments list --config wrangler.toml | tail -10
+Literal output:
+  Created: 2026-08-27T09:12:37.346Z
+  Version(s): (100%) d60be3b9-bba8-48e6-97c1-9c92a60e14d4
+Exit status: 0
+
+Asset budget verification:
+  public/ size: 1641236 bytes (1.57 MiB)
+  limit: 3145728 bytes (3.00 MiB)
+  asset budget: PASS
+
+Custom-domain probe:
+  weddingcrestdesign.com resolved to 198.18.0.57 / 198.18.0.58 in the local network fixture; HTTP probe timed out before receiving a response.
+
+Runnable rollback:
+  pnpm exec wrangler rollback 76f5f5f8-a8d2-4058-a891-0ae9e659ece9 --config wrangler.toml --yes

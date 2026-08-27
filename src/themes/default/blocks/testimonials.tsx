@@ -1,6 +1,6 @@
 'use client';
 
-import { LazyImage } from '@/shared/blocks/common';
+import { LazyImage } from '@/shared/blocks/common/lazy-image';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import { Section, SectionItem } from '@/shared/types/blocks/landing';
 

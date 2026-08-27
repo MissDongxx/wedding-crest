@@ -1,0 +1,75 @@
+server-error-fix verification record
+Date: 2026-08-27 Asia/Shanghai
+Workspace: /Users/xumingyue/Downloads/MyProjects/wedding-crest2
+
+Scope and changed branch/fields:
+- Admin delete response JSON is typed as { code?: number; message?: string } in both wedding example and frame delete clients.
+- D1Database compatibility surface adds withSession(...args: any[]): any for the installed Drizzle Cloudflare type.
+- Request.json and Response.json receive generic defaults in src/shared/types/fetch-compat.d.ts so existing callers compile against the generated Cloudflare types.
+- pages.examples adds browse_all and start_from_this to de, fr, it, ko, pt-BR, th, and zh message files.
+
+Baseline/modified hash commands:
+- Baseline tracked input: git show HEAD:'PATH' | shasum -a 256
+- Modified tracked input: shasum -a 256 'PATH'
+- New file baseline: ABSENT; modified input: shasum -a 256 'src/shared/types/fetch-compat.d.ts'
+- Literal hash outputs are in server-error-fix-hashes.txt.
+
+1) Targeted static check
+Command:
+pnpm exec eslint 'src/app/[locale]/(admin)/admin/wedding/examples/_delete-button.tsx' 'src/app/[locale]/(admin)/admin/wedding/frames/_delete-button.tsx' src/core/db/d1.ts src/shared/types/fetch-compat.d.ts
+pnpm exec tsc --noEmit
+Literal output:
+(no output)
+Exit status: 0
+
+2) Production bundle build
+Command:
+pnpm exec opennextjs-cloudflare build
+Literal result:
+OpenNext build complete.
+Worker saved in `.open-next/worker.js`.
+Exit status: 0
+
+3) Local Cloudflare worker preview
+Command:
+pnpm exec wrangler dev --local --port 8788
+Then request each URL with /usr/bin/curl -sS -L -o FILE -w '%{http_code}':
+/                                      status=200 bytes=214874 markers=none
+/en                                    status=200 bytes=214572 markers=none
+/zh/examples                           status=200 bytes=151750 markers=none
+/zh/create                             status=200 bytes=102306 markers=none
+/zh/wedding-crest-generator            status=200 bytes=117934 markers=none
+/imgs/bg/tree.webp                     status=200 bytes=49568 markers=none
+/images/examples/before.webp           status=200 bytes=63860 markers=none
+Literal preview logs:
+GET / 200 OK
+GET /en 307 Temporary Redirect
+GET /zh/examples 200 OK
+GET /zh/create 200 OK
+GET /zh/wedding-crest-generator 200 OK
+GET /imgs/bg/tree.webp 200 OK
+GET /images/examples/before.webp 200 OK
+(no SSR-ERROR, PAGE-RENDER-ERROR, Application error, MISSING_MESSAGE, or NoFallbackError markers)
+Exit status: 0 for all requests.
+
+4) Rollback validation
+Command:
+bash -n .rankup/artifacts/server-error-fix-rollback.sh
+Literal output:
+(no output)
+Exit status: 0
+The rollback script is runnable from the project root or with PROJECT_ROOT=/absolute/project/path.
+
+Notes:
+- The production custom domain was not changed by this task.
+- Existing non-blocking ESLint warnings remain in unrelated files; the OpenNext build still exited 0.
+
+5) Executed rollback fixture test
+Commands:
+TEST=/tmp/server-error-fix-rollback-test
+PROJECT_ROOT="$TEST" bash .rankup/artifacts/server-error-fix-rollback.sh
+git -C "$TEST" diff --exit-code
+Test result:
+Rolled back server-error-fix source changes.
+(no diff; fetch-compat.d.ts absent)
+Exit status: 0

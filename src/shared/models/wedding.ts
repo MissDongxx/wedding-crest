@@ -709,10 +709,12 @@ export async function countWeddingFrames() {
 /* Wedding Example (home-page real product photos)                              */
 /* -------------------------------------------------------------------------- */
 
-export async function listWeddingExamples(opts?: {
+export type WeddingExampleListOptions = {
   style?: string;
   activeOnly?: boolean;
-}) {
+};
+
+export async function listWeddingExamples(opts?: WeddingExampleListOptions) {
   const filters = [];
   if (opts?.style) filters.push(eq(weddingExample.style, opts.style));
   if (opts?.activeOnly) filters.push(eq(weddingExample.isActive, true));
@@ -721,6 +723,30 @@ export async function listWeddingExamples(opts?: {
     .from(weddingExample)
     .where(filters.length ? and(...filters) : undefined)
     .orderBy(asc(weddingExample.sortOrder), asc(weddingExample.createdAt));
+}
+
+/**
+ * Public pages should remain renderable when the optional examples database
+ * is unavailable. The timeout prevents a stalled Hyperdrive query from
+ * holding the whole page response open.
+ */
+export async function listWeddingExamplesSafe(
+  opts?: WeddingExampleListOptions,
+  timeoutMs = 3000
+) {
+  try {
+    return await Promise.race([
+      listWeddingExamples(opts),
+      new Promise<never>((_, reject) =>
+        setTimeout(
+          () => reject(new Error('wedding examples query timed out')),
+          timeoutMs
+        )
+      ),
+    ]);
+  } catch {
+    return [];
+  }
 }
 
 export async function getWeddingExample(id: string) {

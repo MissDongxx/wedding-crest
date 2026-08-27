@@ -2,7 +2,8 @@ import { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
 
 import { getThemeLayout } from '@/core/theme';
-import { LocaleDetector, TopBanner } from '@/shared/blocks/common';
+import { LocaleDetector } from '@/shared/blocks/common/locale-detector';
+import { TopBanner } from '@/shared/blocks/common/top-banner';
 import {
   Footer as FooterType,
   Header as HeaderType,

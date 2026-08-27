@@ -4,13 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 import { Menu, X } from 'lucide-react';
 
 import { Link, usePathname } from '@/core/i18n/navigation';
-import {
-  BrandLogo,
-  LocaleSelector,
-  SignUser,
-  SmartIcon,
-  ThemeToggler,
-} from '@/shared/blocks/common';
+import { BrandLogo } from '@/shared/blocks/common/brand-logo';
+import { LocaleSelector } from '@/shared/blocks/common/locale-selector';
+import { SmartIcon } from '@/shared/blocks/common/smart-icon';
+import { ThemeToggler } from '@/shared/blocks/common/theme-toggler';
 import {
   Accordion,
   AccordionContent,
@@ -29,6 +26,7 @@ import { useMedia } from '@/shared/hooks/use-media';
 import { cn } from '@/shared/lib/utils';
 import { NavItem } from '@/shared/types/blocks/common';
 import { Header as HeaderType } from '@/shared/types/blocks/landing';
+import { SignUser } from '@/shared/blocks/sign/sign-user';
 
 // For Next.js hydration mismatch warning, conditionally render NavigationMenuTrigger only after mount to avoid inconsistency between server/client render
 function NavigationMenuTrigger(

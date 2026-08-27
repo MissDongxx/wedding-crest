@@ -17,7 +17,7 @@ export const envConfigs: ConfigMap = {
   app_logo: process.env.NEXT_PUBLIC_APP_LOGO ?? '/logo.webp',
   app_favicon: process.env.NEXT_PUBLIC_APP_FAVICON ?? '/favicon.webp',
   app_preview_image:
-    process.env.NEXT_PUBLIC_APP_PREVIEW_IMAGE ?? '/preview.png',
+    process.env.NEXT_PUBLIC_APP_PREVIEW_IMAGE ?? '/preview.webp',
   theme: process.env.NEXT_PUBLIC_THEME ?? 'default',
   appearance: process.env.NEXT_PUBLIC_APPEARANCE ?? 'system',
   locale: process.env.NEXT_PUBLIC_DEFAULT_LOCALE ?? 'en',

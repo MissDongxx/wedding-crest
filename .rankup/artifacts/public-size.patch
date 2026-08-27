@@ -1,0 +1,328 @@
+# Public asset budget patch (binary payloads are represented by the manifests)
+# Original: public-size-original.manifest
+# Modified: public-size-modified.manifest
+
+## Tracked file summary
+ .../how-to-remove-chatgpt-dalle-watermark.mdx      |   2 +-
+ content/posts/how-to-remove-gemini-watermark.mdx   |   2 +-
+ .../posts/how-to-remove-midjourney-watermark.mdx   |   2 +-
+ content/posts/what-is-c2pa-metadata.mdx            |   2 +-
+ content/posts/what-is-synthid-watermark.mdx        |   2 +-
+ package.json                                       |   1 +
+ public/images/blog/how-to-detect-ai-watermark.jpg  | Bin 774272 -> 0 bytes
+ .../blog/how-to-remove-chatgpt-dalle-watermark.jpg | Bin 763405 -> 0 bytes
+ .../images/blog/how-to-remove-gemini-watermark.jpg | Bin 756457 -> 0 bytes
+ .../blog/how-to-remove-midjourney-watermark.jpg    | Bin 822068 -> 0 bytes
+ public/images/blog/what-is-c2pa-metadata.jpg       | Bin 888535 -> 0 bytes
+ public/images/blog/what-is-synthid-watermark.jpg   | Bin 856636 -> 0 bytes
+ public/images/examples/after.jpg                   | Bin 365366 -> 0 bytes
+ public/images/examples/before.jpg                  | Bin 365730 -> 0 bytes
+ public/images/examples/castle-after.jpg            | Bin 430352 -> 0 bytes
+ public/images/examples/castle-before.jpg           | Bin 430587 -> 0 bytes
+ public/images/examples/dog-after.jpg               | Bin 408956 -> 0 bytes
+ public/images/examples/dog-before.jpg              | Bin 408901 -> 0 bytes
+ public/images/examples/skater-after.jpg            | Bin 390181 -> 0 bytes
+ public/images/examples/skater-before.jpg           | Bin 390120 -> 0 bytes
+ public/images/examples/woman-after.jpg             | Bin 368650 -> 0 bytes
+ public/images/examples/woman-before.jpg            | Bin 368694 -> 0 bytes
+ public/imgs/bg/tree.jpg                            | Bin 764486 -> 0 bytes
+ public/imgs/cases/1.png                            | Bin 1105025 -> 0 bytes
+ public/imgs/cases/1.webp                           | Bin 126896 -> 11472 bytes
+ public/imgs/cases/2.png                            | Bin 2236701 -> 0 bytes
+ public/imgs/cases/2.webp                           | Bin 236202 -> 14068 bytes
+ public/imgs/cases/3.png                            | Bin 300298 -> 0 bytes
+ public/imgs/cases/3.webp                           | Bin 94752 -> 12396 bytes
+ public/imgs/cases/4.png                            | Bin 760770 -> 0 bytes
+ public/imgs/cases/4.webp                           | Bin 87950 -> 17978 bytes
+ public/imgs/cases/5.png                            | Bin 1256880 -> 0 bytes
+ public/imgs/cases/5.webp                           | Bin 105956 -> 8354 bytes
+ public/imgs/cases/6.png                            | Bin 2081759 -> 0 bytes
+ public/imgs/cases/6.webp                           | Bin 143148 -> 10906 bytes
+ public/imgs/cases/7.png                            | Bin 141409 -> 0 bytes
+ public/imgs/cases/7.webp                           | Bin 37810 -> 4226 bytes
+ public/imgs/cases/8.png                            | Bin 1662029 -> 0 bytes
+ public/imgs/cases/8.webp                           | Bin 143534 -> 10032 bytes
+ public/imgs/cases/9.png                            | Bin 256678 -> 0 bytes
+ public/imgs/cases/9.webp                           | Bin 52450 -> 6916 bytes
+ public/imgs/features/1.png                         | Bin 749369 -> 0 bytes
+ public/imgs/features/10.png                        | Bin 318875 -> 0 bytes
+ public/imgs/features/2.png                         | Bin 1096892 -> 0 bytes
+ public/imgs/features/3.png                         | Bin 1529386 -> 0 bytes
+ public/imgs/features/4.png                         | Bin 1050983 -> 0 bytes
+ public/imgs/features/5.png                         | Bin 1124446 -> 0 bytes
+ public/imgs/features/6.png                         | Bin 945901 -> 0 bytes
+ public/imgs/features/7.png                         | Bin 1393170 -> 0 bytes
+ public/imgs/features/8.png                         | Bin 1315227 -> 0 bytes
+ public/imgs/features/9.png                         | Bin 947954 -> 0 bytes
+ public/imgs/features/admin-dark.png                | Bin 93928 -> 0 bytes
+ public/imgs/features/admin-settings.png            | Bin 293881 -> 0 bytes
+ public/imgs/features/admin.png                     | Bin 96101 -> 0 bytes
+ public/imgs/features/landing-page.png              | Bin 475865 -> 0 bytes
+ public/imgs/features/music-dark.png                | Bin 219836 -> 0 bytes
+ public/imgs/features/music.png                     | Bin 2633939 -> 0 bytes
+ public/imgs/features/one.png                       | Bin 284175 -> 0 bytes
+ public/imgs/features/user-billing.png              | Bin 244627 -> 0 bytes
+ public/preview.png                                 | Bin 1368137 -> 0 bytes
+ .../(landing)/(ai)/ai-image-generator/page.tsx     |   2 +-
+ .../(landing)/(ai)/ai-music-generator/page.tsx     |   2 +-
+ .../(landing)/(ai)/ai-video-generator/page.tsx     |   2 +-
+ src/config/index.ts                                |   2 +-
+ src/themes/default/blocks/upload-zone-block.tsx    |   4 ++--
+ 65 files changed, 12 insertions(+), 11 deletions(-)
+
+## Text changes
+diff --git a/content/posts/how-to-remove-chatgpt-dalle-watermark.mdx b/content/posts/how-to-remove-chatgpt-dalle-watermark.mdx
+index ff5d931..d8e0500 100644
+--- a/content/posts/how-to-remove-chatgpt-dalle-watermark.mdx
++++ b/content/posts/how-to-remove-chatgpt-dalle-watermark.mdx
+@@ -4,7 +4,7 @@ description: Understand how DALL-E watermarks work across ChatGPT free and paid
+ created_at: 2026-04-04
+ author_name: RemoveGeminiWatermark Team
+ author_image: /logo.png
+-image: /images/blog/how-to-remove-chatgpt-dalle-watermark.jpg
++image: /images/blog/how-to-remove-chatgpt-dalle-watermark.webp
+ ---
+ 
+ DALL-E, the image generation model developed by OpenAI, powers image creation in ChatGPT and the OpenAI API. Depending on which tier you use, DALL-E images may come with visible watermarks, invisible metadata markers, or both. This guide explains what gets embedded in your DALL-E images and how to handle each type of marker.
+diff --git a/content/posts/how-to-remove-gemini-watermark.mdx b/content/posts/how-to-remove-gemini-watermark.mdx
+index 540d97a..4ee657e 100644
+--- a/content/posts/how-to-remove-gemini-watermark.mdx
++++ b/content/posts/how-to-remove-gemini-watermark.mdx
+@@ -4,7 +4,7 @@ description: Learn how Google Gemini's visible watermark works, the reverse alph
+ created_at: 2026-04-04
+ author_name: RemoveGeminiWatermark Team
+ author_image: /logo.png
+-image: /images/blog/how-to-remove-gemini-watermark.jpg
++image: /images/blog/how-to-remove-gemini-watermark.webp
+ ---
+ 
+ Google Gemini has become one of the most popular AI image generators, but every image it produces carries a visible watermark in the form of a small star symbol. If you want to understand how this watermark works and how to remove it cleanly, this guide covers everything you need to know.
+diff --git a/content/posts/how-to-remove-midjourney-watermark.mdx b/content/posts/how-to-remove-midjourney-watermark.mdx
+index 983d676..4939401 100644
+--- a/content/posts/how-to-remove-midjourney-watermark.mdx
++++ b/content/posts/how-to-remove-midjourney-watermark.mdx
+@@ -4,7 +4,7 @@ description: Learn about Midjourney's watermark approach, how it varies between
+ created_at: 2026-04-04
+ author_name: RemoveGeminiWatermark Team
+ author_image: /logo.png
+-image: /images/blog/how-to-remove-midjourney-watermark.jpg
++image: /images/blog/how-to-remove-midjourney-watermark.webp
+ ---
+ 
+ Midjourney has established itself as one of the premier AI image generation platforms, known for its distinctive artistic style and high-quality outputs. Like other AI image generators, Midjourney uses watermarks and metadata to mark its generated content. This guide covers everything you need to know about Midjourney watermarks and how they work.
+diff --git a/content/posts/what-is-c2pa-metadata.mdx b/content/posts/what-is-c2pa-metadata.mdx
+index bee85d1..e82f5b1 100644
+--- a/content/posts/what-is-c2pa-metadata.mdx
++++ b/content/posts/what-is-c2pa-metadata.mdx
+@@ -4,7 +4,7 @@ description: Learn about C2PA (Coalition for Content Provenance and Authenticity
+ created_at: 2026-04-04
+ author_name: RemoveGeminiWatermark Team
+ author_image: /logo.png
+-image: /images/blog/what-is-c2pa-metadata.jpg
++image: /images/blog/what-is-c2pa-metadata.webp
+ ---
+ 
+ The proliferation of AI-generated content has created an urgent need for reliable ways to verify where an image came from and how it was created. C2PA — the Coalition for Content Provenance and Authenticity — has emerged as the leading technical standard for addressing this challenge. This guide explains what C2PA is, how it works under the hood, which tools use it, and what it means for privacy and content creators.
+diff --git a/content/posts/what-is-synthid-watermark.mdx b/content/posts/what-is-synthid-watermark.mdx
+index 00d0130..bc9de0b 100644
+--- a/content/posts/what-is-synthid-watermark.mdx
++++ b/content/posts/what-is-synthid-watermark.mdx
+@@ -4,7 +4,7 @@ description: A deep dive into Google's SynthID invisible watermarking system. Le
+ created_at: 2026-04-04
+ author_name: RemoveGeminiWatermark Team
+ author_image: /logo.png
+-image: /images/blog/what-is-synthid-watermark.jpg
++image: /images/blog/what-is-synthid-watermark.webp
+ ---
+ 
+ SynthID is Google DeepMind's invisible watermarking technology for AI-generated content. Unlike visible watermarks that overlay a logo or symbol on an image, SynthID embeds a digital signal directly into the pixel data of generated images — a signal that is imperceptible to the human eye but can be detected by specialized software. This guide provides a comprehensive overview of what SynthID is, how it works technically, and why it matters.
+diff --git a/package.json b/package.json
+index 42c9d31..3ba0ddc 100644
+--- a/package.json
++++ b/package.json
+@@ -13,6 +13,7 @@
+     "dev": "next dev --turbopack",
+     "build": "next build",
+     "build:fast": "NODE_OPTIONS='--max-old-space-size=4096' next build",
++    "check:public-size": "node scripts/check-public-size.mjs",
+     "start": "next start",
+     "lint": "eslint .",
+     "format": "prettier --write .",
+diff --git a/src/app/[locale]/(landing)/(ai)/ai-image-generator/page.tsx b/src/app/[locale]/(landing)/(ai)/ai-image-generator/page.tsx
+index 8b32ee9..fb2f72c 100644
+--- a/src/app/[locale]/(landing)/(ai)/ai-image-generator/page.tsx
++++ b/src/app/[locale]/(landing)/(ai)/ai-image-generator/page.tsx
+@@ -30,7 +30,7 @@ export default async function AiImageGeneratorPage({
+         title: t.raw('page.title'),
+         description: t.raw('page.description'),
+         background_image: {
+-          src: '/imgs/bg/tree.jpg',
++          src: '/imgs/bg/tree.webp',
+           alt: 'hero background',
+         },
+       },
+diff --git a/src/app/[locale]/(landing)/(ai)/ai-music-generator/page.tsx b/src/app/[locale]/(landing)/(ai)/ai-music-generator/page.tsx
+index 61f5aa9..723966c 100644
+--- a/src/app/[locale]/(landing)/(ai)/ai-music-generator/page.tsx
++++ b/src/app/[locale]/(landing)/(ai)/ai-music-generator/page.tsx
+@@ -30,7 +30,7 @@ export default async function AiMusicGeneratorPage({
+         title: t.raw('page.title'),
+         description: t.raw('page.description'),
+         background_image: {
+-          src: '/imgs/bg/tree.jpg',
++          src: '/imgs/bg/tree.webp',
+           alt: 'hero background',
+         },
+       },
+diff --git a/src/app/[locale]/(landing)/(ai)/ai-video-generator/page.tsx b/src/app/[locale]/(landing)/(ai)/ai-video-generator/page.tsx
+index 26087be..7035c10 100644
+--- a/src/app/[locale]/(landing)/(ai)/ai-video-generator/page.tsx
++++ b/src/app/[locale]/(landing)/(ai)/ai-video-generator/page.tsx
+@@ -30,7 +30,7 @@ export default async function AiVideoGeneratorPage({
+         title: t.raw('page.title'),
+         description: t.raw('page.description'),
+         background_image: {
+-          src: '/imgs/bg/tree.jpg',
++          src: '/imgs/bg/tree.webp',
+           alt: 'hero background',
+         },
+       },
+diff --git a/src/config/index.ts b/src/config/index.ts
+index 206817e..166fe43 100644
+--- a/src/config/index.ts
++++ b/src/config/index.ts
+@@ -17,7 +17,7 @@ export const envConfigs: ConfigMap = {
+   app_logo: process.env.NEXT_PUBLIC_APP_LOGO ?? '/logo.webp',
+   app_favicon: process.env.NEXT_PUBLIC_APP_FAVICON ?? '/favicon.webp',
+   app_preview_image:
+-    process.env.NEXT_PUBLIC_APP_PREVIEW_IMAGE ?? '/preview.png',
++    process.env.NEXT_PUBLIC_APP_PREVIEW_IMAGE ?? '/preview.webp',
+   theme: process.env.NEXT_PUBLIC_THEME ?? 'default',
+   appearance: process.env.NEXT_PUBLIC_APPEARANCE ?? 'system',
+   locale: process.env.NEXT_PUBLIC_DEFAULT_LOCALE ?? 'en',
+diff --git a/src/themes/default/blocks/upload-zone-block.tsx b/src/themes/default/blocks/upload-zone-block.tsx
+index 25782ca..b7f65ef 100644
+--- a/src/themes/default/blocks/upload-zone-block.tsx
++++ b/src/themes/default/blocks/upload-zone-block.tsx
+@@ -76,8 +76,8 @@ export function UploadZoneBlock({
+                 <Image
+                   src={
+                     showAfter
+-                      ? '/images/examples/after.jpg'
+-                      : '/images/examples/before.jpg'
++                      ? '/images/examples/after.webp'
++                      : '/images/examples/before.webp'
+                   }
+                   alt={
+                     showAfter
+
+## New size gate
++ import { readdir, stat } from 'node:fs/promises';
++ import { join } from 'node:path';
++ 
++ const root = join(process.cwd(), 'public');
++ const limit = 3 * 1024 * 1024;
++ 
++ async function directorySize(path) {
++   const entries = await readdir(path, { withFileTypes: true });
++   let total = 0;
++ 
++   for (const entry of entries) {
++     const entryPath = join(path, entry.name);
++     total += entry.isDirectory()
++       ? await directorySize(entryPath)
++       : (await stat(entryPath)).size;
++   }
++ 
++   return total;
++ }
++ 
++ const bytes = await directorySize(root);
++ const mebibytes = bytes / 1024 / 1024;
++ console.log(`public/ size: ${bytes} bytes (${mebibytes.toFixed(2)} MiB)`);
++ console.log(`limit: ${limit} bytes (3.00 MiB)`);
++ 
++ if (bytes > limit) {
++   console.error('public/ exceeds the 3 MiB asset budget.');
++   process.exit(1);
++ }
++ 
++ console.log('asset budget: PASS');
+
+## Binary/public file changes
+D	public/images/blog/how-to-detect-ai-watermark.jpg
+D	public/images/blog/how-to-remove-chatgpt-dalle-watermark.jpg
+D	public/images/blog/how-to-remove-gemini-watermark.jpg
+D	public/images/blog/how-to-remove-midjourney-watermark.jpg
+D	public/images/blog/what-is-c2pa-metadata.jpg
+D	public/images/blog/what-is-synthid-watermark.jpg
+D	public/images/examples/after.jpg
+D	public/images/examples/before.jpg
+D	public/images/examples/castle-after.jpg
+D	public/images/examples/castle-before.jpg
+D	public/images/examples/dog-after.jpg
+D	public/images/examples/dog-before.jpg
+D	public/images/examples/skater-after.jpg
+D	public/images/examples/skater-before.jpg
+D	public/images/examples/woman-after.jpg
+D	public/images/examples/woman-before.jpg
+D	public/imgs/bg/tree.jpg
+D	public/imgs/cases/1.png
+M	public/imgs/cases/1.webp
+D	public/imgs/cases/2.png
+M	public/imgs/cases/2.webp
+D	public/imgs/cases/3.png
+M	public/imgs/cases/3.webp
+D	public/imgs/cases/4.png
+M	public/imgs/cases/4.webp
+D	public/imgs/cases/5.png
+M	public/imgs/cases/5.webp
+D	public/imgs/cases/6.png
+M	public/imgs/cases/6.webp
+D	public/imgs/cases/7.png
+M	public/imgs/cases/7.webp
+D	public/imgs/cases/8.png
+M	public/imgs/cases/8.webp
+D	public/imgs/cases/9.png
+M	public/imgs/cases/9.webp
+D	public/imgs/features/1.png
+D	public/imgs/features/10.png
+D	public/imgs/features/2.png
+D	public/imgs/features/3.png
+D	public/imgs/features/4.png
+D	public/imgs/features/5.png
+D	public/imgs/features/6.png
+D	public/imgs/features/7.png
+D	public/imgs/features/8.png
+D	public/imgs/features/9.png
+D	public/imgs/features/admin-dark.png
+D	public/imgs/features/admin-settings.png
+D	public/imgs/features/admin.png
+D	public/imgs/features/landing-page.png
+D	public/imgs/features/music-dark.png
+D	public/imgs/features/music.png
+D	public/imgs/features/one.png
+D	public/imgs/features/user-billing.png
+D	public/preview.png
++ public/apple-touch-icon.webp
++ public/favicon.webp
++ public/images/blog/how-to-detect-ai-watermark.webp
++ public/images/blog/how-to-remove-chatgpt-dalle-watermark.webp
++ public/images/blog/how-to-remove-gemini-watermark.webp
++ public/images/blog/how-to-remove-midjourney-watermark.webp
++ public/images/blog/what-is-c2pa-metadata.webp
++ public/images/blog/what-is-synthid-watermark.webp
++ public/images/examples/after.webp
++ public/images/examples/before.webp
++ public/imgs/bg/tree.webp
++ public/imgs/cases/1.webp
++ public/imgs/cases/2.webp
++ public/imgs/cases/3.webp
++ public/imgs/cases/4.webp
++ public/imgs/cases/5.webp
++ public/imgs/cases/6.webp
++ public/imgs/cases/7.webp
++ public/imgs/cases/8.webp
++ public/imgs/cases/9.webp
++ public/logo.webp
++ public/preview.webp

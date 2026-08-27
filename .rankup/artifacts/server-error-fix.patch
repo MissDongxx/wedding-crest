@@ -1,0 +1,149 @@
+diff --git a/src/app/[locale]/(admin)/admin/wedding/examples/_delete-button.tsx b/src/app/[locale]/(admin)/admin/wedding/examples/_delete-button.tsx
+index 5f8bc2c..beb4e57 100644
+--- a/src/app/[locale]/(admin)/admin/wedding/examples/_delete-button.tsx
++++ b/src/app/[locale]/(admin)/admin/wedding/examples/_delete-button.tsx
+@@ -24,7 +24,10 @@ export function DeleteExampleButtonClient({
+       const resp = await fetch(`/api/admin/wedding/examples/${id}`, {
+         method: 'DELETE',
+       });
+-      const json = await resp.json();
++      const json = (await resp.json()) as {
++        code?: number;
++        message?: string;
++      };
+       if (!resp.ok || json?.code !== 0) {
+         throw new Error(json?.message || 'delete failed');
+       }
+diff --git a/src/app/[locale]/(admin)/admin/wedding/frames/_delete-button.tsx b/src/app/[locale]/(admin)/admin/wedding/frames/_delete-button.tsx
+index 6013344..080d94e 100644
+--- a/src/app/[locale]/(admin)/admin/wedding/frames/_delete-button.tsx
++++ b/src/app/[locale]/(admin)/admin/wedding/frames/_delete-button.tsx
+@@ -2,7 +2,7 @@
+ 
+ import { useState } from 'react';
+ 
+-import { Link, useRouter } from '@/core/i18n/navigation';
++import { useRouter } from '@/core/i18n/navigation';
+ import { SmartIcon } from '@/shared/blocks/common/smart-icon';
+ import { Button } from '@/shared/components/ui/button';
+ import { toast } from 'sonner';
+@@ -24,7 +24,10 @@ export function DeleteFrameButtonClient({
+       const resp = await fetch(`/api/admin/wedding/frames/${id}`, {
+         method: 'DELETE',
+       });
+-      const json = await resp.json();
++      const json = (await resp.json()) as {
++        code?: number;
++        message?: string;
++      };
+       if (!resp.ok || json?.code !== 0) {
+         throw new Error(json?.message || 'delete failed');
+       }
+diff --git a/src/config/locale/messages/de/pages/examples.json b/src/config/locale/messages/de/pages/examples.json
+index bd7a3f0..aa1e600 100644
+--- a/src/config/locale/messages/de/pages/examples.json
++++ b/src/config/locale/messages/de/pages/examples.json
+@@ -3,5 +3,7 @@
+   "meta_description": "Browse real wedding crests designed for couples. Tap any crest to start your own.",
+   "title": "Wedding crest examples",
+   "description": "Browse real crests designed for couples. Tap any crest to start your own with that style.",
++  "browse_all": "Browse this style",
++  "start_from_this": "Start from this",
+   "detail_meta_title": "{title} — wedding crest example"
+ }
+diff --git a/src/config/locale/messages/fr/pages/examples.json b/src/config/locale/messages/fr/pages/examples.json
+index bd7a3f0..aa1e600 100644
+--- a/src/config/locale/messages/fr/pages/examples.json
++++ b/src/config/locale/messages/fr/pages/examples.json
+@@ -3,5 +3,7 @@
+   "meta_description": "Browse real wedding crests designed for couples. Tap any crest to start your own.",
+   "title": "Wedding crest examples",
+   "description": "Browse real crests designed for couples. Tap any crest to start your own with that style.",
++  "browse_all": "Browse this style",
++  "start_from_this": "Start from this",
+   "detail_meta_title": "{title} — wedding crest example"
+ }
+diff --git a/src/config/locale/messages/it/pages/examples.json b/src/config/locale/messages/it/pages/examples.json
+index bd7a3f0..aa1e600 100644
+--- a/src/config/locale/messages/it/pages/examples.json
++++ b/src/config/locale/messages/it/pages/examples.json
+@@ -3,5 +3,7 @@
+   "meta_description": "Browse real wedding crests designed for couples. Tap any crest to start your own.",
+   "title": "Wedding crest examples",
+   "description": "Browse real crests designed for couples. Tap any crest to start your own with that style.",
++  "browse_all": "Browse this style",
++  "start_from_this": "Start from this",
+   "detail_meta_title": "{title} — wedding crest example"
+ }
+diff --git a/src/config/locale/messages/ko/pages/examples.json b/src/config/locale/messages/ko/pages/examples.json
+index bd7a3f0..aa1e600 100644
+--- a/src/config/locale/messages/ko/pages/examples.json
++++ b/src/config/locale/messages/ko/pages/examples.json
+@@ -3,5 +3,7 @@
+   "meta_description": "Browse real wedding crests designed for couples. Tap any crest to start your own.",
+   "title": "Wedding crest examples",
+   "description": "Browse real crests designed for couples. Tap any crest to start your own with that style.",
++  "browse_all": "Browse this style",
++  "start_from_this": "Start from this",
+   "detail_meta_title": "{title} — wedding crest example"
+ }
+diff --git a/src/config/locale/messages/pt-BR/pages/examples.json b/src/config/locale/messages/pt-BR/pages/examples.json
+index bd7a3f0..aa1e600 100644
+--- a/src/config/locale/messages/pt-BR/pages/examples.json
++++ b/src/config/locale/messages/pt-BR/pages/examples.json
+@@ -3,5 +3,7 @@
+   "meta_description": "Browse real wedding crests designed for couples. Tap any crest to start your own.",
+   "title": "Wedding crest examples",
+   "description": "Browse real crests designed for couples. Tap any crest to start your own with that style.",
++  "browse_all": "Browse this style",
++  "start_from_this": "Start from this",
+   "detail_meta_title": "{title} — wedding crest example"
+ }
+diff --git a/src/config/locale/messages/th/pages/examples.json b/src/config/locale/messages/th/pages/examples.json
+index bd7a3f0..aa1e600 100644
+--- a/src/config/locale/messages/th/pages/examples.json
++++ b/src/config/locale/messages/th/pages/examples.json
+@@ -3,5 +3,7 @@
+   "meta_description": "Browse real wedding crests designed for couples. Tap any crest to start your own.",
+   "title": "Wedding crest examples",
+   "description": "Browse real crests designed for couples. Tap any crest to start your own with that style.",
++  "browse_all": "Browse this style",
++  "start_from_this": "Start from this",
+   "detail_meta_title": "{title} — wedding crest example"
+ }
+diff --git a/src/config/locale/messages/zh/pages/examples.json b/src/config/locale/messages/zh/pages/examples.json
+index bd7a3f0..aa1e600 100644
+--- a/src/config/locale/messages/zh/pages/examples.json
++++ b/src/config/locale/messages/zh/pages/examples.json
+@@ -3,5 +3,7 @@
+   "meta_description": "Browse real wedding crests designed for couples. Tap any crest to start your own.",
+   "title": "Wedding crest examples",
+   "description": "Browse real crests designed for couples. Tap any crest to start your own with that style.",
++  "browse_all": "Browse this style",
++  "start_from_this": "Start from this",
+   "detail_meta_title": "{title} — wedding crest example"
+ }
+diff --git a/src/core/db/d1.ts b/src/core/db/d1.ts
+index f5fb95e..671cc88 100644
+--- a/src/core/db/d1.ts
++++ b/src/core/db/d1.ts
+@@ -8,6 +8,7 @@ type D1Database = {
+   batch(statements: any[]): Promise<any[]>;
+   exec(query: string): Promise<any>;
+   dump(): Promise<ArrayBuffer>;
++  withSession(...args: any[]): any;
+ };
+ 
+ // D1 singleton instance (reused across requests in the same isolate)
+
+--- /dev/null src/shared/types/fetch-compat.d.ts ---
+--- /dev/null	2026-08-27 20:32:50
++++ src/shared/types/fetch-compat.d.ts	2026-08-27 17:35:01
+@@ -0,0 +1,7 @@
++interface Request {
++  json<T = any>(): Promise<T>;
++}
++
++interface Response {
++  json<T = any>(): Promise<T>;
++}

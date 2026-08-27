@@ -1,0 +1,89 @@
+ M content/posts/how-to-remove-chatgpt-dalle-watermark.mdx
+ M content/posts/how-to-remove-gemini-watermark.mdx
+ M content/posts/how-to-remove-midjourney-watermark.mdx
+ M content/posts/what-is-c2pa-metadata.mdx
+ M content/posts/what-is-synthid-watermark.mdx
+ M package.json
+ D public/images/blog/how-to-detect-ai-watermark.jpg
+ D public/images/blog/how-to-remove-chatgpt-dalle-watermark.jpg
+ D public/images/blog/how-to-remove-gemini-watermark.jpg
+ D public/images/blog/how-to-remove-midjourney-watermark.jpg
+ D public/images/blog/what-is-c2pa-metadata.jpg
+ D public/images/blog/what-is-synthid-watermark.jpg
+ D public/images/examples/after.jpg
+ D public/images/examples/before.jpg
+ D public/images/examples/castle-after.jpg
+ D public/images/examples/castle-before.jpg
+ D public/images/examples/dog-after.jpg
+ D public/images/examples/dog-before.jpg
+ D public/images/examples/skater-after.jpg
+ D public/images/examples/skater-before.jpg
+ D public/images/examples/woman-after.jpg
+ D public/images/examples/woman-before.jpg
+ D public/imgs/bg/tree.jpg
+ D public/imgs/cases/1.png
+ M public/imgs/cases/1.webp
+ D public/imgs/cases/2.png
+ M public/imgs/cases/2.webp
+ D public/imgs/cases/3.png
+ M public/imgs/cases/3.webp
+ D public/imgs/cases/4.png
+ M public/imgs/cases/4.webp
+ D public/imgs/cases/5.png
+ M public/imgs/cases/5.webp
+ D public/imgs/cases/6.png
+ M public/imgs/cases/6.webp
+ D public/imgs/cases/7.png
+ M public/imgs/cases/7.webp
+ D public/imgs/cases/8.png
+ M public/imgs/cases/8.webp
+ D public/imgs/cases/9.png
+ M public/imgs/cases/9.webp
+ D public/imgs/features/1.png
+ D public/imgs/features/10.png
+ D public/imgs/features/2.png
+ D public/imgs/features/3.png
+ D public/imgs/features/4.png
+ D public/imgs/features/5.png
+ D public/imgs/features/6.png
+ D public/imgs/features/7.png
+ D public/imgs/features/8.png
+ D public/imgs/features/9.png
+ D public/imgs/features/admin-dark.png
+ D public/imgs/features/admin-settings.png
+ D public/imgs/features/admin.png
+ D public/imgs/features/landing-page.png
+ D public/imgs/features/music-dark.png
+ D public/imgs/features/music.png
+ D public/imgs/features/one.png
+ D public/imgs/features/user-billing.png
+ D public/preview.png
+ M src/app/[locale]/(admin)/admin/wedding/examples/_delete-button.tsx
+ M src/app/[locale]/(admin)/admin/wedding/frames/_delete-button.tsx
+ M src/app/[locale]/(landing)/(ai)/ai-image-generator/page.tsx
+ M src/app/[locale]/(landing)/(ai)/ai-music-generator/page.tsx
+ M src/app/[locale]/(landing)/(ai)/ai-video-generator/page.tsx
+ M src/config/index.ts
+ M src/core/db/d1.ts
+ M src/themes/default/blocks/upload-zone-block.tsx
+?? .rankup/artifacts/cf-deploy-verification.txt
+?? .rankup/artifacts/perf-fix-baseline-status.txt
+?? .rankup/artifacts/perf-fix-baseline.patch
+?? .rankup/artifacts/public-size-modified.manifest
+?? .rankup/artifacts/public-size-original.manifest
+?? .rankup/artifacts/public-size-rollback.sh
+?? .rankup/artifacts/public-size-verification.txt
+?? .rankup/artifacts/public-size.patch
+?? public/images/blog/how-to-detect-ai-watermark.webp
+?? public/images/blog/how-to-remove-chatgpt-dalle-watermark.webp
+?? public/images/blog/how-to-remove-gemini-watermark.webp
+?? public/images/blog/how-to-remove-midjourney-watermark.webp
+?? public/images/blog/what-is-c2pa-metadata.webp
+?? public/images/blog/what-is-synthid-watermark.webp
+?? public/images/examples/after.webp
+?? public/images/examples/before.webp
+?? public/imgs/bg/tree.webp
+?? public/preview.webp
+?? scripts/check-public-size.mjs
+?? src/shared/types/fetch-compat.d.ts
+?? src/shared/types/undici-compat.d.ts

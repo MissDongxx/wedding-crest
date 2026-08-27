@@ -24,7 +24,10 @@ export function DeleteExampleButtonClient({
       const resp = await fetch(`/api/admin/wedding/examples/${id}`, {
         method: 'DELETE',
       });
-      const json = await resp.json();
+      const json = (await resp.json()) as {
+        code?: number;
+        message?: string;
+      };
       if (!resp.ok || json?.code !== 0) {
         throw new Error(json?.message || 'delete failed');
       }

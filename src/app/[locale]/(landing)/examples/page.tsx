@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import {
-  listWeddingExamples,
+  listWeddingExamplesSafe,
   type WeddingExampleRow,
 } from '@/shared/models/wedding';
 import { weddingExampleStyleIds, weddingStyles } from '@/shared/wedding/types';
@@ -66,7 +66,7 @@ export default async function ExamplesPage({
   const t = await getTranslations('pages.examples');
 
   const allowedStyles = new Set<string>(weddingExampleStyleIds);
-  const dbRows = (await listWeddingExamples({
+  const dbRows = (await listWeddingExamplesSafe({
     activeOnly: true,
   })) as WeddingExampleRow[];
 

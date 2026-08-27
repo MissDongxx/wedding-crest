@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import { cn } from '@/shared/lib/utils';
 import {
-  listWeddingExamples,
+  listWeddingExamplesSafe,
   type WeddingExampleRow,
 } from '@/shared/models/wedding';
 import { Section } from '@/shared/types/blocks/landing';
@@ -19,7 +19,7 @@ export async function WeddingExamples({
 }) {
   const allowedStyles = new Set(weddingExampleStyleIds);
   const examples = (
-    (await listWeddingExamples({ activeOnly: true })) as WeddingExampleRow[]
+    (await listWeddingExamplesSafe({ activeOnly: true })) as WeddingExampleRow[]
   ).filter((example) =>
     allowedStyles.has(example.style as (typeof weddingExampleStyleIds)[number])
   );

@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 
-import { LazyImage, SmartIcon } from '@/shared/blocks/common';
+import { LazyImage } from '@/shared/blocks/common/lazy-image';
+import { SmartIcon } from '@/shared/blocks/common/smart-icon';
 import { BorderBeam } from '@/shared/components/magicui/border-beam';
 import {
   Accordion,

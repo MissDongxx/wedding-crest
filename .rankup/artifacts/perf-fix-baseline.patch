@@ -1,0 +1,395 @@
+diff --git a/content/posts/how-to-remove-chatgpt-dalle-watermark.mdx b/content/posts/how-to-remove-chatgpt-dalle-watermark.mdx
+index ff5d931..d8e0500 100644
+--- a/content/posts/how-to-remove-chatgpt-dalle-watermark.mdx
++++ b/content/posts/how-to-remove-chatgpt-dalle-watermark.mdx
+@@ -4,7 +4,7 @@ description: Understand how DALL-E watermarks work across ChatGPT free and paid
+ created_at: 2026-04-04
+ author_name: RemoveGeminiWatermark Team
+ author_image: /logo.png
+-image: /images/blog/how-to-remove-chatgpt-dalle-watermark.jpg
++image: /images/blog/how-to-remove-chatgpt-dalle-watermark.webp
+ ---
+ 
+ DALL-E, the image generation model developed by OpenAI, powers image creation in ChatGPT and the OpenAI API. Depending on which tier you use, DALL-E images may come with visible watermarks, invisible metadata markers, or both. This guide explains what gets embedded in your DALL-E images and how to handle each type of marker.
+diff --git a/content/posts/how-to-remove-gemini-watermark.mdx b/content/posts/how-to-remove-gemini-watermark.mdx
+index 540d97a..4ee657e 100644
+--- a/content/posts/how-to-remove-gemini-watermark.mdx
++++ b/content/posts/how-to-remove-gemini-watermark.mdx
+@@ -4,7 +4,7 @@ description: Learn how Google Gemini's visible watermark works, the reverse alph
+ created_at: 2026-04-04
+ author_name: RemoveGeminiWatermark Team
+ author_image: /logo.png
+-image: /images/blog/how-to-remove-gemini-watermark.jpg
++image: /images/blog/how-to-remove-gemini-watermark.webp
+ ---
+ 
+ Google Gemini has become one of the most popular AI image generators, but every image it produces carries a visible watermark in the form of a small star symbol. If you want to understand how this watermark works and how to remove it cleanly, this guide covers everything you need to know.
+diff --git a/content/posts/how-to-remove-midjourney-watermark.mdx b/content/posts/how-to-remove-midjourney-watermark.mdx
+index 983d676..4939401 100644
+--- a/content/posts/how-to-remove-midjourney-watermark.mdx
++++ b/content/posts/how-to-remove-midjourney-watermark.mdx
+@@ -4,7 +4,7 @@ description: Learn about Midjourney's watermark approach, how it varies between
+ created_at: 2026-04-04
+ author_name: RemoveGeminiWatermark Team
+ author_image: /logo.png
+-image: /images/blog/how-to-remove-midjourney-watermark.jpg
++image: /images/blog/how-to-remove-midjourney-watermark.webp
+ ---
+ 
+ Midjourney has established itself as one of the premier AI image generation platforms, known for its distinctive artistic style and high-quality outputs. Like other AI image generators, Midjourney uses watermarks and metadata to mark its generated content. This guide covers everything you need to know about Midjourney watermarks and how they work.
+diff --git a/content/posts/what-is-c2pa-metadata.mdx b/content/posts/what-is-c2pa-metadata.mdx
+index bee85d1..e82f5b1 100644
+--- a/content/posts/what-is-c2pa-metadata.mdx
++++ b/content/posts/what-is-c2pa-metadata.mdx
+@@ -4,7 +4,7 @@ description: Learn about C2PA (Coalition for Content Provenance and Authenticity
+ created_at: 2026-04-04
+ author_name: RemoveGeminiWatermark Team
+ author_image: /logo.png
+-image: /images/blog/what-is-c2pa-metadata.jpg
++image: /images/blog/what-is-c2pa-metadata.webp
+ ---
+ 
+ The proliferation of AI-generated content has created an urgent need for reliable ways to verify where an image came from and how it was created. C2PA — the Coalition for Content Provenance and Authenticity — has emerged as the leading technical standard for addressing this challenge. This guide explains what C2PA is, how it works under the hood, which tools use it, and what it means for privacy and content creators.
+diff --git a/content/posts/what-is-synthid-watermark.mdx b/content/posts/what-is-synthid-watermark.mdx
+index 00d0130..bc9de0b 100644
+--- a/content/posts/what-is-synthid-watermark.mdx
++++ b/content/posts/what-is-synthid-watermark.mdx
+@@ -4,7 +4,7 @@ description: A deep dive into Google's SynthID invisible watermarking system. Le
+ created_at: 2026-04-04
+ author_name: RemoveGeminiWatermark Team
+ author_image: /logo.png
+-image: /images/blog/what-is-synthid-watermark.jpg
++image: /images/blog/what-is-synthid-watermark.webp
+ ---
+ 
+ SynthID is Google DeepMind's invisible watermarking technology for AI-generated content. Unlike visible watermarks that overlay a logo or symbol on an image, SynthID embeds a digital signal directly into the pixel data of generated images — a signal that is imperceptible to the human eye but can be detected by specialized software. This guide provides a comprehensive overview of what SynthID is, how it works technically, and why it matters.
+diff --git a/package.json b/package.json
+index 42c9d31..3ba0ddc 100644
+--- a/package.json
++++ b/package.json
+@@ -13,6 +13,7 @@
+     "dev": "next dev --turbopack",
+     "build": "next build",
+     "build:fast": "NODE_OPTIONS='--max-old-space-size=4096' next build",
++    "check:public-size": "node scripts/check-public-size.mjs",
+     "start": "next start",
+     "lint": "eslint .",
+     "format": "prettier --write .",
+diff --git a/public/images/blog/how-to-detect-ai-watermark.jpg b/public/images/blog/how-to-detect-ai-watermark.jpg
+deleted file mode 100644
+index ed8aea4..0000000
+Binary files a/public/images/blog/how-to-detect-ai-watermark.jpg and /dev/null differ
+diff --git a/public/images/blog/how-to-remove-chatgpt-dalle-watermark.jpg b/public/images/blog/how-to-remove-chatgpt-dalle-watermark.jpg
+deleted file mode 100644
+index 9ed9c62..0000000
+Binary files a/public/images/blog/how-to-remove-chatgpt-dalle-watermark.jpg and /dev/null differ
+diff --git a/public/images/blog/how-to-remove-gemini-watermark.jpg b/public/images/blog/how-to-remove-gemini-watermark.jpg
+deleted file mode 100644
+index 23782c3..0000000
+Binary files a/public/images/blog/how-to-remove-gemini-watermark.jpg and /dev/null differ
+diff --git a/public/images/blog/how-to-remove-midjourney-watermark.jpg b/public/images/blog/how-to-remove-midjourney-watermark.jpg
+deleted file mode 100644
+index f402ea0..0000000
+Binary files a/public/images/blog/how-to-remove-midjourney-watermark.jpg and /dev/null differ
+diff --git a/public/images/blog/what-is-c2pa-metadata.jpg b/public/images/blog/what-is-c2pa-metadata.jpg
+deleted file mode 100644
+index b7faa8e..0000000
+Binary files a/public/images/blog/what-is-c2pa-metadata.jpg and /dev/null differ
+diff --git a/public/images/blog/what-is-synthid-watermark.jpg b/public/images/blog/what-is-synthid-watermark.jpg
+deleted file mode 100644
+index 510c2b5..0000000
+Binary files a/public/images/blog/what-is-synthid-watermark.jpg and /dev/null differ
+diff --git a/public/images/examples/after.jpg b/public/images/examples/after.jpg
+deleted file mode 100644
+index 1f448d2..0000000
+Binary files a/public/images/examples/after.jpg and /dev/null differ
+diff --git a/public/images/examples/before.jpg b/public/images/examples/before.jpg
+deleted file mode 100644
+index 0ee43fe..0000000
+Binary files a/public/images/examples/before.jpg and /dev/null differ
+diff --git a/public/images/examples/castle-after.jpg b/public/images/examples/castle-after.jpg
+deleted file mode 100644
+index b9ded6d..0000000
+Binary files a/public/images/examples/castle-after.jpg and /dev/null differ
+diff --git a/public/images/examples/castle-before.jpg b/public/images/examples/castle-before.jpg
+deleted file mode 100644
+index a5c8106..0000000
+Binary files a/public/images/examples/castle-before.jpg and /dev/null differ
+diff --git a/public/images/examples/dog-after.jpg b/public/images/examples/dog-after.jpg
+deleted file mode 100644
+index f2a7134..0000000
+Binary files a/public/images/examples/dog-after.jpg and /dev/null differ
+diff --git a/public/images/examples/dog-before.jpg b/public/images/examples/dog-before.jpg
+deleted file mode 100644
+index eb51121..0000000
+Binary files a/public/images/examples/dog-before.jpg and /dev/null differ
+diff --git a/public/images/examples/skater-after.jpg b/public/images/examples/skater-after.jpg
+deleted file mode 100644
+index 7df7d1a..0000000
+Binary files a/public/images/examples/skater-after.jpg and /dev/null differ
+diff --git a/public/images/examples/skater-before.jpg b/public/images/examples/skater-before.jpg
+deleted file mode 100644
+index a7871b8..0000000
+Binary files a/public/images/examples/skater-before.jpg and /dev/null differ
+diff --git a/public/images/examples/woman-after.jpg b/public/images/examples/woman-after.jpg
+deleted file mode 100644
+index ead43fd..0000000
+Binary files a/public/images/examples/woman-after.jpg and /dev/null differ
+diff --git a/public/images/examples/woman-before.jpg b/public/images/examples/woman-before.jpg
+deleted file mode 100644
+index 9133d61..0000000
+Binary files a/public/images/examples/woman-before.jpg and /dev/null differ
+diff --git a/public/imgs/bg/tree.jpg b/public/imgs/bg/tree.jpg
+deleted file mode 100644
+index 2d71577..0000000
+Binary files a/public/imgs/bg/tree.jpg and /dev/null differ
+diff --git a/public/imgs/cases/1.png b/public/imgs/cases/1.png
+deleted file mode 100644
+index dc324b3..0000000
+Binary files a/public/imgs/cases/1.png and /dev/null differ
+diff --git a/public/imgs/cases/1.webp b/public/imgs/cases/1.webp
+index a5f2483..d12b433 100644
+Binary files a/public/imgs/cases/1.webp and b/public/imgs/cases/1.webp differ
+diff --git a/public/imgs/cases/2.png b/public/imgs/cases/2.png
+deleted file mode 100644
+index ea1025a..0000000
+Binary files a/public/imgs/cases/2.png and /dev/null differ
+diff --git a/public/imgs/cases/2.webp b/public/imgs/cases/2.webp
+index e33dbc9..5c9d8f3 100644
+Binary files a/public/imgs/cases/2.webp and b/public/imgs/cases/2.webp differ
+diff --git a/public/imgs/cases/3.png b/public/imgs/cases/3.png
+deleted file mode 100644
+index f972206..0000000
+Binary files a/public/imgs/cases/3.png and /dev/null differ
+diff --git a/public/imgs/cases/3.webp b/public/imgs/cases/3.webp
+index bfb8be4..5d3ce21 100644
+Binary files a/public/imgs/cases/3.webp and b/public/imgs/cases/3.webp differ
+diff --git a/public/imgs/cases/4.png b/public/imgs/cases/4.png
+deleted file mode 100644
+index 534c3d8..0000000
+Binary files a/public/imgs/cases/4.png and /dev/null differ
+diff --git a/public/imgs/cases/4.webp b/public/imgs/cases/4.webp
+index 18ddc61..b2ab727 100644
+Binary files a/public/imgs/cases/4.webp and b/public/imgs/cases/4.webp differ
+diff --git a/public/imgs/cases/5.png b/public/imgs/cases/5.png
+deleted file mode 100644
+index 4435393..0000000
+Binary files a/public/imgs/cases/5.png and /dev/null differ
+diff --git a/public/imgs/cases/5.webp b/public/imgs/cases/5.webp
+index 6b506c9..1de5492 100644
+Binary files a/public/imgs/cases/5.webp and b/public/imgs/cases/5.webp differ
+diff --git a/public/imgs/cases/6.png b/public/imgs/cases/6.png
+deleted file mode 100644
+index a9b6249..0000000
+Binary files a/public/imgs/cases/6.png and /dev/null differ
+diff --git a/public/imgs/cases/6.webp b/public/imgs/cases/6.webp
+index 97639fc..20b4123 100644
+Binary files a/public/imgs/cases/6.webp and b/public/imgs/cases/6.webp differ
+diff --git a/public/imgs/cases/7.png b/public/imgs/cases/7.png
+deleted file mode 100644
+index fc780ba..0000000
+Binary files a/public/imgs/cases/7.png and /dev/null differ
+diff --git a/public/imgs/cases/7.webp b/public/imgs/cases/7.webp
+index 3753c79..dc73212 100644
+Binary files a/public/imgs/cases/7.webp and b/public/imgs/cases/7.webp differ
+diff --git a/public/imgs/cases/8.png b/public/imgs/cases/8.png
+deleted file mode 100644
+index 917c9a9..0000000
+Binary files a/public/imgs/cases/8.png and /dev/null differ
+diff --git a/public/imgs/cases/8.webp b/public/imgs/cases/8.webp
+index 4d977c1..ba22d37 100644
+Binary files a/public/imgs/cases/8.webp and b/public/imgs/cases/8.webp differ
+diff --git a/public/imgs/cases/9.png b/public/imgs/cases/9.png
+deleted file mode 100644
+index 300baab..0000000
+Binary files a/public/imgs/cases/9.png and /dev/null differ
+diff --git a/public/imgs/cases/9.webp b/public/imgs/cases/9.webp
+index 1724db2..21b5ceb 100644
+Binary files a/public/imgs/cases/9.webp and b/public/imgs/cases/9.webp differ
+diff --git a/public/imgs/features/1.png b/public/imgs/features/1.png
+deleted file mode 100644
+index 82eba60..0000000
+Binary files a/public/imgs/features/1.png and /dev/null differ
+diff --git a/public/imgs/features/10.png b/public/imgs/features/10.png
+deleted file mode 100644
+index f975c2d..0000000
+Binary files a/public/imgs/features/10.png and /dev/null differ
+diff --git a/public/imgs/features/2.png b/public/imgs/features/2.png
+deleted file mode 100644
+index f4b6330..0000000
+Binary files a/public/imgs/features/2.png and /dev/null differ
+diff --git a/public/imgs/features/3.png b/public/imgs/features/3.png
+deleted file mode 100644
+index 7d76615..0000000
+Binary files a/public/imgs/features/3.png and /dev/null differ
+diff --git a/public/imgs/features/4.png b/public/imgs/features/4.png
+deleted file mode 100644
+index 86b276b..0000000
+Binary files a/public/imgs/features/4.png and /dev/null differ
+diff --git a/public/imgs/features/5.png b/public/imgs/features/5.png
+deleted file mode 100644
+index 60e519f..0000000
+Binary files a/public/imgs/features/5.png and /dev/null differ
+diff --git a/public/imgs/features/6.png b/public/imgs/features/6.png
+deleted file mode 100644
+index 2054452..0000000
+Binary files a/public/imgs/features/6.png and /dev/null differ
+diff --git a/public/imgs/features/7.png b/public/imgs/features/7.png
+deleted file mode 100644
+index bd66eac..0000000
+Binary files a/public/imgs/features/7.png and /dev/null differ
+diff --git a/public/imgs/features/8.png b/public/imgs/features/8.png
+deleted file mode 100644
+index 375d07e..0000000
+Binary files a/public/imgs/features/8.png and /dev/null differ
+diff --git a/public/imgs/features/9.png b/public/imgs/features/9.png
+deleted file mode 100644
+index fe3f0f3..0000000
+Binary files a/public/imgs/features/9.png and /dev/null differ
+diff --git a/public/imgs/features/admin-dark.png b/public/imgs/features/admin-dark.png
+deleted file mode 100644
+index 7f1f4ce..0000000
+Binary files a/public/imgs/features/admin-dark.png and /dev/null differ
+diff --git a/public/imgs/features/admin-settings.png b/public/imgs/features/admin-settings.png
+deleted file mode 100644
+index d402ac4..0000000
+Binary files a/public/imgs/features/admin-settings.png and /dev/null differ
+diff --git a/public/imgs/features/admin.png b/public/imgs/features/admin.png
+deleted file mode 100644
+index b18badc..0000000
+Binary files a/public/imgs/features/admin.png and /dev/null differ
+diff --git a/public/imgs/features/landing-page.png b/public/imgs/features/landing-page.png
+deleted file mode 100644
+index 70904ef..0000000
+Binary files a/public/imgs/features/landing-page.png and /dev/null differ
+diff --git a/public/imgs/features/music-dark.png b/public/imgs/features/music-dark.png
+deleted file mode 100644
+index 6f9ca6f..0000000
+Binary files a/public/imgs/features/music-dark.png and /dev/null differ
+diff --git a/public/imgs/features/music.png b/public/imgs/features/music.png
+deleted file mode 100644
+index 3b6b6ce..0000000
+Binary files a/public/imgs/features/music.png and /dev/null differ
+diff --git a/public/imgs/features/one.png b/public/imgs/features/one.png
+deleted file mode 100644
+index 0456941..0000000
+Binary files a/public/imgs/features/one.png and /dev/null differ
+diff --git a/public/imgs/features/user-billing.png b/public/imgs/features/user-billing.png
+deleted file mode 100644
+index 0309670..0000000
+Binary files a/public/imgs/features/user-billing.png and /dev/null differ
+diff --git a/public/preview.png b/public/preview.png
+deleted file mode 100644
+index 6392eba..0000000
+Binary files a/public/preview.png and /dev/null differ
+diff --git a/src/app/[locale]/(admin)/admin/wedding/examples/_delete-button.tsx b/src/app/[locale]/(admin)/admin/wedding/examples/_delete-button.tsx
+index 5f8bc2c..beb4e57 100644
+--- a/src/app/[locale]/(admin)/admin/wedding/examples/_delete-button.tsx
++++ b/src/app/[locale]/(admin)/admin/wedding/examples/_delete-button.tsx
+@@ -24,7 +24,10 @@ export function DeleteExampleButtonClient({
+       const resp = await fetch(`/api/admin/wedding/examples/${id}`, {
+         method: 'DELETE',
+       });
+-      const json = await resp.json();
++      const json = (await resp.json()) as {
++        code?: number;
++        message?: string;
++      };
+       if (!resp.ok || json?.code !== 0) {
+         throw new Error(json?.message || 'delete failed');
+       }
+diff --git a/src/app/[locale]/(admin)/admin/wedding/frames/_delete-button.tsx b/src/app/[locale]/(admin)/admin/wedding/frames/_delete-button.tsx
+index 6013344..bbd6465 100644
+--- a/src/app/[locale]/(admin)/admin/wedding/frames/_delete-button.tsx
++++ b/src/app/[locale]/(admin)/admin/wedding/frames/_delete-button.tsx
+@@ -24,7 +24,10 @@ export function DeleteFrameButtonClient({
+       const resp = await fetch(`/api/admin/wedding/frames/${id}`, {
+         method: 'DELETE',
+       });
+-      const json = await resp.json();
++      const json = (await resp.json()) as {
++        code?: number;
++        message?: string;
++      };
+       if (!resp.ok || json?.code !== 0) {
+         throw new Error(json?.message || 'delete failed');
+       }
+diff --git a/src/app/[locale]/(landing)/(ai)/ai-image-generator/page.tsx b/src/app/[locale]/(landing)/(ai)/ai-image-generator/page.tsx
+index 8b32ee9..fb2f72c 100644
+--- a/src/app/[locale]/(landing)/(ai)/ai-image-generator/page.tsx
++++ b/src/app/[locale]/(landing)/(ai)/ai-image-generator/page.tsx
+@@ -30,7 +30,7 @@ export default async function AiImageGeneratorPage({
+         title: t.raw('page.title'),
+         description: t.raw('page.description'),
+         background_image: {
+-          src: '/imgs/bg/tree.jpg',
++          src: '/imgs/bg/tree.webp',
+           alt: 'hero background',
+         },
+       },
+diff --git a/src/app/[locale]/(landing)/(ai)/ai-music-generator/page.tsx b/src/app/[locale]/(landing)/(ai)/ai-music-generator/page.tsx
+index 61f5aa9..723966c 100644
+--- a/src/app/[locale]/(landing)/(ai)/ai-music-generator/page.tsx
++++ b/src/app/[locale]/(landing)/(ai)/ai-music-generator/page.tsx
+@@ -30,7 +30,7 @@ export default async function AiMusicGeneratorPage({
+         title: t.raw('page.title'),
+         description: t.raw('page.description'),
+         background_image: {
+-          src: '/imgs/bg/tree.jpg',
++          src: '/imgs/bg/tree.webp',
+           alt: 'hero background',
+         },
+       },
+diff --git a/src/app/[locale]/(landing)/(ai)/ai-video-generator/page.tsx b/src/app/[locale]/(landing)/(ai)/ai-video-generator/page.tsx
+index 26087be..7035c10 100644
+--- a/src/app/[locale]/(landing)/(ai)/ai-video-generator/page.tsx
++++ b/src/app/[locale]/(landing)/(ai)/ai-video-generator/page.tsx
+@@ -30,7 +30,7 @@ export default async function AiVideoGeneratorPage({
+         title: t.raw('page.title'),
+         description: t.raw('page.description'),
+         background_image: {
+-          src: '/imgs/bg/tree.jpg',
++          src: '/imgs/bg/tree.webp',
+           alt: 'hero background',
+         },
+       },
+diff --git a/src/config/index.ts b/src/config/index.ts
+index 206817e..166fe43 100644
+--- a/src/config/index.ts
++++ b/src/config/index.ts
+@@ -17,7 +17,7 @@ export const envConfigs: ConfigMap = {
+   app_logo: process.env.NEXT_PUBLIC_APP_LOGO ?? '/logo.webp',
+   app_favicon: process.env.NEXT_PUBLIC_APP_FAVICON ?? '/favicon.webp',
+   app_preview_image:
+-    process.env.NEXT_PUBLIC_APP_PREVIEW_IMAGE ?? '/preview.png',
++    process.env.NEXT_PUBLIC_APP_PREVIEW_IMAGE ?? '/preview.webp',
+   theme: process.env.NEXT_PUBLIC_THEME ?? 'default',
+   appearance: process.env.NEXT_PUBLIC_APPEARANCE ?? 'system',
+   locale: process.env.NEXT_PUBLIC_DEFAULT_LOCALE ?? 'en',
+diff --git a/src/core/db/d1.ts b/src/core/db/d1.ts
+index f5fb95e..671cc88 100644
+--- a/src/core/db/d1.ts
++++ b/src/core/db/d1.ts
+@@ -8,6 +8,7 @@ type D1Database = {
+   batch(statements: any[]): Promise<any[]>;
+   exec(query: string): Promise<any>;
+   dump(): Promise<ArrayBuffer>;
++  withSession(...args: any[]): any;
+ };
+ 
+ // D1 singleton instance (reused across requests in the same isolate)
+diff --git a/src/themes/default/blocks/upload-zone-block.tsx b/src/themes/default/blocks/upload-zone-block.tsx
+index 25782ca..b7f65ef 100644
+--- a/src/themes/default/blocks/upload-zone-block.tsx
++++ b/src/themes/default/blocks/upload-zone-block.tsx
+@@ -76,8 +76,8 @@ export function UploadZoneBlock({
+                 <Image
+                   src={
+                     showAfter
+-                      ? '/images/examples/after.jpg'
+-                      : '/images/examples/before.jpg'
++                      ? '/images/examples/after.webp'
++                      : '/images/examples/before.webp'
+                   }
+                   alt={
+                     showAfter

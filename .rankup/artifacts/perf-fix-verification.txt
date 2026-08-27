@@ -1,0 +1,143 @@
+Homepage performance fix verification
+=====================================
+Workspace: /Users/xumingyue/Downloads/MyProjects/wedding-crest2
+Scope: items 1-3 (homepage static generation, SSR pricing/FAQ, initial JS graph split)
+
+BASELINE PRESERVATION
+---------------------
+Command:
+  cat .rankup/artifacts/perf-fix-original.sha256
+Result: baseline hashes recorded before this fix for page.tsx, landing.tsx, config.ts,
+common/index.tsx, header.tsx, and footer.tsx. Existing unrelated workspace changes
+were preserved.
+
+MODIFIED ARTIFACT
+-----------------
+Command:
+  cat .rankup/artifacts/perf-fix-modified.manifest
+Result: JSON manifest contains current hashes, build metrics, server HTML markers,
+and the before/after comparison.
+Exit status: 0
+
+TARGETED STATIC CHECK
+---------------------
+Command:
+  pnpm exec eslint 'src/app/[locale]/(landing)/page.tsx' \
+    'src/themes/default/layouts/landing.tsx' \
+    'src/themes/default/pages/home-page.tsx' \
+    'src/themes/default/blocks/wedding-hero.tsx' \
+    'src/themes/default/blocks/wedding-styles.tsx' \
+    'src/themes/default/blocks/header.tsx' \
+    'src/themes/default/blocks/footer.tsx' \
+    'src/themes/default/blocks/hero.tsx' \
+    'src/themes/default/blocks/features-list.tsx' \
+    'src/themes/default/blocks/pricing.tsx' \
+    'src/themes/default/blocks/introduce.tsx' \
+    'src/themes/default/blocks/benefits.tsx' \
+    'src/themes/default/blocks/features-step.tsx' \
+    'src/themes/default/blocks/blog-detail.tsx' \
+    'src/themes/default/blocks/features-media.tsx' \
+    'src/themes/default/blocks/showcases-flow.tsx' \
+    'src/themes/default/blocks/page-detail.tsx' \
+    'src/themes/default/blocks/testimonials.tsx' \
+    'src/themes/default/blocks/logos.tsx' \
+    'src/themes/default/blocks/features-flow.tsx' \
+    'src/themes/default/blocks/features-accordion.tsx'
+Literal output:
+  3 problems (0 errors, 3 warnings)
+  Warnings: blog-detail.tsx <img>, page-detail.tsx unused TimerIcon,
+  pricing.tsx unused isShowPaymentModal.
+Exit status: 0
+
+Command:
+  pnpm exec tsc --noEmit --pretty false
+Literal output:
+  (no error TS diagnostics)
+Exit status: 0
+
+Command:
+  git diff --check
+Literal output:
+  (empty)
+Exit status: 0
+
+PRODUCTION BUILD / SEO SERVER OUTPUT
+------------------------------------
+Command:
+  rm -rf .next && pnpm run build
+Literal output (relevant lines):
+  ✓ Compiled successfully in 90s
+  ✓ Generating static pages (43/43)
+  ├ ● /[locale]  8.94 kB  322 kB  1h  1y
+  ├   ├ /en
+  ├   ├ /zh
+  ├   ├ /pt-BR
+  └   [+5 more paths]
+  ● (SSG) prerendered as static HTML (uses generateStaticParams)
+Exit status: 0
+
+Command:
+  python3 - <<'PY'
+  import os
+  for f in ['.next/server/app/en.html','.next/server/app/en.rsc']:
+      s=open(f,errors='ignore').read()
+      print(f, os.path.getsize(f), all(x in s for x in [
+        'Create a Wedding Crest','Frequently Asked Questions',
+        'What is a wedding crest','Your Crest Is Five Minutes Away','Free']))
+  PY
+Literal output:
+  .next/server/app/en.html 217634 True
+  .next/server/app/en.rsc 92517 True
+Exit status: 0
+
+BUNDLE VERIFICATION
+-------------------
+Command:
+  python3 bundle summary from .next/app-build-manifest.json for
+  /[locale]/(landing)/page
+Literal output:
+  files=25
+  js_raw=1046132 bytes
+  js_gzip=321946 bytes (gzip estimate)
+  first_load_js=322 kB (next build route summary)
+Baseline literal output from pre-fix measurement:
+  files=34
+  js_raw=1635900 bytes
+  js_gzip=503666 bytes (gzip estimate)
+  first_load_js=505 kB
+Result: homepage route manifest reduced by 9 files; JS raw reduced by 589768
+bytes (36.1%); gzip estimate reduced by 181720 bytes (36.1%). The markdown-it
+chunk is absent from the homepage route manifest and remains available to blog routes.
+
+Command:
+  pnpm check:public-size
+Literal output:
+  public/ size: 1641236 bytes (1.57 MiB)
+  limit: 3145728 bytes (3.00 MiB)
+  asset budget: PASS
+Exit status: 0
+
+ROLLBACK VERIFICATION
+---------------------
+Patch:
+  .rankup/artifacts/perf-fix.patch
+Rollback command:
+  .rankup/artifacts/perf-fix-rollback.sh
+Test procedure:
+  Created a temporary HEAD archive, applied perf-fix.patch, ran the exact rollback
+  script, verified home-page.tsx was removed and page.tsx hash returned to HEAD.
+Literal output:
+  Rollback applied: homepage performance patch reversed.
+  ROLLBACK_SCRIPT_TEST:PASS
+  ROLLBACK_SCRIPT_CLEANUP_EXIT:0
+Exit status: 0
+
+LIVE BROWSER PROBE
+------------------
+Command:
+  pnpm exec next start -H 127.0.0.1 -p 3022; curl http://127.0.0.1:3022/en
+Literal output:
+  listen EPERM: operation not permitted 127.0.0.1:3022
+  curl: (7) Failed to connect to 127.0.0.1 port 3022
+Exit status: unavailable in the sandbox; generated production HTML and build artifacts
+were used for the server-rendered verification above.

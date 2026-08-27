@@ -1,13 +1,26 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
-import { getThemePage } from '@/core/theme';
 import { envConfigs } from '@/config';
-import { getCurrentSubscription } from '@/shared/models/subscription';
-import { getUserInfo } from '@/shared/models/user';
+import { locales } from '@/config/locale';
 import { getMetadata } from '@/shared/lib/seo';
+import {
+  listWeddingExamplesSafe,
+  type WeddingExampleRow,
+} from '@/shared/models/wedding';
 import { DynamicPage } from '@/shared/types/blocks/landing';
+import HomePage from '@/themes/default/pages/home-page';
 
 export const revalidate = 3600;
+export const dynamic = 'force-static';
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
+}
+
+async function getLandingExamples(): Promise<WeddingExampleRow[]> {
+  return (await listWeddingExamplesSafe({ activeOnly: true })) as WeddingExampleRow[];
+}
 export const generateMetadata = getMetadata({
   metadataKey: 'pages.index.metadata',
   canonicalUrl: '/',
@@ -64,13 +77,12 @@ export default async function LandingPage({
   // TEMP-DEBUG: surface SSR errors into the response body so we can
   // see what fails on Cloudflare Workers (wrangler tail is silent
   // here). Remove once the home page renders cleanly.
-  let user: any, t: any, tp: any, Page: any;
+  let t: any, tp: any, weddingExamples: WeddingExampleRow[];
   try {
-    [user, t, tp, Page] = await Promise.all([
-      getUserInfo(),
+    [t, tp, weddingExamples] = await Promise.all([
       getTranslations('pages.index'),
       getTranslations('pages.pricing'),
-      getThemePage('dynamic-page'),
+      getLandingExamples(),
     ]);
   } catch (e: any) {
     return (
@@ -101,29 +113,26 @@ export default async function LandingPage({
     }>) || [];
   const faqJsonLd = buildFaqJsonLd(faqItems);
 
-  // get current subscription
-  let currentSubscription;
-  if (user) {
-    try {
-      currentSubscription = await getCurrentSubscription(user.id);
-    } catch {
-      // subscription lookup failed, continue without it
-    }
-  }
-
   // inject pricing section
   if (page.sections) {
     page.sections.pricing = {
       ...tp.raw('page.sections.pricing'),
-      data: {
-        currentSubscription,
-      },
     };
+
+    for (const key of ['hero', 'styles']) {
+      const section = page.sections[key];
+      if (section) {
+        section.data = {
+          ...(section.data || {}),
+          weddingExamples,
+        };
+      }
+    }
   }
 
   let pageNode: React.ReactNode;
   try {
-    pageNode = <Page locale={locale} page={page} />;
+    pageNode = <HomePage page={page} />;
   } catch (e: any) {
     pageNode = (
       <pre

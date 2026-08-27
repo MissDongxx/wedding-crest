@@ -5,7 +5,7 @@ import { getTranslations } from 'next-intl/server';
 import { Button } from '@/shared/components/ui/button';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import {
-  listWeddingExamples,
+  listWeddingExamplesSafe,
   type WeddingExampleRow,
 } from '@/shared/models/wedding';
 
@@ -18,7 +18,7 @@ export async function SeoArticle({
 }) {
   const t = await getTranslations(`pages.seo.${articleKey}`);
   const featured = (
-    (await listWeddingExamples({ activeOnly: true })) as WeddingExampleRow[]
+    (await listWeddingExamplesSafe({ activeOnly: true })) as WeddingExampleRow[]
   ).slice(0, 6);
 
   const faqJsonLd = {

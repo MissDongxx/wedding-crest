@@ -1,6 +1,5 @@
 'use client';
 
-import { SmartIcon } from '@/shared/blocks/common';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import { Section } from '@/shared/types/blocks/landing';
 

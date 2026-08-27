@@ -1,11 +1,9 @@
 import { Link } from '@/core/i18n/navigation';
-import {
-  BrandLogo,
-  BuiltWith,
-  Copyright,
-  LocaleSelector,
-  ThemeToggler,
-} from '@/shared/blocks/common';
+import { BrandLogo } from '@/shared/blocks/common/brand-logo';
+import { BuiltWith } from '@/shared/blocks/common/built-with';
+import { Copyright } from '@/shared/blocks/common/copyright';
+import { LocaleSelector } from '@/shared/blocks/common/locale-selector';
+import { ThemeToggler } from '@/shared/blocks/common/theme-toggler';
 import { SmartIcon } from '@/shared/blocks/common/smart-icon';
 import { NavItem } from '@/shared/types/blocks/common';
 import { Footer as FooterType } from '@/shared/types/blocks/landing';

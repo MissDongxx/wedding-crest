@@ -1,0 +1,65 @@
+server-error-fix baseline vs modified SHA-256
+path=src/app/[locale]/(admin)/admin/wedding/examples/_delete-button.tsx
+baseline_command=git show HEAD:src/app/\[locale\]/\(admin\)/admin/wedding/examples/_delete-button.tsx | shasum -a 256
+baseline_sha256=10cd3f2d09994ddbe7b5f64402b47483e144e8d7ae537d37f389fd6724ce6445
+modified_command=shasum -a 256 src/app/\[locale\]/\(admin\)/admin/wedding/examples/_delete-button.tsx
+modified_sha256=746e7e5e07ceb3ef821028047ac459a5a5eb177e44d6e21700250eab6964f3fb
+
+path=src/app/[locale]/(admin)/admin/wedding/frames/_delete-button.tsx
+baseline_command=git show HEAD:src/app/\[locale\]/\(admin\)/admin/wedding/frames/_delete-button.tsx | shasum -a 256
+baseline_sha256=24516cc176d8314b69967f4cf19cf1058971ebc30901d966d8a80d0e341d3e34
+modified_command=shasum -a 256 src/app/\[locale\]/\(admin\)/admin/wedding/frames/_delete-button.tsx
+modified_sha256=ccfb05e873919134d68e1d06a38a00448f7327582b6d84b61215d1aa75935002
+
+path=src/config/locale/messages/de/pages/examples.json
+baseline_command=git show HEAD:src/config/locale/messages/de/pages/examples.json | shasum -a 256
+baseline_sha256=7f17e8544d6054dc9a644abe5dfe2fc16b1cfceeff4e5530fcad5517941c3fb4
+modified_command=shasum -a 256 src/config/locale/messages/de/pages/examples.json
+modified_sha256=60d5fe7f4c438e85e77a414773ff26bb7cb17a2a9ae423dd5c82deb569c7b0ad
+
+path=src/config/locale/messages/fr/pages/examples.json
+baseline_command=git show HEAD:src/config/locale/messages/fr/pages/examples.json | shasum -a 256
+baseline_sha256=7f17e8544d6054dc9a644abe5dfe2fc16b1cfceeff4e5530fcad5517941c3fb4
+modified_command=shasum -a 256 src/config/locale/messages/fr/pages/examples.json
+modified_sha256=60d5fe7f4c438e85e77a414773ff26bb7cb17a2a9ae423dd5c82deb569c7b0ad
+
+path=src/config/locale/messages/it/pages/examples.json
+baseline_command=git show HEAD:src/config/locale/messages/it/pages/examples.json | shasum -a 256
+baseline_sha256=7f17e8544d6054dc9a644abe5dfe2fc16b1cfceeff4e5530fcad5517941c3fb4
+modified_command=shasum -a 256 src/config/locale/messages/it/pages/examples.json
+modified_sha256=60d5fe7f4c438e85e77a414773ff26bb7cb17a2a9ae423dd5c82deb569c7b0ad
+
+path=src/config/locale/messages/ko/pages/examples.json
+baseline_command=git show HEAD:src/config/locale/messages/ko/pages/examples.json | shasum -a 256
+baseline_sha256=7f17e8544d6054dc9a644abe5dfe2fc16b1cfceeff4e5530fcad5517941c3fb4
+modified_command=shasum -a 256 src/config/locale/messages/ko/pages/examples.json
+modified_sha256=60d5fe7f4c438e85e77a414773ff26bb7cb17a2a9ae423dd5c82deb569c7b0ad
+
+path=src/config/locale/messages/pt-BR/pages/examples.json
+baseline_command=git show HEAD:src/config/locale/messages/pt-BR/pages/examples.json | shasum -a 256
+baseline_sha256=7f17e8544d6054dc9a644abe5dfe2fc16b1cfceeff4e5530fcad5517941c3fb4
+modified_command=shasum -a 256 src/config/locale/messages/pt-BR/pages/examples.json
+modified_sha256=60d5fe7f4c438e85e77a414773ff26bb7cb17a2a9ae423dd5c82deb569c7b0ad
+
+path=src/config/locale/messages/th/pages/examples.json
+baseline_command=git show HEAD:src/config/locale/messages/th/pages/examples.json | shasum -a 256
+baseline_sha256=7f17e8544d6054dc9a644abe5dfe2fc16b1cfceeff4e5530fcad5517941c3fb4
+modified_command=shasum -a 256 src/config/locale/messages/th/pages/examples.json
+modified_sha256=60d5fe7f4c438e85e77a414773ff26bb7cb17a2a9ae423dd5c82deb569c7b0ad
+
+path=src/config/locale/messages/zh/pages/examples.json
+baseline_command=git show HEAD:src/config/locale/messages/zh/pages/examples.json | shasum -a 256
+baseline_sha256=7f17e8544d6054dc9a644abe5dfe2fc16b1cfceeff4e5530fcad5517941c3fb4
+modified_command=shasum -a 256 src/config/locale/messages/zh/pages/examples.json
+modified_sha256=60d5fe7f4c438e85e77a414773ff26bb7cb17a2a9ae423dd5c82deb569c7b0ad
+
+path=src/core/db/d1.ts
+baseline_command=git show HEAD:src/core/db/d1.ts | shasum -a 256
+baseline_sha256=8efc014daa87817b9468bb28d6696316fcdf3e4d32fe1eaa077b0b53bb58aae7
+modified_command=shasum -a 256 src/core/db/d1.ts
+modified_sha256=056df29ba42082b7ed5f883a2e783de62f4e355db841cbc087f81425f5a4101b
+
+path=src/shared/types/fetch-compat.d.ts
+baseline=ABSENT
+modified_command=shasum -a 256 src/shared/types/fetch-compat.d.ts
+modified_sha256=95c296d9e43b64ba4dacdda8a3c51396dd452b8357714802bbfabc95c124f6c2

@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { Link } from '@/core/i18n/navigation';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import {
-  listWeddingExamples,
+  listWeddingExamplesSafe,
   type WeddingExampleRow,
 } from '@/shared/models/wedding';
 import { Section } from '@/shared/types/blocks/landing';
@@ -26,15 +26,18 @@ const EXAMPLES_PER_STYLE = 3;
  */
 export async function WeddingStyles({
   section,
+  weddingExamples,
   className,
 }: {
   section: Section;
+  weddingExamples?: WeddingExampleRow[];
   className?: string;
 }) {
   // One DB read; group by style and cap at EXAMPLES_PER_STYLE per style.
   const allowedStyles = new Set<string>(weddingExampleStyleIds);
   const examples = (
-    (await listWeddingExamples({ activeOnly: true })) as WeddingExampleRow[]
+    (weddingExamples ??
+      (await listWeddingExamplesSafe({ activeOnly: true }))) as WeddingExampleRow[]
   ).filter((example) =>
     allowedStyles.has(example.style as (typeof weddingExampleStyleIds)[number])
   );

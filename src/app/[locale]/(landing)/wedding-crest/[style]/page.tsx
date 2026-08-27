@@ -6,7 +6,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Button } from '@/shared/components/ui/button';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import {
-  listWeddingExamples,
+  listWeddingExamplesSafe,
   type WeddingExampleRow,
 } from '@/shared/models/wedding';
 import { getWeddingStyle } from '@/shared/wedding/config';
@@ -65,7 +65,7 @@ export default async function StylePage({
     | 'classic_luxury';
   const styleConfig = getWeddingStyle(seoStyleId);
   const examples = (
-    (await listWeddingExamples({
+    (await listWeddingExamplesSafe({
       style: seoStyleId,
       activeOnly: true,
     })) as WeddingExampleRow[]

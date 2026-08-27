@@ -76,8 +76,8 @@ export function UploadZoneBlock({
                 <Image
                   src={
                     showAfter
-                      ? '/images/examples/after.jpg'
-                      : '/images/examples/before.jpg'
+                      ? '/images/examples/after.webp'
+                      : '/images/examples/before.webp'
                   }
                   alt={
                     showAfter

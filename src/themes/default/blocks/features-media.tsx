@@ -2,7 +2,8 @@
 
 import { motion } from 'framer-motion';
 
-import { LazyImage, SmartIcon } from '@/shared/blocks/common';
+import { LazyImage } from '@/shared/blocks/common/lazy-image';
+import { SmartIcon } from '@/shared/blocks/common/smart-icon';
 import { cn } from '@/shared/lib/utils';
 import { Section } from '@/shared/types/blocks/landing';
 

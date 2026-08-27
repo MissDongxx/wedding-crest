@@ -13,6 +13,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "build:fast": "NODE_OPTIONS='--max-old-space-size=4096' next build",
+    "check:public-size": "node scripts/check-public-size.mjs",
     "start": "next start",
     "lint": "eslint .",
     "format": "prettier --write .",

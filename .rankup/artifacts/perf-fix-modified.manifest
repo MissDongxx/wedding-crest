@@ -1,0 +1,139 @@
+{
+  "artifact": "homepage-performance-fix",
+  "scope": "items 1-3: static homepage, SSR pricing/FAQ, initial JS graph split",
+  "changed_files": [
+    {
+      "path": "src/app/[locale]/(landing)/layout.tsx",
+      "sha256": "40df524661774a692ff0498f76ad92aab7d4a9cac244eac96f81fd54c5883635"
+    },
+    {
+      "path": "src/app/[locale]/(landing)/page.tsx",
+      "sha256": "d6c27673c410c0f633bf68a06a1796c10f95f023dce91c59a46bdcf613128a69"
+    },
+    {
+      "path": "src/themes/default/blocks/benefits.tsx",
+      "sha256": "a6fbe7bd948e707fafcbfbdce7ccd879d8d61d750a911376a65b689c0fd21739"
+    },
+    {
+      "path": "src/themes/default/blocks/blog-detail.tsx",
+      "sha256": "7756279441920ffe4953147be5fef759aceffed680fba52d574ca0c6bf1e6de4"
+    },
+    {
+      "path": "src/themes/default/blocks/features-accordion.tsx",
+      "sha256": "7978a0b34dd7509d6337c32d589a1dac906f34991fdffb99c1f301d9d5533d4d"
+    },
+    {
+      "path": "src/themes/default/blocks/features-flow.tsx",
+      "sha256": "35cbc4ebfd764c611352fa28d443cd218130a7139b276fccd7973c139070e852"
+    },
+    {
+      "path": "src/themes/default/blocks/features-list.tsx",
+      "sha256": "47e1929383ce02a0a8a5db42fe9a500d86901a6e2aba00da27f15d5dc2bd0e8a"
+    },
+    {
+      "path": "src/themes/default/blocks/features-media.tsx",
+      "sha256": "16408a8231d3f811ba644195705d16e1d2992082b2d23128206333a0b2a52305"
+    },
+    {
+      "path": "src/themes/default/blocks/features-step.tsx",
+      "sha256": "2ac6728b47cb10f93ca58a40b37888e8547b3751db1459aa53b988dd5387c9f2"
+    },
+    {
+      "path": "src/themes/default/blocks/footer.tsx",
+      "sha256": "15c8bf50c1607b5ee1ac764f33151fa14ec7a57c5bb7a194212d5191a4d1ffad"
+    },
+    {
+      "path": "src/themes/default/blocks/header.tsx",
+      "sha256": "6eb51e9ff81818808e00bbb8badf641b9bd55809e2dfd8b0d6c4df60af357b70"
+    },
+    {
+      "path": "src/themes/default/blocks/hero.tsx",
+      "sha256": "22e0fe0e819d16c8871dfde138938f9f95acc1de3bfc1a0589600177c86880fc"
+    },
+    {
+      "path": "src/themes/default/blocks/introduce.tsx",
+      "sha256": "b8593ba6464e93fd8d7ed028ae9be877410cd3589bfef2631984d0433e927f6c"
+    },
+    {
+      "path": "src/themes/default/blocks/logos.tsx",
+      "sha256": "c4674c33448ba7d8a7ee9474d0941b40643f8d3d1c7bc6616deeb6b2e7a5465a"
+    },
+    {
+      "path": "src/themes/default/blocks/page-detail.tsx",
+      "sha256": "186d66c06a7d7c91722789632f357b659e0328efd0ec21aee7f1d15271d5c6e1"
+    },
+    {
+      "path": "src/themes/default/blocks/pricing.tsx",
+      "sha256": "cc8815e04b54a7385652d12c80dd99d6184e9fddc9eda5812a4396c4f2373b52"
+    },
+    {
+      "path": "src/themes/default/blocks/showcases-flow.tsx",
+      "sha256": "9e8c6a1aae65777ffd6cde1868d631ed3a431f8cfb6d33f31225bb55a54aa245"
+    },
+    {
+      "path": "src/themes/default/blocks/testimonials.tsx",
+      "sha256": "e029c036bc312fb0eb563549b57a3f9775e3da5af10cc5d392da658bc7c73889"
+    },
+    {
+      "path": "src/themes/default/blocks/wedding-hero.tsx",
+      "sha256": "5cd5fea1948c6ef06c978886ff746f6e1df6f6fa657ec1ee8109dcb67c2f5e6c"
+    },
+    {
+      "path": "src/themes/default/blocks/wedding-styles.tsx",
+      "sha256": "b811f74b62fc1b229f0e75b3257fd704dd11b724886b2b09a6dc42548409e977"
+    },
+    {
+      "path": "src/themes/default/layouts/landing.tsx",
+      "sha256": "810730af83c34995aaf404c6b2695b6b4a0da939d6baea3ae727f735af6efdd6"
+    },
+    {
+      "path": "src/themes/default/pages/home-page.tsx",
+      "sha256": "90549bafce2018c8c308b8e6efeed4ec2d9a52dfe54162be22f4855edb38b70e"
+    }
+  ],
+  "build": {
+    "route": "/[locale]",
+    "locales": [
+      "en",
+      "zh",
+      "pt-BR",
+      "it",
+      "de",
+      "fr",
+      "ko",
+      "th"
+    ],
+    "mode": "SSG",
+    "revalidate": "1h",
+    "expire": "1y",
+    "first_load_js": "322 kB",
+    "manifest_files": 25,
+    "js_raw_bytes": 1046132,
+    "js_gzip_bytes": 321946,
+    "css_raw_bytes": 284
+  },
+  "comparison_before": {
+    "route": "/[locale]",
+    "mode": "dynamic",
+    "first_load_js": "505 kB",
+    "manifest_files": 34,
+    "js_raw_bytes": 1635900,
+    "js_gzip_bytes": 503666
+  },
+  "server_html_markers": {
+    "Create a Wedding Crest": true,
+    "Frequently Asked Questions": true,
+    "What is a wedding crest": true,
+    "Your Crest Is Five Minutes Away": true,
+    "Free": true
+  },
+  "asset_budget": {
+    "public_bytes": 1641236,
+    "limit_bytes": 3145728,
+    "result": "PASS"
+  },
+  "notes": [
+    "Homepage pricing no longer performs request-time subscription lookup; current-plan personalization remains client-side.",
+    "Generic blog/editor markdown chunk is not present in the homepage route manifest; it remains available to routes that need it."
+  ]
+}

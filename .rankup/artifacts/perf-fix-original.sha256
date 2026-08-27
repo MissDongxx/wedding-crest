@@ -1,0 +1,6 @@
+73c1f57a0fb79504bb921a0da4202efe9b0edc94924d5c298b407dba6113dac4  src/app/[locale]/(landing)/page.tsx
+db839e24b8a5a5e37f334a8767dafc7ecc71ffb49552aa081ffb100bcccccb0b  src/themes/default/layouts/landing.tsx
+ebd8efd452f8b6d4a38f8f705f6e1b32cd8fbc0b6b1908cade0122204cd910e7  src/shared/models/config.ts
+a9a3e670908851a63a5e6d6484ac1558a89ab34b2794cd19559fe2df86fcdd8d  src/shared/blocks/common/index.tsx
+7ba4c9c80cf4a59e441389550869cfca74ba895ec0d7883d893948850f2e315e  src/themes/default/blocks/header.tsx
+4770c8ecae64e2f0c5a6d36d800fdbc011828bdeb181eedc5b1352fd3797ef37  src/themes/default/blocks/footer.tsx

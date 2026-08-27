@@ -1,0 +1,17 @@
+server-error-fix modified artifact
+created=/Users/xumingyue/Downloads/MyProjects/wedding-crest2/.rankup/artifacts/server-error-fix-modified.tar.gz
+sha256=9a4322a7aa7f51d3f1b2cabd67668d36c7b62a6727637fbbbee777b9c65de153
+bytes=1906
+
+files:
+src/app/[locale]/(admin)/admin/wedding/examples/_delete-button.tsx
+src/app/[locale]/(admin)/admin/wedding/frames/_delete-button.tsx
+src/config/locale/messages/de/pages/examples.json
+src/config/locale/messages/fr/pages/examples.json
+src/config/locale/messages/it/pages/examples.json
+src/config/locale/messages/ko/pages/examples.json
+src/config/locale/messages/pt-BR/pages/examples.json
+src/config/locale/messages/th/pages/examples.json
+src/config/locale/messages/zh/pages/examples.json
+src/core/db/d1.ts
+src/shared/types/fetch-compat.d.ts

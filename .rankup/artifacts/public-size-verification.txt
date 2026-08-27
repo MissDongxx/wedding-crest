@@ -1,0 +1,92 @@
+Public asset budget verification
+Date: 2026-08-27
+
+Baseline input (preserved at /tmp/wedding-crest2-assets-original before edits)
+Command:
+  find /tmp/wedding-crest2-assets-original/public -type f -print0 | xargs -0 stat -f '%z' | awk '{s+=$1} END{printf "bytes=%d MiB=%.2f\\n",s,s/1048576}'
+Literal output:
+  bytes=37550515 MiB=35.81
+Exit status: 0
+
+Modified asset budget
+Command:
+  pnpm check:public-size
+Literal output:
+  public/ size: 1641236 bytes (1.57 MiB)
+  limit: 3145728 bytes (3.00 MiB)
+  asset budget: PASS
+Exit status: 0
+
+Modified asset manifest
+Command:
+  awk -F '\\t' '{s+=$2} END{printf "modified=%d bytes (%.2f MiB)\\n",s,s/1048576}' .rankup/artifacts/public-size-modified.manifest
+Literal output:
+  modified=1641236 bytes (1.57 MiB)
+Exit status: 0
+
+Reference audit
+Command:
+  node -e 'const fs=require("fs"),cp=require("child_process");const files=cp.execFileSync("find",["src","content","-type","f"],{encoding:"utf8"}).trim().split("\\n").filter(f=>/\\.(ts|tsx|mdx|json)$/.test(f));const refs=[];for(const f of files){const s=fs.readFileSync(f,"utf8");for(const m of s.matchAll(/(?:[\\x27\\"`])\\/(?:images|imgs|preview)[^\\x27\\"`\\s]*/g))refs.push({f,ref:m[0].slice(1)});}const missing=refs.filter(x=>!fs.existsSync("public/"+x.ref));console.log(`references=${refs.length} missing=${missing.length}`);process.exitCode=missing.length?1:0;'
+Literal output:
+  references=87 missing=0
+Exit status: 0
+
+Targeted static checks
+Command:
+  pnpm exec eslint scripts/check-public-size.mjs src/config/index.ts src/themes/default/blocks/upload-zone-block.tsx 'src/app/[locale]/(landing)/(ai)/ai-image-generator/page.tsx' 'src/app/[locale]/(landing)/(ai)/ai-music-generator/page.tsx' 'src/app/[locale]/(landing)/(ai)/ai-video-generator/page.tsx'
+Literal output: (empty)
+Exit status: 0
+
+Command:
+  git diff --check
+Literal output: (empty)
+Exit status: 0
+
+Full type/build gate
+Command:
+  pnpm exec tsc --noEmit --pretty false
+Literal output (pre-existing unrelated errors in the current worktree):
+  src/app/[locale]/(admin)/admin/wedding/examples/_delete-button.tsx:28:29 Property 'code' does not exist on type '{}'.
+  src/app/api/ai/generate/route.ts:12:11 Property 'provider' does not exist on type 'unknown'.
+  src/core/db/d1.ts:37:26 Argument of type 'D1Database' is not assignable to parameter of type 'D1Database'.
+  src/extensions/payment/paypal.ts:150:25 'result' is of type 'unknown'.
+  src/themes/default/blocks/wedding-wizard.tsx:412:35 Property 'data' does not exist on type '{}'.
+Exit status: 2
+
+Command:
+  pnpm build
+Literal output (same pre-existing type gate):
+  Failed to compile.
+  src/app/[locale]/(admin)/admin/wedding/examples/_delete-button.tsx:28:29 Property 'code' does not exist on type '{}'.
+  Next.js build worker exited with code: 1 and signal: null
+Exit status: 1
+
+Running frontend asset flow (Next dev server on http://127.0.0.1:3010)
+Command:
+  curl -sS -L -o /dev/null -w '<path> %{http_code} %{size_download} bytes\\n' http://127.0.0.1:3010<path>
+Literal output:
+  /en 200 446800 bytes
+  /en/blog 200 331269 bytes
+  /preview.webp 200 50224 bytes
+  /images/blog/how-to-remove-gemini-watermark.webp 200 49024 bytes
+  /images/examples/before.webp 200 63860 bytes
+  /imgs/bg/tree.webp 200 49568 bytes
+  /imgs/cases/1.webp 200 11472 bytes
+  /preview.png 404 293584 bytes
+  /images/examples/before.jpg 404 172186 bytes
+Exit status: 0 for the command; expected 404s confirm removed old paths.
+
+Rollback
+Command:
+  bash -n .rankup/artifacts/public-size-rollback.sh
+Literal output:
+  rollback-syntax=0
+Exit status: 0
+
+Command:
+  (temporary clone) bash .rankup/public-size-rollback.sh
+Literal output:
+  restored original asset tree and removed the size gate
+  rollback-public-files=99 expected-original-files=99 missing=0 changed=0
+  rollback execution verified=0
+Exit status: 0

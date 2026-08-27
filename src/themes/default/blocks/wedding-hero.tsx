@@ -4,7 +4,7 @@ import { Link } from '@/core/i18n/navigation';
 import { Button } from '@/shared/components/ui/button';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import {
-  listWeddingExamples,
+  listWeddingExamplesSafe,
   type WeddingExampleRow,
 } from '@/shared/models/wedding';
 import { Section } from '@/shared/types/blocks/landing';
@@ -34,14 +34,17 @@ function shuffle<T>(items: T[]): T[] {
  */
 export async function WeddingHero({
   section,
+  weddingExamples,
   className,
 }: {
   section: Section;
+  weddingExamples?: WeddingExampleRow[];
   className?: string;
 }) {
   const allowedStyles = new Set<string>(weddingExampleStyleIds);
   const allExamples = (
-    (await listWeddingExamples({ activeOnly: true })) as WeddingExampleRow[]
+    (weddingExamples ??
+      (await listWeddingExamplesSafe({ activeOnly: true }))) as WeddingExampleRow[]
   ).filter((example) =>
     allowedStyles.has(example.style as (typeof weddingExampleStyleIds)[number])
   );
