@@ -57,6 +57,13 @@ export function Header({
   const isLarge = useMedia('(min-width: 64rem)');
   const pathname = usePathname();
 
+  // Close the mobile panel after any successful client-side navigation.
+  // The explicit link handlers below also cover links to the current route,
+  // where pathname does not change (for example My Designs on /my-designs).
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
+
   useEffect(() => {
     // Listen to scroll event to enable header styles on scroll
     const handleScroll = () => {
@@ -300,6 +307,7 @@ export function Header({
                         key={idx}
                         href={button.url || ''}
                         target={button.target || '_self'}
+                        onClick={() => setIsMobileMenuOpen(false)}
                         className={cn(
                           'focus-visible:ring-ring inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
                           'h-7 px-3 ring-0',

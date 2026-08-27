@@ -34,6 +34,16 @@ interface UploadItem extends ImageUploaderValue {
   uploadKey?: string;
 }
 
+const SUPPORTED_RASTER_MIMES = new Set([
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+]);
+
+const isSupportedRaster = (file: File) =>
+  SUPPORTED_RASTER_MIMES.has(file.type.toLowerCase());
+
 const formatBytes = (bytes?: number) => {
   if (!bytes) return '';
   if (bytes < 1024) return `${bytes} B`;
@@ -67,17 +77,12 @@ const uploadImageFile = async (file: File) => {
 /**
  * Re-encode an uploaded image to webp on the client. This keeps storage
  * small and matches the spec that admin-uploaded logos are stored as webp.
- * Skips conversion for inputs that are already webp, svg, or animated gif.
+ * Skips conversion for inputs that are already webp or very small.
  * Quality: 0.9, max edge 2048 px (preserves crisp display at retina sizes).
  */
 const convertToWebpIfPossible = async (file: File): Promise<File> => {
-  // Skip conversion for already-webp, svg, gif, and very small files.
-  if (
-    file.type === 'image/webp' ||
-    file.type === 'image/svg+xml' ||
-    file.type === 'image/gif' ||
-    file.size < 8 * 1024
-  ) {
+  // Skip conversion for already-webp and very small files.
+  if (file.type === 'image/webp' || file.size < 8 * 1024) {
     return file;
   }
   if (!file.type.startsWith('image/')) return file;
@@ -86,10 +91,7 @@ const convertToWebpIfPossible = async (file: File): Promise<File> => {
   try {
     const bitmap = await createImageBitmap(file);
     const MAX_EDGE = 2048;
-    const scale = Math.min(
-      1,
-      MAX_EDGE / Math.max(bitmap.width, bitmap.height)
-    );
+    const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
     const width = Math.round(bitmap.width * scale);
     const height = Math.round(bitmap.height * scale);
     const canvas = document.createElement('canvas');
@@ -108,7 +110,7 @@ const convertToWebpIfPossible = async (file: File): Promise<File> => {
       type: 'image/webp',
       lastModified: Date.now(),
     });
-  } catch (err) {
+  } catch {
     // Conversion failed (unsupported image, sandbox, etc.) — keep the
     // original file so the upload still succeeds.
     return file;
@@ -251,40 +253,42 @@ export function ImageUploader({
 
       convertToWebpIfPossible(file).then((uploadable) => {
         uploadImageFile(uploadable)
-        .then((url) => {
-          setItems((prev) =>
-            prev.map((item) => {
-              if (item.id !== id) return item;
-              if (item.uploadKey !== uploadKey) return item; // stale upload
-              if (item.preview.startsWith('blob:')) {
-                URL.revokeObjectURL(item.preview);
-              }
-              return {
-                ...item,
-                preview: url,
-                url,
-                status: 'uploaded' as UploadStatus,
-                file: undefined,
-              };
-            })
-          );
-        })
-        .catch((error: any) => {
-          console.error('Upload failed:', error);
-          toast.error(
-            error?.message ? `Upload failed: ${error.message}` : 'Upload failed'
-          );
-          setItems((prev) =>
-            prev.map((item) => {
-              if (item.id !== id) return item;
-              if (item.uploadKey !== uploadKey) return item; // stale upload
-              return { ...item, status: 'error' as UploadStatus };
-            })
-          );
-        })
-        .finally(() => {
-          if (inputRef.current) inputRef.current.value = '';
-        });
+          .then((url) => {
+            setItems((prev) =>
+              prev.map((item) => {
+                if (item.id !== id) return item;
+                if (item.uploadKey !== uploadKey) return item; // stale upload
+                if (item.preview.startsWith('blob:')) {
+                  URL.revokeObjectURL(item.preview);
+                }
+                return {
+                  ...item,
+                  preview: url,
+                  url,
+                  status: 'uploaded' as UploadStatus,
+                  file: undefined,
+                };
+              })
+            );
+          })
+          .catch((error: any) => {
+            console.error('Upload failed:', error);
+            toast.error(
+              error?.message
+                ? `Upload failed: ${error.message}`
+                : 'Upload failed'
+            );
+            setItems((prev) =>
+              prev.map((item) => {
+                if (item.id !== id) return item;
+                if (item.uploadKey !== uploadKey) return item; // stale upload
+                return { ...item, status: 'error' as UploadStatus };
+              })
+            );
+          })
+          .finally(() => {
+            if (inputRef.current) inputRef.current.value = '';
+          });
       });
     });
   };
@@ -297,8 +301,8 @@ export function ImageUploader({
 
       const file = selectedFiles[0];
       if (!file) return;
-      if (!file.type?.startsWith('image/')) {
-        toast.error('Only image files are supported');
+      if (!isSupportedRaster(file)) {
+        toast.error('Only JPEG, PNG, and WebP images are supported');
         if (inputRef.current) inputRef.current.value = '';
         return;
       }
@@ -314,8 +318,8 @@ export function ImageUploader({
     const availableSlots = maxCount - items.length;
     const filesToAdd = selectedFiles
       .filter((file) => {
-        if (!file.type?.startsWith('image/')) {
-          toast.error(`"${file.name}" is not an image`);
+        if (!isSupportedRaster(file)) {
+          toast.error(`"${file.name}" must be a JPEG, PNG, or WebP image`);
           return false;
         }
         if (file.size > maxBytes) {
@@ -329,9 +333,7 @@ export function ImageUploader({
     if (!filesToAdd.length) {
       // when full: replace from the end backwards
       if (items.length) {
-        const normalized = selectedFiles.filter((file) =>
-          file.type?.startsWith('image/')
-        );
+        const normalized = selectedFiles.filter(isSupportedRaster);
         if (!normalized.length) return;
 
         const k = Math.min(normalized.length, items.length);
@@ -431,7 +433,9 @@ export function ImageUploader({
   const handlePaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
     const clipboardItems = Array.from(event.clipboardData?.items || []);
     const files = clipboardItems
-      .filter((item) => item.kind === 'file' && item.type.startsWith('image/'))
+      .filter(
+        (item) => item.kind === 'file' && SUPPORTED_RASTER_MIMES.has(item.type)
+      )
       .map((item) => item.getAsFile())
       .filter(Boolean) as File[];
 
@@ -470,8 +474,8 @@ export function ImageUploader({
     dragCounterRef.current = 0;
     setIsDragActive(false);
 
-    const files = Array.from(event.dataTransfer?.files || []).filter((file) =>
-      file.type?.startsWith('image/')
+    const files = Array.from(event.dataTransfer?.files || []).filter(
+      isSupportedRaster
     );
     if (!files.length) return;
     handleFiles(files);
@@ -527,7 +531,7 @@ export function ImageUploader({
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/jpg,image/png,image/webp"
         multiple={allowMultiple}
         onChange={handleSelect}
         className="hidden"
@@ -555,6 +559,9 @@ export function ImageUploader({
             className="group border-border bg-muted/50 hover:border-border hover:bg-muted relative overflow-hidden rounded-xl border p-1 shadow-sm transition"
           >
             <div className="relative overflow-hidden rounded-lg">
+              {/* Blob previews and freshly uploaded arbitrary URLs should not
+                  pass through the Next.js image optimizer. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={item.preview}
                 alt="Reference"

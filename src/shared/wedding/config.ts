@@ -1,6 +1,6 @@
 import { weddingLayouts, weddingStyles, weddingTypography } from './types';
 
-export const WEDDING_PROMPT_VERSION = 'wedding-illustration-v3';
+export const WEDDING_PROMPT_VERSION = 'wedding-illustration-v5-reference-first';
 export const WEDDING_STYLE_VERSION = 'style-system-v1';
 export const WEDDING_LAYOUT_VERSION = 'layout-engine-v1';
 export const WEDDING_MAX_CANDIDATES = 1;

@@ -33,34 +33,35 @@ export function getPostgresDb() {
     throw new Error('DATABASE_URL is not set');
   }
 
-  // Cloudflare Workers + Hyperdrive: singleton is safe (Hyperdrive manages the pool)
-  // NOTE: Hyperdrive does not support postgres.js connection.options (e.g. search_path).
-  // If you need a custom schema, set it at the database role level instead:
-  //   ALTER ROLE your_role SET search_path TO your_schema, public;
+  // Cloudflare Workers + Hyperdrive:
+  //   Why a fresh client per request: postgres.js wraps a TCP socket
+  //   that Cloudflare closes at the end of each request. A module-level
+  //   singleton therefore hands subsequent requests a client whose
+  //   underlying socket is dead — the next query hangs until the
+  //   runtime cancels the request. Creating a new client per request
+  //   is the pattern Cloudflare documents for Hyperdrive + Workers.
+  //   We close the client via ctx.waitUntil() so the cleanup runs
+  //   after the response is sent.
   if (isCloudflareWorker && isHyperdrive) {
-    if (dbInstance) {
-      return dbInstance;
-    }
-
     const pgClient = postgres(databaseUrl, {
       prepare: false,
       max: 1,
-      idle_timeout: 20,
-      connect_timeout: 10,
+      idle_timeout: 5,
+      connect_timeout: 5,
+      // Don't let postgres.js keep the connection alive past a single
+      // request — we want it to release the socket back to the
+      // runtime promptly.
+      no_prepare: true,
     });
-
-    client = pgClient;
-    dbInstance = drizzle(pgClient);
-    return dbInstance;
+    return drizzle(pgClient);
   }
 
   // Cloudflare Workers without Hyperdrive: new connection per request
-  // (Workers are stateless, cached connections may be stale)
   if (isCloudflareWorker) {
     const cfClient = postgres(databaseUrl, {
       prepare: false,
       max: 1,
-      idle_timeout: 10,
+      idle_timeout: 5,
       connect_timeout: 5,
     });
 

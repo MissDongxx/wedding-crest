@@ -1,10 +1,8 @@
+import Image from 'next/image';
+
 import { Link } from '@/core/i18n/navigation';
 import { Button } from '@/shared/components/ui/button';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
-import {
-  CrestPreview,
-  weddingShowcaseCrests,
-} from '@/shared/components/wedding/crest-preview';
 import {
   listWeddingExamples,
   type WeddingExampleRow,
@@ -32,8 +30,7 @@ function shuffle<T>(items: T[]): T[] {
  * Editorial wedding hero: headline, primary CTA into the wizard, then a
  * strip of real product photos pulled at random from the active
  * `wedding_example` library. Each photo deep-links into the wizard with
- * the example pre-filled. Falls back to the deterministic SVG showcase
- * when no examples exist yet (fresh install / dev with empty DB).
+ * the example pre-filled. The strip is omitted until real AI examples exist.
  */
 export async function WeddingHero({
   section,
@@ -46,9 +43,7 @@ export async function WeddingHero({
   const allExamples = (
     (await listWeddingExamples({ activeOnly: true })) as WeddingExampleRow[]
   ).filter((example) =>
-    allowedStyles.has(
-      example.style as (typeof weddingExampleStyleIds)[number]
-    )
+    allowedStyles.has(example.style as (typeof weddingExampleStyleIds)[number])
   );
   const heroExamples = shuffle(allExamples).slice(0, HERO_EXAMPLES);
   const useExamples = heroExamples.length > 0;
@@ -109,41 +104,33 @@ export async function WeddingHero({
         </ScrollAnimation>
       </div>
 
-      <div className="mx-auto mt-12 max-w-6xl px-4 md:mt-16">
-        <ScrollAnimation delay={0.2}>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
-            {useExamples
-              ? heroExamples.map((example) => (
-                  <Link
-                    key={example.id}
-                    href={`/create?style=${encodeURIComponent(example.style)}&exampleId=${encodeURIComponent(example.id)}`}
-                    className="group border-border/60 bg-card hover:border-primary/40 relative overflow-hidden rounded-2xl border p-4 shadow-sm transition-colors md:p-6"
-                    title={example.altText ?? example.name}
-                    aria-label={example.altText ?? example.name}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={example.imageUrl}
-                      alt={example.altText ?? example.name}
-                      className="aspect-square w-full object-cover"
-                    />
-                  </Link>
-                ))
-              : weddingShowcaseCrests.map((crest) => (
-                  <Link
-                    key={`${crest.partner1}-${crest.partner2}`}
-                    href="/create"
-                    className="group border-border/60 bg-card hover:border-primary/40 relative overflow-hidden rounded-2xl border p-4 shadow-sm transition-colors md:p-6"
-                  >
-                    <CrestPreview
-                      config={crest}
-                      className="w-full [&>svg]:h-auto [&>svg]:w-full"
-                    />
-                  </Link>
-                ))}
-          </div>
-        </ScrollAnimation>
-      </div>
+      {useExamples && (
+        <div className="mx-auto mt-12 max-w-6xl px-4 md:mt-16">
+          <ScrollAnimation delay={0.2}>
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+              {heroExamples.map((example) => (
+                <Link
+                  key={example.id}
+                  href={`/create?style=${encodeURIComponent(example.style)}&exampleId=${encodeURIComponent(example.id)}`}
+                  className="group border-border/60 bg-card hover:border-primary/40 relative overflow-hidden rounded-2xl border p-4 shadow-sm transition-colors md:p-6"
+                  title={example.altText ?? example.name}
+                  aria-label={example.altText ?? example.name}
+                >
+                  <Image
+                    src={example.imageUrl}
+                    alt={example.altText ?? example.name}
+                    width={640}
+                    height={640}
+                    sizes="(min-width: 768px) 25vw, 50vw"
+                    className="aspect-square h-auto w-full object-cover"
+                    priority
+                  />
+                </Link>
+              ))}
+            </div>
+          </ScrollAnimation>
+        </div>
+      )}
     </section>
   );
 }

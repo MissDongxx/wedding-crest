@@ -51,6 +51,7 @@
   "max_items_colors": "가지 팔레트 색상",
   "name_display": "How should the names appear?",
   "choose_typography": "Typography pairing",
+  "lettering_follows_example_hint": "Lettering style will follow your example (or the style default if you started from scratch).",
   "choose_composition": "Composition",
   "summary": "Review your choices",
   "back": "Back",

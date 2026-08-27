@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 import { Link } from '@/core/i18n/navigation';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import {
@@ -107,11 +109,13 @@ export async function WeddingStyles({
                           title={example.altText ?? example.name}
                           aria-label={example.altText ?? example.name}
                         >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
+                          <Image
                             src={example.imageUrl}
                             alt={example.altText ?? example.name}
-                            className="aspect-square w-full object-cover"
+                            width={512}
+                            height={512}
+                            sizes="(min-width: 768px) 25vw, 50vw"
+                            className="aspect-square h-auto w-full object-cover"
                             loading="lazy"
                           />
                         </Link>

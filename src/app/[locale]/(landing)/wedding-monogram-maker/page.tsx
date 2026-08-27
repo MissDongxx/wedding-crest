@@ -21,5 +21,5 @@ export default async function MonogramPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <SeoArticle articleKey="monogram" locale={locale} />;
+  return <SeoArticle articleKey="monogram" />;
 }

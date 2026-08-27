@@ -92,10 +92,14 @@ function buildInput(
   const exampleImageElement = elements.find(
     (element) => element.type === 'example_image'
   );
+  const exampleStyleElement = elements.find(
+    (element) => element.type === 'example_style'
+  );
   const exampleMatchElement = elements.find(
     (element) => element.type === 'example_match'
   );
   const exampleImage = exampleImageElement?.value ?? null;
+  const exampleStyle = exampleStyleElement?.value ?? null;
   let matchExample: WeddingProjectInput['matchExample'] = null;
   if (exampleMatchElement?.value) {
     try {
@@ -137,6 +141,7 @@ function buildInput(
       (row as WeddingProjectRow & { showDate?: boolean }).showDate !== false,
     frameId,
     exampleImage,
+    exampleStyle,
     matchExample,
   };
 }
@@ -227,6 +232,10 @@ export interface CreateWeddingProjectParams {
    *  Stored as an `example_image` element and forwarded to the multimodal
    *  model as the first reference image so flagged properties can match. */
   exampleImage?: string | null;
+  /** The example reference's own style id, captured so the prompt compiler
+   *  can tell whether the user kept the example's style or switched. Stored
+   *  as an `example_style` element row alongside `example_image`. */
+  exampleStyle?: string | null;
   /** Per-property "match the example image" flags. Stored as a single
    *  `example_match` element (JSON-encoded) so we don't need a schema
    *  migration. */
@@ -324,6 +333,21 @@ export async function createWeddingProject(params: CreateWeddingProjectParams) {
             projectId: id,
             type: 'example_match',
             value: JSON.stringify(params.matchExample),
+          },
+        ]
+      : []),
+    // The example's own style id. Persisted only when both an example
+    // image and a style are present - the prompt compiler treats a stray
+    // exampleStyle as "no reference" and ignores it.
+    ...(params.exampleImage &&
+    /^https?:\/\//.test(params.exampleImage) &&
+    params.exampleStyle
+      ? [
+          {
+            id: getUuid(),
+            projectId: id,
+            type: 'example_style',
+            value: params.exampleStyle,
           },
         ]
       : []),

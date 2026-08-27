@@ -61,12 +61,34 @@ export default async function LandingPage({
   setRequestLocale(locale);
 
   // Parallelize data fetching
-  const [user, t, tp, Page] = await Promise.all([
-    getUserInfo(),
-    getTranslations('pages.index'),
-    getTranslations('pages.pricing'),
-    getThemePage('dynamic-page'),
-  ]);
+  // TEMP-DEBUG: surface SSR errors into the response body so we can
+  // see what fails on Cloudflare Workers (wrangler tail is silent
+  // here). Remove once the home page renders cleanly.
+  let user: any, t: any, tp: any, Page: any;
+  try {
+    [user, t, tp, Page] = await Promise.all([
+      getUserInfo(),
+      getTranslations('pages.index'),
+      getTranslations('pages.pricing'),
+      getThemePage('dynamic-page'),
+    ]);
+  } catch (e: any) {
+    return (
+      <pre
+        style={{
+          whiteSpace: 'pre-wrap',
+          padding: 24,
+          font: '14px/1.5 ui-monospace, monospace',
+          color: '#b91c1c',
+          background: '#fef2f2',
+        }}
+      >
+        SSR-ERROR: {e?.name}: {e?.message}
+        {'\n\nSTACK:\n'}
+        {(e?.stack || '').split('\n').slice(0, 25).join('\n')}
+      </pre>
+    );
+  }
 
   // get page data
   const page: DynamicPage = t.raw('page');
@@ -99,6 +121,27 @@ export default async function LandingPage({
     };
   }
 
+  let pageNode: React.ReactNode;
+  try {
+    pageNode = <Page locale={locale} page={page} />;
+  } catch (e: any) {
+    pageNode = (
+      <pre
+        style={{
+          whiteSpace: 'pre-wrap',
+          padding: 24,
+          font: '14px/1.5 ui-monospace, monospace',
+          color: '#b91c1c',
+          background: '#fef2f2',
+        }}
+      >
+        PAGE-RENDER-ERROR: {e?.name}: {e?.message}
+        {'\n\nSTACK:\n'}
+        {(e?.stack || '').split('\n').slice(0, 25).join('\n')}
+      </pre>
+    );
+  }
+
   return (
     <>
       {/* Structured Data: BreadcrumbList */}
@@ -120,7 +163,7 @@ export default async function LandingPage({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
       )}
-      <Page locale={locale} page={page} />
+      {pageNode}
     </>
   );
 }

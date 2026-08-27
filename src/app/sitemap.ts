@@ -2,7 +2,6 @@ import { MetadataRoute } from 'next';
 
 import { envConfigs } from '@/config';
 import { defaultLocale, locales } from '@/config/locale';
-import { weddingGalleryExamples } from '@/shared/wedding/gallery';
 
 const STYLE_ROUTES = [
   'wedding-crest/botanical-watercolor',
@@ -51,19 +50,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
         lastModified: new Date(),
         changeFrequency: 'monthly',
         priority: 0.8,
-      });
-    });
-  });
-
-  weddingGalleryExamples.forEach((example) => {
-    locales.forEach((locale) => {
-      const isDefault = locale === defaultLocale;
-      const localePath = isDefault ? '' : `/${locale}`;
-      sitemapEntries.push({
-        url: `${baseUrl}${localePath}/examples/${example.slug}`,
-        lastModified: new Date(),
-        changeFrequency: 'monthly',
-        priority: 0.7,
       });
     });
   });

@@ -1,0 +1,64 @@
+Mobile menu auto-close verification — 2026-08-25
+
+Changed field
+  Header.isMobileMenuOpen
+
+Modified behavior
+  1. Every route change sets isMobileMenuOpen to false.
+  2. Header action links set isMobileMenuOpen to false immediately, including
+     links to the already-current route such as My Designs on /my-designs.
+
+Baseline
+  Command: git show HEAD:src/themes/default/blocks/header.tsx > .rankup/artifacts/header.tsx.before-mobile-menu-auto-close
+  Exit: 0
+  SHA-256: d23e218b8a43db66e0a1538a7a8bd0329721c644054e1517b55d3cb7a3c43998
+
+Modified source
+  Command: shasum -a 256 src/themes/default/blocks/header.tsx
+  Exit: 0
+  Output: 7ba4c9c80cf4a59e441389550869cfca74ba895ec0d7883d893948850f2e315e
+
+Static checks
+  Command: pnpm exec eslint src/themes/default/blocks/header.tsx
+  Exit: 0
+  Output: empty
+
+  Command: pnpm exec tsc --noEmit --pretty false
+  Exit: 0
+  Output: empty
+
+  Command: pnpm exec git diff --check
+  Exit: 0
+  Output: empty
+
+Browser check
+  URL: http://localhost:3000/my-designs
+  Viewport: 390x844
+
+  Case 1 input: Open Menu, then My Designs while already on /my-designs
+  Result: URL remained /my-designs; Open Menu visible=true;
+          Close Menu count=0; header My Designs visible=false; console errors=[]
+
+  Case 2 input: Open Menu, then Create
+  Result: URL changed to /create; Open Menu visible=true;
+          Close Menu count=0; console errors=[]
+
+Patch validation
+  Command: git apply --check --reverse .rankup/artifacts/mobile-menu-auto-close.patch
+  Exit: 0
+  Output: empty
+
+Rollback validation
+  Command: .rankup/artifacts/mobile-menu-auto-close-rollback.sh /tmp/mobile-menu-rollback.Fq5USH/header.tsx
+  Exit: 0
+  Output: restored temporary header.tsx from baseline
+
+  Command: cmp .rankup/artifacts/header.tsx.before-mobile-menu-auto-close /tmp/mobile-menu-rollback.Fq5USH/header.tsx
+  Exit: 0
+  Output: empty
+
+Artifacts
+  Modified: /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/themes/default/blocks/header.tsx
+  Patch: /Users/xumingyue/Downloads/MyProjects/wedding-crest2/.rankup/artifacts/mobile-menu-auto-close.patch
+  Verification: /Users/xumingyue/Downloads/MyProjects/wedding-crest2/.rankup/artifacts/mobile-menu-auto-close-verification.txt
+  Rollback: /Users/xumingyue/Downloads/MyProjects/wedding-crest2/.rankup/artifacts/mobile-menu-auto-close-rollback.sh

@@ -679,7 +679,6 @@ export const weddingGeneration = table(
     providerTaskId: text('provider_task_id'),
     sourceImageUrl: text('source_image_url'),
     finalImageUrl: text('final_image_url'),
-    composedSvg: text('composed_svg'),
     qaScore: integer('qa_score'),
     cost: integer('cost').default(0),
     createdAt: integer('created_at', { mode: 'timestamp_ms' })

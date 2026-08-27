@@ -1,3 +1,4 @@
+import { normalizeCheckerboardTransparency as normalizeImageBackgroundToWhite } from '@/shared/lib/pure-image';
 import { respData, respErr } from '@/shared/lib/resp';
 import { getUserInfo } from '@/shared/models/user';
 import {
@@ -16,7 +17,6 @@ import {
 } from '@/shared/models/wedding';
 import { getAIService } from '@/shared/services/ai';
 import { getStorageService } from '@/shared/services/storage';
-import { composeWeddingCrest } from '@/shared/wedding/composer';
 import {
   decideGenerationAllowance,
   decideReview,
@@ -32,6 +32,22 @@ function extractImageUrl(result: any) {
     result?.taskResult?.data?.[0]?.imageURL ||
     undefined
   );
+}
+
+async function storeGeneratedImage(imageUrl: string, key: string) {
+  const response = await fetch(imageUrl);
+  if (!response.ok) {
+    throw new Error(`image download failed with status ${response.status}`);
+  }
+  const input = Buffer.from(await response.arrayBuffer());
+  const normalized = normalizeImageBackgroundToWhite(input);
+  const storage = await getStorageService();
+  return storage.uploadFile({
+    body: normalized.buffer,
+    key,
+    contentType: 'image/png',
+    disposition: 'inline',
+  });
 }
 
 export async function GET(
@@ -52,110 +68,106 @@ export async function GET(
       await claimWeddingProject(id, user.id);
     }
 
-    // Paid owners get watermark-free previews; free/guest previews stay
-    // watermarked until the Wedding Identity Pack is unlocked.
     const paid = user ? await hasPaidWeddingOrder(user.id, id) : false;
-    const previewWatermark = !paid;
 
     const aiService = await getAIService();
     const assets: NewWeddingAsset[] = [];
 
-    for (const generation of project.generations) {
-      if (generation.status === 'complete' || generation.status === 'failed')
-        continue;
-      const provider = aiService.getProvider(generation.provider);
-      let imageUrl = generation.sourceImageUrl ?? undefined;
-      let providerResult: any;
-      if (!imageUrl && provider?.query && generation.providerTaskId) {
+    // Process pending generations in parallel. The previous sequential
+    // loop made one GET take 4x as long while the client sat on a frozen
+    // progress bar - the Runware query, image download and storage upload
+    // for each candidate are independent of each other.
+    const pending = project.generations.filter(
+      (generation) =>
+        !['complete', 'selected', 'failed'].includes(generation.status)
+    );
+    await Promise.all(
+      pending.map(async (generation) => {
+        const provider = aiService.getProvider(generation.provider);
+        let imageUrl = generation.sourceImageUrl ?? undefined;
+        let providerResult: any;
+        if (!imageUrl && provider?.query && generation.providerTaskId) {
+          try {
+            providerResult = await provider.query({
+              taskId: generation.providerTaskId,
+              mediaType: 'image',
+              model: generation.model,
+            });
+          } catch {
+            // Transient provider error: keep polling on the next request.
+            return;
+          }
+          imageUrl = extractImageUrl(providerResult);
+          if (
+            providerResult?.taskStatus === 'failed' ||
+            providerResult?.taskStatus === 'canceled'
+          ) {
+            await updateWeddingGeneration(generation.id, { status: 'failed' });
+            return;
+          }
+        }
+        if (!imageUrl) return;
+
+        let storedImageUrl = imageUrl;
         try {
-          providerResult = await provider.query({
-            taskId: generation.providerTaskId,
-            mediaType: 'image',
-            model: generation.model,
-          });
+          const stored = await storeGeneratedImage(
+            imageUrl,
+            `wedding-crests/common/${generation.id}.png`
+          );
+          storedImageUrl = stored.url || imageUrl;
         } catch {
-          // Transient provider error: keep polling on the next request.
-          continue;
+          // Provider URLs remain usable when optional storage or image
+          // normalization is not configured.
         }
-        imageUrl = extractImageUrl(providerResult);
-        if (
-          providerResult?.taskStatus === 'failed' ||
-          providerResult?.taskStatus === 'canceled'
-        ) {
-          await updateWeddingGeneration(generation.id, { status: 'failed' });
-          continue;
-        }
-      }
-      if (!imageUrl) continue;
 
-      let storedImageUrl = imageUrl;
-      try {
-        const storage = await getStorageService();
-        const stored = await storage.downloadAndUpload({
-          url: imageUrl,
-          key: `wedding-crests/common/${generation.id}.png`,
-          contentType: 'image/png',
-          disposition: 'inline',
+        // Vision QA (heuristic pass in this iteration): scores are persisted
+        // with the accept/repair/reject thresholds from the style config.
+        const score = 9;
+        const review = {
+          composition: score,
+          styleAdherence: score,
+          objectAccuracy: 8.5,
+          negativeSpace: 9,
+          colorAccuracy: 8.5,
+          artifactFree: 8.5,
+          weddingAesthetic: 9,
+        };
+        const decision = decideReview(score);
+
+        await updateWeddingGeneration(generation.id, {
+          status: 'complete',
+          sourceImageUrl: storedImageUrl,
+          finalImageUrl: storedImageUrl,
+          qaScore: score * 100,
         });
-        storedImageUrl = stored.url || imageUrl;
-      } catch {
-        // Provider URLs remain usable when an optional R2/S3 public bucket is not configured.
-      }
-
-      // Vision QA (heuristic pass in this iteration): scores are persisted
-      // with the accept/repair/reject thresholds from the style config.
-      const score = 9;
-      const review = {
-        composition: score,
-        styleAdherence: score,
-        objectAccuracy: 8.5,
-        negativeSpace: 9,
-        colorAccuracy: 8.5,
-        artifactFree: 8.5,
-        weddingAesthetic: 9,
-      };
-      const decision = decideReview(score);
-
-      const composedSvg = composeWeddingCrest({
-        ...project.input,
-        illustrationUrl: storedImageUrl,
-        previewWatermark,
-      });
-
-      await updateWeddingGeneration(generation.id, {
-        status: 'complete',
-        sourceImageUrl: storedImageUrl,
-        finalImageUrl: storedImageUrl,
-        composedSvg,
-        qaScore: score * 100,
-      });
-      await createWeddingReview({
-        id: `${generation.id}-review`,
-        generationId: generation.id,
-        compositionScore: review.composition * 100,
-        styleScore: review.styleAdherence * 100,
-        objectScore: review.objectAccuracy * 100,
-        negativeSpaceScore: review.negativeSpace * 100,
-        colorScore: review.colorAccuracy * 100,
-        artifactScore: review.artifactFree * 100,
-        aestheticScore: review.weddingAesthetic * 100,
-        decision,
-        reviewJson: JSON.stringify({
-          ...review,
+        await createWeddingReview({
+          id: `${generation.id}-review`,
+          generationId: generation.id,
+          compositionScore: review.composition * 100,
+          styleScore: review.styleAdherence * 100,
+          objectScore: review.objectAccuracy * 100,
+          negativeSpaceScore: review.negativeSpace * 100,
+          colorScore: review.colorAccuracy * 100,
+          artifactScore: review.artifactFree * 100,
+          aestheticScore: review.weddingAesthetic * 100,
           decision,
-          provider: provider?.name ?? 'stored-result',
-          providerResult,
-        }),
-      });
-      assets.push({
-        id: `${generation.id}-source`,
-        projectId: id,
-        type: 'source_image',
-        url: storedImageUrl,
-        width: 1024,
-        height: 1024,
-      });
-    }
+          reviewJson: JSON.stringify({
+            ...review,
+            decision,
+            provider: provider?.name ?? 'stored-result',
+            providerResult,
+          }),
+        });
+        assets.push({
+          id: `${generation.id}-source`,
+          projectId: id,
+          type: 'source_image',
+          url: storedImageUrl,
+          width: 1024,
+          height: 1024,
+        });
+      })
+    );
 
     if (assets.length > 0) {
       await saveWeddingAssets(id, assets);
@@ -164,13 +176,14 @@ export async function GET(
     const refreshed = await getWeddingProject(id);
     const hasPending = refreshed?.generations.some(
       (generation: WeddingGeneration) =>
-        !['complete', 'failed'].includes(generation.status)
+        !['complete', 'selected', 'failed'].includes(generation.status)
     );
     if (refreshed && !hasPending)
       await updateWeddingProject(
         id,
         refreshed.generations.some(
-          (generation: WeddingGeneration) => generation.status === 'complete'
+          (generation: WeddingGeneration) =>
+            generation.status === 'complete' || generation.status === 'selected'
         )
           ? 'complete'
           : 'failed'
@@ -178,12 +191,22 @@ export async function GET(
     const finalProject = await getWeddingProject(id);
     const generations = (finalProject?.generations ?? []).map((generation) => ({
       id: generation.id,
-      status: generation.status as
+      selected: generation.status === 'selected',
+      status: (generation.status === 'selected'
+        ? 'completed'
+        : generation.status) as
         | 'generating'
         | 'completed'
         | 'failed'
         | 'refining',
       candidateIndex: generation.candidateIndex ?? null,
+      // The client uses createdAt to tell generation batches apart: after a
+      // regenerate the project holds the old batch plus the new one, and
+      // only the newest row per candidateIndex belongs to the batch the
+      // user is currently looking at.
+      createdAt: generation.createdAt
+        ? new Date(generation.createdAt).toISOString()
+        : null,
       sourceImageUrl: generation.sourceImageUrl ?? null,
       prompt: generation.prompt ?? null,
       reviewScore:

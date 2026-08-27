@@ -1,64 +1,64 @@
 {
   "generator": {
     "meta_title": "AI Wedding Crest Generator",
-    "meta_description": "Compose a custom wedding crest in minutes with our AI-powered generator. Six styles, twelve layouts, eight typography pairings.",
+    "meta_description": "Create a complete AI-generated wedding crest in minutes. Six styles, twelve layouts, curated palettes, and integrated lettering.",
     "heading": "AI wedding crest generator",
-    "intro": "Design a wedding crest that looks like it was made by a stationer — not a stock template. Our generator composes a hand-drawn illustration, then layers on your names, date, and monogram in editorial typography.",
+    "intro": "Design a wedding crest that looks professionally illustrated. AI generates the artwork, border, names, date, and monogram together as one complete image.",
     "cta": "Start your crest",
     "section_1_title": "Pick a style",
     "section_1_body": "Choose from six signature wedding illustration styles — botanical watercolor, minimal line art, vintage engraving, Italian romance, coastal, or classic luxury. Each one has its own hand-drawn aesthetic and matches a curated set of layouts.",
     "section_2_title": "Layer in your story",
-    "section_2_body": "Add flowers, personal touches, and a location to make the crest feel like yours. The program composes the layout and typography so the final result reads as one cohesive piece.",
+    "section_2_body": "Add flowers, personal touches, a border, and a location to make the crest feel like yours. AI integrates every selected element into one cohesive image.",
     "section_3_title": "Fine-tune the typography",
-    "section_3_body": "Eight editorial typography pairings — from a romantic rose serif to a minimal coastal sans — give your crest a voice. Switch pairings, layouts, and name displays in real time.",
-    "section_4_title": "Unlock the full pack",
-    "section_4_body": "Get the Wedding Identity Pack to download four stationery mockups (invitation, save the date, menu, welcome sign) plus full-quality SVG and PNG. One payment, yours forever.",
+    "section_3_body": "Choose from eight editorial typography directions. When you change the wording or style, AI re-renders the lettering inside the complete crest image.",
+    "section_4_title": "Unlock the AI image pack",
+    "section_4_body": "Get the Wedding Image Pack to download the selected original AI crest and every completed AI variation at source quality. One payment, yours forever.",
     "faq_1_q": "How long does it take?",
-    "faq_1_a": "Most crests are ready in under a minute. You'll receive one finished crest design, with typography and your details composed for a polished result.",
+    "faq_1_a": "Most crests are ready in under a minute. You receive one complete AI-generated crest image with your artwork, lettering, and details integrated.",
     "faq_2_q": "Do I own the design?",
     "faq_2_a": "Yes. Once you unlock the Wedding Identity Pack, you can use the crest on your invitations, signage, and wedding stationery without any further licensing.",
     "faq_3_q": "Can I edit it later?",
-    "faq_3_a": "Yes. You can change the typography pairing, layout, name display, and date even after generation. Free accounts can regenerate up to four times; the Wedding Identity Pack adds three more regenerations."
+    "faq_3_a": "Yes. You can change the typography, layout, name display, date, palette, motifs, or border and let AI render an updated complete crest."
   },
   "monogram": {
     "meta_title": "Wedding Monogram Maker",
     "meta_description": "Create a custom wedding monogram with intertwined initials and editorial typography. Six styles, eight typography pairings.",
     "heading": "Wedding monogram maker",
-    "intro": "A wedding monogram is the simplest, most enduring mark of your day. Our monogram maker intertwines your initials in eight editorial typography pairings, then layers them over a hand-drawn crest.",
+    "intro": "A wedding monogram is the simplest mark of your day. Choose how your initials appear, then AI renders them together with the illustrated crest as one complete image.",
     "cta": "Design your monogram",
     "section_1_title": "Choose your initials",
-    "section_1_body": "Enter both partners' names. We extract the first letter of each and intertwine them in the layout you choose — from a single letter, to stacked initials, to a full surname.",
+    "section_1_body": "Enter both partners names and choose an initials or name display. AI renders the exact lettering as part of the complete crest artwork.",
     "section_2_title": "Pick a style",
     "section_2_body": "The same six signature styles work for monograms. A minimal line art monogram is the most contemporary; a vintage engraving monogram is the most formal.",
     "section_3_title": "Set the typography",
-    "section_3_body": "Eight typography pairings — from a romantic rose serif to a coastal light sans — give your monogram a voice. You can change pairings at any time.",
-    "section_4_title": "Use it everywhere",
-    "section_4_body": "Unlock the Wedding Identity Pack to download the monogram in full-quality SVG and PNG, plus four stationery mockups that put it on invitations, save the dates, menus, and welcome signs.",
+    "section_3_body": "Eight typography directions give your monogram a distinct voice. Each change is re-rendered by AI inside the finished image.",
+    "section_4_title": "Download the original AI image",
+    "section_4_body": "Unlock the Wedding Image Pack to download your selected AI-generated crest and every completed variation at source quality.",
     "faq_1_q": "What is a wedding monogram?",
     "faq_1_a": "A monogram is a typographic mark of intertwined initials. It's traditionally used on invitations, signage, napkins, and favors — wherever you want a clean, recognizable mark of the couple.",
     "faq_2_q": "Can I use just one initial?",
     "faq_2_a": "Yes. The name display can be initials only, full first names, or a surname — whichever fits your wedding's tone.",
     "faq_3_q": "What's the difference between a monogram and a crest?",
-    "faq_3_a": "A monogram is type-only. A crest is a monogram layered over a hand-drawn illustration. Both are included in the final design."
+    "faq_3_a": "A monogram focuses on initials. A crest combines the initials or names with illustrated motifs; AI renders both together in the final image."
   },
   "logo": {
     "meta_title": "Wedding Logo Maker",
     "meta_description": "Design a custom wedding logo and crest in one editor. Six illustration styles, twelve layouts, eight typography pairings.",
     "heading": "Wedding logo maker",
-    "intro": "A wedding logo is more than a mark — it's the visual thread that ties your invitations, signage, and stationery together. Our logo maker composes a crest that doubles as your logo.",
+    "intro": "A wedding logo is the visual thread that ties invitations, signage, and stationery together. AI generates a complete illustrated crest that works as your wedding logo.",
     "cta": "Create your logo",
     "section_1_title": "One mark, many uses",
-    "section_1_body": "The crest you compose here is your wedding logo. Use it on your save the date, invitation, menu, and welcome sign — the same illustration, the same typography, the same palette.",
+    "section_1_body": "The complete AI-generated crest is your wedding logo: one integrated image with illustration, lettering, and palette for use across your celebration.",
     "section_2_title": "Six signature styles",
     "section_2_body": "Botanical watercolor for a garden wedding, minimal line art for a modern loft, vintage engraving for a historic venue, Italian romance for a villa, coastal for the sea, classic luxury for a ballroom.",
     "section_3_title": "Editorial typography",
     "section_3_body": "Eight editorial typography pairings — chosen by stationers, not stock fonts — give your logo a voice that matches the day.",
-    "section_4_title": "Download every asset",
-    "section_4_body": "Unlock the Wedding Identity Pack to download full-quality SVG and PNG, plus four stationery mockups, so you have everything in one place.",
+    "section_4_title": "Download every completed AI image",
+    "section_4_body": "Unlock the Wedding Image Pack to download the selected original AI crest and every completed AI variation at source quality.",
     "faq_1_q": "Is this a real logo?",
-    "faq_1_a": "It's a real, scalable vector logo. Once you unlock the Wedding Identity Pack, you have full-quality SVG and PNG to use anywhere.",
+    "faq_1_a": "Yes. It is a complete AI-generated wedding logo image. The paid pack includes the original source-quality file without the preview watermark.",
     "faq_2_q": "Can I edit it later?",
-    "faq_2_a": "Yes. You can change the typography pairing, layout, name display, and date. Free accounts can regenerate up to four times; the Wedding Identity Pack adds three more regenerations.",
+    "faq_2_a": "Yes. Change the typography, layout, name display, date, palette, motifs, or border and AI will render an updated complete image.",
     "faq_3_q": "What if I don't like the first design?",
     "faq_3_a": "If you want to refine the result, change the typography pairing, layout, name display, or date. You can also start a fresh generation with a different style or palette."
   },
@@ -83,7 +83,7 @@
       "faq_2_q": "Is it too soft for a formal wedding?",
       "faq_2_a": "Not at all. Pair it with classic caps or modern serif typography, and the result feels editorial and formal — just softer than engraving.",
       "faq_3_q": "Can I print it at any size?",
-      "faq_3_a": "Yes. Unlock the Wedding Identity Pack for a full-quality SVG that scales from a save the date to a welcome sign without losing detail."
+      "faq_3_a": "Yes. Unlock the Wedding Image Pack to download the original source-quality AI image without the preview watermark."
     },
     "minimal-line-art": {
       "style_id": "minimal_line_art",
@@ -105,7 +105,7 @@
       "faq_2_q": "What personal touches work?",
       "faq_2_a": "A single line of your venue, your pet's silhouette, or a monogram inside the line. Keep it to one touch for the cleanest result.",
       "faq_3_q": "Can I print it in black and white?",
-      "faq_3_a": "Yes. Minimal line art is designed to work in single-color printing. Unlock the pack for the full black-and-white export."
+      "faq_3_a": "Yes. Unlock the Wedding Image Pack to download the original source-quality AI image without the preview watermark."
     },
     "vintage-engraving": {
       "style_id": "vintage_engraving",
@@ -127,7 +127,7 @@
       "faq_2_q": "What personal touches work?",
       "faq_2_a": "A family crest, a single meaningful object, or a hand-drawn monogram. Avoid clutter — engraving rewards restraint.",
       "faq_3_q": "Can I print it in gold foil?",
-      "faq_3_a": "Yes. The vintage engraving style was designed for foil stamping. Use the SVG export from the Wedding Identity Pack for the crispest result."
+      "faq_3_a": "Yes. Unlock the Wedding Image Pack to download the original source-quality AI image without the preview watermark."
     },
     "italian-romance": {
       "style_id": "italian_romance",
@@ -171,7 +171,7 @@
       "faq_2_q": "What personal touches work?",
       "faq_2_a": "A single shell, a sea oat, or the silhouette of your venue's coastline. Keep it to one touch for the cleanest result.",
       "faq_3_q": "Can I print it in navy?",
-      "faq_3_a": "Yes. The coastal palette ranges from dusty blue to deep navy. Unlock the pack to export in any color you choose."
+      "faq_3_a": "Yes. Unlock the Wedding Image Pack to download the original source-quality AI image without the preview watermark."
     },
     "classic-luxury": {
       "style_id": "classic_luxury",
@@ -193,7 +193,7 @@
       "faq_2_q": "What personal touches work?",
       "faq_2_a": "A family crest, a single meaningful object, or a hand-drawn monogram. Avoid clutter — luxury rewards restraint.",
       "faq_3_q": "Can I print it in gold foil?",
-      "faq_3_a": "Yes. The classic luxury style was designed for foil stamping. Use the SVG export from the Wedding Identity Pack for the crispest result."
+      "faq_3_a": "Yes. Unlock the Wedding Image Pack to download the original source-quality AI image without the preview watermark."
     }
   }
 }

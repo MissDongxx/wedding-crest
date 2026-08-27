@@ -1,23 +1,25 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 
 import { Button } from '@/shared/components/ui/button';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
-import { CrestPreview } from '@/shared/components/wedding/crest-preview';
-import { weddingGalleryExamples } from '@/shared/wedding/gallery';
-import { weddingPalettes } from '@/shared/wedding/types';
+import {
+  listWeddingExamples,
+  type WeddingExampleRow,
+} from '@/shared/models/wedding';
 
 export type SeoArticleKey = 'generator' | 'monogram' | 'logo';
 
 export async function SeoArticle({
   articleKey,
-  locale,
 }: {
   articleKey: SeoArticleKey;
-  locale: string;
 }) {
   const t = await getTranslations(`pages.seo.${articleKey}`);
-  const featured = weddingGalleryExamples.slice(0, 6);
+  const featured = (
+    (await listWeddingExamples({ activeOnly: true })) as WeddingExampleRow[]
+  ).slice(0, 6);
 
   const faqJsonLd = {
     '@context': 'https://schema.org',
@@ -51,31 +53,25 @@ export async function SeoArticle({
         </div>
       </ScrollAnimation>
 
-      <div className="bg-wedding-ivory mt-12 grid grid-cols-2 gap-4 rounded-2xl border p-6 sm:grid-cols-3">
-        {featured.map((example, idx) => (
-          <CrestPreview
-            key={`${example.slug}-${idx}`}
-            className="mx-auto w-full"
-            config={{
-              partner1: example.partner1,
-              partner2: example.partner2,
-              weddingDate: example.weddingDate,
-              style: example.style,
-              layout: example.layout,
-              typography: example.typography,
-              palette: example.palette.length
-                ? example.palette
-                : weddingPalettes[0].colors,
-              nameDisplay:
-                articleKey === 'monogram'
-                  ? 'initials_joined'
-                  : idx % 2 === 0
-                    ? 'initials_amp'
-                    : 'full_names',
-            }}
-          />
-        ))}
-      </div>
+      {featured.length > 0 && (
+        <div className="bg-wedding-ivory mt-12 grid grid-cols-2 gap-4 rounded-2xl border p-6 sm:grid-cols-3">
+          {featured.map((example) => (
+            <Link
+              key={example.id}
+              href={`/create?style=${encodeURIComponent(example.style)}&exampleId=${encodeURIComponent(example.id)}`}
+              className="relative aspect-square overflow-hidden rounded-xl"
+            >
+              <Image
+                src={example.imageUrl}
+                alt={example.altText ?? example.name}
+                fill
+                sizes="(min-width: 640px) 33vw, 50vw"
+                className="object-cover"
+              />
+            </Link>
+          ))}
+        </div>
+      )}
 
       <div className="mt-12 space-y-8">
         {[1, 2, 3, 4].map((n) => (

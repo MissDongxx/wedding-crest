@@ -1,0 +1,61 @@
+Checkout unlock verification — 2026-08-25
+
+Target
+  /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/themes/default/blocks/wedding-result.tsx
+
+Root cause
+  POST /api/payment/checkout returns the standard response envelope
+  { code: 0, message: "ok", data: { checkoutUrl, sessionId } }.
+  The result page read checkoutUrl from the top level, so the successful
+  response produced no navigation. Error envelopes were also not checked.
+
+Modified behavior
+  The client unwraps envelope.data, accepts the legacy top-level shape,
+  checks both HTTP status and envelope.code, reports missing URLs, catches
+  request/JSON failures, and always clears the paying state.
+
+Baseline preservation
+  Command: git show HEAD:src/themes/default/blocks/wedding-result.tsx > .rankup/artifacts/wedding-result.tsx.before
+  Exit: 0
+  Baseline SHA-256: 9c0712070a8d8e122293e3793f168bcd19a2f94d7f2ab7a4da7641b518091ce4
+
+Static validation
+  Command: pnpm exec eslint src/themes/default/blocks/wedding-result.tsx
+  Exit: 0
+  Literal output: 5 existing warnings; 0 errors
+    23:10 getWeddingTypography is defined but never used
+    110:26 setShowTypography is assigned a value but never used
+    117:9 pollRef is assigned a value but never used
+    232:9 updateProject is assigned a value but never used
+    263:9 applyQuickEdit is assigned a value but never used
+
+  Command: pnpm exec tsc --noEmit --pretty false
+  Exit: 0
+  Literal output: empty
+
+  Command: pnpm exec git diff --check
+  Exit: 0
+  Literal output: empty
+
+Browser flow
+  Server: pnpm run dev, http://localhost:3003
+  Page: http://localhost:3003/design/1a40be02-ef20-4f21-a0d7-76cefe4fbe7d
+  Input: click button "Unlock for $19"
+  Before: button enabled; no navigation from the successful checkout response.
+  Observed API: POST /api/payment/checkout 200 in 4454ms
+  Observed result: https://www.sandbox.paypal.com/checkoutnow?token=9LV27936SY701135V
+  Visible result: PayPal checkout login page
+  Browser console errors: none
+
+Rollback validation
+  Command: .rankup/artifacts/checkout-unlock-rollback.sh /tmp/checkout-rollback.ygXOhC/wedding-result.tsx
+  Exit: 0
+  Literal output: restored the temporary copy from wedding-result.tsx.before
+  Command: cmp .rankup/artifacts/wedding-result.tsx.before /tmp/checkout-rollback.ygXOhC/wedding-result.tsx
+  Exit: 0
+
+Artifacts
+  Modified source: /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/themes/default/blocks/wedding-result.tsx
+  Patch: /Users/xumingyue/Downloads/MyProjects/wedding-crest2/.rankup/artifacts/checkout-unlock.patch
+  Baseline: /Users/xumingyue/Downloads/MyProjects/wedding-crest2/.rankup/artifacts/wedding-result.tsx.before
+  Rollback: /Users/xumingyue/Downloads/MyProjects/wedding-crest2/.rankup/artifacts/checkout-unlock-rollback.sh

@@ -260,6 +260,154 @@ function isJPEG(buffer: Buffer): boolean {
   return buffer[0] === 0xff && buffer[1] === 0xd8;
 }
 
+type Rgb = [number, number, number];
+
+function readRgb(data: Uint8Array, index: number): Rgb {
+  return [data[index], data[index + 1], data[index + 2]];
+}
+
+function isNeutral(color: Rgb) {
+  return Math.max(...color) - Math.min(...color) <= 28;
+}
+
+function luminance(color: Rgb) {
+  return color[0] * 0.2126 + color[1] * 0.7152 + color[2] * 0.0722;
+}
+
+function median(values: number[]) {
+  if (values.length === 0) return 0;
+  values.sort((left, right) => left - right);
+  return values[Math.floor(values.length / 2)];
+}
+
+/** Detect an opaque checkerboard painted into an AI image. */
+function hasGeneratedCheckerboard(
+  data: Uint8Array,
+  width: number,
+  height: number
+) {
+  const sampleStep = Math.max(2, Math.floor(Math.min(width, height) / 180));
+
+  for (let xCells = 12; xCells <= 96; xCells += 1) {
+    const tile = width / xCells;
+    if (tile < 6 || tile > 128) continue;
+    const yCells = Math.max(2, Math.round(height / tile));
+    const groups: [number[], number[]] = [[], []];
+
+    for (let cy = 0; cy < yCells; cy += 1) {
+      for (let cx = 0; cx < xCells; cx += 1) {
+        const x = Math.min(width - 1, Math.floor((cx + 0.5) * tile));
+        const y = Math.min(height - 1, Math.floor((cy + 0.5) * tile));
+        const inCorner =
+          (x < width * 0.2 || x >= width * 0.8) &&
+          (y < height * 0.2 || y >= height * 0.8);
+        if (!inCorner) continue;
+        const color = readRgb(data, (y * width + x) * 4);
+        if (isNeutral(color)) groups[(cx + cy) % 2].push(luminance(color));
+      }
+    }
+
+    if (groups[0].length < 12 || groups[1].length < 12) continue;
+    const centers = [median(groups[0]), median(groups[1])];
+    if (Math.abs(centers[0] - centers[1]) < 28) continue;
+
+    let matching = 0;
+    let considered = 0;
+    for (let y = 0; y < height; y += sampleStep) {
+      for (let x = 0; x < width; x += sampleStep) {
+        const inCorner =
+          (x < width * 0.2 || x >= width * 0.8) &&
+          (y < height * 0.2 || y >= height * 0.8);
+        if (!inCorner) continue;
+        const color = readRgb(data, (y * width + x) * 4);
+        if (!isNeutral(color)) continue;
+        const value = luminance(color);
+        const distances = centers.map((center) => Math.abs(value - center));
+        if (Math.min(...distances) > 30) continue;
+        const actual = distances[0] <= distances[1] ? 0 : 1;
+        const expected = (Math.floor(x / tile) + Math.floor(y / tile)) % 2;
+        considered += 1;
+        if (actual === expected) matching += 1;
+      }
+    }
+
+    if (considered >= 180 && matching / considered >= 0.9) return true;
+  }
+
+  return false;
+}
+
+export interface WhiteBackgroundNormalization {
+  buffer: Buffer;
+  changed: boolean;
+  checkerboardDetected: boolean;
+}
+
+/**
+ * Flatten genuine PNG alpha onto white and identify fake painted
+ * checkerboards. Painted checkerboards are reported rather than destructively
+ * color-keyed because their gray pixels are indistinguishable from gray
+ * lettering, pets and line art.
+ */
+export function normalizeImageBackgroundToWhite(
+  buffer: Buffer
+): WhiteBackgroundNormalization {
+  if (
+    buffer.length < 8 ||
+    buffer[0] !== 0x89 ||
+    buffer[1] !== 0x50 ||
+    buffer[2] !== 0x4e ||
+    buffer[3] !== 0x47
+  ) {
+    return { buffer, changed: false, checkerboardDetected: false };
+  }
+
+  let decoded: { width: number; height: number; data: Buffer };
+  try {
+    decoded = safePngRead(buffer);
+  } catch {
+    return { buffer, changed: false, checkerboardDetected: false };
+  }
+
+  const { width, height, data } = decoded;
+  const pixelCount = width * height;
+  let hasAlpha = false;
+  for (let offset = 3; offset < data.length; offset += 4) {
+    if (data[offset] < 255) {
+      hasAlpha = true;
+      break;
+    }
+  }
+
+  const checkerboardDetected =
+    !hasAlpha && hasGeneratedCheckerboard(data, width, height);
+  if (!hasAlpha) {
+    return { buffer, changed: false, checkerboardDetected };
+  }
+
+  for (let pixel = 0; pixel < pixelCount; pixel += 1) {
+    const offset = pixel * 4;
+    const alpha = data[offset + 3] / 255;
+    data[offset] = Math.round(data[offset] * alpha + 255 * (1 - alpha));
+    data[offset + 1] = Math.round(data[offset + 1] * alpha + 255 * (1 - alpha));
+    data[offset + 2] = Math.round(data[offset + 2] * alpha + 255 * (1 - alpha));
+    data[offset + 3] = 255;
+  }
+
+  const output = new PNG({ width, height });
+  data.copy(output.data);
+  return {
+    buffer: PNG.sync.write(output),
+    changed: true,
+    checkerboardDetected: false,
+  };
+}
+
+// Keep the previous export name available for any hot-reloaded route module
+// that still references it while Turbopack refreshes the dependency graph.
+export const normalizeCheckerboardTransparency =
+  normalizeImageBackgroundToWhite;
+
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------

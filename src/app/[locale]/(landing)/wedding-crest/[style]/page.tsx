@@ -1,16 +1,15 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { Button } from '@/shared/components/ui/button';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
-import { CrestPreview } from '@/shared/components/wedding/crest-preview';
-import { getWeddingStyle, layoutsForStyle } from '@/shared/wedding/config';
 import {
-  getGalleryExample,
-  weddingGalleryExamples,
-} from '@/shared/wedding/gallery';
-import { weddingPalettes, weddingStyles } from '@/shared/wedding/types';
+  listWeddingExamples,
+  type WeddingExampleRow,
+} from '@/shared/models/wedding';
+import { getWeddingStyle } from '@/shared/wedding/config';
 
 /**
  * URL: /wedding-crest/botanical_watercolor
@@ -26,7 +25,7 @@ const STYLE_ID_TO_KEY: Record<string, string> = {
   classic_luxury: 'classic-luxury',
 };
 
-export const dynamic = 'force-static';
+export const revalidate = 60;
 
 export function generateStaticParams() {
   return Object.keys(STYLE_ID_TO_KEY).map((style) => ({ style }));
@@ -65,10 +64,12 @@ export default async function StylePage({
     | 'coastal'
     | 'classic_luxury';
   const styleConfig = getWeddingStyle(seoStyleId);
-  const layout = layoutsForStyle(seoStyleId)[0];
-  const previewPalette = weddingPalettes[0].colors;
-
-  const examples = weddingGalleryExamples
+  const examples = (
+    (await listWeddingExamples({
+      style: seoStyleId,
+      activeOnly: true,
+    })) as WeddingExampleRow[]
+  )
     .filter((example) => example.style === seoStyleId)
     .slice(0, 6);
 
@@ -107,20 +108,21 @@ export default async function StylePage({
         </div>
       </ScrollAnimation>
 
-      <div className="bg-wedding-ivory mt-12 rounded-2xl border p-6">
-        <CrestPreview
-          config={{
-            partner1: 'Emma',
-            partner2: 'James',
-            weddingDate: '2027-06-12',
-            style: seoStyleId,
-            layout: layout.id,
-            typography: styleConfig.typography[0],
-            palette: previewPalette,
-            nameDisplay: 'initials_amp',
-          }}
-        />
-      </div>
+      {examples[0] && (
+        <Link
+          href={`/create?style=${encodeURIComponent(seoStyleId)}&exampleId=${encodeURIComponent(examples[0].id)}`}
+          className="bg-wedding-ivory relative mt-12 block aspect-square overflow-hidden rounded-2xl border"
+        >
+          <Image
+            src={examples[0].imageUrl}
+            alt={examples[0].altText ?? examples[0].name}
+            fill
+            sizes="(min-width: 768px) 768px, 100vw"
+            className="object-cover"
+            priority
+          />
+        </Link>
+      )}
 
       <div className="mt-12 space-y-8">
         {[1, 2, 3, 4].map((n) => (
@@ -139,23 +141,19 @@ export default async function StylePage({
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
             {examples.map((example) => (
               <Link
-                key={example.slug}
-                href={`/examples/${example.slug}`}
-                className="bg-wedding-ivory block overflow-hidden rounded-2xl border p-3 transition-all hover:-translate-y-1 hover:shadow-md"
+                key={example.id}
+                href={`/create?style=${encodeURIComponent(seoStyleId)}&exampleId=${encodeURIComponent(example.id)}`}
+                className="bg-wedding-ivory block overflow-hidden rounded-2xl border transition-all hover:-translate-y-1 hover:shadow-md"
               >
-                <CrestPreview
-                  config={{
-                    partner1: example.partner1,
-                    partner2: example.partner2,
-                    weddingDate: example.weddingDate,
-                    style: example.style,
-                    layout: example.layout,
-                    typography: example.typography,
-                    palette: example.palette,
-                  }}
+                <Image
+                  src={example.imageUrl}
+                  alt={example.altText ?? example.name}
+                  width={480}
+                  height={480}
+                  className="aspect-square h-auto w-full object-cover"
                 />
                 <p className="text-muted-foreground mt-2 text-center text-xs">
-                  {example.partner1} & {example.partner2}
+                  {example.name}
                 </p>
               </Link>
             ))}
@@ -185,5 +183,3 @@ export default async function StylePage({
     </article>
   );
 }
-
-export const dynamicParams = true;

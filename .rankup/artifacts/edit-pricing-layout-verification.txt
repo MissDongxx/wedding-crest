@@ -1,0 +1,23 @@
+Edit/pricing module order verification — 2026-08-25
+
+Changed file
+  /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/themes/default/blocks/wedding-result.tsx
+
+Requested order
+  Pricing / Unlock card → EditPanel → Regenerate card
+
+Static checks
+  Command: pnpm exec eslint src/themes/default/blocks/wedding-result.tsx
+  Exit: 0; 0 errors; 5 existing warnings.
+  Command: pnpm exec tsc --noEmit --pretty false
+  Exit: 0; passed.
+  Command: pnpm exec git diff --check
+  Exit: 0; passed.
+
+Browser verification
+  URL: http://localhost:3000/design/1a40be02-ef20-4f21-a0d7-76cefe4fbe7d
+  Visible DOM order: Unlock the Wedding Identity Pack → Edit tabs / Edit your design → Regenerate.
+  Runtime Error overlay: absent.
+
+Rollback
+  Move the `EditPanel` JSX block from the right sidebar back before the mockups block in `wedding-result.tsx`.

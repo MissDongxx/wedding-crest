@@ -21,5 +21,5 @@ export default async function LogoPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <SeoArticle articleKey="logo" locale={locale} />;
+  return <SeoArticle articleKey="logo" />;
 }

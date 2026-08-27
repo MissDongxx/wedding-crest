@@ -24,16 +24,26 @@ export async function POST(
     if (!(await canAccessWeddingProject({ id, userId: user?.id, guestId })))
       return respErr('project not found');
     const project = await getWeddingProject(id);
-    const selected = project?.generations.find(
+    if (!project) return respErr('project not found');
+    const selected = project.generations.find(
       (generation: WeddingGeneration) => generation.id === generationId
     );
     if (!selected) return respErr('generation not found');
+    await Promise.all(
+      project.generations
+        .filter(
+          (generation: WeddingGeneration) =>
+            generation.id !== generationId && generation.status === 'selected'
+        )
+        .map((generation: WeddingGeneration) =>
+          updateWeddingGeneration(generation.id, { status: 'complete' })
+        )
+    );
     await updateWeddingProject(id, 'selected');
     await updateWeddingGeneration(generationId, { status: 'selected' });
     return respData({
       projectId: id,
       generationId,
-      composedSvg: selected.composedSvg,
     });
   } catch (error) {
     return respErr(

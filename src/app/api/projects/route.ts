@@ -53,13 +53,14 @@ const createSchema = z.object({
   ]),
   layout: z.string().trim().min(1).optional(),
   typography: z.string().trim().min(1).optional(),
-  palette: z.array(hexColor).min(1).max(WEDDING_MAX_PALETTE_COLORS),
+  palette: z.array(hexColor).max(WEDDING_MAX_PALETTE_COLORS),
   complexity: z.enum(['minimal', 'medium', 'rich']).optional(),
   nameDisplay: z
     .enum([
       'initials_amp',
       'initials_joined',
       'initials_spaced',
+      'initials_with_names',
       'full_names',
       'surname',
       'initials_only',
@@ -86,6 +87,20 @@ const createSchema = z.object({
   // the prompt. The four flags map to the four wizard steps that surface
   // a "Same as example" option.
   exampleId: z.string().trim().min(1).max(80).optional(),
+  // The example reference's own style id, captured so the prompt compiler
+  // can tell whether the user kept the example's style or switched to a
+  // different one. Optional and only meaningful when exampleId is set.
+  exampleStyle: z
+    .enum([
+      'botanical_watercolor',
+      'minimal_line_art',
+      'vintage_engraving',
+      'italian_romance',
+      'coastal',
+      'classic_luxury',
+    ])
+    .nullable()
+    .optional(),
   matchExample: z
     .object({
       border: z.boolean().optional(),
@@ -159,6 +174,11 @@ export async function POST(request: Request) {
       personalImages: body.personalImages ?? [],
       frameId: body.frameId ?? null,
       exampleImage,
+      // Persist only when the example was resolved - stale exampleStyle
+      // without an exampleImage is a no-op in the prompt compiler, so we
+      // avoid creating a dangling element row.
+      exampleStyle:
+        exampleImage && body.exampleStyle ? body.exampleStyle : null,
       matchExample,
       status: 'draft',
     });

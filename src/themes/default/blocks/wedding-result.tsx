@@ -1,26 +1,28 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
 import { Button } from '@/shared/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import { cn } from '@/shared/lib/utils';
+import { layoutsForStyle } from '@/shared/wedding/config';
 import {
-  composeWeddingCrest,
-  composeWeddingMockup,
-} from '@/shared/wedding/composer';
-import { getWeddingTypography, layoutsForStyle } from '@/shared/wedding/config';
-import {
-  WeddingNameDisplay,
   WEDDING_MAX_FLOWERS,
   WEDDING_MAX_PALETTE_COLORS,
   WEDDING_MAX_PERSONAL_ELEMENTS,
   weddingFlowerOptions,
+  WeddingNameDisplay,
   weddingPalettes,
   weddingPersonalElementOptions,
   weddingStyles,
@@ -29,8 +31,10 @@ import {
 
 interface GenerationData {
   id: string;
+  selected?: boolean;
   status: 'generating' | 'completed' | 'failed' | 'refining';
   candidateIndex: number | null;
+  createdAt: string | null;
   sourceImageUrl: string | null;
   prompt: string | null;
   reviewScore: number | null;
@@ -93,6 +97,29 @@ function stageLabel(stage: string | null | undefined) {
   return STAGE_STATUS_COPY[stage] ?? stage;
 }
 
+/**
+ * Return only the generations belonging to the most recent batch.
+ *
+ * Each call to /api/projects/[id]/generate appends WEDDING_MAX_CANDIDATES
+ * new rows without removing the previous batch, and the rows are stored
+ * ordered by (candidateIndex, createdAt) so the LAST row per candidate
+ * index is always the newest one. After a regenerate the project
+ * therefore holds two interleaved batches: the client only ever wants to
+ * show the latest one, both for the master crest and for the alternates
+ * grid.
+ */
+function latestBatchOf(generations: GenerationData[]): GenerationData[] {
+  if (generations.length === 0) return [];
+  const byIndex = new Map<number, GenerationData>();
+  for (const generation of generations) {
+    if (generation.candidateIndex == null) continue;
+    byIndex.set(generation.candidateIndex, generation);
+  }
+  return [...byIndex.values()].sort(
+    (a, b) => (a.candidateIndex ?? 0) - (b.candidateIndex ?? 0)
+  );
+}
+
 export function WeddingResult({ projectId }: { projectId: string }) {
   const t = useTranslations('pages.design');
   const router = useRouter();
@@ -101,14 +128,27 @@ export function WeddingResult({ projectId }: { projectId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [busy, setBusy] = useState(false);
-  const [showTypography, setShowTypography] = useState(true);
   const [paying, setPaying] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
+  const [showAllowanceHint, setShowAllowanceHint] = useState(true);
   // Bumping this resets the edit panel to match the freshly-persisted
   // project (e.g. after a successful apply).
   const [draftResetKey, setDraftResetKey] = useState(0);
-  const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [progressStage, setProgressStage] = useState('queued');
   const [progressPercent, setProgressPercent] = useState(5);
+  // Distinguishes the in-flight fetchJob so the loading banner can pulse
+  // during a long GET (the /api/jobs route can take 10-30s while it
+  // downloads and stores 4 images in parallel - the user otherwise sees
+  // a frozen stage label and assumes the page is stuck).
+  const [polling, setPolling] = useState(false);
+  // Bumped by regenerate / applyPanelChanges after a successful generate
+  // POST. The poll loop stops permanently when status first hits
+  // 'complete' (to save quota), so a re-trigger of generation needs the
+  // epoch to restart the effect - otherwise the new batch is never
+  // processed and the page is stuck on the "Hang tight" banner with no
+  // EditPanel, no alternates and no selection update.
+  const [pollEpoch, setPollEpoch] = useState(0);
 
   const guestId =
     typeof window !== 'undefined'
@@ -116,12 +156,15 @@ export function WeddingResult({ projectId }: { projectId: string }) {
       : null;
 
   const fetchJob = useCallback(async () => {
+    setPolling(true);
     try {
       const response = await fetch(`/api/jobs/${projectId}`, {
         headers: guestId ? { 'x-wedding-guest-id': guestId } : {},
         cache: 'no-store',
       });
-      const envelope = (await response.json().catch(() => ({}))) as ApiEnvelope<JobResponse>;
+      const envelope = (await response
+        .json()
+        .catch(() => ({}))) as ApiEnvelope<JobResponse>;
       if (
         !response.ok ||
         (envelope.code !== undefined && envelope.code !== 0)
@@ -141,10 +184,20 @@ export function WeddingResult({ projectId }: { projectId: string }) {
         : body;
       setError(null);
       setData(normalizedBody);
+      // Only honor a persisted "selected" within the latest batch. After
+      // a regenerate the project keeps the old batch's selected row, and
+      // a plain findIndex would jump the user back to a stale image.
+      const latest = latestBatchOf(normalizedBody.generations);
+      const persistedSelection = latest.findIndex(
+        (generation) => generation.selected
+      );
+      setSelectedIndex(persistedSelection >= 0 ? persistedSelection : 0);
       return normalizedBody;
     } catch {
       setError(t('load_error'));
       return null;
+    } finally {
+      setPolling(false);
     }
   }, [projectId, guestId, t]);
 
@@ -186,105 +239,100 @@ export function WeddingResult({ projectId }: { projectId: string }) {
       cancelled = true;
       if (poll) clearTimeout(poll);
     };
-  }, [fetchJob]);
+  }, [fetchJob, pollEpoch]);
 
   const project = data?.project;
-  const generations = data?.generations ?? [];
+  const generations = useMemo(
+    () => latestBatchOf(data?.generations ?? []),
+    [data?.generations]
+  );
   const selectedGeneration = generations[selectedIndex];
 
-  const liveCrestSvg = useMemo(() => {
-    if (!project) return '';
-    const init1 = project.partner1.charAt(0).toUpperCase();
-    const init2 = project.partner2.charAt(0).toUpperCase();
-    return composeWeddingCrest({
-      partner1: project.partner1,
-      partner2: project.partner2,
-      initials: [init1, init2],
-      weddingDate: project.weddingDate,
-      style: project.style,
-      layout: project.layout,
-      typography: project.typography,
-      palette: project.palette,
-      location: project.location,
-      venue: project.venue,
-      flowers: project.flowers,
-      personalElements: project.personalElements,
-      complexity: project.complexity,
-      nameDisplay: project.nameDisplay,
-      showDate: project.showDate,
-      frameId: project.frameId,
-      frameUrl: project.frameUrl,
-      illustrationUrl: showTypography
-        ? (selectedGeneration?.sourceImageUrl ?? undefined)
-        : undefined,
-      previewWatermark: !(data?.paid ?? false),
-    });
-  }, [project, selectedGeneration, showTypography, data?.paid]);
-
-  const updateProject = useCallback(
-    async (patch: Partial<ProjectData>) => {
-      if (!project) return;
-      setBusy(true);
+  const selectGeneration = useCallback(
+    async (index: number) => {
+      const generation = generations[index];
+      if (!project || !generation) return;
+      const previousIndex = selectedIndex;
+      setSelectedIndex(index);
+      setPreviewIndex(index);
       try {
-        const response = await fetch(`/api/projects/${project.id}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(guestId ? { 'x-wedding-guest-id': guestId } : {}),
-          },
-          body: JSON.stringify(patch),
-        });
-        const body = await response.json();
-        if (!response.ok) {
-          toast.error(body?.error || t('update_error'));
-          return;
-        }
-        setData((prev) =>
-          prev
-            ? { ...prev, project: { ...prev.project, ...body.project } }
-            : prev
-        );
-        toast.success(t('updated'));
-      } finally {
-        setBusy(false);
-      }
-    },
-    [project, guestId, t]
-  );
-
-  const applyQuickEdit = useCallback(
-    async (
-      generationId: string,
-      action:
-        | 'reduce_colors'
-        | 'remove_personal_element'
-        | 'make_simpler'
-        | 'regenerate'
-    ) => {
-      if (!project) return;
-      setBusy(true);
-      try {
-        const response = await fetch(`/api/generations/${generationId}/edit`, {
+        const response = await fetch(`/api/projects/${project.id}/select`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             ...(guestId ? { 'x-wedding-guest-id': guestId } : {}),
           },
-          body: JSON.stringify({ action }),
+          body: JSON.stringify({ generationId: generation.id }),
         });
-        const body = await response.json();
-        if (!response.ok) {
-          toast.error(body?.error || t('update_error'));
-          return;
+        const envelope = (await response
+          .json()
+          .catch(() => ({}))) as ApiEnvelope<unknown>;
+        if (
+          !response.ok ||
+          (envelope.code !== undefined && envelope.code !== 0)
+        ) {
+          setSelectedIndex(previousIndex);
+          toast.error(envelope.message || t('select_error'));
         }
-        await fetchJob();
-        toast.success(t('updated'));
-      } finally {
-        setBusy(false);
+      } catch {
+        setSelectedIndex(previousIndex);
+        toast.error(t('select_error'));
       }
     },
-    [project, guestId, t, fetchJob]
+    [generations, project, selectedIndex, guestId, t]
   );
+
+  const downloadIdentityPack = useCallback(async () => {
+    if (!project || downloading) return;
+    setDownloading(true);
+    try {
+      const response = await fetch(`/api/projects/${project.id}/download`);
+      const contentType = response.headers.get('content-type') || '';
+      if (!response.ok || contentType.includes('application/json')) {
+        // Read the raw text first so a non-JSON (proxy, HTML error page)
+        // or an envelope without `message` still surfaces a useful toast
+        // instead of the generic "image pack could not be prepared".
+        const raw = await response.text().catch(() => '');
+        let envelope: ApiEnvelope<unknown> = {};
+        try {
+          envelope = raw ? (JSON.parse(raw) as ApiEnvelope<unknown>) : {};
+        } catch {
+          envelope = {};
+        }
+        const detail =
+          envelope.message || envelope.error || raw.trim() || t('download_error');
+        const statusLine = `${response.status} ${response.statusText || ''}`.trim();
+        toast.error(statusLine ? `${statusLine}: ${detail}` : detail);
+        // eslint-disable-next-line no-console
+        console.error(
+          `[wedding-result] download failed status=${response.status} body=${raw || '(empty)'}`
+        );
+        return;
+      }
+
+      const blob = await response.blob();
+      const disposition = response.headers.get('content-disposition') || '';
+      const fileNameMatch = disposition.match(/filename="([^"]+)"/i);
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = objectUrl;
+      link.download = fileNameMatch?.[1] || 'wedding-image-pack.zip';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('[wedding-result] download failed', error);
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : t('download_error')
+      );
+    } finally {
+      setDownloading(false);
+    }
+  }, [project, downloading, t]);
 
   const regenerate = useCallback(async () => {
     if (!project) return;
@@ -297,19 +345,45 @@ export function WeddingResult({ projectId }: { projectId: string }) {
           ...(guestId ? { 'x-wedding-guest-id': guestId } : {}),
         },
       });
-      const body = await response.json();
+      const raw = await response.text();
+      let body: ApiEnvelope<unknown> = {};
+      try {
+        body = raw ? (JSON.parse(raw) as ApiEnvelope<unknown>) : {};
+      } catch {
+        // Non-JSON body (HTML 500 from Next, an empty body, a proxy
+        // page). Surface what we can: status + the first ~200 chars of
+        // raw text so a misconfigured model name or a Runware-side
+        // 5xx isn't masked by the generic "Generation request failed".
+        const status = response.status || 0;
+        const sample = raw ? raw.slice(0, 200) : '(empty body)';
+        throw new Error(
+          `Generation request failed (${status || 'no response'}): ${sample}`
+        );
+      }
       if (!response.ok) {
         if (body?.error === 'quota_exceeded') {
           toast.error(t('quota_exceeded'));
         } else {
-          toast.error(body?.error || t('update_error'));
+          const detail =
+            body?.message || body?.error || t('update_error');
+          const statusLine =
+            `${response.status} ${response.statusText || ''}`.trim();
+          toast.error(statusLine ? `${statusLine}: ${detail}` : detail);
         }
         return;
       }
       setSelectedIndex(0);
       setProgressStage('queued');
       setProgressPercent(5);
+      // Bump the poll epoch so the polling effect restarts. Without
+      // this, a previous 'complete' status would have killed the loop
+      // and the new batch would never be polled - the page would freeze
+      // on the "Hang tight" banner with no alternates, no EditPanel.
+      setPollEpoch((epoch) => epoch + 1);
       await fetchJob();
+    } catch (error) {
+      console.error('[wedding-result] regenerate failed', error);
+      toast.error(error instanceof Error ? error.message : t('update_error'));
     } finally {
       setBusy(false);
     }
@@ -338,20 +412,30 @@ export function WeddingResult({ projectId }: { projectId: string }) {
             },
             body: JSON.stringify(params.fieldPatch),
           });
-          const body = await response.json().catch(() => ({}));
-          if (!response.ok) {
-            toast.error(body?.error || t('update_error'));
+          const envelope = (await response
+            .json()
+            .catch(() => ({}))) as ApiEnvelope<{ project?: ProjectData }>;
+          if (
+            !response.ok ||
+            (envelope.code !== undefined && envelope.code !== 0)
+          ) {
+            toast.error(
+              envelope.error || envelope.message || t('update_error')
+            );
             return;
           }
-          setData((prev) =>
-            prev
-              ? { ...prev, project: { ...prev.project, ...body.project } }
-              : prev
-          );
+          const updatedProject =
+            envelope.data?.project ??
+            (envelope as { project?: ProjectData }).project;
+          if (updatedProject) {
+            setData((prev) =>
+              prev ? { ...prev, project: updatedProject } : prev
+            );
+          }
         }
 
-        // 2. Fire a generation only when explicitly requested. Quick edits
-        //    always go through the AI; lettering changes can stay local.
+        // 2. Every visible crest edit is rendered by the AI. Lettering edits
+        //    preserve the illustration; design edits re-render the full image.
         if (params.regenKind && selectedGeneration) {
           const editBody: {
             sourceGenerationId: string;
@@ -359,6 +443,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
               | 'reduce_colors'
               | 'make_simpler'
               | 'remove_personal_element'
+              | 'design'
               | 'lettering';
           } =
             params.regenKind === 'artwork' && params.quickEdit
@@ -366,10 +451,15 @@ export function WeddingResult({ projectId }: { projectId: string }) {
                   sourceGenerationId: selectedGeneration.id,
                   kind: params.quickEdit,
                 }
-              : {
-                  sourceGenerationId: selectedGeneration.id,
-                  kind: 'lettering',
-                };
+              : params.regenKind === 'lettering'
+                ? {
+                    sourceGenerationId: selectedGeneration.id,
+                    kind: 'lettering',
+                  }
+                : {
+                    sourceGenerationId: selectedGeneration.id,
+                    kind: 'design',
+                  };
 
           const response = await fetch(`/api/projects/${project.id}/generate`, {
             method: 'POST',
@@ -379,18 +469,29 @@ export function WeddingResult({ projectId }: { projectId: string }) {
             },
             body: JSON.stringify({ edit: editBody }),
           });
-          const body = await response.json().catch(() => ({}));
-          if (!response.ok) {
-            if (body?.error === 'quota_exceeded') {
+          const envelope = (await response
+            .json()
+            .catch(() => ({}))) as ApiEnvelope<unknown> & { error?: string };
+          if (
+            !response.ok ||
+            (envelope.code !== undefined && envelope.code !== 0)
+          ) {
+            if (envelope.error === 'quota_exceeded') {
               toast.error(t('quota_exceeded'));
             } else {
-              toast.error(body?.error || t('update_error'));
+              toast.error(
+                envelope.error || envelope.message || t('update_error')
+              );
             }
             return;
           }
           setSelectedIndex(0);
           setProgressStage('queued');
           setProgressPercent(5);
+          // Same reason as in regenerate(): the polling loop was probably
+          // idle (the project was 'complete'), so we need to restart it
+          // to pick up the new edit generation.
+          setPollEpoch((epoch) => epoch + 1);
         }
 
         // 3. Always reset the panel draft after a successful apply.
@@ -425,14 +526,32 @@ export function WeddingResult({ projectId }: { projectId: string }) {
           metadata: { project_id: project.id },
         }),
       });
-      const body = await response.json();
-      if (!response.ok) {
-        toast.error(body?.error || t('pay_error'));
+      const envelope = (await response
+        .json()
+        .catch(() => ({}))) as ApiEnvelope<{
+        checkoutUrl?: string;
+        url?: string;
+      }> & {
+        checkoutUrl?: string;
+        url?: string;
+      };
+      if (
+        !response.ok ||
+        (envelope.code !== undefined && envelope.code !== 0)
+      ) {
+        toast.error(envelope.error || envelope.message || t('pay_error'));
         return;
       }
-      if (body.checkoutUrl || body.url) {
-        window.location.href = body.checkoutUrl || body.url;
+      const checkoutInfo = envelope.data ?? envelope;
+      const checkoutUrl = checkoutInfo.checkoutUrl || checkoutInfo.url;
+      if (!checkoutUrl) {
+        toast.error(t('pay_error'));
+        return;
       }
+      window.location.href = checkoutUrl;
+    } catch (error) {
+      console.error('[wedding-result] checkout failed', error);
+      toast.error(error instanceof Error ? error.message : t('pay_error'));
     } finally {
       setPaying(false);
     }
@@ -471,10 +590,32 @@ export function WeddingResult({ projectId }: { projectId: string }) {
       <div className="mx-auto max-w-6xl px-4 py-10 md:py-14">
         {/* progress / status banner */}
         {!isComplete && !isFailed && (
-          <div className="bg-muted/40 mb-8 rounded-2xl p-6 text-center">
-            <p className="font-serif text-xl">{stageLabel(progressStage)}</p>
+          <div
+            className={cn(
+              'bg-muted/40 mb-8 rounded-2xl p-6 text-center transition-colors',
+              polling && 'ring-primary/30 ring-2'
+            )}
+            // The /api/jobs route can take 10-30s while it downloads and
+            // stores 4 images in parallel. A pulse on the banner tells the
+            // user the page is still working while the GET is in flight,
+            // instead of looking frozen on a static stage label.
+            aria-busy={polling}
+          >
+            <p className="font-serif text-xl">
+              {polling ? (
+                <span className="inline-flex items-center gap-2">
+                  <span
+                    className="bg-primary inline-block h-2 w-2 animate-pulse rounded-full"
+                    aria-hidden
+                  />
+                  {stageLabel(progressStage)}
+                </span>
+              ) : (
+                stageLabel(progressStage)
+              )}
+            </p>
             <p className="text-muted-foreground mt-2 text-sm">
-              {t('generating_hint')}
+              {t('generating_hint', { stage: stageLabel(progressStage) })}
             </p>
             <div className="bg-background mt-4 h-1.5 overflow-hidden rounded-full">
               <div
@@ -527,11 +668,11 @@ export function WeddingResult({ projectId }: { projectId: string }) {
               <p className="text-muted-foreground mb-3 text-xs tracking-[0.2em] uppercase">
                 {t('master_crest')}
               </p>
-              <div
+              <AiCrestImage
+                generation={selectedGeneration}
+                paid={paid}
+                alt={`${project.partner1} and ${project.partner2} wedding crest`}
                 className="mx-auto w-full max-w-md"
-                role="img"
-                aria-label="Wedding crest"
-                dangerouslySetInnerHTML={{ __html: liveCrestSvg }}
               />
               {!paid && isComplete && (
                 <p className="text-muted-foreground mt-4 text-center text-xs">
@@ -550,7 +691,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
                     <button
                       key={gen.id}
                       type="button"
-                      onClick={() => setSelectedIndex(idx)}
+                      onClick={() => selectGeneration(idx)}
                       className={cn(
                         'bg-wedding-ivory rounded-2xl border p-3 transition-colors',
                         selectedIndex === idx
@@ -559,9 +700,9 @@ export function WeddingResult({ projectId }: { projectId: string }) {
                       )}
                     >
                       <CrestMini
-                        project={project}
                         generation={gen}
                         paid={paid}
+                        alt={`${project.partner1} and ${project.partner2} wedding crest option ${idx + 1}`}
                       />
                       <p className="text-muted-foreground mt-2 text-center text-xs">
                         {t('candidate_label', { index: idx + 1 })}
@@ -575,7 +716,99 @@ export function WeddingResult({ projectId }: { projectId: string }) {
               </div>
             )}
 
-            {/* edit panel: Quick edits + Edit your design tabs */}
+            <Dialog
+              open={previewIndex !== null}
+              onOpenChange={(open) => {
+                if (!open) setPreviewIndex(null);
+              }}
+            >
+              <DialogContent className="max-w-3xl">
+                {previewIndex !== null && generations[previewIndex] && (
+                  <>
+                    <DialogTitle>
+                      {t('candidate_label', { index: previewIndex + 1 })}
+                    </DialogTitle>
+                    <div className="bg-wedding-ivory rounded-2xl border p-4 sm:p-8">
+                      <CrestMini
+                        generation={generations[previewIndex]}
+                        paid={paid}
+                        alt={`${project.partner1} and ${project.partner2} wedding crest option ${previewIndex + 1}`}
+                        className="mx-auto w-full max-w-2xl"
+                      />
+                    </div>
+                  </>
+                )}
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          {/* unlock panel */}
+          <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+            <div id="wedding-pricing" className="rounded-2xl border p-6">
+              <p className="font-serif text-xl">{t('unlock_title')}</p>
+              <p className="text-muted-foreground mt-2 text-sm">
+                {t('unlock_description')}
+              </p>
+              <ul className="mt-4 space-y-2 text-sm">
+                <li>· {t('unlock_feature_1')}</li>
+                <li>· {t('unlock_feature_2')}</li>
+                <li>· {t('unlock_feature_3')}</li>
+                <li>· {t('unlock_feature_4')}</li>
+              </ul>
+              <p className="mt-4 font-serif text-2xl">$19</p>
+              <p className="text-muted-foreground text-xs">
+                {t('unlock_unit')}
+              </p>
+              {!paid ? (
+                <>
+                  {!data?.signedIn && (
+                    <p className="text-muted-foreground mt-3 text-xs">
+                      {t('unlock_signin_hint')}
+                    </p>
+                  )}
+                  <Button
+                    className="mt-4 w-full"
+                    size="lg"
+                    onClick={checkout}
+                    disabled={paying || !isComplete}
+                  >
+                    {paying ? t('unlock_processing') : t('unlock_cta')}
+                  </Button>
+                  {data?.allowance &&
+                    !data.allowance.allowed &&
+                    showAllowanceHint && (
+                      <div className="bg-muted/40 text-muted-foreground relative mt-3 rounded-lg p-3 pr-9 text-xs">
+                        <button
+                          type="button"
+                          className="hover:bg-background/80 absolute top-2 right-2 rounded p-1 transition-colors"
+                          onClick={() => setShowAllowanceHint(false)}
+                          aria-label={t('dismiss_allowance_hint')}
+                        >
+                          <X className="size-3.5" aria-hidden="true" />
+                        </button>
+                        <p>{data.allowance.reason || t('allowance_hint')}</p>
+                        <a
+                          className="text-primary mt-2 inline-block font-medium underline underline-offset-2"
+                          href="#wedding-pricing"
+                        >
+                          {t('allowance_link')}
+                        </a>
+                      </div>
+                    )}
+                </>
+              ) : (
+                <Button
+                  className="mt-4 w-full"
+                  size="lg"
+                  onClick={downloadIdentityPack}
+                  disabled={downloading}
+                >
+                  {downloading ? t('download_preparing') : t('download_zip')}
+                </Button>
+              )}
+            </div>
+
+            {/* edit panel follows the pricing module */}
             {isComplete && (
               <EditPanel
                 project={project}
@@ -626,91 +859,6 @@ export function WeddingResult({ projectId }: { projectId: string }) {
               />
             )}
 
-            {/* mockups */}
-            {isComplete && (
-              <div className="space-y-3 rounded-2xl border p-5">
-                <p className="text-muted-foreground text-xs tracking-[0.2em] uppercase">
-                  {t('mockups')}
-                </p>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  {(
-                    [
-                      'invitation',
-                      'save_the_date',
-                      'menu',
-                      'welcome_sign',
-                    ] as const
-                  ).map((mockup) => (
-                    <div
-                      key={mockup}
-                      className="bg-muted/30 overflow-hidden rounded-xl border p-2"
-                    >
-                      <CrestMockup
-                        project={project}
-                        generation={selectedGeneration}
-                        paid={paid}
-                        type={mockup}
-                      />
-                      <p className="text-muted-foreground mt-2 text-center text-xs">
-                        {t(`mockup_${mockup}`)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* unlock panel */}
-          <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-2xl border p-6">
-              <p className="font-serif text-xl">{t('unlock_title')}</p>
-              <p className="text-muted-foreground mt-2 text-sm">
-                {t('unlock_description')}
-              </p>
-              <ul className="mt-4 space-y-2 text-sm">
-                <li>· {t('unlock_feature_1')}</li>
-                <li>· {t('unlock_feature_2')}</li>
-                <li>· {t('unlock_feature_3')}</li>
-                <li>· {t('unlock_feature_4')}</li>
-              </ul>
-              <p className="mt-4 font-serif text-2xl">$19</p>
-              <p className="text-muted-foreground text-xs">
-                {t('unlock_unit')}
-              </p>
-              {!paid ? (
-                <>
-                  {!data?.signedIn && (
-                    <p className="text-muted-foreground mt-3 text-xs">
-                      {t('unlock_signin_hint')}
-                    </p>
-                  )}
-                  <Button
-                    className="mt-4 w-full"
-                    size="lg"
-                    onClick={checkout}
-                    disabled={paying || !isComplete}
-                  >
-                    {paying ? t('unlock_processing') : t('unlock_cta')}
-                  </Button>
-                  {data?.allowance && !data.allowance.allowed && (
-                    <p className="text-muted-foreground mt-2 text-xs">
-                      {t('allowance_hint')}
-                    </p>
-                  )}
-                </>
-              ) : (
-                <a
-                  className="mt-4 block w-full"
-                  href={`/api/projects/${project.id}/download`}
-                >
-                  <Button className="w-full" size="lg">
-                    {t('download_zip')}
-                  </Button>
-                </a>
-              )}
-            </div>
-
             <div className="rounded-2xl border p-6">
               <p className="text-muted-foreground text-xs tracking-[0.2em] uppercase">
                 {t('regenerate_title')}
@@ -723,8 +871,9 @@ export function WeddingResult({ projectId }: { projectId: string }) {
                 variant="outline"
                 onClick={regenerate}
                 disabled={busy || !isComplete}
+                aria-busy={busy}
               >
-                {t('regenerate_cta')}
+                {busy ? t('generating_hint') : t('regenerate_cta')}
               </Button>
             </div>
           </div>
@@ -735,84 +884,70 @@ export function WeddingResult({ projectId }: { projectId: string }) {
 }
 
 function CrestMini({
-  project,
   generation,
   paid,
+  alt,
+  className,
 }: {
-  project: ProjectData;
   generation: GenerationData;
   paid: boolean;
+  alt: string;
+  className?: string;
 }) {
-  const svg = composeWeddingCrest({
-    partner1: project.partner1,
-    partner2: project.partner2,
-    initials: [
-      project.partner1.charAt(0).toUpperCase(),
-      project.partner2.charAt(0).toUpperCase(),
-    ],
-    weddingDate: project.weddingDate,
-    style: project.style,
-    layout: project.layout,
-    typography: project.typography,
-    palette: project.palette,
-    location: project.location,
-    venue: project.venue,
-    flowers: project.flowers,
-    personalElements: project.personalElements,
-    complexity: project.complexity,
-    nameDisplay: project.nameDisplay,
-    showDate: project.showDate,
-    frameId: project.frameId,
-    frameUrl: project.frameUrl,
-    illustrationUrl: generation.sourceImageUrl ?? undefined,
-    previewWatermark: !paid,
-  });
-  return <div dangerouslySetInnerHTML={{ __html: svg }} />;
+  return (
+    <AiCrestImage
+      generation={generation}
+      paid={paid}
+      alt={alt}
+      className={className}
+    />
+  );
 }
 
-function CrestMockup({
-  project,
+function AiCrestImage({
   generation,
   paid,
-  type,
+  alt,
+  className,
 }: {
-  project: ProjectData;
   generation: GenerationData | undefined;
   paid: boolean;
-  type: 'invitation' | 'save_the_date' | 'menu' | 'welcome_sign';
+  alt: string;
+  className?: string;
 }) {
-  const request = {
-    partner1: project.partner1,
-    partner2: project.partner2,
-    initials: [
-      project.partner1.charAt(0).toUpperCase(),
-      project.partner2.charAt(0).toUpperCase(),
-    ],
-    weddingDate: project.weddingDate,
-    style: project.style,
-    layout: project.layout,
-    typography: project.typography,
-    palette: project.palette,
-    location: project.location,
-    venue: project.venue,
-    flowers: project.flowers,
-    personalElements: project.personalElements,
-    complexity: project.complexity,
-    nameDisplay: project.nameDisplay,
-    showDate: project.showDate,
-    frameId: project.frameId,
-    frameUrl: project.frameUrl,
-    illustrationUrl: generation?.sourceImageUrl ?? undefined,
-    previewWatermark: !paid,
-  };
-  const svg = composeWeddingMockup(request, type);
+  if (!generation?.sourceImageUrl) {
+    return (
+      <div
+        className={cn('bg-muted/40 aspect-square animate-pulse', className)}
+      />
+    );
+  }
   return (
-    <div
-      role="img"
-      aria-label={type}
-      className="aspect-[4/5] w-full"
-      dangerouslySetInnerHTML={{ __html: svg }}
-    />
+    <div className={cn('relative aspect-square overflow-hidden', className)}>
+      {/* The provider/storage URL is dynamic, so a native image avoids a
+          domain allow-list and preserves the original AI pixels. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={generation.sourceImageUrl}
+        alt={alt}
+        className="h-full w-full object-contain"
+      />
+      {!paid && (
+        <div
+          className="pointer-events-none absolute inset-0 grid grid-cols-2 place-items-center overflow-hidden opacity-20"
+          aria-hidden="true"
+        >
+          {Array.from({ length: 8 }, (_, index) => (
+            <span
+              key={index}
+              className="-rotate-[24deg] text-[10px] font-semibold tracking-[0.28em] text-black sm:text-xs"
+            >
+              PREVIEW
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -820,12 +955,7 @@ function CrestMockup({
 /* EditPanel: Quick edits + Edit your design (left/right tabs)                 */
 /* -------------------------------------------------------------------------- */
 
-type EditCategory =
-  | 'lettering'
-  | 'colors'
-  | 'flowers'
-  | 'elements'
-  | 'frame';
+type EditCategory = 'lettering' | 'colors' | 'flowers' | 'elements' | 'frame';
 
 type QuickEditKind =
   | 'reduce_colors'
@@ -984,8 +1114,10 @@ function EditPanel({
   // Compute the diff between the current draft and the persisted project.
   const changes = useMemo(() => {
     const fieldPatch: Partial<ProjectData> = {};
-    if (draft.partner1 !== project.partner1) fieldPatch.partner1 = draft.partner1;
-    if (draft.partner2 !== project.partner2) fieldPatch.partner2 = draft.partner2;
+    if (draft.partner1 !== project.partner1)
+      fieldPatch.partner1 = draft.partner1;
+    if (draft.partner2 !== project.partner2)
+      fieldPatch.partner2 = draft.partner2;
     if ((draft.weddingDate || null) !== (project.weddingDate ?? null)) {
       fieldPatch.weddingDate = draft.weddingDate || null;
     }
@@ -1027,9 +1159,8 @@ function EditPanel({
   const hasQuickEdit = draft.quickEdit !== null;
   const hasChanges = fieldChangeCount > 0 || hasQuickEdit;
 
-  // Apply priority: an artwork-changing quick edit always wins; otherwise
-  // a palette/flowers/elements/frame change forces a regenerate; lettering
-  // changes only re-render the SVG (no AI call).
+  // Every visible change goes back through image generation: lettering edits
+  // preserve the artwork, while palette/motif/frame/layout edits redesign it.
   const letteringOnly =
     !hasQuickEdit &&
     Object.keys(changes).every((k) =>
@@ -1046,23 +1177,23 @@ function EditPanel({
 
   const regenKind: 'artwork' | 'lettering' | null = hasQuickEdit
     ? 'artwork'
-    : letteringOnly || fieldChangeCount === 0
+    : fieldChangeCount === 0
       ? null
-      : 'lettering';
+      : letteringOnly
+        ? 'lettering'
+        : 'artwork';
 
   // Palette add/remove helpers.
   const addColor = (color: string) => {
-    if (
-      !/^#[0-9a-fA-F]{6}$/.test(color) &&
-      !/^#[0-9a-fA-F]{3}$/.test(color)
-    ) {
+    if (!/^#[0-9a-fA-F]{6}$/.test(color) && !/^#[0-9a-fA-F]{3}$/.test(color)) {
       setColorError(t.edit_invalid_hex);
       return;
     }
     setColorError(null);
     setCustomColor('');
     setDraft((d) =>
-      d.palette.length < WEDDING_MAX_PALETTE_COLORS && !d.palette.includes(color)
+      d.palette.length < WEDDING_MAX_PALETTE_COLORS &&
+      !d.palette.includes(color)
         ? { ...d, palette: [...d.palette, color] }
         : d
     );
@@ -1086,7 +1217,10 @@ function EditPanel({
   const toggleElement = (id: string) => {
     setDraft((d) => {
       if (d.personalElements.includes(id)) {
-        return { ...d, personalElements: d.personalElements.filter((e) => e !== id) };
+        return {
+          ...d,
+          personalElements: d.personalElements.filter((e) => e !== id),
+        };
       }
       if (d.personalElements.length >= WEDDING_MAX_PERSONAL_ELEMENTS) return d;
       return { ...d, personalElements: [...d.personalElements, id] };
@@ -1179,7 +1313,9 @@ function EditPanel({
               </p>
               <div className="flex flex-wrap gap-2">
                 <Button
-                  variant={draft.quickEdit === 'reduce_colors' ? 'default' : 'outline'}
+                  variant={
+                    draft.quickEdit === 'reduce_colors' ? 'default' : 'outline'
+                  }
                   size="sm"
                   disabled={!hasSelectedGeneration}
                   onClick={() => setQuickEdit('reduce_colors')}
@@ -1199,7 +1335,9 @@ function EditPanel({
                   {t.remove_personal_element}
                 </Button>
                 <Button
-                  variant={draft.quickEdit === 'make_simpler' ? 'default' : 'outline'}
+                  variant={
+                    draft.quickEdit === 'make_simpler' ? 'default' : 'outline'
+                  }
                   size="sm"
                   disabled={!hasSelectedGeneration}
                   onClick={() => setQuickEdit('make_simpler')}
@@ -1222,7 +1360,9 @@ function EditPanel({
                   value={category ?? ''}
                   onChange={(e) =>
                     setCategory(
-                      e.target.value === '' ? null : (e.target.value as EditCategory)
+                      e.target.value === ''
+                        ? null
+                        : (e.target.value as EditCategory)
                     )
                   }
                 >
@@ -1239,7 +1379,9 @@ function EditPanel({
               {category === 'lettering' && (
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">{t.edit_partner1}</Label>
+                    <Label className="text-sm font-medium">
+                      {t.edit_partner1}
+                    </Label>
                     <Input
                       value={draft.partner1}
                       onChange={(e) =>
@@ -1249,7 +1391,9 @@ function EditPanel({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">{t.edit_partner2}</Label>
+                    <Label className="text-sm font-medium">
+                      {t.edit_partner2}
+                    </Label>
                     <Input
                       value={draft.partner2}
                       onChange={(e) =>
@@ -1269,7 +1413,9 @@ function EditPanel({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">{t.show_date_label}</Label>
+                    <Label className="text-sm font-medium">
+                      {t.show_date_label}
+                    </Label>
                     <button
                       type="button"
                       onClick={() =>
@@ -1291,7 +1437,9 @@ function EditPanel({
                     </button>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">{t.typography_pairing}</Label>
+                    <Label className="text-sm font-medium">
+                      {t.typography_pairing}
+                    </Label>
                     <select
                       className="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
                       value={draft.typography}
@@ -1316,7 +1464,9 @@ function EditPanel({
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">{t.layout_label}</Label>
+                    <Label className="text-sm font-medium">
+                      {t.layout_label}
+                    </Label>
                     <select
                       className="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
                       value={draft.layout}
@@ -1332,7 +1482,9 @@ function EditPanel({
                     </select>
                   </div>
                   <div className="space-y-2 sm:col-span-2">
-                    <Label className="text-sm font-medium">{t.name_display_label}</Label>
+                    <Label className="text-sm font-medium">
+                      {t.name_display_label}
+                    </Label>
                     <select
                       className="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
                       value={draft.nameDisplay}
@@ -1382,12 +1534,15 @@ function EditPanel({
                   <div className="space-y-3">
                     {weddingPalettes.map((palette) => (
                       <div key={palette.id} className="space-y-2">
-                        <p className="text-muted-foreground text-xs">{palette.name}</p>
+                        <p className="text-muted-foreground text-xs">
+                          {palette.name}
+                        </p>
                         <div className="flex flex-wrap gap-2">
                           {palette.colors.map((color) => {
                             const selected = draft.palette.includes(color);
                             const atLimit =
-                              draft.palette.length >= WEDDING_MAX_PALETTE_COLORS;
+                              draft.palette.length >=
+                              WEDDING_MAX_PALETTE_COLORS;
                             const disabled = !selected && atLimit;
                             return (
                               <button
@@ -1417,7 +1572,9 @@ function EditPanel({
                                   className="inline-block size-4 rounded-full border"
                                   style={{ backgroundColor: color }}
                                 />
-                                <span className="font-mono uppercase">{color}</span>
+                                <span className="font-mono uppercase">
+                                  {color}
+                                </span>
                               </button>
                             );
                           })}
@@ -1426,7 +1583,9 @@ function EditPanel({
                     ))}
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">{t.edit_custom_color}</Label>
+                    <Label className="text-sm font-medium">
+                      {t.edit_custom_color}
+                    </Label>
                     <div className="flex gap-2">
                       <Input
                         value={customColor}
@@ -1458,9 +1617,8 @@ function EditPanel({
               {category === 'flowers' && (
                 <div className="space-y-3">
                   <p className="text-muted-foreground text-xs">
-                    {t.edit_flowers_label} ·{' '}
-                    {t.edit_limit(WEDDING_MAX_FLOWERS)} ·{' '}
-                    {draft.flowers.length}/{WEDDING_MAX_FLOWERS}
+                    {t.edit_flowers_label} · {t.edit_limit(WEDDING_MAX_FLOWERS)}{' '}
+                    · {draft.flowers.length}/{WEDDING_MAX_FLOWERS}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {weddingFlowerOptions.map((flower) => {
@@ -1475,7 +1633,9 @@ function EditPanel({
                           disabled={disabled}
                           onClick={() => toggleFlower(flower)}
                           title={
-                            disabled ? t.edit_limit(WEDDING_MAX_FLOWERS) : flower
+                            disabled
+                              ? t.edit_limit(WEDDING_MAX_FLOWERS)
+                              : flower
                           }
                           className={cn(
                             'rounded-full border px-3 py-1 text-xs transition-colors',
@@ -1499,7 +1659,8 @@ function EditPanel({
                   <p className="text-muted-foreground text-xs">
                     {t.edit_elements_label} ·{' '}
                     {t.edit_limit(WEDDING_MAX_PERSONAL_ELEMENTS)} ·{' '}
-                    {draft.personalElements.length}/{WEDDING_MAX_PERSONAL_ELEMENTS}
+                    {draft.personalElements.length}/
+                    {WEDDING_MAX_PERSONAL_ELEMENTS}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {weddingPersonalElementOptions.map((element) => {
@@ -1538,7 +1699,9 @@ function EditPanel({
 
               {category === 'frame' && (
                 <div className="space-y-3">
-                  <p className="text-muted-foreground text-xs">{t.edit_category_frame}</p>
+                  <p className="text-muted-foreground text-xs">
+                    {t.edit_category_frame}
+                  </p>
                   {framesLoading && (
                     <p className="text-muted-foreground text-xs">
                       {t.edit_frame_loading}
@@ -1552,9 +1715,7 @@ function EditPanel({
                   <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                     <button
                       type="button"
-                      onClick={() =>
-                        setDraft((d) => ({ ...d, frameId: null }))
-                      }
+                      onClick={() => setDraft((d) => ({ ...d, frameId: null }))}
                       className={cn(
                         'rounded-lg border p-2 text-xs',
                         draft.frameId === null
@@ -1593,7 +1754,9 @@ function EditPanel({
                               {frame.name}
                             </div>
                           )}
-                          <span className="mt-1 block truncate">{frame.name}</span>
+                          <span className="mt-1 block truncate">
+                            {frame.name}
+                          </span>
                         </button>
                       );
                     })}
@@ -1614,13 +1777,18 @@ function EditPanel({
       {/* Footer: pending count + apply button (shared by both tabs) */}
       <div className="flex flex-col gap-2 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="text-muted-foreground text-xs">
-          {hasChanges ? t.edit_pending(fieldChangeCount + (hasQuickEdit ? 1 : 0)) : ''}
+          {hasChanges
+            ? t.edit_pending(fieldChangeCount + (hasQuickEdit ? 1 : 0))
+            : ''}
           {hasChanges ? ' · ' : ''}
           {applyHint}
         </div>
         <Button
+          type="button"
           onClick={handleApply}
-          disabled={busy || !hasChanges || (!hasSelectedGeneration && hasQuickEdit)}
+          disabled={
+            busy || !hasChanges || (!hasSelectedGeneration && hasQuickEdit)
+          }
         >
           {t.edit_apply}
         </Button>

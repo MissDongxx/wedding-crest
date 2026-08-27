@@ -21,5 +21,5 @@ export default async function GeneratorPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <SeoArticle articleKey="generator" locale={locale} />;
+  return <SeoArticle articleKey="generator" />;
 }

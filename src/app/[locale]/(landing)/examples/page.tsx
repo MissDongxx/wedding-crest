@@ -7,11 +7,7 @@ import {
   listWeddingExamples,
   type WeddingExampleRow,
 } from '@/shared/models/wedding';
-import {
-  weddingExampleStyleIds,
-  weddingStyles,
-} from '@/shared/wedding/types';
-import { weddingGalleryExamples } from '@/shared/wedding/gallery';
+import { weddingExampleStyleIds, weddingStyles } from '@/shared/wedding/types';
 
 export const revalidate = 60;
 
@@ -37,18 +33,6 @@ type PhotoExample = {
   href: string;
 };
 
-type GalleryExample = {
-  id: string;
-  style: string;
-  title: string;
-  partner1: string;
-  partner2: string;
-  coupleLabel: string;
-  location: string;
-  description: string;
-  href: string;
-};
-
 type Category = {
   id: string;
   name: string;
@@ -56,10 +40,12 @@ type Category = {
   description: string;
   previewColor: string;
   photos: PhotoExample[];
-  gallery: GalleryExample[];
 };
 
-function splitPartnerNames(value: string): { partner1: string; partner2: string } {
+function splitPartnerNames(value: string): {
+  partner1: string;
+  partner2: string;
+} {
   const parts = value
     .split('&')
     .map((part) => part.trim())
@@ -80,7 +66,9 @@ export default async function ExamplesPage({
   const t = await getTranslations('pages.examples');
 
   const allowedStyles = new Set<string>(weddingExampleStyleIds);
-  const dbRows = (await listWeddingExamples({ activeOnly: true })) as WeddingExampleRow[];
+  const dbRows = (await listWeddingExamples({
+    activeOnly: true,
+  })) as WeddingExampleRow[];
 
   const photosByStyle = new Map<string, PhotoExample[]>();
   for (const row of dbRows) {
@@ -97,41 +85,8 @@ export default async function ExamplesPage({
     photosByStyle.set(row.style, list);
   }
 
-  const galleryByStyle = new Map<string, GalleryExample[]>();
-  for (const example of weddingGalleryExamples) {
-    if (!allowedStyles.has(example.style)) continue;
-    const list = galleryByStyle.get(example.style) ?? [];
-    // Pre-resolve the couple label with the ICU variables so the string
-    // is rendered to plain text here. Passing an unresolved format string
-    // like "{p1} & {p2}" through `t()` later (or even up-front without
-    // args) makes next-intl raise FORMATTING_ERROR because it parses
-    // the placeholders on the server.
-    const coupleLabel = example.partner2
-      ? t('couple_format', {
-          p1: example.partner1,
-          p2: example.partner2,
-        })
-      : example.partner1;
-    list.push({
-      id: example.slug,
-      style: example.style,
-      title: example.title,
-      partner1: example.partner1,
-      partner2: example.partner2,
-      coupleLabel,
-      location: example.location,
-      description: example.description,
-      href: `/create?style=${encodeURIComponent(example.style)}`,
-    });
-    galleryByStyle.set(example.style, list);
-  }
-
   const categories: Category[] = weddingStyles
-    // Only render a category for a style that has at least one
-    // admin-uploaded real product photo. The curated gallery list is
-    // text-only and was originally a fallback for the empty admin state;
-    // on the examples page we want to show only styles that have actual
-    // photography, so styles without photos are hidden entirely.
+    // Only show styles backed by real AI-generated examples.
     .filter((style) => (photosByStyle.get(style.id)?.length ?? 0) > 0)
     .map((style) => ({
       id: style.id,
@@ -140,7 +95,6 @@ export default async function ExamplesPage({
       description: style.description,
       previewColor: style.previewColor,
       photos: photosByStyle.get(style.id) ?? [],
-      gallery: galleryByStyle.get(style.id) ?? [],
     }));
 
   return (
@@ -261,29 +215,6 @@ function CategorySection({
               </Link>
             </ScrollAnimation>
           ))}
-        </div>
-      )}
-
-      {category.gallery.length > 0 && (
-        <div className="border-border/40 border-t pt-6">
-          <p className="text-muted-foreground mb-3 text-xs tracking-[0.2em] uppercase">
-            Curated looks
-          </p>
-          <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {category.gallery.map((example) => (
-              <li key={example.id}>
-                <Link
-                  href={example.href}
-                  className="border-border/60 hover:border-primary/40 hover:bg-accent/40 block rounded-xl border px-3 py-2.5 text-sm transition-colors"
-                >
-                  <p className="font-serif">{example.coupleLabel}</p>
-                  <p className="text-muted-foreground mt-0.5 text-xs">
-                    {example.location}
-                  </p>
-                </Link>
-              </li>
-            ))}
-          </ul>
         </div>
       )}
     </section>

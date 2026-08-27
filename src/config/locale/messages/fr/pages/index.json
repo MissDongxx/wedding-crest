@@ -1,7 +1,7 @@
 {
   "metadata": {
     "title": "Wedding Crest Design — Create a Custom Wedding Crest",
-    "description": "Wedding crest design made personal. Create a custom AI wedding crest with six styles, 12 layouts, curated palettes, editorial typography, and a downloadable SVG identity kit."
+    "description": "Wedding crest design made personal. Create a complete AI-generated wedding crest with six styles, 12 layouts, curated palettes, and integrated lettering."
   },
   "page": {
     "show_sections": [
@@ -63,8 +63,8 @@
             "icon": "RiPaletteLine"
           },
           {
-            "title": "Get One Finished Crest + Full Kit",
-            "description": "Our AI illustrates one crest while typography is composed programmatically for crisp results. Refine the design, then download your SVG, monogram, mockups, and full identity kit.",
+            "title": "Get One Finished AI Crest + Image Pack",
+            "description": "AI generates the complete crest, including artwork, border, names, initials, and date. Refine the design, then download the selected original image and every completed AI variation.",
             "icon": "RiMagicLine"
           }
         ],
@@ -81,13 +81,13 @@
             "icon": "RiHeart3Line"
           },
           {
-            "title": "Crisp, Editable SVG",
-            "description": "Typography is composed programmatically, not AI-generated, so names and dates stay perfectly sharp at any size — from a wax seal to a welcome sign.",
-            "icon": "RiVectorLine"
+            "title": "Complete AI Artwork",
+            "description": "Artwork, border, names, initials, and date are generated together as one cohesive image.",
+            "icon": "RiMagicLine"
           },
           {
-            "title": "A Full Identity Kit",
-            "description": "Every design includes a monogram, simplified mark, black-and-white version, and four print mockups — everything a stationer would charge hundreds for.",
+            "title": "Original Image Pack",
+            "description": "Download the selected source-quality AI crest plus every completed AI-generated variation.",
             "icon": "RiGiftLine"
           },
           {
@@ -101,8 +101,8 @@
             "icon": "RiDropLine"
           },
           {
-            "title": "See It In Place",
-            "description": "Instant mockups show your crest on an invitation, save-the-date, dinner menu, and welcome sign before you download a single file.",
+            "title": "Refine With AI",
+            "description": "Change lettering, colors, motifs, borders, or layout and let AI render the updated crest as one complete image.",
             "icon": "RiLayoutGridLine"
           }
         ]
@@ -135,7 +135,7 @@
           },
           {
             "question": "What's the difference between a wedding crest and a monogram?",
-            "answer": "A monogram is your initials arranged typographically (like 'E & J'). A wedding crest is a fuller emblem that surrounds your names or monogram with illustrated artwork — florals, wreaths, arches, or frames. Every crest you design here includes a standalone monogram too."
+            "answer": "A monogram focuses on the couple's initials. A wedding crest combines those initials or names with illustrated florals, arches, borders, or personal motifs. AI renders both the lettering and illustration together in the finished crest image."
           },
           {
             "question": "Can I try it before signing up?",
@@ -147,11 +147,11 @@
           },
           {
             "question": "What files do I get?",
-            "answer": "The Wedding Identity Pack includes: your primary crest in SVG (standard and 3000px print-ready PNG-ready scale), a standalone monogram SVG, a simplified mark SVG, a black-and-white version, four print mockups, and a usage guide with your exact color codes and fonts."
+            "answer": "The Wedding Image Pack includes your selected original AI-generated crest, every completed AI variation, and a usage guide with your palette values. Images are delivered without the preview watermark in their original source format."
           },
           {
             "question": "Are the names and dates crisp?",
-            "answer": "Yes — and this is what sets us apart. The AI illustrates only the artwork layer; all typography (your names, initials, and date) is composed programmatically in real fonts. So text is always pixel-perfect, never the wobbly lettering typical of AI images."
+            "answer": "The image model renders your names, initials, and date directly into the complete crest. Each lettering change is sent back through AI so the wording remains integrated with the illustration."
           },
           {
             "question": "Can I use my own colors?",
@@ -159,7 +159,7 @@
           },
           {
             "question": "Can I make changes after generating?",
-            "answer": "Yes. Quick edits — reduce colors, remove a personal element, simplify the illustration — are one click. You can also change the typography pairing, layout, or name display anytime with instant preview, no regeneration needed."
+            "answer": "Yes. Quick edits and changes to lettering, layout, palette, flowers, personal elements, or borders are rendered by AI into a new complete crest image."
           }
         ]
       },

@@ -1,0 +1,30 @@
+Design page client-exception verification — 2026-08-25
+
+Target
+  http://localhost:3000/design/1a40be02-ef20-4f21-a0d7-76cefe4fbe7d
+
+Static checks
+  Command: pnpm exec eslint src/themes/default/blocks/wedding-result.tsx
+  Exit: 0
+  Result: 0 errors; 5 existing warnings.
+  Command: pnpm exec tsc --noEmit --pretty false
+  Exit: 0
+  Result: passed.
+
+Runtime check
+  Command: curl -sS -L --max-time 60 -o /tmp/design-fixed-final.html -w 'status=%{http_code} bytes=%{size_download}\\n' http://localhost:3000/design/1a40be02-ef20-4f21-a0d7-76cefe4fbe7d
+  Output: status=200 bytes=224094
+  Error-marker scan: Application error / client-side exception / FORMATTING_ERROR / MISSING_MESSAGE / Error: — none.
+
+Browser verification
+  After reloading the in-app browser tab, the page title was "Your wedding crest" and the visible state was "Composing your crest…".
+  No runtime-error dialog was present after reload.
+
+Root cause fixed
+  next-intl messages with ICU placeholders were rendered without values:
+  generating_hint now receives stage; allowance_hint no longer declares unused remaining/max placeholders.
+
+HMR chunk recovery — 2026-08-25
+  Action: removed .next and restarted with `pnpm exec next dev --turbopack . -H localhost -p 3000`.
+  Runtime: exact design route returned status=200; response marker scan was clean.
+  Fresh in-app browser tab: title "Your wedding crest", visible state "Composing your crest…", no Runtime Error overlay, no HMR chunk error, console error list empty.

@@ -1,0 +1,400 @@
+diff --git a/src/themes/default/blocks/wedding-result.tsx b/src/themes/default/blocks/wedding-result.tsx
+index c727a12..2e6dbaa 100644
+--- a/src/themes/default/blocks/wedding-result.tsx
++++ b/src/themes/default/blocks/wedding-result.tsx
+@@ -4,11 +4,17 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+ import { useRouter } from 'next/navigation';
+ import { useTranslations } from 'next-intl';
+ import { toast } from 'sonner';
++import { X } from 'lucide-react';
+ 
+ import { Button } from '@/shared/components/ui/button';
+ import { Input } from '@/shared/components/ui/input';
+ import { Label } from '@/shared/components/ui/label';
+ import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
++import {
++  Dialog,
++  DialogContent,
++  DialogTitle,
++} from '@/shared/components/ui/dialog';
+ import { cn } from '@/shared/lib/utils';
+ import {
+   composeWeddingCrest,
+@@ -103,6 +109,8 @@ export function WeddingResult({ projectId }: { projectId: string }) {
+   const [busy, setBusy] = useState(false);
+   const [showTypography, setShowTypography] = useState(true);
+   const [paying, setPaying] = useState(false);
++  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
++  const [showAllowanceHint, setShowAllowanceHint] = useState(true);
+   // Bumping this resets the edit panel to match the freshly-persisted
+   // project (e.g. after a successful apply).
+   const [draftResetKey, setDraftResetKey] = useState(0);
+@@ -297,12 +305,20 @@ export function WeddingResult({ projectId }: { projectId: string }) {
+           ...(guestId ? { 'x-wedding-guest-id': guestId } : {}),
+         },
+       });
+-      const body = await response.json();
++      const raw = await response.text();
++      let body: ApiEnvelope<unknown> = {};
++      try {
++        body = raw ? (JSON.parse(raw) as ApiEnvelope<unknown>) : {};
++      } catch {
++        throw new Error(
++          `Generation request failed (${response.status || 'no response'})`
++        );
++      }
+       if (!response.ok) {
+         if (body?.error === 'quota_exceeded') {
+           toast.error(t('quota_exceeded'));
+         } else {
+-          toast.error(body?.error || t('update_error'));
++          toast.error(body?.error || body?.message || t('update_error'));
+         }
+         return;
+       }
+@@ -310,6 +326,9 @@ export function WeddingResult({ projectId }: { projectId: string }) {
+       setProgressStage('queued');
+       setProgressPercent(5);
+       await fetchJob();
++    } catch (error) {
++      console.error('[wedding-result] regenerate failed', error);
++      toast.error(error instanceof Error ? error.message : t('update_error'));
+     } finally {
+       setBusy(false);
+     }
+@@ -338,16 +357,22 @@ export function WeddingResult({ projectId }: { projectId: string }) {
+             },
+             body: JSON.stringify(params.fieldPatch),
+           });
+-          const body = await response.json().catch(() => ({}));
+-          if (!response.ok) {
+-            toast.error(body?.error || t('update_error'));
++          const envelope = (await response
++            .json()
++            .catch(() => ({}))) as ApiEnvelope<{ project?: ProjectData }>;
++          if (
++            !response.ok ||
++            (envelope.code !== undefined && envelope.code !== 0)
++          ) {
++            toast.error(envelope.error || envelope.message || t('update_error'));
+             return;
+           }
+-          setData((prev) =>
+-            prev
+-              ? { ...prev, project: { ...prev.project, ...body.project } }
+-              : prev
+-          );
++          const updatedProject = envelope.data?.project ?? (envelope as { project?: ProjectData }).project;
++          if (updatedProject) {
++            setData((prev) =>
++              prev ? { ...prev, project: updatedProject } : prev
++            );
++          }
+         }
+ 
+         // 2. Fire a generation only when explicitly requested. Quick edits
+@@ -379,12 +404,19 @@ export function WeddingResult({ projectId }: { projectId: string }) {
+             },
+             body: JSON.stringify({ edit: editBody }),
+           });
+-          const body = await response.json().catch(() => ({}));
+-          if (!response.ok) {
+-            if (body?.error === 'quota_exceeded') {
++          const envelope = (await response
++            .json()
++            .catch(() => ({}))) as ApiEnvelope<unknown> & { error?: string };
++          if (
++            !response.ok ||
++            (envelope.code !== undefined && envelope.code !== 0)
++          ) {
++            if (envelope.error === 'quota_exceeded') {
+               toast.error(t('quota_exceeded'));
+             } else {
+-              toast.error(body?.error || t('update_error'));
++              toast.error(
++                envelope.error || envelope.message || t('update_error')
++              );
+             }
+             return;
+           }
+@@ -425,14 +457,32 @@ export function WeddingResult({ projectId }: { projectId: string }) {
+           metadata: { project_id: project.id },
+         }),
+       });
+-      const body = await response.json();
+-      if (!response.ok) {
+-        toast.error(body?.error || t('pay_error'));
++      const envelope = (await response
++        .json()
++        .catch(() => ({}))) as ApiEnvelope<{
++        checkoutUrl?: string;
++        url?: string;
++      }> & {
++        checkoutUrl?: string;
++        url?: string;
++      };
++      if (
++        !response.ok ||
++        (envelope.code !== undefined && envelope.code !== 0)
++      ) {
++        toast.error(envelope.error || envelope.message || t('pay_error'));
+         return;
+       }
+-      if (body.checkoutUrl || body.url) {
+-        window.location.href = body.checkoutUrl || body.url;
++      const checkoutInfo = envelope.data ?? envelope;
++      const checkoutUrl = checkoutInfo.checkoutUrl || checkoutInfo.url;
++      if (!checkoutUrl) {
++        toast.error(t('pay_error'));
++        return;
+       }
++      window.location.href = checkoutUrl;
++    } catch (error) {
++      console.error('[wedding-result] checkout failed', error);
++      toast.error(error instanceof Error ? error.message : t('pay_error'));
+     } finally {
+       setPaying(false);
+     }
+@@ -474,7 +524,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
+           <div className="bg-muted/40 mb-8 rounded-2xl p-6 text-center">
+             <p className="font-serif text-xl">{stageLabel(progressStage)}</p>
+             <p className="text-muted-foreground mt-2 text-sm">
+-              {t('generating_hint')}
++              {t('generating_hint', { stage: stageLabel(progressStage) })}
+             </p>
+             <div className="bg-background mt-4 h-1.5 overflow-hidden rounded-full">
+               <div
+@@ -550,7 +600,10 @@ export function WeddingResult({ projectId }: { projectId: string }) {
+                     <button
+                       key={gen.id}
+                       type="button"
+-                      onClick={() => setSelectedIndex(idx)}
++                      onClick={() => {
++                        setSelectedIndex(idx);
++                        setPreviewIndex(idx);
++                      }}
+                       className={cn(
+                         'bg-wedding-ivory rounded-2xl border p-3 transition-colors',
+                         selectedIndex === idx
+@@ -575,56 +628,30 @@ export function WeddingResult({ projectId }: { projectId: string }) {
+               </div>
+             )}
+ 
+-            {/* edit panel: Quick edits + Edit your design tabs */}
+-            {isComplete && (
+-              <EditPanel
+-                project={project}
+-                busy={busy}
+-                hasSelectedGeneration={!!selectedGeneration}
+-                draftResetKey={draftResetKey}
+-                onApply={applyPanelChanges}
+-                t={{
+-                  quick_edits: t('quick_edits'),
+-                  quick_edits_hint: t('quick_edits_hint'),
+-                  reduce_colors: t('reduce_colors'),
+-                  make_simpler: t('make_simpler'),
+-                  remove_personal_element: t('remove_personal_element'),
+-                  edit_title: t('edit_title'),
+-                  edit_hint: t('edit_hint'),
+-                  edit_select_category: t('edit_select_category'),
+-                  edit_category_lettering: t('edit_category_lettering'),
+-                  edit_category_colors: t('edit_category_colors'),
+-                  edit_category_flowers: t('edit_category_flowers'),
+-                  edit_category_elements: t('edit_category_elements'),
+-                  edit_category_frame: t('edit_category_frame'),
+-                  edit_partner1: t('edit_partner1'),
+-                  edit_partner2: t('edit_partner2'),
+-                  edit_date: t('edit_date'),
+-                  edit_palette_label: t('edit_palette_label'),
+-                  edit_custom_color: t('edit_custom_color'),
+-                  edit_invalid_hex: t('edit_invalid_hex'),
+-                  edit_add: t('edit_add'),
+-                  edit_flowers_label: t('edit_flowers_label'),
+-                  edit_elements_label: t('edit_elements_label'),
+-                  edit_frame_none: t('edit_frame_none'),
+-                  edit_frame_loading: t('edit_frame_loading'),
+-                  edit_frame_empty: t('edit_frame_empty'),
+-                  edit_pending: (count) => t('edit_pending', { count }),
+-                  edit_apply: t('edit_apply'),
+-                  edit_apply_lettering_hint: t('edit_apply_lettering_hint'),
+-                  edit_apply_regenerate_hint: t('edit_apply_regenerate_hint'),
+-                  edit_apply_quick_edit_hint: t('edit_apply_quick_edit_hint'),
+-                  edit_names_required: t('edit_names_required'),
+-                  edit_limit: (count) => t('edit_limit', { count }),
+-                  typography_pairing: t('typography_pairing'),
+-                  layout_label: t('layout_label'),
+-                  name_display_label: t('name_display_label'),
+-                  show_date_label: t('show_date_label'),
+-                  show_date_on: t('show_date_on'),
+-                  show_date_off: t('show_date_off'),
+-                }}
+-              />
+-            )}
++            <Dialog
++              open={previewIndex !== null}
++              onOpenChange={(open) => {
++                if (!open) setPreviewIndex(null);
++              }}
++            >
++              <DialogContent className="max-w-3xl">
++                {previewIndex !== null && generations[previewIndex] && (
++                  <>
++                    <DialogTitle>
++                      {t('candidate_label', { index: previewIndex + 1 })}
++                    </DialogTitle>
++                    <div className="bg-wedding-ivory rounded-2xl border p-4 sm:p-8">
++                      <CrestMini
++                        project={project}
++                        generation={generations[previewIndex]}
++                        paid={paid}
++                        className="mx-auto w-full max-w-2xl"
++                      />
++                    </div>
++                  </>
++                )}
++              </DialogContent>
++            </Dialog>
+ 
+             {/* mockups */}
+             {isComplete && (
+@@ -663,7 +690,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
+ 
+           {/* unlock panel */}
+           <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+-            <div className="rounded-2xl border p-6">
++            <div id="wedding-pricing" className="rounded-2xl border p-6">
+               <p className="font-serif text-xl">{t('unlock_title')}</p>
+               <p className="text-muted-foreground mt-2 text-sm">
+                 {t('unlock_description')}
+@@ -693,10 +720,28 @@ export function WeddingResult({ projectId }: { projectId: string }) {
+                   >
+                     {paying ? t('unlock_processing') : t('unlock_cta')}
+                   </Button>
+-                  {data?.allowance && !data.allowance.allowed && (
+-                    <p className="text-muted-foreground mt-2 text-xs">
+-                      {t('allowance_hint')}
+-                    </p>
++                  {data?.allowance &&
++                    !data.allowance.allowed &&
++                    showAllowanceHint && (
++                      <div className="bg-muted/40 text-muted-foreground relative mt-3 rounded-lg p-3 pr-9 text-xs">
++                        <button
++                          type="button"
++                          className="hover:bg-background/80 absolute top-2 right-2 rounded p-1 transition-colors"
++                          onClick={() => setShowAllowanceHint(false)}
++                          aria-label={t('dismiss_allowance_hint')}
++                        >
++                          <X className="size-3.5" aria-hidden="true" />
++                        </button>
++                        <p>
++                          {data.allowance.reason || t('allowance_hint')}
++                        </p>
++                        <a
++                          className="text-primary mt-2 inline-block font-medium underline underline-offset-2"
++                          href="#wedding-pricing"
++                        >
++                          {t('allowance_link')}
++                        </a>
++                      </div>
+                   )}
+                 </>
+               ) : (
+@@ -711,6 +756,57 @@ export function WeddingResult({ projectId }: { projectId: string }) {
+               )}
+             </div>
+ 
++            {/* edit panel follows the pricing module */}
++            {isComplete && (
++              <EditPanel
++                project={project}
++                busy={busy}
++                hasSelectedGeneration={!!selectedGeneration}
++                draftResetKey={draftResetKey}
++                onApply={applyPanelChanges}
++                t={{
++                  quick_edits: t('quick_edits'),
++                  quick_edits_hint: t('quick_edits_hint'),
++                  reduce_colors: t('reduce_colors'),
++                  make_simpler: t('make_simpler'),
++                  remove_personal_element: t('remove_personal_element'),
++                  edit_title: t('edit_title'),
++                  edit_hint: t('edit_hint'),
++                  edit_select_category: t('edit_select_category'),
++                  edit_category_lettering: t('edit_category_lettering'),
++                  edit_category_colors: t('edit_category_colors'),
++                  edit_category_flowers: t('edit_category_flowers'),
++                  edit_category_elements: t('edit_category_elements'),
++                  edit_category_frame: t('edit_category_frame'),
++                  edit_partner1: t('edit_partner1'),
++                  edit_partner2: t('edit_partner2'),
++                  edit_date: t('edit_date'),
++                  edit_palette_label: t('edit_palette_label'),
++                  edit_custom_color: t('edit_custom_color'),
++                  edit_invalid_hex: t('edit_invalid_hex'),
++                  edit_add: t('edit_add'),
++                  edit_flowers_label: t('edit_flowers_label'),
++                  edit_elements_label: t('edit_elements_label'),
++                  edit_frame_none: t('edit_frame_none'),
++                  edit_frame_loading: t('edit_frame_loading'),
++                  edit_frame_empty: t('edit_frame_empty'),
++                  edit_pending: (count) => t('edit_pending', { count }),
++                  edit_apply: t('edit_apply'),
++                  edit_apply_lettering_hint: t('edit_apply_lettering_hint'),
++                  edit_apply_regenerate_hint: t('edit_apply_regenerate_hint'),
++                  edit_apply_quick_edit_hint: t('edit_apply_quick_edit_hint'),
++                  edit_names_required: t('edit_names_required'),
++                  edit_limit: (count) => t('edit_limit', { count }),
++                  typography_pairing: t('typography_pairing'),
++                  layout_label: t('layout_label'),
++                  name_display_label: t('name_display_label'),
++                  show_date_label: t('show_date_label'),
++                  show_date_on: t('show_date_on'),
++                  show_date_off: t('show_date_off'),
++                }}
++              />
++            )}
++
+             <div className="rounded-2xl border p-6">
+               <p className="text-muted-foreground text-xs tracking-[0.2em] uppercase">
+                 {t('regenerate_title')}
+@@ -723,8 +819,9 @@ export function WeddingResult({ projectId }: { projectId: string }) {
+                 variant="outline"
+                 onClick={regenerate}
+                 disabled={busy || !isComplete}
++                aria-busy={busy}
+               >
+-                {t('regenerate_cta')}
++                {busy ? t('generating_hint') : t('regenerate_cta')}
+               </Button>
+             </div>
+           </div>
+@@ -738,10 +835,12 @@ function CrestMini({
+   project,
+   generation,
+   paid,
++  className,
+ }: {
+   project: ProjectData;
+   generation: GenerationData;
+   paid: boolean;
++  className?: string;
+ }) {
+   const svg = composeWeddingCrest({
+     partner1: project.partner1,
+@@ -767,7 +866,7 @@ function CrestMini({
+     illustrationUrl: generation.sourceImageUrl ?? undefined,
+     previewWatermark: !paid,
+   });
+-  return <div dangerouslySetInnerHTML={{ __html: svg }} />;
++  return <div className={className} dangerouslySetInnerHTML={{ __html: svg }} />;
+ }
+ 
+ function CrestMockup({
+@@ -1619,6 +1718,7 @@ function EditPanel({
+           {applyHint}
+         </div>
+         <Button
++          type="button"
+           onClick={handleApply}
+           disabled={busy || !hasChanges || (!hasSelectedGeneration && hasQuickEdit)}
+         >

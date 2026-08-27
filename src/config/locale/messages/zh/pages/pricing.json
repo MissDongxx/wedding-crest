@@ -1,7 +1,7 @@
 {
   "metadata": {
     "title": "Pricing - Wedding Crest Design",
-    "description": "Design your wedding crest free, then unlock the complete Wedding Identity Pack with high-resolution SVG downloads, monograms and mockups for $19."
+    "description": "Design your wedding crest free, then unlock the complete Wedding Image Pack with original AI-generated image files for $19."
   },
   "page": {
     "title": "Wedding Crest Design Pricing",
@@ -24,11 +24,11 @@
             "features_title": "Includes",
             "features": [
               "1 saved wedding project",
-              "1 finished crest design per generation",
+              "1 finished AI crest design per generation",
               "5 total generations",
               "All 6 styles, layouts & palettes",
-              "Instant typography preview",
-              "Mockup previews with watermark"
+              "AI-generated lettering and artwork",
+              "Watermarked preview images"
             ],
             "interval": "one-time",
             "amount": 0,
@@ -49,18 +49,17 @@
             "group": "one-time"
           },
           {
-            "title": "Wedding Identity Pack",
-            "description": "Unlock watermark-free, high-resolution files for one wedding project. Pay once - it's yours forever.",
+            "title": "Wedding Image Pack",
+            "description": "Unlock watermark-free original AI image files for one wedding project. Pay once - it is yours forever.",
             "label": "Most Popular",
             "features_title": "Everything in Free, plus",
             "features": [
-              "Watermark-free high-resolution files",
-              "3 regenerations (3 more finished crest designs)",
-              "Primary crest SVG + print-scale file",
-              "Standalone monogram SVG",
-              "Simplified mark & black-white versions",
-              "4 print mockups (invite, save-the-date, menu, sign)",
-              "Usage guide with exact hex codes & fonts",
+              "Watermark-free source-quality image files",
+              "3 regenerations (3 more finished AI crest designs)",
+              "Selected original AI-generated crest",
+              "Every completed AI-generated variation",
+              "Files preserved in their original PNG, JPEG, or WebP format",
+              "Usage guide with exact palette values",
               "Commercial use for your wedding"
             ],
             "interval": "one-time",
@@ -76,7 +75,7 @@
               "icon": "RiVipCrownLine"
             },
             "product_id": "wedding_identity_pack",
-            "product_name": "Wedding Identity Pack",
+            "product_name": "Wedding Image Pack",
             "credits": 0,
             "valid_days": 0,
             "group": "one-time"

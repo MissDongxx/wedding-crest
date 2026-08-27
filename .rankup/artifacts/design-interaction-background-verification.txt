@@ -1,0 +1,25 @@
+Design interaction/background verification — 2026-08-25
+
+Changes
+  - en `edit_title`: `Edit details`; zh `edit_title`: `编辑细节`.
+  - Alternates buttons now select the candidate and open a Radix Dialog containing the large SVG preview.
+  - Generation prompts now require real alpha transparency and explicitly ban simulated checkerboards.
+  - PNG generation results are normalized before storage: edge-connected white/gray matte and checkerboard pixels become alpha 0.
+
+Static checks
+  - `pnpm exec eslint src/themes/default/blocks/wedding-result.tsx`: exit 0, 0 errors, 5 existing warnings.
+  - `pnpm exec tsc --noEmit --pretty false`: exit 0.
+  - `pnpm exec git diff --check`: exit 0.
+
+Browser verification
+  - Design page rendered without Runtime Error.
+  - DOM showed tab `编辑细节`.
+  - Clicking `Crest design 1` opened one dialog with two SVG nodes and a Close button.
+  - Dialog closed successfully; console error list was empty.
+  - Existing provider PNG probe: original transparent pixel ratio `0`; normalized ratio `0.5476617813110352`, `changed=true`.
+
+Background diagnosis
+  - `/Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/shared/wedding/prompt-compiler.ts` explicitly requests a fully transparent PNG alpha background.
+  - `/Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/app/api/jobs/[id]/route.ts` stores the provider image without alpha/background normalization.
+  - `/Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/shared/wedding/composer.ts` draws stationery paper behind the crest. A visible black/white checkerboard therefore indicates checkerboard pixels baked into the provider PNG, not the SVG mockup background.
+  - `/Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/shared/lib/pure-image.ts` now removes that baked matte before the image is stored.

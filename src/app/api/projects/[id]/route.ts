@@ -91,12 +91,8 @@ const patchSchema = z.object({
   // 1-3 colors in hex form.
   palette: z
     .array(
-      z
-        .string()
-        .trim()
-        .regex(HEX_COLOR, 'colors must be hex (#rrggbb or #rgb)')
+      z.string().trim().regex(HEX_COLOR, 'colors must be hex (#rrggbb or #rgb)')
     )
-    .min(1)
     .max(WEDDING_MAX_PALETTE_COLORS)
     .optional(),
   complexity: z.enum(['minimal', 'medium', 'rich']).optional(),
@@ -106,6 +102,7 @@ const patchSchema = z.object({
       'initials_amp',
       'initials_joined',
       'initials_spaced',
+      'initials_with_names',
       'initials_only',
       'full_names',
       'surname',
@@ -128,6 +125,20 @@ const patchSchema = z.object({
     .max(2)
     .optional(),
   frameId: z.string().trim().min(1).nullable().optional(),
+  // The example's own style id, refreshed by the wizard when arriving
+  // from a different example. Not used by the PATCH body yet but accepted
+  // so old clients can round-trip it without 400s.
+  exampleStyle: z
+    .enum([
+      'botanical_watercolor',
+      'minimal_line_art',
+      'vintage_engraving',
+      'italian_romance',
+      'coastal',
+      'classic_luxury',
+    ])
+    .nullable()
+    .optional(),
 });
 
 /** Persist wizard / result-page changes. */
@@ -173,7 +184,8 @@ export async function PATCH(
     if (body.nameDisplay !== undefined) values.nameDisplay = body.nameDisplay;
     if (body.showDate !== undefined) values.showDate = body.showDate;
     if (body.typography !== undefined) values.typography = body.typography;
-    if (body.palette !== undefined) values.palette = JSON.stringify(body.palette);
+    if (body.palette !== undefined)
+      values.palette = JSON.stringify(body.palette);
 
     if (body.style !== undefined) {
       // Validate style is in the catalog; unknown ids are rejected so
@@ -191,8 +203,7 @@ export async function PATCH(
     }
 
     // Element-table fields. Reject unknown catalog values so a client
-    // can't sneak in arbitrary strings (they'd later be embedded in
-    // prompts and SVG fallback text).
+    // can't sneak arbitrary strings into AI prompts.
     if (body.flowers !== undefined) {
       elementPatch.flowers = body.flowers.filter((value) =>
         weddingFlowerOptions.includes(value)

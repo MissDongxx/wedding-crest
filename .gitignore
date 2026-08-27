@@ -52,6 +52,7 @@ data*
 .open-next
 wrangler.toml
 .wrangler
+.dev.vars
 src/shared/types/cloudflare.d.ts
 
 src/config/db/migrations*

@@ -10,8 +10,6 @@ import {
   type WeddingProject,
   type WeddingProjectRow,
 } from '@/shared/models/wedding';
-import { composeWeddingCrest } from '@/shared/wedding/composer';
-import { weddingPalettes } from '@/shared/wedding/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -88,32 +86,29 @@ export default async function MyDesignsPage({
   );
 }
 
-function DesignCard({
-  project,
-}: {
-  project: WeddingProject;
-}) {
-  const fallback = composeWeddingCrest({
-    ...project.input,
-    partner1: project.partner1,
-    partner2: project.partner2,
-    initials: [
-      project.partner1.charAt(0).toUpperCase(),
-      project.partner2.charAt(0).toUpperCase(),
-    ],
-    palette:
-      project.input.palette && project.input.palette.length > 0
-        ? project.input.palette
-        : weddingPalettes[0].colors,
-    illustrationUrl: project.generations?.[0]?.sourceImageUrl ?? undefined,
-  });
+function DesignCard({ project }: { project: WeddingProject }) {
+  const generation = project.generations?.find(
+    (item) => item.sourceImageUrl || item.finalImageUrl
+  );
+  const imageUrl = generation?.sourceImageUrl || generation?.finalImageUrl;
   return (
     <Link
       href={`/design/${project.id}`}
       className="group bg-card block overflow-hidden rounded-2xl border shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
     >
       <div className="bg-wedding-ivory p-6">
-        <div className="mx-auto w-full max-w-[200px]" dangerouslySetInnerHTML={{ __html: fallback }} />
+        {imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={imageUrl}
+            alt={`${project.partner1} and ${project.partner2} wedding crest`}
+            className="mx-auto aspect-square w-full max-w-[200px] object-contain"
+          />
+        ) : (
+          <div className="bg-muted/40 text-muted-foreground mx-auto flex aspect-square w-full max-w-[200px] items-center justify-center rounded-xl text-sm">
+            Draft
+          </div>
+        )}
       </div>
       <div className="p-4">
         <p className="font-serif text-base">

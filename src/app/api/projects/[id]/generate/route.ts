@@ -26,6 +26,7 @@ import {
   WEDDING_PACK_PRODUCT_ID,
 } from '@/shared/wedding/config';
 import {
+  compileWeddingDesignEditPrompt,
   compileWeddingPrompt,
   compileWeddingTextEditPrompt,
   getWeddingVersions,
@@ -33,6 +34,7 @@ import {
 import type { WeddingProjectInput } from '@/shared/wedding/types';
 
 const editKindSchema = z.enum([
+  'design',
   'lettering',
   'reduce_colors',
   'make_simpler',
@@ -64,6 +66,7 @@ const QUICK_EDIT_INSTRUCTIONS: Record<
   z.infer<typeof editKindSchema>,
   (input: { personalElements: string[]; complexity: string }) => string
 > = {
+  design: () => '',
   lettering: () => '',
   reduce_colors: () =>
     'Reduce the color palette of the illustration to its two most dominant tones - quiet everything else down to a calmer two-color scheme. Keep the same composition, motifs, border and lettering exactly as in the reference image.',
@@ -86,7 +89,7 @@ function buildQuickEditPrompt(
   return [
     'Edit the wedding crest shown in the reference image.',
     'Keep the entire illustration - composition, framing, border, ornaments, palette, motifs, and ALL lettering - exactly as it appears in the reference image, except for the change below.',
-    'Keep the background fully transparent exactly as in the reference image - no backdrop, no paper, no fill color, no shadows.',
+    'Keep the background solid pure white (#FFFFFF) exactly as in the reference image - no transparency, alpha channel, checkerboard, grid, paper texture, backdrop, fill color, shadows or gradients.',
     `Change: ${instruction}`,
     'Do not change anything else in the design.',
   ].join('\n');
@@ -118,6 +121,9 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // Pre-declared so the catch below can read a model label even when an
+  // earlier step throws before the multimodal switch has been computed.
+  let effectiveModel = 'runware:Flux-Schnell@1';
   try {
     const { id } = await params;
     // Guests may run their first generation before any account exists.
@@ -154,9 +160,7 @@ export async function POST(
       return respErr(
         allowance.reason ?? 'generation limit reached',
         402,
-        batches === 0 &&
-        projectsWithGenerations >= 1 &&
-        user
+        batches === 0 && projectsWithGenerations >= 1 && user
           ? {
               generatedProjectId: await findWeddingProjectWithGeneration({
                 userId: user.id,
@@ -168,9 +172,7 @@ export async function POST(
     const body = inputSchema.parse(await request.json().catch(() => ({})));
     // Bypass the 1-minute in-memory cache so a freshly-saved admin key
     // is picked up immediately on the next Generate click.
-    const { invalidateConfigsCache } = await import(
-      '@/shared/models/config'
-    );
+    const { invalidateConfigsCache } = await import('@/shared/models/config');
     invalidateConfigsCache();
     const aiService = await getAIService();
     const provider = body.provider
@@ -230,6 +232,8 @@ export async function POST(
 
       if (body.edit.kind === 'lettering') {
         prompt = compileWeddingTextEditPrompt(sourceInput);
+      } else if (body.edit.kind === 'design') {
+        prompt = compileWeddingDesignEditPrompt(sourceInput);
       } else {
         prompt = buildQuickEditPrompt(body.edit.kind, {
           personalElements: sourceInput.personalElements,
@@ -261,8 +265,13 @@ export async function POST(
     }
 
     // When the user attached reference photos (personal elements) we need a
-    // multimodal model - flux-schnell is text-only. Auto-switch to Google's
-    // nano-banana@2-lite on Runware, which accepts `inputs.referenceImages`.
+    // multimodal model - flux-schnell is text-only. Auto-switch to a
+    // reference-image-capable model (default google:nano-banana@2-lite on
+    // Runware, which accepts `inputs.referenceImages`). The id is
+    // overridable via WEDDING_AI_MULTIMODAL_MODEL because Runware AIR ids
+    // have changed across nano-banana revisions and not every account has
+    // every version enabled.
+    //
     // Admin-set model / WEDDING_AI_MODEL / explicit body.model can still
     // override this by passing body.model themselves.
     //
@@ -273,21 +282,32 @@ export async function POST(
     const personalImages =
       sourceInput?.personalImages ?? project.input.personalImages ?? [];
     const exampleImage = project.input.exampleImage ?? null;
+    const frameImage = project.input.frameUrl ?? null;
     const personalReferenceImages = [
       ...(body.edit ? [] : exampleImage ? [exampleImage] : []),
+      ...(body.edit ? [] : frameImage ? [frameImage] : []),
       ...personalImages,
     ];
-    const allReferenceImages = [
-      ...referenceImages,
-      ...personalReferenceImages,
-    ];
-    const effectiveModel = body.model
+    const allReferenceImages = [...referenceImages, ...personalReferenceImages];
+    const multimodalModel =
+      process.env.WEDDING_AI_MULTIMODAL_MODEL || 'google:nano-banana@2-lite';
+    effectiveModel = body.model
       ? model
       : allReferenceImages.length > 0
-        ? 'google:nano-banana@2-lite'
+        ? multimodalModel
         : model;
 
     await updateWeddingProject(id, 'generating');
+
+    // Output dimensions. Default 1024 keeps the request within every
+    // Runware model's hard size cap. Bump to 2048 only when the operator
+    // explicitly sets WEDDING_AI_WIDTH / WEDDING_AI_HEIGHT - some
+    // Runware AIR ids cap at 1024 or 1536 and 2048 will produce a 5xx
+    // that's hard to interpret from the client side. The multimodal
+    // (nano-banana) path below deliberately omits width/height, so the
+    // actual output size there is set by the multimodal model itself.
+    const outputWidth = Number(process.env.WEDDING_AI_WIDTH) || 1024;
+    const outputHeight = Number(process.env.WEDDING_AI_HEIGHT) || 1024;
 
     const created = [];
     for (
@@ -302,8 +322,8 @@ export async function POST(
       // photos.
       const baseOptions: Record<string, unknown> = { candidateIndex };
       if (allReferenceImages.length === 0) {
-        baseOptions.width = 1024;
-        baseOptions.height = 1024;
+        baseOptions.width = outputWidth;
+        baseOptions.height = outputHeight;
       } else {
         baseOptions.referenceImages = allReferenceImages;
       }
@@ -378,8 +398,22 @@ export async function POST(
       productForUnlock: WEDDING_PACK_PRODUCT_ID,
     });
   } catch (error) {
+    // Surface the model id in the error so an unsupported/invalid Runware
+    // AIR id is immediately recognizable in dev tools and the wizard toast
+    // (e.g. "request failed with status: 400 ... model: google:nano-banana@2-lite").
+    // `effectiveModel` is pre-declared at the top of POST with a safe
+    // default so this catch can read it even when an earlier step threw.
+    // Log the full error too so an upstream 5xx (e.g. a Runware-side
+    // size-limit error returning an HTML body) shows up in the server
+    // log instead of being silently masked by respErr.
+    console.error('[wedding] generate failed', error);
+    const modelLabel = ` model: ${effectiveModel}`;
+    const base =
+      error instanceof Error && error.message
+        ? error.message
+        : 'generation failed';
     return respErr(
-      error instanceof Error ? error.message : 'generation failed'
+      base.includes('model:') ? base : `${base}${modelLabel}`
     );
   }
 }

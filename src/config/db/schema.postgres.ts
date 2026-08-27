@@ -647,7 +647,6 @@ export const weddingGeneration = table(
     providerTaskId: text('provider_task_id'),
     sourceImageUrl: text('source_image_url'),
     finalImageUrl: text('final_image_url'),
-    composedSvg: text('composed_svg'),
     qaScore: integer('qa_score'),
     cost: integer('cost').default(0),
     createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -721,10 +720,8 @@ export const weddingPromptTemplate = table(
   ]
 );
 
-// Admin-managed library of crest borders/frames the wizard can attach. The
-// illustration is a fully-rendered PNG/SVG ornament; the wizard overlays SVG
-// text on top at compose time. is_active lets us soft-hide entries without
-// breaking projects that already reference the row.
+// Admin-managed raster border/frame references for AI generation. is_active
+// lets us soft-hide entries without breaking projects that reference the row.
 export const weddingFrame = table(
   'wedding_frame',
   {

@@ -7,15 +7,14 @@ import { getStorageService } from '@/shared/services/storage';
 // shots are 2-6MB) while still leaving headroom for admin-uploaded assets
 // like logos and full-resolution illustrations.
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
-// Personal-element reference photos must be in a format Runware's
-// referenceImages field can fetch directly. SVG is also supported for
-// admin-managed static artwork such as wedding frames and shields.
+// Shared raster-image upload for AI references and admin-managed imagery.
+// Non-raster artwork is intentionally excluded because wedding frames now enter
+// generation as raster references rather than being composed afterward.
 const ALLOWED_MIMES = new Set([
   'image/jpeg',
   'image/jpg',
   'image/png',
   'image/webp',
-  'image/svg+xml',
 ]);
 
 const extFromMime = (mimeType: string) => {
@@ -25,7 +24,6 @@ const extFromMime = (mimeType: string) => {
     'image/png': 'png',
     'image/webp': 'webp',
     'image/gif': 'gif',
-    'image/svg+xml': 'svg',
     'image/avif': 'avif',
     'image/heic': 'heic',
     'image/heif': 'heif',
@@ -40,7 +38,6 @@ const mimeFromFilename = (filename: string) => {
     jpeg: 'image/jpeg',
     png: 'image/png',
     webp: 'image/webp',
-    svg: 'image/svg+xml',
   };
   return map[extension] ?? '';
 };
@@ -87,7 +84,7 @@ export async function POST(req: Request) {
       const body = new Uint8Array(arrayBuffer);
 
       const digest = md5(body);
-      const ext = extFromMime(file.type) || file.name.split('.').pop() || 'bin';
+      const ext = extFromMime(mimeType) || file.name.split('.').pop() || 'bin';
       const key = `${digest}.${ext}`;
 
       // If the same image already exists, reuse its URL to save storage space.

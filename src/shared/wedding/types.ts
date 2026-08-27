@@ -2,7 +2,7 @@
  * Wedding Crest Studio domain types.
  *
  * Pure, isomorphic data: this module is imported by the server APIs, the
- * prompt compiler, the SVG composer and the client wizard, so it must stay
+ * prompt compiler and the client wizard, so it must stay
  * free of any server-only dependency.
  */
 
@@ -85,6 +85,7 @@ export type WeddingNameDisplay =
   | 'initials_amp'
   | 'initials_joined'
   | 'initials_spaced'
+  | 'initials_with_names'
   | 'full_names'
   | 'surname'
   | 'initials_only';
@@ -97,9 +98,7 @@ export type WeddingComplexity = 'minimal' | 'medium' | 'rich';
  * 1:1 to the wizard steps that surface a "Same as example" option.
  * When a flag is true the prompt compiler omits the concrete value for
  * that property and instead instructs the multimodal model to match the
- * example image. Palette/typography are still used by the SVG text
- * composer regardless of the flag (AI illustration vs. typography
- * overlay are independent concerns).
+ * example image. Palette and typography are sent directly to the image model.
  */
 export interface WeddingMatchExampleFlags {
   border: boolean;
@@ -108,7 +107,7 @@ export interface WeddingMatchExampleFlags {
   elements: boolean;
 }
 
-/** Normalized project input consumed by the prompt compiler and composer. */
+/** Normalized project input consumed by the AI prompt compiler. */
 export interface WeddingProjectInput {
   partner1: string;
   partner2: string;
@@ -129,17 +128,20 @@ export interface WeddingProjectInput {
   complexity: WeddingComplexity | string;
   nameDisplay: WeddingNameDisplay;
   showDate: boolean;
-  /** Optional id of a `wedding_frame` row whose image the composer should
-   *  layer behind the crest at compose time. null/undefined = no border. */
+  /** Optional id of a `wedding_frame` row used as an AI reference image. */
   frameId?: string | null;
-  /** Resolved frame asset URL used by the SVG composer. This is hydrated from
-   *  frameId on the server and populated from the picker for live preview. */
+  /** Resolved frame asset URL forwarded to the multimodal image model. */
   frameUrl?: string | null;
   /** URL of the `wedding_example` reference image the user came in with
    *  (hydrated server-side from the `example_image` element). When set,
    *  the generate route forwards it to the multimodal model as the first
    *  reference image so flagged properties can match it. */
   exampleImage?: string | null;
+  /** The example reference's own style id, captured when the user
+   *  arrived from the Examples library. The prompt compiler uses this
+   *  to detect "user kept the example's style" vs "user switched to a
+   *  different style" - the latter needs an explicit override line. */
+  exampleStyle?: string | null;
   /** Per-property "match the example image" flags. Each property with
    *  flag=true tells the prompt compiler to use "match the reference
    *  example image" phrasing instead of the concrete value. */
@@ -149,11 +151,6 @@ export interface WeddingProjectInput {
 export interface WeddingPromptRequest extends WeddingProjectInput {
   styleVersion?: string;
   promptVersion?: string;
-}
-
-export interface WeddingComposeRequest extends WeddingProjectInput {
-  illustrationUrl?: string;
-  previewWatermark?: boolean;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -680,6 +677,11 @@ export const weddingNameDisplayOptions: {
   { value: 'initials_amp', title: 'E & J', example: 'Emma & James -> E & J' },
   { value: 'initials_joined', title: 'EJ', example: 'Emma & James -> EJ' },
   { value: 'initials_spaced', title: 'E J', example: 'Emma & James -> E J' },
+  {
+    value: 'initials_with_names',
+    title: 'E & J + names',
+    example: 'Initials on top, full names below',
+  },
   {
     value: 'full_names',
     title: 'Emma & James',

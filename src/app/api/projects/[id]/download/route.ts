@@ -7,22 +7,8 @@ import {
   hasPaidWeddingOrder,
   type WeddingGeneration,
 } from '@/shared/models/wedding';
-import {
-  composeWeddingBlackWhite,
-  composeWeddingCrest,
-  composeWeddingMockups,
-  composeWeddingMonogram,
-  composeWeddingSimplifiedMark,
-  formatWeddingDate,
-} from '@/shared/wedding/composer';
 import { getWeddingStyle, getWeddingTypography } from '@/shared/wedding/config';
-
-function scaleSvg(svg: string, size: number): string {
-  return svg.replace(
-    /width="\d+" height="\d+"/,
-    `width="${size}" height="${size}"`
-  );
-}
+import { formatWeddingDate } from '@/shared/wedding/display-text';
 
 function fileName(...parts: string[]) {
   return parts
@@ -30,6 +16,46 @@ function fileName(...parts: string[]) {
     .replace(/[^a-zA-Z0-9-_ ]/g, '')
     .replace(/\s+/g, '-')
     .toLowerCase();
+}
+
+function imageExtension(buffer: Buffer, contentType: string | null) {
+  if (
+    buffer.length >= 8 &&
+    buffer[0] === 0x89 &&
+    buffer[1] === 0x50 &&
+    buffer[2] === 0x4e &&
+    buffer[3] === 0x47
+  ) {
+    return 'png';
+  }
+  if (buffer[0] === 0xff && buffer[1] === 0xd8) return 'jpg';
+  if (contentType?.includes('webp')) return 'webp';
+  return 'png';
+}
+
+async function fetchAiArtwork(url: string) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    // The previous error was just "could not fetch AI artwork (404)" with
+    // no URL hint, so a stale provider URL or a misconfigured storage
+    // bucket looked identical in the toast. Include the host so "who's
+    // serving this" is obvious in the toast and server log.
+    const host = (() => {
+      try {
+        return new URL(url).host;
+      } catch {
+        return 'unknown-host';
+      }
+    })();
+    throw new Error(
+      `could not fetch AI artwork from ${host} (HTTP ${response.status})`
+    );
+  }
+  const buffer = Buffer.from(await response.arrayBuffer());
+  return {
+    buffer,
+    extension: imageExtension(buffer, response.headers.get('content-type')),
+  };
 }
 
 export async function GET(
@@ -44,23 +70,21 @@ export async function GET(
     if (!project || project.userId !== user.id)
       return respErr('project not found');
     if (!(await hasPaidWeddingOrder(user.id, id)))
-      return respErr('paid Wedding Identity Pack required');
+      return respErr('paid Wedding Image Pack required');
 
+    const downloadable = project.generations.filter(
+      (generation: WeddingGeneration) =>
+        ['selected', 'complete'].includes(generation.status) &&
+        Boolean(generation.sourceImageUrl)
+    );
     const primary =
-      project.generations.find(
+      downloadable.find(
         (generation: WeddingGeneration) => generation.status === 'selected'
-      ) ??
-      project.generations.find(
-        (generation: WeddingGeneration) => generation.status === 'complete'
-      );
+      ) ?? downloadable[0];
     if (!primary?.sourceImageUrl) return respErr('completed crest not found');
 
-    // Recompose everything without the preview watermark for the paid owner.
-    const input = { ...project.input, illustrationUrl: primary.sourceImageUrl };
     const style = getWeddingStyle(project.input.style);
     const typography = getWeddingTypography(project.input.typography);
-    const mockups = composeWeddingMockups(input);
-
     const zip = new JSZip();
     const folderName = fileName(
       project.partner1,
@@ -69,36 +93,23 @@ export async function GET(
     );
     const folder = zip.folder(folderName)!;
 
-    folder.file('01-primary/primary-crest.svg', composeWeddingCrest(input));
+    const primaryArtwork = await fetchAiArtwork(primary.sourceImageUrl);
     folder.file(
-      '01-primary/primary-crest-print-3000.svg',
-      scaleSvg(composeWeddingCrest(input), 3000)
+      `01-primary/primary-ai-crest.${primaryArtwork.extension}`,
+      primaryArtwork.buffer
     );
-    folder.file(
-      '02-monogram/monogram.svg',
-      composeWeddingMonogram(project.input)
-    );
-    folder.file(
-      '03-simplified/simplified-mark.svg',
-      composeWeddingSimplifiedMark(project.input)
-    );
-    folder.file(
-      '04-black-white/crest-black.svg',
-      composeWeddingBlackWhite(input)
-    );
-    mockups.forEach((mockup) => {
-      folder.file(`06-mockups/${fileName(mockup.id)}.svg`, mockup.svg);
-    });
 
-    // Attach the raw illustration when it can be fetched.
-    try {
-      const response = await fetch(primary.sourceImageUrl);
-      if (response.ok) {
-        const buffer = Buffer.from(await response.arrayBuffer());
-        folder.file('01-primary/illustration.png', buffer);
-      }
-    } catch {
-      // Provider URL may have expired; composed SVGs remain self-contained.
+    const alternates = downloadable.filter(
+      (generation: WeddingGeneration) => generation.id !== primary.id
+    );
+    for (let index = 0; index < alternates.length; index += 1) {
+      const generation = alternates[index];
+      if (!generation.sourceImageUrl) continue;
+      const artwork = await fetchAiArtwork(generation.sourceImageUrl);
+      folder.file(
+        `02-ai-variations/crest-variation-${index + 1}.${artwork.extension}`,
+        artwork.buffer
+      );
     }
 
     const guide = [
@@ -113,31 +124,25 @@ export async function GET(
       '-------------',
       ...project.input.palette.map((color, index) => `${index + 1}. ${color}`),
       '',
-      'Typography',
-      '----------',
+      'Typography direction',
+      '--------------------',
       `Pairing: ${typography.name}`,
-      `Initials font: ${typography.initialsFont.family}`,
-      `Names font: ${typography.namesFont.family}`,
-      `Date font: ${typography.dateFont.family}`,
       '',
       'Files',
       '-----',
-      '01-primary/primary-crest.svg          Master crest (web)',
-      '01-primary/primary-crest-print-3000.svg  Master crest (print)',
-      '01-primary/illustration.png           Raw AI illustration layer',
-      '02-monogram/monogram.svg              Initials monogram',
-      '03-simplified/simplified-mark.svg     Single-initial mark',
-      '04-black-white/crest-black.svg        Black & white version',
-      '06-mockups/                           Stationery mockups',
+      `01-primary/primary-ai-crest.${primaryArtwork.extension}  Selected original AI-generated crest`,
+      alternates.length
+        ? `02-ai-variations/                     ${alternates.length} completed AI-generated variation(s)`
+        : '02-ai-variations/                     No additional completed variations',
       '',
       'Usage tips',
       '----------',
+      '- These files preserve the original AI-generated image artwork.',
       '- Keep clear space around the crest of at least half its height.',
       '- Use your palette colors for invitations and signage.',
-      '- The black & white version is ready for wax seals and embossing.',
-      '- SVG files scale losslessly; print at 300 DPI or higher.',
+      '- For print, place the original image at its native size or smaller.',
     ].join('\n');
-    folder.file('05-guide/wedding-crest-guide.txt', guide);
+    folder.file('03-guide/wedding-crest-guide.txt', guide);
 
     const archive = await zip.generateAsync({
       type: 'uint8array',
@@ -150,6 +155,14 @@ export async function GET(
       },
     });
   } catch (error) {
-    return respErr(error instanceof Error ? error.message : 'download failed');
+    // The client previously masked the real failure behind a generic
+    // "image pack could not be prepared" toast. Log the full error so the
+    // cause is visible in the server log (a stale provider URL, a missing
+    // storage bucket, a quota gate, etc.) and surface the message in the
+    // envelope so the toast can show it verbatim.
+    console.error('[wedding] download failed', error);
+    return respErr(
+      error instanceof Error ? error.message : 'download failed'
+    );
   }
 }

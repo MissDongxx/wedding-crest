@@ -5,7 +5,6 @@ import {
   useEffect,
   useMemo,
   useState,
-  type CSSProperties,
 } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -18,19 +17,16 @@ import { Label } from '@/shared/components/ui/label';
 import { Progress } from '@/shared/components/ui/progress';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import { cn } from '@/shared/lib/utils';
-import { resolveWeddingDisplayTexts } from '@/shared/wedding/composer';
-import { getWeddingTypography } from '@/shared/wedding/config';
+import { resolveWeddingDisplayTexts } from '@/shared/wedding/display-text';
 import {
   WEDDING_MAX_FLOWERS,
   WEDDING_MAX_PALETTE_COLORS,
   WEDDING_MAX_PERSONAL_ELEMENTS,
   weddingFlowerOptions,
-  WeddingFontSpec,
   weddingPalettes,
   weddingPersonalElementOptions,
   WeddingProjectInput,
   weddingStyles,
-  weddingTypography,
 } from '@/shared/wedding/types';
 
 const WIZARD_STEPS = [
@@ -84,7 +80,9 @@ interface PersistedWizardState {
 }
 
 function isStringArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.every((item) => typeof item === 'string');
+  return (
+    Array.isArray(value) && value.every((item) => typeof item === 'string')
+  );
 }
 
 function isMatchExample(value: unknown): value is MatchExampleFlags {
@@ -98,11 +96,15 @@ function isMatchExample(value: unknown): value is MatchExampleFlags {
   );
 }
 
-function isWeddingComplexity(value: unknown): value is WeddingProjectInput['complexity'] {
+function isWeddingComplexity(
+  value: unknown
+): value is WeddingProjectInput['complexity'] {
   return value === 'minimal' || value === 'medium' || value === 'rich';
 }
 
-function isWeddingNameDisplay(value: unknown): value is WeddingProjectInput['nameDisplay'] {
+function isWeddingNameDisplay(
+  value: unknown
+): value is WeddingProjectInput['nameDisplay'] {
   return (
     value === 'initials_amp' ||
     value === 'initials_joined' ||
@@ -142,24 +144,6 @@ function clearPersistedWizardState() {
   }
 }
 
-/**
- * Typography pairing suggested for each name display mode. Pairings the
- * current style doesn't allow are skipped at runtime (see the effect that
- * consumes this map), so adding a new entry is safe even if the pairing
- * isn't universal.
- */
-const recommendedTypographyFor: Record<
-  WeddingProjectInput['nameDisplay'],
-  string
-> = {
-  initials_amp: 'editorial_rose',
-  initials_joined: 'modern_serif',
-  initials_spaced: 'editorial_italic',
-  initials_only: 'editorial_rose',
-  full_names: 'modern_serif',
-  surname: 'classic_caps',
-};
-
 const CUSTOM_HEX_RE = /^#[0-9a-fA-F]{6}$/;
 
 type ApiEnvelope<T> = {
@@ -168,32 +152,6 @@ type ApiEnvelope<T> = {
   data?: T;
   error?: string;
 };
-
-function initialsFromNames(partner1: string, partner2: string): string[] {
-  return [partner1.charAt(0).toUpperCase(), partner2.charAt(0).toUpperCase()];
-}
-
-/**
- * Inline CSS for a font spec, used by the typography specimen cards. SVG
- * letter-spacing is expressed in user units against the composer's base font
- * size, so it is converted to em to keep the specimen proportional at card
- * scale. Mirrors the fontStack fallbacks in the composer.
- */
-function fontSpecStyle(
-  spec: WeddingFontSpec,
-  baseFontSize: number
-): CSSProperties {
-  const isSans = /sans|manrope|dm/i.test(spec.family);
-  return {
-    fontFamily: `'${spec.family}', ${isSans ? 'system-ui, sans-serif' : 'Georgia, serif'}`,
-    fontWeight: spec.weight ?? 400,
-    fontStyle: spec.italic ? 'italic' : 'normal',
-    letterSpacing: spec.letterSpacing
-      ? `${(spec.letterSpacing / baseFontSize).toFixed(4)}em`
-      : undefined,
-    textTransform: spec.uppercase ? 'uppercase' : undefined,
-  };
-}
 
 /**
  * Six-step wedding crest wizard with an instant typography preview
@@ -266,11 +224,13 @@ export function WeddingWizard() {
   >([]);
   const [framesLoading, setFramesLoading] = useState(false);
 
-  // step 4: palette
+  // step 4: palette. Default empty = "free choice" - the prompt compiler
+  // interprets an empty palette as "use a refined full-color palette typical
+  // of the style". When the user picks a concrete palette, it overrides;
+  // when an example is attached, "Same as example" flips matchExample.palette
+  // and the empty array still means "follow the reference".
   const [palette, setPalette] = useState<string[]>(
-    isStringArray(persisted.palette) && persisted.palette.length > 0
-      ? persisted.palette
-      : weddingPalettes[0].colors
+    isStringArray(persisted.palette) ? persisted.palette : []
   );
   const [customHex, setCustomHex] = useState(
     typeof persisted.customHex === 'string' ? persisted.customHex : ''
@@ -324,12 +284,13 @@ export function WeddingWizard() {
   const [submitting, setSubmitting] = useState(false);
 
   // Reference image the user arrived with (?exampleId= deep link). Drives
-  // the live preview panel: show this photo instead of the SVG preview, or
+  // the live preview panel: show this photo as the AI style reference, or
   // hide the preview entirely when no example was attached (e.g. links
   // from the home hero).
-  const [exampleImage, setExampleImage] = useState<{ url: string; alt: string } | null>(
-    null
-  );
+  const [exampleImage, setExampleImage] = useState<{
+    url: string;
+    alt: string;
+  } | null>(null);
   const [examplePending, setExamplePending] = useState(false);
   // Set to the example's style id once the exampleId fetch resolves
   // successfully. Step 2 uses it to hide the style picker (the example
@@ -353,7 +314,13 @@ export function WeddingWizard() {
   // a one-click shortcut into a fully styled wizard. Fetched on demand
   // when they reach the style step so the initial render stays light.
   const [startExamples, setStartExamples] = useState<
-    Array<{ id: string; name: string; style: string; imageUrl: string; altText?: string | null }>
+    Array<{
+      id: string;
+      name: string;
+      style: string;
+      imageUrl: string;
+      altText?: string | null;
+    }>
   >([]);
   const [startExamplesLoading, setStartExamplesLoading] = useState(false);
   const router = useRouter();
@@ -373,8 +340,10 @@ export function WeddingWizard() {
 
     if (typeof saved.partner1 === 'string') setPartner1(saved.partner1);
     if (typeof saved.partner2 === 'string') setPartner2(saved.partner2);
-    if (typeof saved.weddingDate === 'string') setWeddingDate(saved.weddingDate);
-    if (isWeddingNameDisplay(saved.nameDisplay)) setNameDisplay(saved.nameDisplay);
+    if (typeof saved.weddingDate === 'string')
+      setWeddingDate(saved.weddingDate);
+    if (isWeddingNameDisplay(saved.nameDisplay))
+      setNameDisplay(saved.nameDisplay);
     if (
       typeof saved.style === 'string' &&
       weddingStyles.some((candidate) => candidate.id === saved.style)
@@ -392,12 +361,15 @@ export function WeddingWizard() {
     if (typeof saved.location === 'string') setLocation(saved.location);
     if (typeof saved.venue === 'string') setVenue(saved.venue);
     if (isStringArray(saved.flowers)) setFlowers(saved.flowers);
-    if (typeof saved.customFlower === 'string') setCustomFlower(saved.customFlower);
+    if (typeof saved.customFlower === 'string')
+      setCustomFlower(saved.customFlower);
     if (isStringArray(saved.personalElements)) {
       setPersonalElements(saved.personalElements);
     }
-    if (typeof saved.customElement === 'string') setCustomElement(saved.customElement);
-    if (isStringArray(saved.personalImages)) setPersonalImages(saved.personalImages);
+    if (typeof saved.customElement === 'string')
+      setCustomElement(saved.customElement);
+    if (isStringArray(saved.personalImages))
+      setPersonalImages(saved.personalImages);
     if (isWeddingComplexity(saved.complexity)) setComplexity(saved.complexity);
     if (
       typeof saved.step === 'number' &&
@@ -448,7 +420,8 @@ export function WeddingWizard() {
         if (typeof project.weddingDate === 'string' && project.weddingDate) {
           setWeddingDate(project.weddingDate);
         }
-        if (isWeddingNameDisplay(input.nameDisplay)) setNameDisplay(input.nameDisplay);
+        if (isWeddingNameDisplay(input.nameDisplay))
+          setNameDisplay(input.nameDisplay);
         if (
           typeof project.style === 'string' &&
           weddingStyles.some((candidate) => candidate.id === project.style)
@@ -473,7 +446,8 @@ export function WeddingWizard() {
         if (Array.isArray(input.personalImages)) {
           setPersonalImages(input.personalImages);
         }
-        if (isWeddingComplexity(input.complexity)) setComplexity(input.complexity);
+        if (isWeddingComplexity(input.complexity))
+          setComplexity(input.complexity);
         // Land the user on the review step so they see the summary of
         // the existing design and only navigate back to change a field.
         const reviewStep = WIZARD_STEPS.length - 1;
@@ -684,27 +658,17 @@ export function WeddingWizard() {
     };
   }, [searchParams]);
 
-  // keep typography valid for the selected style
+  // Keep typography valid for the selected style. The user no longer
+  // chooses a pairing from the UI - we just keep the field pointed at a
+  // pairing the style actually supports, so any place that reads
+  // `project.input.typography` (preview, edit regenerate, no-example
+  // prompt path) still gets a sensible default.
   useEffect(() => {
     const valid = weddingStyles.find((s) => s.id === style)?.typography ?? [];
     if (!valid.includes(typography)) {
       setTypography(valid[0] ?? 'editorial_rose');
     }
   }, [style, typography]);
-
-  // When the name display mode changes, suggest a typography pairing that
-  // matches the new text length and formality. Shorter / decorative text
-  // gets an elegant pairing; longer or more formal text gets a readable or
-  // classical pairing. No-op if the recommendation isn't in the current
-  // style's allowed list (the previous useEffect will then fall back to
-  // the style's first pairing).
-  useEffect(() => {
-    const valid = weddingStyles.find((s) => s.id === style)?.typography ?? [];
-    const recommended = recommendedTypographyFor[nameDisplay];
-    if (recommended && valid.includes(recommended)) {
-      setTypography(recommended);
-    }
-  }, [nameDisplay, style]);
 
   // Fetch frames matching the current style when the user reaches the
   // border step (or changes style). The list is short and public, so we
@@ -786,7 +750,9 @@ export function WeddingWizard() {
         }> = await resp.json();
         if (cancelled) return;
         const items = (json?.data?.items ?? []).filter(
-          (item): item is {
+          (
+            item
+          ): item is {
             id: string;
             name: string;
             style: string;
@@ -806,52 +772,6 @@ export function WeddingWizard() {
     };
   }, [step, style, fromExampleStyle, exampleImage, examplePending]);
 
-  const previewInput = useMemo(
-    () => {
-      const selectedFrame = frames.find((frame) => frame.id === frameId);
-      return {
-        partner1: partner1 || 'Emma',
-        partner2: partner2 || 'James',
-        initials: initialsFromNames(partner1 || 'Emma', partner2 || 'James'),
-        weddingDate: weddingDate || null,
-        style,
-        layout:
-          weddingStyles.find((candidate) => candidate.id === style)?.layouts[0] ??
-          'BOTANICAL_OVAL_01',
-        typography,
-        palette,
-        location: null,
-        venue: null,
-        flowers,
-        personalElements,
-        complexity,
-        nameDisplay,
-        showDate: Boolean(weddingDate),
-        frameId,
-        frameUrl: selectedFrame?.url ?? null,
-      };
-    },
-    [
-      partner1,
-      partner2,
-      weddingDate,
-      style,
-      typography,
-      palette,
-      flowers,
-      personalElements,
-      complexity,
-      nameDisplay,
-      frameId,
-      frames,
-    ]
-  );
-
-  const previewTexts = useMemo(
-    () => resolveWeddingDisplayTexts(previewInput),
-    [previewInput]
-  );
-
   const canContinue = useCallback(() => {
     if (step === 0) {
       return (
@@ -862,9 +782,10 @@ export function WeddingWizard() {
       );
     }
     if (step === 3) {
-      return (
-        palette.length >= 1 && palette.length <= WEDDING_MAX_PALETTE_COLORS
-      );
+      // Empty palette is a valid choice under the reference-first contract:
+      // it means "follow the example" when an example is attached, or
+      // "free choice" when there isn't one. Only the upper bound matters.
+      return palette.length <= WEDDING_MAX_PALETTE_COLORS;
     }
     return true;
   }, [step, partner1, partner2, palette.length]);
@@ -1012,7 +933,7 @@ export function WeddingWizard() {
     setStyle('botanical_watercolor');
     setTypography('editorial_rose');
     setFrameId(null);
-    setPalette(weddingPalettes[0].colors);
+    setPalette([]);
     setCustomHex('');
     setLocation('');
     setVenue('');
@@ -1053,10 +974,7 @@ export function WeddingWizard() {
       const text = await response.text();
       const body = text ? JSON.parse(text) : {};
       const payload = body?.data ?? body;
-      if (
-        !response.ok ||
-        (body?.code !== undefined && body.code !== 0)
-      ) {
+      if (!response.ok || (body?.code !== undefined && body.code !== 0)) {
         toast.error(
           body?.message || body?.error || t('personal_image_upload_error')
         );
@@ -1067,10 +985,14 @@ export function WeddingWizard() {
         toast.error(body?.message || t('personal_image_upload_error'));
         return;
       }
-      setPersonalImages((current) => [...current, ...urls].slice(0, MAX_PERSONAL_IMAGES));
+      setPersonalImages((current) =>
+        [...current, ...urls].slice(0, MAX_PERSONAL_IMAGES)
+      );
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : t('personal_image_upload_error')
+        error instanceof Error
+          ? error.message
+          : t('personal_image_upload_error')
       );
     } finally {
       setUploadingImages(false);
@@ -1112,14 +1034,17 @@ export function WeddingWizard() {
         // and the matchExample flags carry the four "match the example
         // image" toggles the user set on the wizard's property pickers.
         // The server resolves the id, fetches the active example, and
-        // validates the image URL before persisting it.
+        // validates the image URL before persisting it. exampleStyle
+        // records the example's own style id so the prompt compiler can
+        // detect whether the user kept the example's style or switched
+        // to a different one (different style -> explicit override line).
         exampleId: searchParams.get('exampleId') || undefined,
+        exampleStyle: fromExampleStyle,
         matchExample,
       };
 
-      const requestUrl = isEditMode && editId
-        ? `/api/projects/${editId}`
-        : '/api/projects';
+      const requestUrl =
+        isEditMode && editId ? `/api/projects/${editId}` : '/api/projects';
       const requestMethod = isEditMode ? 'PATCH' : 'POST';
       const response = await fetch(requestUrl, {
         method: requestMethod,
@@ -1152,7 +1077,8 @@ export function WeddingWizard() {
         !response.ok ||
         (envelope.code !== undefined && envelope.code !== 0)
       ) {
-        const statusLine = `${response.status} ${response.statusText || ''}`.trim();
+        const statusLine =
+          `${response.status} ${response.statusText || ''}`.trim();
         const detailed = apiError
           ? `${statusLine}: ${apiError}`
           : statusLine || t('submit_error');
@@ -1200,7 +1126,8 @@ export function WeddingWizard() {
           generateEnvelope = JSON.parse(generateRaw);
         } catch {
           generateEnvelope = {
-            error: `${generateResponse.status} ${generateResponse.statusText || ''}`.trim(),
+            error:
+              `${generateResponse.status} ${generateResponse.statusText || ''}`.trim(),
           };
         }
       }
@@ -1210,21 +1137,22 @@ export function WeddingWizard() {
       ) {
         const generateError =
           generateEnvelope.error || generateEnvelope.message;
-        // 4xx means the request was understood but the server is telling
-        // the user something they need to act on (e.g. "free plan
-        // exhausted" -> 402, "project not found" -> 404). Surface the
-        // server's message verbatim and DO NOT log to console.error --
-        // this is a normal product state, not a bug to debug.
+        // The API uses the codebase's respErr convention: most user-actionable
+        // errors come back as HTTP 200 with `code: -1` carrying a clear
+        // message (e.g. "no AI image provider configured yet..."). 4xx
+        // status is reserved for HTTP-level outcomes the client should
+        // branch on (402 quota, 404 not found, etc.). In both shapes the
+        // server's message is safe and useful to surface.
         const isUserFacing =
-          generateResponse.status >= 400 && generateResponse.status < 500;
+          (generateResponse.status >= 400 && generateResponse.status < 500) ||
+          generateEnvelope.code === -1;
         const detailed = isUserFacing
           ? generateError || t('submit_error')
           : generateError
             ? t('submit_error')
             : `${generateResponse.status} ${generateResponse.statusText || ''}`.trim() ||
               t('submit_error');
-        const generatedProjectId =
-          generateEnvelope.data?.generatedProjectId;
+        const generatedProjectId = generateEnvelope.data?.generatedProjectId;
         if (generatedProjectId) {
           toast.custom(
             (toastId) => (
@@ -1258,21 +1186,16 @@ export function WeddingWizard() {
           toast.error(detailed, { duration: 8000 });
         }
         if (!isUserFacing) {
-          // System errors (5xx, network failures, unexpected 200+code:-1
-          // from routes that haven't migrated to 4xx yet). Log the full
-          // response so a misconfigured provider / model name is visible
-          // in dev tools. Next.js's console-error reporter collapses
-          // objects whose properties are all strings to `{}`, so we
-          // coerce the body to a string here.
+          // System errors (5xx, network failures). Log the full response
+          // so a misconfigured provider / model name is visible in dev
+          // tools. We pass a single string rather than an object because
+          // Next.js's console-error reporter collapses multi-property
+          // objects (especially ones whose props are string-shaped) to
+          // `{}` in the browser console, which hides the actual error.
           // eslint-disable-next-line no-console
-          console.error('[wedding-wizard] generate failed', {
-            status: generateResponse.status,
-            statusText: generateResponse.statusText,
-            url: generateResponse.url,
-            ok: generateResponse.ok,
-            body: generateRaw || '(empty)',
-            envelope: generateEnvelope,
-          });
+          console.error(
+            `[wedding-wizard] generate failed status=${generateResponse.status} ${generateResponse.statusText || ''} url=${generateResponse.url} ok=${generateResponse.ok} body=${generateRaw || '(empty)'}`
+          );
         }
         return;
       }
@@ -1299,10 +1222,6 @@ export function WeddingWizard() {
   };
 
   const styleConfig = weddingStyles.find((s) => s.id === style);
-  const typographyConfig = getWeddingTypography(typography);
-  // Tints the ornament dot on every typography specimen so the typography
-  // cards visually echo the style chosen earlier in the same step.
-  const styleAccent = styleConfig?.previewColor ?? 'currentColor';
 
   // When the user lands via ?exampleId=, the example already implies a
   // style — there's no point making them re-pick it on step 2. We hide
@@ -1330,14 +1249,14 @@ export function WeddingWizard() {
               <p className="text-muted-foreground mt-3 text-xs">
                 <Link
                   href={`/design/${editId}`}
-                  className="underline underline-offset-4 hover:text-foreground"
+                  className="hover:text-foreground underline underline-offset-4"
                 >
                   {t('edit_back_to_crest')}
                 </Link>
               </p>
             )}
             <p className="text-muted-foreground mt-2 text-xs">
-              <span className="font-medium text-foreground">*</span>{' '}
+              <span className="text-foreground font-medium">*</span>{' '}
               {t('required')} · {t('optional')}
             </p>
           </div>
@@ -1519,10 +1438,12 @@ export function WeddingWizard() {
                     <div
                       aria-hidden
                       className="size-2.5 shrink-0 rounded-full"
-                      style={{ background: styleConfig?.previewColor ?? 'currentColor' }}
+                      style={{
+                        background: styleConfig?.previewColor ?? 'currentColor',
+                      }}
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs tracking-widest uppercase text-muted-foreground">
+                      <p className="text-muted-foreground text-xs tracking-widest uppercase">
                         {t('choose_style')} <span aria-hidden>*</span>
                       </p>
                       <p className="truncate text-sm font-medium">
@@ -1644,83 +1565,9 @@ export function WeddingWizard() {
                 )}
 
                 <div className="space-y-3">
-                  <Label>
-                    {t('choose_typography')} <span aria-hidden>*</span>
-                  </Label>
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {(
-                      weddingStyles.find((s) => s.id === style)?.typography ??
-                      []
-                    ).map((pairingId) => {
-                      const pairing = weddingTypography.find(
-                        (p) => p.id === pairingId
-                      );
-                      if (!pairing) return null;
-                      const isSelected = typography === pairing.id;
-                      return (
-                        <button
-                          key={pairing.id}
-                          type="button"
-                          onClick={() => setTypography(pairing.id)}
-                          className={cn(
-                            'rounded-xl border p-3 text-left transition-colors',
-                            isSelected
-                              ? 'border-primary bg-accent'
-                              : 'hover:border-primary/40'
-                          )}
-                        >
-                          <div className="flex items-baseline justify-between gap-2">
-                            <p className="text-sm font-medium">{pairing.name}</p>
-                            {isSelected ? (
-                              <span className="text-muted-foreground text-[10px] tracking-[0.2em] uppercase">
-                                {t('live_preview')}
-                              </span>
-                            ) : null}
-                          </div>
-                          {/* Mini stationery specimen so step 2 actually shows
-                              the typefaces the user is choosing between. The
-                              cream paper + hairline border + center dot echo
-                              wedding invitations, and the dot picks up the
-                              chosen style's previewColor so each card feels
-                              tied to the style. */}
-                          <div className="mt-2 overflow-hidden rounded-md border border-current/15 bg-wedding-ivory px-3 py-2.5 text-center">
-                            <p
-                              className="truncate text-[22px] leading-none"
-                              style={fontSpecStyle(pairing.initialsFont, 118)}
-                            >
-                              {previewTexts.headline}
-                            </p>
-                            <div
-                              aria-hidden
-                              className="text-foreground/40 mx-auto my-1.5 flex items-center justify-center gap-1.5"
-                            >
-                              <span className="h-px w-7 bg-current opacity-60" />
-                              <span style={{ color: styleAccent }}>·</span>
-                              <span className="h-px w-7 bg-current opacity-60" />
-                            </div>
-                            {/*
-                              Intentionally no names line: in initials mode the
-                              headline already conveys the couple, and in
-                              full_names/surname mode the names line is empty.
-                              The names font is still previewed in the live
-                              preview on the right.
-                            */}
-                            {previewTexts.date ? (
-                              <p
-                                className="text-foreground/60 truncate text-[10px]"
-                                style={fontSpecStyle(pairing.dateFont, 21)}
-                              >
-                                {previewTexts.date}
-                              </p>
-                            ) : null}
-                          </div>
-                          <p className="text-muted-foreground mt-2 text-xs">
-                            {pairing.description}
-                          </p>
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <p className="text-muted-foreground text-sm">
+                    {t('lettering_follows_example_hint')}
+                  </p>
                 </div>
               </div>
             )}
@@ -1760,8 +1607,7 @@ export function WeddingWizard() {
                         reads as the default choice. The example's border is
                         baked into its reference image, so selecting this
                         option tells the generate route to skip the
-                        frameId-driven SVG frame layer and let the AI draw
-                        the border itself. */}
+                        selected frame and let the AI draw the border. */}
                     {exampleImage ? (
                       <button
                         key="__same_as_example__"
@@ -1778,8 +1624,8 @@ export function WeddingWizard() {
                         className={cn(
                           'w-36 shrink-0 snap-start overflow-hidden rounded-xl border-2 text-left transition-colors sm:w-44',
                           matchExample.border
-                            ? 'border-primary bg-accent ring-primary/30 ring-2 shadow-sm'
-                            : 'border-transparent hover:border-primary/40'
+                            ? 'border-primary bg-accent ring-primary/30 shadow-sm ring-2'
+                            : 'hover:border-primary/40 border-transparent'
                         )}
                       >
                         <div className="bg-muted/40 relative aspect-square w-full p-1">
@@ -1811,13 +1657,17 @@ export function WeddingWizard() {
                         key={frame.id}
                         type="button"
                         onClick={() => selectFrame(frame.id)}
-                        aria-pressed={!matchExample.border && frameId === frame.id}
-                        data-selected={!matchExample.border && frameId === frame.id}
+                        aria-pressed={
+                          !matchExample.border && frameId === frame.id
+                        }
+                        data-selected={
+                          !matchExample.border && frameId === frame.id
+                        }
                         className={cn(
                           'w-36 shrink-0 snap-start overflow-hidden rounded-xl border-2 text-left transition-colors sm:w-44',
                           !matchExample.border && frameId === frame.id
-                            ? 'border-primary bg-accent ring-primary/30 ring-2 shadow-sm'
-                            : 'border-transparent hover:border-primary/40'
+                            ? 'border-primary bg-accent ring-primary/30 shadow-sm ring-2'
+                            : 'hover:border-primary/40 border-transparent'
                         )}
                       >
                         <div className="bg-wedding-ivory relative aspect-square w-full p-1">
@@ -1840,7 +1690,9 @@ export function WeddingWizard() {
                         <div className="bg-background/90 flex items-center justify-between gap-2 truncate px-2 py-1 text-xs">
                           {frame.name}
                           {!matchExample.border && frameId === frame.id ? (
-                            <span className="text-primary shrink-0 font-semibold">✓</span>
+                            <span className="text-primary shrink-0 font-semibold">
+                              ✓
+                            </span>
                           ) : null}
                         </div>
                       </button>
@@ -1861,11 +1713,8 @@ export function WeddingWizard() {
                   </Label>
                   <div className="grid gap-3 sm:grid-cols-2">
                     {/* "Same as example" first. Selecting it tells the AI to
-                        match the example's palette directly. The current
-                        `palette` state is left untouched so the SVG text
-                        composer still has colors for the names/date overlay
-                        (AI illustration vs. typography overlay are
-                        independent concerns). */}
+                        match the example's palette directly; the existing
+                        palette remains as a fallback prompt value. */}
                     {exampleImage ? (
                       <button
                         key="__same_as_example__"
@@ -1892,15 +1741,15 @@ export function WeddingWizard() {
                           />
                           <span
                             aria-hidden
-                            className="h-5 w-5 rounded-full border border-black/10 bg-muted"
+                            className="bg-muted h-5 w-5 rounded-full border border-black/10"
                           />
                           <span
                             aria-hidden
-                            className="h-5 w-5 rounded-full border border-black/10 bg-muted"
+                            className="bg-muted h-5 w-5 rounded-full border border-black/10"
                           />
                           <span
                             aria-hidden
-                            className="h-5 w-5 rounded-full border border-black/10 bg-muted"
+                            className="bg-muted h-5 w-5 rounded-full border border-black/10"
                           />
                         </div>
                         <p className="text-sm font-medium">
@@ -2108,7 +1957,8 @@ export function WeddingWizard() {
                       ({t('optional')})
                     </span>{' '}
                     <span className="text-muted-foreground text-xs">
-                      ({personalElements.length}/{WEDDING_MAX_PERSONAL_ELEMENTS})
+                      ({personalElements.length}/{WEDDING_MAX_PERSONAL_ELEMENTS}
+                      )
                     </span>
                   </Label>
                   <p className="text-muted-foreground text-sm">
@@ -2122,7 +1972,8 @@ export function WeddingWizard() {
                         onClick={() => toggleElement(element)}
                         className={cn(
                           'rounded-full border px-4 py-2 text-sm transition-colors',
-                          !matchExample.elements && personalElements.includes(element)
+                          !matchExample.elements &&
+                            personalElements.includes(element)
                             ? 'border-primary bg-accent'
                             : 'hover:border-primary/40'
                         )}
@@ -2132,7 +1983,8 @@ export function WeddingWizard() {
                     ))}
                     {personalElements
                       .filter(
-                        (element) => !weddingPersonalElementOptions.includes(element)
+                        (element) =>
+                          !weddingPersonalElementOptions.includes(element)
                       )
                       .map((element) => (
                         <button
@@ -2287,18 +2139,12 @@ export function WeddingWizard() {
                       <dd>{styleConfig?.name}</dd>
                     </div>
                     <div className="flex justify-between gap-4">
-                      <dt className="text-muted-foreground">
-                        {t('choose_typography')}
-                      </dt>
-                      <dd>{typographyConfig?.name}</dd>
-                    </div>
-                    <div className="flex justify-between gap-4">
                       <dt className="text-muted-foreground">{t('border')}</dt>
                       <dd>
                         {matchExample.border
                           ? t('same_as_example')
-                          : frames.find((frame) => frame.id === frameId)?.name ??
-                            t('border_none')}
+                          : (frames.find((frame) => frame.id === frameId)
+                              ?.name ?? t('border_none'))}
                       </dd>
                     </div>
                     <div className="flex justify-between gap-4">
@@ -2322,9 +2168,7 @@ export function WeddingWizard() {
                       </dd>
                     </div>
                     <div className="flex justify-between gap-4">
-                      <dt className="text-muted-foreground">
-                        {t('location')}
-                      </dt>
+                      <dt className="text-muted-foreground">{t('location')}</dt>
                       <dd>{location || '—'}</dd>
                     </div>
                     <div className="flex justify-between gap-4">
