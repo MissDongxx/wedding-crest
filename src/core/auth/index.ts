@@ -16,7 +16,10 @@ import { getAuthOptions, getDatabaseProvider } from './config';
  */
 export const getAuth = async (request?: Request) => {
   const databaseResource = await db();
-  const configs = await getAllConfigs();
+  // Auth initialization must not wait for the full Admin settings table.
+  // Secrets and runtime overrides are merged by getAllConfigs without the
+  // optional database read; the adapter still uses the shared DB resource.
+  const configs = await getAllConfigs({ skipDatabase: true });
 
   // Initialize adapter here to ensure it uses the shared databaseResource
   const adapter = drizzleAdapter(databaseResource, {

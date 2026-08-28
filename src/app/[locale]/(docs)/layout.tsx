@@ -4,6 +4,7 @@ import { DocsLayout } from 'fumadocs-ui/layouts/notebook';
 import { RootProvider } from 'fumadocs-ui/provider';
 
 import { source } from '@/core/docs/source';
+import { getPublicConfigs } from '@/shared/models/config';
 
 import { baseOptions } from './layout.config';
 
@@ -34,6 +35,7 @@ export default async function DocsRootLayout({
 }) {
   const { locale } = await params;
   const lang = locale || 'en';
+  const { app_logo: appLogo } = await getPublicConfigs();
 
   return (
     <RootProvider
@@ -49,9 +51,9 @@ export default async function DocsRootLayout({
       }}
     >
       <DocsLayout
-        {...baseOptions(lang)}
+        {...baseOptions(lang, appLogo)}
         tree={source.pageTree[lang]}
-        nav={{ ...baseOptions(lang).nav, mode: 'top' }}
+        nav={{ ...baseOptions(lang, appLogo).nav, mode: 'top' }}
         sidebar={{
           tabs: [],
         }}

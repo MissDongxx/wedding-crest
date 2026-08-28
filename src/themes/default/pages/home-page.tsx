@@ -1,5 +1,8 @@
 import type { ComponentType } from 'react';
 
+import { WeddingExamplesProvider } from '@/shared/components/wedding/wedding-examples-provider';
+import type { DynamicPage as DynamicPageType } from '@/shared/types/blocks/landing';
+
 import { Benefits } from '../blocks/benefits';
 import { Cta } from '../blocks/cta';
 import { Faq } from '../blocks/faq';
@@ -7,7 +10,6 @@ import { Introduce } from '../blocks/introduce';
 import { Pricing } from '../blocks/pricing';
 import { WeddingHero } from '../blocks/wedding-hero';
 import { WeddingStyles } from '../blocks/wedding-styles';
-import type { DynamicPage as DynamicPageType } from '@/shared/types/blocks/landing';
 
 // The home page has a fixed, small set of blocks. Keeping this registry local
 // avoids making the generic theme block import context part of the home-page
@@ -22,11 +24,7 @@ const homeBlocks: Record<string, ComponentType<any>> = {
   cta: Cta,
 };
 
-export default async function HomePage({
-  page,
-}: {
-  page: DynamicPageType;
-}) {
+export default async function HomePage({ page }: { page: DynamicPageType }) {
   const sectionKeys = Object.keys(page.sections || {});
   const renderedSections = await Promise.all(
     sectionKeys.map(async (sectionKey) => {
@@ -41,11 +39,7 @@ export default async function HomePage({
       if (!Block) return null;
 
       return (
-        <Block
-          key={sectionKey}
-          section={section}
-          {...(section.data || {})}
-        />
+        <Block key={sectionKey} section={section} {...(section.data || {})} />
       );
     })
   );
@@ -55,7 +49,7 @@ export default async function HomePage({
       {page.title && !page.sections?.hero && (
         <h1 className="sr-only">{page.title}</h1>
       )}
-      {renderedSections}
+      <WeddingExamplesProvider>{renderedSections}</WeddingExamplesProvider>
     </>
   );
 }

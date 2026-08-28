@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { PERMISSIONS, requireAllPermissions } from '@/core/rbac';
 import { Header, Main, MainHeader } from '@/shared/blocks/dashboard';
 import { FormCard } from '@/shared/blocks/form';
-import { getConfigs, saveConfigs } from '@/shared/models/config';
+import { getAllConfigs, saveConfigs } from '@/shared/models/config';
 import { getUserInfo } from '@/shared/models/user';
 import {
   getSettingGroups,
@@ -29,7 +29,7 @@ export default async function SettingsPage({
     locale,
   });
 
-  const configs = await getConfigs();
+  const configs = await getAllConfigs();
 
   const settingGroups = await getSettingGroups();
   const settings = await getSettings();

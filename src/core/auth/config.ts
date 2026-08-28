@@ -246,9 +246,11 @@ export async function getAuthOptions(
                 }
 
                 const emailService = await getEmailService(configs as any);
-                const logoUrl = envConfigs.app_logo?.startsWith('http')
-                  ? envConfigs.app_logo
-                  : `${runtimeBaseURL || envConfigs.app_url}${envConfigs.app_logo?.startsWith('/') ? '' : '/'}${envConfigs.app_logo || ''}`;
+                const logoUrl = envConfigs.app_logo
+                  ? envConfigs.app_logo.startsWith('http')
+                    ? envConfigs.app_logo
+                    : `${runtimeBaseURL || envConfigs.app_url}${envConfigs.app_logo.startsWith('/') ? '' : '/'}${envConfigs.app_logo}`
+                  : undefined;
                 const result = await emailService.sendEmail({
                   to: user.email,
                   subject: `Verify your email - ${envConfigs.app_name}`,

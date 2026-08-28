@@ -87,13 +87,34 @@ export async function getUserCredits(userId: string) {
   return { remainingCredits };
 }
 
-export async function getSignUser() {
-  const auth = await getAuth();
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+const SESSION_LOOKUP_TIMEOUT_MS = 3000;
 
-  return session?.user;
+export async function getSignUser() {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const session = await Promise.race([
+      (async () => {
+        const auth = await getAuth();
+        return auth.api.getSession({
+          headers: await headers(),
+        });
+      })(),
+      new Promise<null>((_, reject) => {
+        timer = setTimeout(
+          () => reject(new Error('session lookup timed out')),
+          SESSION_LOOKUP_TIMEOUT_MS
+        );
+      }),
+    ]);
+
+    return session?.user;
+  } catch {
+    // An unavailable auth database should produce the normal sign-in flow,
+    // rather than a server-component exception on every admin route.
+    return null;
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 }
 
 export async function isEmailVerified(email: string): Promise<boolean> {

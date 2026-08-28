@@ -19,14 +19,19 @@ export function getPostgresDb() {
       ? { connection: { options: `-c search_path=${schemaName}` } }
       : {};
 
-  if (isCloudflareWorker) {
-    const { env }: { env: any } = getCloudflareContext();
-    isHyperdrive = 'HYPERDRIVE' in env;
+  // OpenNext versions do not all expose the same global Worker marker.
+  // Prefer the request-bound Cloudflare context so Hyperdrive is still used
+  // when `isCloudflareWorker` is false in a bundled server function.
+  let cloudflareEnv: any;
+  try {
+    cloudflareEnv = (getCloudflareContext() as { env?: any }).env;
+  } catch {
+    cloudflareEnv = undefined;
+  }
 
-    if (isHyperdrive) {
-      const hyperdrive = env.HYPERDRIVE;
-      databaseUrl = hyperdrive.connectionString;
-    }
+  if (cloudflareEnv && 'HYPERDRIVE' in cloudflareEnv) {
+    isHyperdrive = true;
+    databaseUrl = cloudflareEnv.HYPERDRIVE.connectionString;
   }
 
   if (!databaseUrl) {
@@ -42,12 +47,13 @@ export function getPostgresDb() {
   //   is the pattern Cloudflare documents for Hyperdrive + Workers.
   //   We close the client via ctx.waitUntil() so the cleanup runs
   //   after the response is sent.
-  if (isCloudflareWorker && isHyperdrive) {
+  if (isHyperdrive || process.env.NODE_ENV === 'production') {
     const pgClient = postgres(databaseUrl, {
       prepare: false,
       max: 1,
       idle_timeout: 5,
       connect_timeout: 5,
+      ...connectionSchemaOptions,
       // Don't let postgres.js keep the connection alive past a single
       // request — we want it to release the socket back to the
       // runtime promptly.
@@ -63,6 +69,7 @@ export function getPostgresDb() {
       max: 1,
       idle_timeout: 5,
       connect_timeout: 5,
+      ...connectionSchemaOptions,
     });
 
     return drizzle(cfClient);

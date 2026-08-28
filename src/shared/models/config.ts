@@ -1,3 +1,4 @@
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
 
 import { db } from '@/core/db';
@@ -17,6 +18,7 @@ export type UpdateConfig = Partial<Omit<NewConfig, 'name'>>;
 export type Configs = Record<string, string>;
 
 export const CACHE_TAG_CONFIGS = 'configs';
+const LEGACY_TEMPLATE_LOGO = ['/logo', '.webp'].join('');
 
 // Revalidate the marketing site so admin uploads (logo, name, description,
 // etc.) become visible without waiting for the 1-hour ISR window. Only
@@ -96,7 +98,9 @@ export async function addConfig(newConfig: NewConfig) {
   const [result] = await db().insert(config).values(newConfig).returning();
   revalidateTag(CACHE_TAG_CONFIGS);
   invalidateConfigsCache();
-  revalidatePublicSiteForChangedConfigs({ [newConfig.name]: newConfig.value ?? '' });
+  revalidatePublicSiteForChangedConfigs({
+    [newConfig.name]: newConfig.value ?? '',
+  });
 
   return result;
 }
@@ -125,7 +129,12 @@ async function getConfigsFromDb(): Promise<Configs> {
   if (envConfigs.database_provider === 'd1' && !isCloudflareWorker) {
     return configs;
   }
-  if (!envConfigs.database_url && envConfigs.database_provider !== 'd1') {
+  if (
+    !envConfigs.database_url &&
+    envConfigs.database_provider !== 'd1' &&
+    process.env.NODE_ENV !== 'production' &&
+    !hasRuntimeHyperdrive()
+  ) {
     return configs;
   }
 
@@ -144,12 +153,28 @@ async function getConfigsFromDb(): Promise<Configs> {
 // Cloudflare Workers doesn't fully support Next.js unstable_cache and it can
 // cause requests to hang indefinitely. Since getAllConfigs() already has an
 // in-memory cache with 1-minute TTL, we skip unstable_cache on Workers.
-export const getConfigs = isCloudflareWorker
-  ? getConfigsFromDb
-  : unstable_cache(getConfigsFromDb, ['configs'], {
-      revalidate: 3600,
-      tags: [CACHE_TAG_CONFIGS],
-    });
+function hasRuntimeHyperdrive() {
+  try {
+    const env = (getCloudflareContext() as { env?: any }).env;
+    return Boolean(env?.HYPERDRIVE);
+  } catch {
+    return false;
+  }
+}
+
+const getCachedConfigs = unstable_cache(getConfigsFromDb, ['configs'], {
+  revalidate: 3600,
+  tags: [CACHE_TAG_CONFIGS],
+});
+
+export async function getConfigs() {
+  // OpenNext can expose the request-bound Hyperdrive binding without setting
+  // the legacy global Worker marker. Avoid Next's persistent cache in that
+  // case so a fresh Admin value is read from the bound database.
+  return isCloudflareWorker || hasRuntimeHyperdrive()
+    ? getConfigsFromDb()
+    : getCachedConfigs();
+}
 
 // In-memory cache for configurations to avoid repeated unstable_cache/DB overHead.
 // 5 minutes is safe because:
@@ -162,24 +187,52 @@ export const getConfigs = isCloudflareWorker
 // Cloudflare Workers (no `unstable_cache` support there).
 let cachedAllConfigs: { data: Configs; timestamp: number } | null = null;
 const CACHE_TTL_MS = 5 * 60 * 1000;
+// A cold Hyperdrive connection can take longer than the steady-state query.
+// Keep the timeout bounded, but do not turn a valid Admin logo into a cached
+// empty value during the first request after a Worker starts.
+const CONFIG_DB_TIMEOUT_MS = isCloudflareWorker ? 15000 : 5000;
 
-export async function getAllConfigs(): Promise<Configs> {
+async function getConfigsWithTimeout(): Promise<Configs> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      getConfigs(),
+      new Promise<Configs>((_, reject) => {
+        timer = setTimeout(
+          () => reject(new Error('config query timed out')),
+          CONFIG_DB_TIMEOUT_MS
+        );
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+export async function getAllConfigs(options?: {
+  skipDatabase?: boolean;
+}): Promise<Configs> {
   const now = Date.now();
   if (cachedAllConfigs && now - cachedAllConfigs.timestamp < CACHE_TTL_MS) {
     return cachedAllConfigs.data;
   }
 
   let dbConfigs: Configs = {};
+  let cacheResult = true;
 
   // only get configs from db in server side
   const hasDb =
     envConfigs.database_url ||
+    hasRuntimeHyperdrive() ||
+    (envConfigs.database_provider === 'postgresql' &&
+      process.env.NODE_ENV === 'production') ||
     (envConfigs.database_provider === 'd1' && isCloudflareWorker);
-  if (typeof window === 'undefined' && hasDb) {
+  if (!options?.skipDatabase && typeof window === 'undefined' && hasDb) {
     try {
-      dbConfigs = await getConfigs();
+      dbConfigs = await getConfigsWithTimeout();
     } catch {
       dbConfigs = {};
+      cacheResult = false;
     }
   }
 
@@ -209,6 +262,12 @@ export async function getAllConfigs(): Promise<Configs> {
     ...dbConfigs,
   };
 
+  // Ignore the legacy template value even if it is still present in the
+  // database. Only a value saved through Admin should render as the logo.
+  if (configs.app_logo === LEGACY_TEMPLATE_LOGO) {
+    configs.app_logo = '';
+  }
+
   // A stale admin value must not publish localhost or the former product
   // domain into canonical URLs, Open Graph metadata, or auth redirects.
   if (
@@ -221,10 +280,12 @@ export async function getAllConfigs(): Promise<Configs> {
   }
 
   // Update in-memory cache
-  cachedAllConfigs = {
-    data: configs,
-    timestamp: Date.now(),
-  };
+  if (cacheResult) {
+    cachedAllConfigs = {
+      data: configs,
+      timestamp: Date.now(),
+    };
+  }
 
   return configs;
 }

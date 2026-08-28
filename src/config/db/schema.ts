@@ -1,3 +1,5 @@
+import { envConfigs } from '@/config';
+
 import * as postgresSchema from './schema.postgres';
 import * as sqliteSchema from './schema.sqlite';
 
@@ -5,7 +7,7 @@ import * as sqliteSchema from './schema.sqlite';
 // Runtime models use this shared module, so select the matching table objects
 // here as well. PostgreSQL remains isolated to the fixed wedding-crest schema.
 const activeSchema = (
-  process.env.DATABASE_PROVIDER === 'postgresql' ? postgresSchema : sqliteSchema
+  envConfigs.database_provider === 'postgresql' ? postgresSchema : sqliteSchema
 ) as typeof postgresSchema;
 
 export const user = activeSchema.user;

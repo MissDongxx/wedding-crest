@@ -79,14 +79,6 @@ export default async function GeminiToolPage({
     ],
   };
 
-  const imageJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'ImageObject',
-    contentUrl: `${baseUrl}/logo.webp`,
-    description:
-      'RemoveGeminiWatermark - Free Gemini AI Watermark Removal Tool',
-  };
-
   const steps: { step: string; title: string; description: string }[] =
     t.raw('how_it_works.steps');
 
@@ -105,11 +97,6 @@ export default async function GeminiToolPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(imageJsonLd) }}
-      />
-
       <div className="pt-24 pb-16 md:pt-36">
         {/* Hero Section */}
         <div className="mx-auto mb-12 max-w-3xl px-4 text-center">

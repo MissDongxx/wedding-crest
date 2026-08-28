@@ -1,30 +1,9 @@
-import Image from 'next/image';
-
 import { Link } from '@/core/i18n/navigation';
 import { Button } from '@/shared/components/ui/button';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
-import {
-  listWeddingExamplesSafe,
-  type WeddingExampleRow,
-} from '@/shared/models/wedding';
 import { Section } from '@/shared/types/blocks/landing';
-import { weddingExampleStyleIds } from '@/shared/wedding/types';
 
-const HERO_EXAMPLES = 4;
-
-/**
- * In-place Fisher–Yates shuffle. Used to pick a random sample of
- * admin-uploaded examples for the hero on each request — with the home
- * page ISR-cached at 3600s, the selection changes at most once an hour.
- */
-function shuffle<T>(items: T[]): T[] {
-  const arr = items.slice();
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
+import { WeddingHeroGallery } from './wedding-hero-gallery';
 
 /**
  * Editorial wedding hero: headline, primary CTA into the wizard, then a
@@ -32,32 +11,20 @@ function shuffle<T>(items: T[]): T[] {
  * `wedding_example` library. Each photo deep-links into the wizard with
  * the example pre-filled. The strip is omitted until real AI examples exist.
  */
-export async function WeddingHero({
+export function WeddingHero({
   section,
-  weddingExamples,
   className,
 }: {
   section: Section;
-  weddingExamples?: WeddingExampleRow[];
   className?: string;
 }) {
-  const allowedStyles = new Set<string>(weddingExampleStyleIds);
-  const allExamples = (
-    (weddingExamples ??
-      (await listWeddingExamplesSafe({ activeOnly: true }))) as WeddingExampleRow[]
-  ).filter((example) =>
-    allowedStyles.has(example.style as (typeof weddingExampleStyleIds)[number])
-  );
-  const heroExamples = shuffle(allExamples).slice(0, HERO_EXAMPLES);
-  const useExamples = heroExamples.length > 0;
-
   return (
     <section
       id={section.id}
       className={`pt-24 pb-4 md:pt-48 lg:pt-56 ${className ?? ''}`}
     >
       <div className="mx-auto max-w-full px-4 text-center md:max-w-5xl">
-        <ScrollAnimation>
+        <div>
           {section.announcement?.title && (
             <Link
               href={section.announcement.url || '/create'}
@@ -77,9 +44,9 @@ export async function WeddingHero({
             className="text-muted-foreground mx-auto mt-6 mb-10 max-w-2xl text-lg text-balance"
             dangerouslySetInnerHTML={{ __html: section.description ?? '' }}
           />
-        </ScrollAnimation>
+        </div>
 
-        <ScrollAnimation delay={0.15}>
+        <div>
           <div className="flex flex-wrap items-center justify-center gap-3">
             {section.buttons?.map((button, idx) => (
               <Button
@@ -104,36 +71,12 @@ export async function WeddingHero({
               dangerouslySetInnerHTML={{ __html: section.tip ?? '' }}
             />
           )}
-        </ScrollAnimation>
+        </div>
       </div>
 
-      {useExamples && (
-        <div className="mx-auto mt-12 max-w-6xl px-4 md:mt-16">
-          <ScrollAnimation delay={0.2}>
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
-              {heroExamples.map((example) => (
-                <Link
-                  key={example.id}
-                  href={`/create?style=${encodeURIComponent(example.style)}&exampleId=${encodeURIComponent(example.id)}`}
-                  className="group border-border/60 bg-card hover:border-primary/40 relative overflow-hidden rounded-2xl border p-4 shadow-sm transition-colors md:p-6"
-                  title={example.altText ?? example.name}
-                  aria-label={example.altText ?? example.name}
-                >
-                  <Image
-                    src={example.imageUrl}
-                    alt={example.altText ?? example.name}
-                    width={640}
-                    height={640}
-                    sizes="(min-width: 768px) 25vw, 50vw"
-                    className="aspect-square h-auto w-full object-cover"
-                    priority
-                  />
-                </Link>
-              ))}
-            </div>
-          </ScrollAnimation>
-        </div>
-      )}
+      <ScrollAnimation delay={0.2}>
+        <WeddingHeroGallery />
+      </ScrollAnimation>
     </section>
   );
 }

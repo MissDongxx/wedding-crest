@@ -17,17 +17,14 @@ import { getCustomerServiceWithConfigs } from '@/shared/services/customer_servic
 // awaited twice — once for the services and once here). The DB-backed
 // config cache is the slow path; a 1-minute TTL was hitting it for every
 // anonymous request.
-async function resolveFaviconHref(configs: Awaited<
-  ReturnType<typeof getAllConfigs>
-> | null) {
+async function resolveFaviconHref(
+  configs: Awaited<ReturnType<typeof getAllConfigs>> | null
+) {
   // The admin-configured App Logo wins so the favicon always matches the
-  // brand. Env fallbacks cover fresh installs before any logo is uploaded
-  // or override scenarios where ops needs to pin a specific icon.
+  // brand. The separate favicon env value remains available for installs
+  // that have not configured a logo yet.
   return (
-    (configs && configs.app_logo) ||
-    process.env.NEXT_PUBLIC_APP_FAVICON ||
-    envConfigs.app_logo ||
-    '/logo.webp'
+    (configs && configs.app_logo) || process.env.NEXT_PUBLIC_APP_FAVICON || ''
   );
 }
 

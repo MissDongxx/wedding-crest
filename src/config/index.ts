@@ -14,7 +14,9 @@ export const envConfigs: ConfigMap = {
   app_url: process.env.NEXT_PUBLIC_APP_URL?.trim() || DEFAULT_APP_URL,
   app_name: process.env.NEXT_PUBLIC_APP_NAME ?? 'Wedding Crest Design',
   app_description: process.env.NEXT_PUBLIC_APP_DESCRIPTION ?? '',
-  app_logo: process.env.NEXT_PUBLIC_APP_LOGO ?? '/logo.webp',
+  // The logo is managed in Admin > General. An empty default prevents the
+  // template asset from resurfacing when the Admin value is absent.
+  app_logo: process.env.NEXT_PUBLIC_APP_LOGO ?? '',
   app_favicon: process.env.NEXT_PUBLIC_APP_FAVICON ?? '/favicon.webp',
   app_preview_image:
     process.env.NEXT_PUBLIC_APP_PREVIEW_IMAGE ?? '/preview.webp',

@@ -80,11 +80,25 @@ export class PermissionDeniedError extends Error {
   }
 }
 
+const ADMIN_PERMISSION_TIMEOUT_MS = 3000;
+
 /**
  * Check if user can access admin area
  */
 export async function canAccessAdmin(userId: string): Promise<boolean> {
-  return await hasPermission(userId, PERMISSIONS.ADMIN_ACCESS);
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      hasPermission(userId, PERMISSIONS.ADMIN_ACCESS),
+      new Promise<boolean>((resolve) => {
+        timer = setTimeout(() => resolve(false), ADMIN_PERMISSION_TIMEOUT_MS);
+      }),
+    ]);
+  } catch {
+    return false;
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 }
 
 /**

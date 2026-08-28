@@ -1,0 +1,344 @@
+Homepage cold-start, image-loading, logo, and admin-error verification
+=====================================================================
+Workspace: /Users/xumingyue/Downloads/MyProjects/wedding-crest2
+Baseline commit: 71768ffc9621980767478de35ed6502acfeda990
+Deployment: Cloudflare production deployment completed after explicit user approval. Current deployed Version ID: a8a41a34-be26-4ef4-8bc2-ddf33dd58216. The logo-removal changes in this record are local and pending separate deployment approval.
+
+ROOT-CAUSE EVIDENCE FROM CURRENT HOST
+--------------------------------------
+Commands:
+  curl -sS -L --max-time 30 -o /tmp/wedding-live-home.html -w 'status=%{http_code} ttfb=%{time_starttransfer} total=%{time_total} bytes=%{size_download}\\n' https://weddingcrestdesign.com/
+  curl -sS --max-time 20 -o /tmp/wedding-live-api.json -w 'status=%{http_code} ttfb=%{time_starttransfer} total=%{time_total} bytes=%{size_download}\\n' 'https://weddingcrestdesign.com/api/wedding/examples?surface=home'
+Literal output:
+  homepage: status=200 ttfb=17.419707 total=17.833503 bytes=159985; x-nextjs-cache: MISS; x-nextjs-prerender: 1
+  examples API: status=200 ttfb=16.863893 total=16.864437 bytes=408
+  examples API body: {"code":-1,"message":"Failed query: select ... from ... wedding_example ..."}
+  current hosted HTML contains no exampleId and no current example image URLs.
+  current hosted HTML contains the old /logo.webp fallback.
+Conclusion before deployment: the hosted revision used the old server-rendered examples path, and its examples API database query failed. The config query path also fell back to /logo.webp, so the admin-uploaded logo was not visible on that revision.
+
+POST-DEPLOYMENT SMOKE TEST
+--------------------------
+Commands:
+  curl -sS -L --max-time 60 -o /tmp/wedding-live-home-final.html -w 'status=%{http_code} ttfb=%{time_starttransfer} total=%{time_total} bytes=%{size_download}\\n' 'https://weddingcrestdesign.com/?cf_verify=STAMP'
+  curl -sS --max-time 30 -o /tmp/wedding-live-api-final.json -w 'status=%{http_code} ttfb=%{time_starttransfer} total=%{time_total} bytes=%{size_download}\\n' 'https://weddingcrestdesign.com/api/wedding/examples?surface=home&cf_verify=STAMP'
+  curl -sS -L --max-time 45 -o /tmp/wedding-live-admin-final.html -w 'status=%{http_code} ttfb=%{time_starttransfer} total=%{time_total} final=%{url_effective}\\n' 'https://weddingcrestdesign.com/zh/admin?cf_verify=STAMP'
+Literal output:
+  homepage: status=200 ttfb=3.187858 total=6.964680 bytes=165409; x-nextjs-cache: MISS; x-opennext: 1
+  homepage markers: heroText=true, exampleId=false, imagePreloads=0, skeletons=10, quality65=false
+  examples API: status=200 ttfb=2.848517 total=2.849893 bytes=2510; items=9; counts=3/3/3
+  Admin: final status=200 at /zh/sign-in?callbackUrl=%2Fadmin%3Fcf_verify%3DSTAMP; Application error absent
+  all nine deployed example image URLs returned HTTP 200
+  public config API returned app_logo=/logo.webp
+Conclusion: the deployed homepage now returns the shell without server-rendered example data, the API returns the nine fallback examples, and the Admin unauthenticated flow reaches the sign-in page without the reported application error. The current public config response still contains /logo.webp; no remote configuration write was performed.
+
+LEGACY TEMPLATE LOGO REMOVAL CHECK
+----------------------------------
+Commands:
+  rg -l 'logo\\.webp|/logo\\.webp' src public
+  test -e public/logo.webp
+  node script reading .next/server/app/en.html
+Literal output:
+  source legacy-logo references: 0
+  public/logo.webp: absent
+  local HTML: {"bytes":171530,"legacyLogoRefs":0,"heroText":true,"skeletons":10}
+Result: all template image fallbacks now depend on the Admin-provided app_logo value. The legacy asset is deleted from the workspace. If the Admin value is empty, the logo area stays empty instead of showing the former template logo.
+Exit status: 0
+
+FINAL CF SIGN-IN INVESTIGATION AND DEPLOYMENT
+---------------------------------------------
+The final source revision was deployed to Cloudflare with Version ID:
+  d7af254f-4c0f-4ca1-ba39-5c68f10d23a4
+
+Client-side authentication fix:
+  /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/core/auth/client.ts
+  changed Better Auth baseURL selection from the build-time auth_url to
+  window.location.origin in the browser. The deployed sign-in chunk contains
+  window.location.origin near baseURL initialization.
+
+Server-side hardening:
+  /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/config/db/schema.ts
+  now selects the PostgreSQL schema through envConfigs.database_provider.
+  /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/core/db/postgres.ts
+  now reads the request-bound Cloudflare context for Hyperdrive and applies
+  the configured search_path to Worker PostgreSQL clients.
+
+Read-only live probes after the final deployment:
+  POST /api/auth/sign-in/email with a synthetic invalid account: status=500,
+  total=17.744206s, bytes=0.
+  GET /api/auth/get-session without cookies: status=200, body=null.
+  GET /: status=200, ttfb=3.123643s, total=3.490773s, bytes=163580.
+  Homepage legacy logo references: 0; API references in initial HTML: 0;
+  skeleton markers: 10.
+  GET /api/wedding/examples?surface=home: status=200, ttfb=3.607688s,
+  total=3.608629s, bytes=2510, items=9, counts=3/3/3.
+  POST /api/config/get-configs: status=200, total=2.548329s, body contains
+  app_logo="" and no /logo.webp value.
+
+Local comparison:
+  POST /api/auth/sign-in/email against the local production server with the
+  same synthetic invalid account returned status=401 and JSON code
+  INVALID_EMAIL_OR_PASSWORD. This separates the remaining production issue
+  from the browser sign-in client and confirms the CF failure is in the
+  Hyperdrive/PostgreSQL request path or its deployed runtime binding.
+
+Database metadata (read-only, configured PostgreSQL):
+  wedding-crest.user, session, account, verification, config,
+  wedding_example, and wedding_frame are present. No remote migration or
+  database write was executed.
+
+Final validation:
+  targeted ESLint: 0 errors; TypeScript: pass; git diff --check: pass;
+  production build: pass; Cloudflare deployment: exit 0.
+  rollback test: ROLLBACK_SOURCE_STATUS_LINES=0,
+  ROLLBACK_NEW_FILES_PRESENT=0, ROLLBACK_LOGO_RESTORED=1.
+
+The current deployed site therefore has the frontend routing and logo fixes,
+but a real credentialed sign-in still depends on repairing the CF Hyperdrive
+database connection. The next operational action is a read-only Hyperdrive
+connectivity/error check, followed by migration or binding credential repair
+only after explicit approval for that remote operation.
+
+FIX APPLIED LOCALLY
+-------------------
+1. /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/app/[locale]/(landing)/page.tsx no longer reads examples during server rendering.
+2. /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/shared/components/wedding/wedding-examples-provider.tsx performs one post-hydration request.
+3. /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/app/api/wedding/examples/route.ts caps the home projection at three items per style, sets public/CDN cache headers, applies a 2.5-second query limit, and falls back to the existing nine public examples when the optional table query fails.
+4. /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/shared/models/config.ts caps the public config DB wait at 1.5 seconds so root metadata/layout work does not hold the homepage for a dead connection.
+5. /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/shared/models/user.ts caps session lookup at 3 seconds and maps auth DB errors to the regular sign-in flow.
+6. /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/core/rbac/permission.ts caps the admin permission lookup at 3 seconds and routes a failed lookup away from a server-component exception.
+7. /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/themes/default/blocks/wedding-hero-gallery.tsx renders four fixed slots, prioritizes only the first image, and lazy-loads the remaining three. Hero title/CTA are server-visible; style cards use skeletons and shared provider data.
+8. Existing local logo resolution in /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/shared/blocks/common/brand-logo.tsx already gives the admin DB value priority over the i18n /logo.webp fallback. It is present in baseline commit 71768ff; the hosted site is still on an older revision.
+9. /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/themes/default/blocks/wedding-hero-gallery.tsx and /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/themes/default/blocks/wedding-styles.tsx use quality=60, which is listed in next.config.mjs; the previous quality=65 runtime error is removed.
+10. /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/app/[locale]/(auth)/sign-in/page.tsx, /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/app/[locale]/(auth)/sign-up/page.tsx, and /Users/xumingyue/Downloads/MyProjects/wedding-crest2/src/app/[locale]/(admin)/admin/settings/[tab]/page.tsx use the timeout-protected getAllConfigs() path, preventing the login/settings screens from waiting on the failing config query.
+
+BASELINE PRESERVATION
+---------------------
+Command:
+  sha256sum --check .rankup/artifacts/home-async-examples-original.sha256
+Result: baseline hashes recorded for all 48 tracked files changed by the combined fix, including the deleted legacy asset; the prior workspace changes remain intact.
+Exit status: 0
+
+MODIFIED ARTIFACTS
+------------------
+  /Users/xumingyue/Downloads/MyProjects/wedding-crest2/.rankup/artifacts/home-async-examples-modified.tar.gz
+  /Users/xumingyue/Downloads/MyProjects/wedding-crest2/.rankup/artifacts/home-async-examples-modified.sha256
+  /Users/xumingyue/Downloads/MyProjects/wedding-crest2/.rankup/artifacts/home-async-examples.patch
+  /Users/xumingyue/Downloads/MyProjects/wedding-crest2/.rankup/artifacts/home-async-examples-verification.txt
+  /Users/xumingyue/Downloads/MyProjects/wedding-crest2/.rankup/artifacts/home-async-examples-rollback.sh
+Commands:
+  sha256sum --check .rankup/artifacts/home-async-examples-modified.sha256
+  tar -tzf .rankup/artifacts/home-async-examples-modified.tar.gz
+Literal output:
+  all 50 existing source files: OK
+  archive entries: 50
+Exit status: 0
+
+STATIC CHECKS
+-------------
+Command:
+  pnpm exec eslint src/core/rbac/permission.ts src/shared/models/config.ts src/shared/models/user.ts src/shared/wedding/home-examples.ts 'src/app/api/wedding/examples/route.ts' 'src/app/[locale]/(landing)/page.tsx' src/shared/components/wedding/wedding-examples-provider.tsx src/shared/wedding/types.ts src/themes/default/blocks/wedding-hero.tsx src/themes/default/blocks/wedding-hero-gallery.tsx src/themes/default/blocks/wedding-styles.tsx src/themes/default/pages/home-page.tsx
+Literal output:
+  0 errors and 3 warnings: two existing unused locale warnings in permission.ts and one existing unused eslint-disable warning in config.ts.
+Exit status: 0
+
+Command:
+  pnpm exec tsc --noEmit --pretty false
+Literal output:
+  (no error TS diagnostics)
+Exit status: 0
+
+Command:
+  git diff --check
+Literal output:
+  (empty)
+Exit status: 0
+
+PRODUCTION BUILD
+----------------
+Command:
+  pnpm build
+Literal output (relevant lines):
+  ✓ Compiled successfully in 60s
+  ✓ Generating static pages (43/43)
+  ├ ● /[locale]  11.6 kB  327 kB  1h  1y
+  ● (SSG) prerendered as static HTML (uses generateStaticParams)
+Exit status: 0
+
+NEXT IMAGE QUALITY CHECK
+------------------------
+Command:
+  rg -n 'quality=\\{65\\}' src
+Literal output:
+  no matches; both wedding image surfaces use configured quality=60.
+Exit status: 0
+
+INITIAL HTML CHECK
+------------------
+Command:
+  node script reading .next/server/app/en.html
+Literal output:
+  {"bytes":171530,"apiRefs":0,"imagePreloads":0,"skeletons":10,"heroText":true,"heroTextHidden":false}
+Conclusion: the first HTML carries visible copy plus four hero and six style skeleton slots, without a DB examples request or remote image preload.
+Exit status: 0
+
+DATABASE-FAILURE FALLBACK CHECK
+-------------------------------
+Test server: local production server with DATABASE_URL=postgresql://127.0.0.1:1/missing; no remote system was changed.
+Command:
+  curl -sS --max-time 8 -o /tmp/wedding-fallback-api-final.json -w 'status=%{http_code} ttfb=%{time_starttransfer} total=%{time_total} bytes=%{size_download}\\n' 'http://127.0.0.1:3028/api/wedding/examples?surface=home'
+Literal output:
+  status=200 ttfb=0.080920 total=0.081267 bytes=2510
+  response data.items=9; counts=vintage_engraving:3, minimal_line_art:3, botanical_watercolor:3
+  cache-control=public, max-age=300, s-maxage=3600, stale-while-revalidate=86400
+Exit status: 0
+
+ADMIN GUARD CHECK
+-----------------
+Command:
+  curl -sS --max-time 8 -D /tmp/admin-redirect.headers -o /tmp/admin-redirect.body -w 'status=%{http_code} ttfb=%{time_starttransfer} total=%{time_total} redirect=%{redirect_url}\\n' 'http://127.0.0.1:3028/zh/admin'
+Literal output:
+  status=307 ttfb=0.101926 total=0.102069 redirect=http://localhost:3028/zh/sign-in?callbackUrl=%2Fadmin
+Result: an unauthenticated admin request follows the normal sign-in redirect rather than returning an application error. A full authenticated admin page requires a real admin session and server logs; that path was not asserted from a dummy cookie.
+
+IMAGE HOST CHECK
+----------------
+The first four fallback image URLs each returned HTTP 200; response sizes were 98146, 184372, 193720, and 213206 bytes. The source contains exactly one provider fetch, one hero priority expression, one non-first lazy expression, and a four-slot constant.
+
+ROLLBACK VERIFICATION
+---------------------
+Procedure: cloned baseline HEAD into a temporary directory, applied home-async-examples.patch, ran home-async-examples-rollback.sh, then checked all tracked diffs and new-file absence.
+Literal output:
+  APPLIED_CHANGED_FILES=51
+  Rollback applied: homepage async-examples patch reversed.
+  ROLLBACK_LOGO_RESTORED=1
+  ROLLBACK_SCRIPT_TEST=PASS
+  ROLLBACK_WORKTREE_EXIT=0
+Exit status: 0
+
+FINAL PRODUCTION HYPERDRIVE / AUTH / LOGO VERIFICATION
+------------------------------------------------------
+User authorization: explicitly authorized using .env.local DATABASE_URL to update the production Cloudflare Hyperdrive binding; no remote database migration was run.
+
+Hyperdrive update command:
+  pnpm exec wrangler hyperdrive update c410b89078e44a2fb7fd9300415e9828 --connection-string "$DB_URL" --config wrangler.toml
+Result: success; binding c410b89078e44a2fb7fd9300415e9828 updated at 2026-08-28T03:20:37.521129Z.
+Final binding readback:
+  caching.disabled=true
+  origin host=aws-1-ap-northeast-1.pooler.supabase.com, port=6543, database=postgres
+
+Root-cause confirmation:
+  Before the binding update, Better Auth user lookup failed inside Hyperdrive and sign-in returned HTTP 500 after ~18 seconds.
+  After the binding update plus disabling Hyperdrive query caching, the same invalid-credential probe returns the normal Better Auth response.
+
+FINAL CLOUDFLARE DEPLOYMENT
+---------------------------
+Command:
+  pnpm run cf:deploy
+Result: success; deployed wedding-crest-design to weddingcrestdesign.com and www.weddingcrestdesign.com.
+Version ID:
+  ceb0d4e5-691a-4e88-aa81-c33f30181ee9
+
+LIVE REGRESSION
+---------------
+Command / literal result:
+  POST /api/auth/sign-in/email with synthetic invalid credentials
+  HTTP 401; {"code":"INVALID_EMAIL_OR_PASSWORD","message":"Invalid email or password"}
+
+  GET /api/auth/get-session
+  HTTP 200; null
+
+  GET /api/wedding/examples?surface=home
+  HTTP 200; data.items=9; styles=vintage_engraving, minimal_line_art, botanical_watercolor
+  Cache-Control: public, max-age=300, s-maxage=3600, stale-while-revalidate=86400
+
+  GET /
+  HTTP 200; TTFB=2.883134s; total=7.393585s; bytes=166228
+  legacy_logo_refs=0; initial_examples_api_refs=0; skeleton_count=10
+
+  GET /api/config/get-configs (POST)
+  HTTP 200; app_logo=""; app_favicon="/favicon.webp"
+
+  GET /zh/admin
+  HTTP 200 after redirect to /zh/sign-in?callbackUrl=%2Fadmin
+  Application error count=0; sign-in marker count=18
+
+  First four returned example image resources
+  HTTP statuses=200,200,200,200
+
+SOURCE / ARTIFACT VERIFICATION
+------------------------------
+  Targeted ESLint: exit 0, 0 errors (existing warnings remain).
+  TypeScript: exit 0, no diagnostics.
+  git diff --check: exit 0.
+  Modified-file SHA-256 manifest: all 53 entries OK.
+  Patch size: 161594 bytes.
+  Modified artifact tarball: 42729 bytes.
+  Rollback rehearsal: source diff lines=0, source new files=0, public/logo.webp restored=1.
+  Temporary diagnostic onAPIError throw switch removed from source before final deployment.
+
+FINAL LOGO CONFIGURATION RETEST
+-------------------------------
+After increasing the bounded cold Hyperdrive config-read timeout to 5 seconds and avoiding cache writes after a failed DB read:
+  POST /api/config/get-configs
+  HTTP 200; app_logo present=true; host=images.weddingcrestdesign.com; path=/uploads/8522f64ceaf97b2cb5d15168df17710b.png
+  The actual URL was not written to this record beyond its redacted host/path metadata.
+
+Latest deployment:
+  Version ID: 82f45266-4ea4-46e7-86bb-20669eca9af6
+  Command: pnpm run cf:deploy
+  Exit status: 0
+
+Latest live regression:
+  POST /api/auth/sign-in/email with synthetic invalid credentials: HTTP 401, ttfb=2.102635s, standard INVALID_EMAIL_OR_PASSWORD JSON.
+  GET /: HTTP 200, ttfb=6.765054s, total=7.154605s, bytes=166043, legacy_logo_refs=0, initial_examples_api_refs=0, skeleton_count=10.
+  The homepage no longer waits for the full examples database and the client provider remains the sole examples API caller.
+
+Latest artifact refresh:
+  tracked_changed=51; untracked_source=3; modified_manifest_entries=54; patch_bytes=162391; tar_bytes=42843.
+  SHA-256 manifest check: all entries OK.
+  Rollback rehearsal: rollback_source_diff_lines=0, rollback_source_new_files=0, rollback_logo_restored=1.
+
+FINAL CONNECTION DIAGNOSIS
+--------------------------
+The production Hyperdrive config currently points to the Supabase transaction pooler endpoint:
+  origin host=aws-1-ap-northeast-1.pooler.supabase.com, port=6543
+The live examples endpoint can return its bounded fallback, while the parameterized Auth user lookup still fails after ~16-19 seconds with HTTP 500. A second public config read can become fast and return the custom Admin Logo, but the first cold read may time out.
+
+Cloudflare's Supabase Hyperdrive guidance states that Hyperdrive should use Supabase's Direct connection string rather than a pooled connection string. The local .env.local contains only the pooled port-6543 URL, so the remaining production prerequisite is a Direct connection string (normally port 5432 with the database's direct user) from the Supabase database settings. No guessed credentials or alternate account probes were used.
+
+Latest deployed version:
+  ab6ade95-444f-48f9-ae93-f7cba84f41ad
+Latest tested version after connection changes:
+  600828b7-cd80-4f2a-ae58-be4e5424f5b5
+The latest source includes the Auth initialization optimization, public diagnostic route was not retained, and no temporary diagnostic switch remains.
+
+Latest artifact refresh:
+  tracked_changed=52; untracked_source=3; modified_manifest_entries=55; patch_bytes=167157; tar_bytes=43048.
+  SHA-256 manifest check: all entries OK.
+  Rollback rehearsal: rollback_source_diff_lines=0, rollback_source_new_files=0, rollback_logo_restored=1.
+
+RECORD CORRECTION
+-----------------
+The Auth initialization optimization was deployed as version ab6ade95-444f-48f9-ae93-f7cba84f41ad. The final live Auth probe on that version returned HTTP 500 after 19.471769 seconds, so sign-in remains pending the Supabase Direct connection string update.
+
+DIRECT CONNECTION RETEST
+------------------------
+User updated .env.local DATABASE_URL to Supabase Direct connection. The URL metadata was verified without printing credentials:
+  host=db.scnthkkpcrlsuorgaloa.supabase.co, port=5432, database=postgres, user=postgres
+
+Hyperdrive binding update:
+  c410b89078e44a2fb7fd9300415e9828
+  origin=db.scnthkkpcrlsuorgaloa.supabase.co:5432/postgres
+  caching.disabled=true
+  modified_on=2026-08-28T05:43:14.118605Z
+
+No Worker deployment was performed for this binding-only change.
+
+Live regression after binding update:
+  POST /api/auth/sign-in/email with synthetic invalid credentials: HTTP 401, ttfb=2.001048s, standard INVALID_EMAIL_OR_PASSWORD JSON.
+  POST /api/config/get-configs: HTTP 200, ttfb=1.258631s, Admin Logo present=true, host=images.weddingcrestdesign.com, path=/uploads/8522f64ceaf97b2cb5d15168df17710b.png.
+  GET /api/wedding/examples?surface=home: HTTP 200, ttfb=0.540848s, data.items=9, styles=3.
+  GET /: HTTP 200, ttfb=1.780051s, total=1.827881s, bytes=165781, legacy_logo_refs=0, initial_examples_api_refs=0, skeleton_count=10.
+  GET /zh/admin: HTTP 200 after redirect to /zh/sign-in?callbackUrl=%2Fadmin, Application error count=0.
+  First four example image resources after the binding update: HTTP statuses=200,200,200,200.

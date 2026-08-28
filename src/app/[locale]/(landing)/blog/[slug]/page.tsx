@@ -86,10 +86,6 @@ export default async function BlogDetailPage({
     publisher: {
       '@type': 'Organization',
       name: 'Wedding Crest Design',
-      logo: {
-        '@type': 'ImageObject',
-        url: `${baseUrl}/logo.webp`,
-      },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',

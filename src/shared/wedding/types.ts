@@ -293,6 +293,15 @@ export const weddingExampleStyleIds = weddingExampleStyles.map(
   (style) => style.id
 );
 
+/** Small, client-safe projection used by the marketing-page gallery. */
+export interface WeddingExamplePreview {
+  id: string;
+  name: string;
+  style: WeddingExampleStyleId;
+  imageUrl: string;
+  altText: string | null;
+}
+
 export function isWeddingExampleStyle(
   style: string
 ): style is WeddingExampleStyleId {

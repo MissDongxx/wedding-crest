@@ -24,7 +24,7 @@ export function SidebarHeader({ header }: { header: SidebarHeaderType }) {
             >
               {header.brand && (
                 <Link href={header.brand.url || ''}>
-                  {header.brand.logo && (
+                  {header.brand.logo?.src && (
                     <img
                       src={header.brand.logo.src}
                       alt={header.brand.logo.alt || ''}

@@ -3,10 +3,6 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { envConfigs } from '@/config';
 import { locales } from '@/config/locale';
 import { getMetadata } from '@/shared/lib/seo';
-import {
-  listWeddingExamplesSafe,
-  type WeddingExampleRow,
-} from '@/shared/models/wedding';
 import { DynamicPage } from '@/shared/types/blocks/landing';
 import HomePage from '@/themes/default/pages/home-page';
 
@@ -18,9 +14,6 @@ export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
 
-async function getLandingExamples(): Promise<WeddingExampleRow[]> {
-  return (await listWeddingExamplesSafe({ activeOnly: true })) as WeddingExampleRow[];
-}
 export const generateMetadata = getMetadata({
   metadataKey: 'pages.index.metadata',
   canonicalUrl: '/',
@@ -47,7 +40,6 @@ const organizationJsonLd = {
   '@type': 'Organization',
   name: 'Wedding Crest Design',
   url: baseUrl,
-  logo: `${baseUrl}/logo.webp`,
   description:
     'Design a custom wedding crest in minutes with AI-illustrated artwork and programmatic typography.',
 };
@@ -73,34 +65,10 @@ export default async function LandingPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  // Parallelize data fetching
-  // TEMP-DEBUG: surface SSR errors into the response body so we can
-  // see what fails on Cloudflare Workers (wrangler tail is silent
-  // here). Remove once the home page renders cleanly.
-  let t: any, tp: any, weddingExamples: WeddingExampleRow[];
-  try {
-    [t, tp, weddingExamples] = await Promise.all([
-      getTranslations('pages.index'),
-      getTranslations('pages.pricing'),
-      getLandingExamples(),
-    ]);
-  } catch (e: any) {
-    return (
-      <pre
-        style={{
-          whiteSpace: 'pre-wrap',
-          padding: 24,
-          font: '14px/1.5 ui-monospace, monospace',
-          color: '#b91c1c',
-          background: '#fef2f2',
-        }}
-      >
-        SSR-ERROR: {e?.name}: {e?.message}
-        {'\n\nSTACK:\n'}
-        {(e?.stack || '').split('\n').slice(0, 25).join('\n')}
-      </pre>
-    );
-  }
+  const [t, tp] = await Promise.all([
+    getTranslations('pages.index'),
+    getTranslations('pages.pricing'),
+  ]);
 
   // get page data
   const page: DynamicPage = t.raw('page');
@@ -118,37 +86,6 @@ export default async function LandingPage({
     page.sections.pricing = {
       ...tp.raw('page.sections.pricing'),
     };
-
-    for (const key of ['hero', 'styles']) {
-      const section = page.sections[key];
-      if (section) {
-        section.data = {
-          ...(section.data || {}),
-          weddingExamples,
-        };
-      }
-    }
-  }
-
-  let pageNode: React.ReactNode;
-  try {
-    pageNode = <HomePage page={page} />;
-  } catch (e: any) {
-    pageNode = (
-      <pre
-        style={{
-          whiteSpace: 'pre-wrap',
-          padding: 24,
-          font: '14px/1.5 ui-monospace, monospace',
-          color: '#b91c1c',
-          background: '#fef2f2',
-        }}
-      >
-        PAGE-RENDER-ERROR: {e?.name}: {e?.message}
-        {'\n\nSTACK:\n'}
-        {(e?.stack || '').split('\n').slice(0, 25).join('\n')}
-      </pre>
-    );
   }
 
   return (
@@ -172,7 +109,7 @@ export default async function LandingPage({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
       )}
-      {pageNode}
+      <HomePage page={page} />
     </>
   );
 }
