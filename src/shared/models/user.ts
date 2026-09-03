@@ -1,4 +1,5 @@
 import { headers } from 'next/headers';
+import { cache } from 'react';
 import { count, desc, eq, inArray } from 'drizzle-orm';
 
 import { getAuth } from '@/core/auth';
@@ -87,9 +88,11 @@ export async function getUserCredits(userId: string) {
   return { remainingCredits };
 }
 
-const SESSION_LOOKUP_TIMEOUT_MS = 3000;
+// A cold Hyperdrive connection can take longer than the steady-state query.
+// Keep the bound finite without turning a valid session into a false sign-in.
+const SESSION_LOOKUP_TIMEOUT_MS = 10000;
 
-export async function getSignUser() {
+export const getSignUser = cache(async () => {
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
     const session = await Promise.race([
@@ -115,7 +118,7 @@ export async function getSignUser() {
   } finally {
     if (timer) clearTimeout(timer);
   }
-}
+});
 
 export async function isEmailVerified(email: string): Promise<boolean> {
   const normalized = String(email || '')

@@ -1,11 +1,10 @@
 import { revalidatePath } from 'next/cache';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
-import { PERMISSIONS, requireAllPermissions } from '@/core/rbac';
+import { PERMISSIONS, requirePermission } from '@/core/rbac';
 import { Header, Main, MainHeader } from '@/shared/blocks/dashboard';
 import { FormCard } from '@/shared/blocks/form';
 import { getAllConfigs, saveConfigs } from '@/shared/models/config';
-import { getUserInfo } from '@/shared/models/user';
 import {
   getSettingGroups,
   getSettings,
@@ -23,8 +22,8 @@ export default async function SettingsPage({
   setRequestLocale(locale);
 
   // Check if user has permission to read settings
-  await requireAllPermissions({
-    codes: [PERMISSIONS.SETTINGS_READ, PERMISSIONS.SETTINGS_WRITE],
+  await requirePermission({
+    code: PERMISSIONS.SETTINGS_READ,
     redirectUrl: '/no-permission',
     locale,
   });
@@ -46,17 +45,20 @@ export default async function SettingsPage({
   const handleSubmit = async (data: FormData, passby: any) => {
     'use server';
 
-    const user = await getUserInfo();
+    // Reading settings and writing settings are separate capabilities. The
+    // page only needs read access; enforce write access again inside the
+    // server action so a read-only admin cannot mutate configuration.
+    await requirePermission({ code: PERMISSIONS.SETTINGS_WRITE });
 
-    if (!user) {
-      throw new Error('no auth');
-    }
-
+    const updates: Record<string, string> = {};
     data.forEach((value, name) => {
-      configs[name] = value as string;
+      updates[name] = value as string;
     });
 
-    await saveConfigs(configs);
+    // Persist only the submitted form fields. Saving the full render-time
+    // snapshot could overwrite newer settings (or a partial auth snapshot)
+    // with empty values.
+    await saveConfigs(updates);
 
     // Public pages are ISR-cached and the favicon link comes from the
     // root layout. Purge the cache so a new App Logo (favicon) shows up

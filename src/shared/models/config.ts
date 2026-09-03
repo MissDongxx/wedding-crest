@@ -218,7 +218,11 @@ export async function getAllConfigs(options?: {
   }
 
   let dbConfigs: Configs = {};
-  let cacheResult = true;
+  // `getAuth()` deliberately asks for env-only settings so auth setup does
+  // not wait on the Admin config table. Never put that partial result into
+  // the shared cache: the next Admin request would otherwise reuse it and
+  // render every database-backed setting as empty.
+  let cacheResult = !options?.skipDatabase;
 
   // only get configs from db in server side
   const hasDb =
@@ -279,7 +283,8 @@ export async function getAllConfigs(options?: {
     configs.app_url = envConfigs.app_url;
   }
 
-  // Update in-memory cache
+  // Update in-memory cache only after a complete database-backed read (or a
+  // normal env-only read when database access is not configured).
   if (cacheResult) {
     cachedAllConfigs = {
       data: configs,

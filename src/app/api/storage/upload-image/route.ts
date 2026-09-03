@@ -129,7 +129,12 @@ export async function POST(req: Request) {
       results: uploadResults,
     });
   } catch (e) {
+    // Surface the real reason (e.g. "No storage provider configured",
+    // "config query timed out") instead of a generic message. The client
+    // already relays `result.message` into its toast, so this turns an
+    // opaque "upload image failed" into an actionable error.
+    const message = e instanceof Error ? e.message : 'upload image failed';
     console.error('upload image failed:', e);
-    return respErr('upload image failed');
+    return respErr(message);
   }
 }

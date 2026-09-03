@@ -80,7 +80,7 @@ export class PermissionDeniedError extends Error {
   }
 }
 
-const ADMIN_PERMISSION_TIMEOUT_MS = 3000;
+const ADMIN_PERMISSION_TIMEOUT_MS = 10000;
 
 /**
  * Check if user can access admin area

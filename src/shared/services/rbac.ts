@@ -277,30 +277,38 @@ export const getUserPermissions = cache(
  */
 export const hasPermission = cache(
   async (userId: string, permissionCode: string): Promise<boolean> => {
-    const permissions = await getUserPermissions(userId);
-    const permissionCodes = permissions.map((p) => p.code);
-
-    // Check exact match
-    if (permissionCodes.includes(permissionCode)) {
-      return true;
-    }
-
-    // Check wildcard match
-    // If user has "admin.*", they have all "admin.xxx" permissions
+    const acceptedCodes = [permissionCode];
     const parts = permissionCode.split('.');
+
+    // If a user has "admin.*", they have all "admin.xxx" permissions.
     for (let i = parts.length - 1; i > 0; i--) {
-      const wildcard = parts.slice(0, i).join('.') + '.*';
-      if (permissionCodes.includes(wildcard)) {
-        return true;
-      }
+      acceptedCodes.push(parts.slice(0, i).join('.') + '.*');
     }
 
-    // Check if user has "*" (super admin)
-    if (permissionCodes.includes('*')) {
-      return true;
-    }
+    // "*" is the super-admin permission.
+    acceptedCodes.push('*');
 
-    return false;
+    // Resolve the permission in one query instead of loading roles and then
+    // loading permissions in a second round-trip. This is important on a
+    // cold Hyperdrive request, where two fresh connections could exceed the
+    // admin guard timeout and look like a missing permission.
+    const [match] = await db()
+      .select({ id: permission.id })
+      .from(userRole)
+      .innerJoin(role, eq(userRole.roleId, role.id))
+      .innerJoin(rolePermission, eq(rolePermission.roleId, role.id))
+      .innerJoin(permission, eq(rolePermission.permissionId, permission.id))
+      .where(
+        and(
+          eq(userRole.userId, userId),
+          eq(role.status, RoleStatus.ACTIVE),
+          or(isNull(userRole.expiresAt), gt(userRole.expiresAt, new Date())),
+          inArray(permission.code, acceptedCodes)
+        )
+      )
+      .limit(1);
+
+    return Boolean(match);
   }
 );
 

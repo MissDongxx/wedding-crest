@@ -122,9 +122,13 @@ export default async function RootLayout({
         />
         {/* No explicit `type` so browsers can fetch and sniff whichever
             format the admin uploaded (webp, png, svg, ico, ...). */}
-        <link rel="icon" href={faviconHref} />
-        <link rel="alternate icon" href={faviconHref} />
-        <link rel="apple-touch-icon" href={faviconHref} />
+        {faviconHref ? (
+          <>
+            <link rel="icon" href={faviconHref} />
+            <link rel="alternate icon" href={faviconHref} />
+            <link rel="apple-touch-icon" href={faviconHref} />
+          </>
+        ) : null}
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         {/* inject locales */}
