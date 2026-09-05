@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
+import { envConfigs } from '@/config';
 import { defaultLocale, locales } from '@/config/locale';
 import { getAllConfigs } from '@/shared/models/config';
 
@@ -80,7 +81,14 @@ export function getMetadata(
       defaultMetadata.description;
 
     // image url
-    let imageUrl = options.imageUrl || configs.app_preview_image;
+    // A stale/empty DB value for `app_preview_image` must not leave og:image
+    // pointing at the site root — fall back to the env default (usually
+    // `/preview.webp`) and finally to a hard-coded path.
+    let imageUrl =
+      options.imageUrl ||
+      configs.app_preview_image ||
+      envConfigs.app_preview_image ||
+      '/preview.webp';
     if (imageUrl.startsWith('http')) {
       imageUrl = imageUrl;
     } else {

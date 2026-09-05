@@ -1,16 +1,23 @@
 import '@/config/style/global.css';
 
+import type { Metadata } from 'next';
 import { getLocale, setRequestLocale } from 'next-intl/server';
 import NextTopLoader from 'nextjs-toploader';
 
 import { envConfigs } from '@/config';
-import { locales } from '@/config/locale';
 import { UtmCapture } from '@/shared/blocks/common/utm-capture';
 import { Configs, getAllConfigs } from '@/shared/models/config';
 import { getAdsManagerWithConfigs } from '@/shared/services/ads';
 import { getAffiliateManagerWithConfigs } from '@/shared/services/affiliate';
 import { getAnalyticsManagerWithConfigs } from '@/shared/services/analytics';
 import { getCustomerServiceWithConfigs } from '@/shared/services/customer_service';
+
+// Resolve all relative metadata (canonical, og:image, etc.) against the
+// production domain. This is the safety net that guarantees a build never
+// resolves metadata URLs against `http://localhost:3000`.
+export const metadata: Metadata = {
+  metadataBase: new URL(envConfigs.app_url),
+};
 
 // Resolve the favicon from a pre-fetched `configs` object so the root
 // layout only calls `getAllConfigs()` once per request (it was being
@@ -41,9 +48,6 @@ export default async function RootLayout({
 
   const isProduction = process.env.NODE_ENV === 'production';
   const isDebug = process.env.NEXT_PUBLIC_DEBUG === 'true';
-
-  // app url
-  const appUrl = envConfigs.app_url || '';
 
   // ads components
   let adsMetaTags = null;
@@ -130,20 +134,6 @@ export default async function RootLayout({
           </>
         ) : null}
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-        {/* inject locales */}
-        {locales ? (
-          <>
-            {locales.map((loc) => (
-              <link
-                key={loc}
-                rel="alternate"
-                hrefLang={loc}
-                href={`${appUrl}${loc === 'en' ? '' : `/${loc}`}`}
-              />
-            ))}
-          </>
-        ) : null}
 
         {/* inject ads meta tags */}
         {adsMetaTags}

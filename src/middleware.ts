@@ -9,6 +9,19 @@ const intlMiddleware = createIntlMiddleware(routing);
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Canonicalise www → apex so link equity consolidates on a single host.
+  // http → https is enforced at the Cloudflare edge ("Always Use HTTPS"),
+  // which the Worker cannot reliably observe on its own. Path + query are
+  // preserved.
+  const host = request.headers.get('host') || '';
+  const apexHost = 'weddingcrestdesign.com';
+  if (host === `www.${apexHost}`) {
+    const url = request.nextUrl.clone();
+    url.protocol = 'https:';
+    url.host = apexHost;
+    return NextResponse.redirect(url, 301);
+  }
+
   // Handle internationalization first
   const intlResponse = intlMiddleware(request);
 
