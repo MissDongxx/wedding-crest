@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { envConfigs } from '@/config';
 import { locales } from '@/config/locale';
 import { getMetadata } from '@/shared/lib/seo';
+import { getAllConfigs } from '@/shared/models/config';
 import { DynamicPage } from '@/shared/types/blocks/landing';
 import HomePage from '@/themes/default/pages/home-page';
 
@@ -35,14 +36,18 @@ const breadcrumbJsonLd = {
   ],
 };
 
-const organizationJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: 'Wedding Crest Design',
-  url: baseUrl,
-  description:
-    'Design a custom wedding crest in minutes with AI-illustrated artwork and programmatic typography.',
-};
+function buildOrganizationJsonLd(logoUrl?: string) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Wedding Crest Design',
+    url: baseUrl,
+    // Google uses this for the brand logo (knowledge panel / search results).
+    ...(logoUrl ? { logo: logoUrl } : {}),
+    description:
+      'Design a custom wedding crest in minutes with AI-illustrated artwork and programmatic typography.',
+  };
+}
 
 // FAQ schema built from the i18n FAQ section (spec: FAQ rich results)
 function buildFaqJsonLd(items: Array<{ question: string; answer: string }>) {
@@ -65,13 +70,17 @@ export default async function LandingPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [t, tp] = await Promise.all([
+  const [t, tp, configs] = await Promise.all([
     getTranslations('pages.index'),
     getTranslations('pages.pricing'),
+    getAllConfigs(),
   ]);
 
   // get page data
   const page: DynamicPage = t.raw('page');
+
+  // Organization logo (admin-configured brand logo)
+  const organizationJsonLd = buildOrganizationJsonLd(configs.app_logo || '');
 
   // FAQ items for structured data
   const faqItems =

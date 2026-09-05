@@ -27,11 +27,14 @@ export const metadata: Metadata = {
 async function resolveFaviconHref(
   configs: Awaited<ReturnType<typeof getAllConfigs>> | null
 ) {
-  // The admin-configured App Logo wins so the favicon always matches the
-  // brand. The separate favicon env value remains available for installs
-  // that have not configured a logo yet.
+  // The favicon must be a small, dedicated file — never the full-size admin
+  // logo. Google's favicon crawler skips oversized icons (the admin logo is
+  // a ~2 MB PNG), which leaves the site without an icon in Search / GSC.
+  // Prefer the dedicated `app_favicon` value, defaulting to `/favicon.webp`.
   return (
-    (configs && configs.app_logo) || process.env.NEXT_PUBLIC_APP_FAVICON || ''
+    (configs && configs.app_favicon) ||
+    envConfigs.app_favicon ||
+    '/favicon.webp'
   );
 }
 
@@ -124,15 +127,9 @@ export default async function RootLayout({
               'if(typeof globalThis.__name==="undefined"){globalThis.__name=function(){}}',
           }}
         />
-        {/* No explicit `type` so browsers can fetch and sniff whichever
-            format the admin uploaded (webp, png, svg, ico, ...). */}
-        {faviconHref ? (
-          <>
-            <link rel="icon" href={faviconHref} />
-            <link rel="alternate icon" href={faviconHref} />
-            <link rel="apple-touch-icon" href={faviconHref} />
-          </>
-        ) : null}
+        {/* Small dedicated favicon (Google skips oversized icons). */}
+        <link rel="icon" href={faviconHref} />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.webp" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         {/* inject ads meta tags */}
