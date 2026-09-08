@@ -51,27 +51,13 @@ export function getMetadata(
       );
     }
 
-    // canonical url
-    const canonicalUrl = await getCanonicalUrl(
+    // canonical + hreflang alternates
+    const alternates = await getAlternates(
       options.canonicalUrl || '',
       locale || '',
       configs.app_url
     );
-
-    // languages alternates
-    const languages: Record<string, string> = {};
-    for (const l of locales) {
-      languages[l] = await getCanonicalUrl(
-        options.canonicalUrl || '',
-        l,
-        configs.app_url
-      );
-    }
-    languages['x-default'] = await getCanonicalUrl(
-      options.canonicalUrl || '',
-      defaultLocale,
-      configs.app_url
-    );
+    const canonicalUrl = alternates.canonical;
 
     const title =
       passedMetadata.title || translatedMetadata.title || defaultMetadata.title;
@@ -114,10 +100,7 @@ export function getMetadata(
         passedMetadata.keywords ||
         translatedMetadata.keywords ||
         defaultMetadata.keywords,
-      alternates: {
-        canonical: canonicalUrl,
-        languages,
-      },
+      alternates,
 
       openGraph: {
         type: 'website',
@@ -186,4 +169,30 @@ async function getCanonicalUrl(
   }
 
   return canonicalUrl;
+}
+
+// Build the canonical + hreflang (languages) alternates for a page from its
+// relative path (e.g. '/create'). Shared by getMetadata() and by pages that
+// generate their own translated title/description (create / generator /
+// logo / monogram) so every indexable page publishes a self-referencing
+// canonical and a full hreflang set. Without these, Google flags localized
+// and parameterized variants as "Duplicate without user-selected canonical".
+export async function getAlternates(
+  canonicalUrl: string,
+  locale: string,
+  appUrl: string
+) {
+  const canonical = await getCanonicalUrl(canonicalUrl, locale, appUrl);
+
+  const languages: Record<string, string> = {};
+  for (const l of locales) {
+    languages[l] = await getCanonicalUrl(canonicalUrl, l, appUrl);
+  }
+  languages['x-default'] = await getCanonicalUrl(
+    canonicalUrl,
+    defaultLocale,
+    appUrl
+  );
+
+  return { canonical, languages };
 }
