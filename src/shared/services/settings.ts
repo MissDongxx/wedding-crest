@@ -886,9 +886,9 @@ export async function getSettings() {
       name: 'runware_model',
       title: 'Runware Model',
       type: 'text',
-      placeholder: 'flux-1-schnell',
+      placeholder: 'google:nano-banana@2-lite',
       group: 'runware',
-      tip: 'Runware model identifier used for image generation. Leave empty to use the model selected in the image generator.',
+      tip: 'Runware model identifier used for every image generation, with or without reference images. Leave empty to fall back to google:nano-banana@2-lite.',
       tab: 'ai',
     },
     {

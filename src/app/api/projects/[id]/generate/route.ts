@@ -99,10 +99,18 @@ function buildQuickEditPrompt(
  * Resolve the model for this generation.
  *
  * Priority: request body override → env override → provider's own configured
- * model (e.g. `runware_model` in the admin config). We deliberately do NOT
- * hardcode a Runware AIR id here, because the admin settings are the
- * authoritative source of truth - a stale hardcoded default would override a
- * freshly-saved provider model and produce invalid-model 400s.
+ * model (e.g. `runware_model` in the admin config) → hardcoded fallback.
+ * We deliberately do NOT hardcode a Runware AIR id that would override a
+ * freshly-saved provider model - a stale hardcoded default would produce
+ * invalid-model 400s. The fallback only applies when the admin setting is
+ * empty.
+ *
+ * That fallback is `google:nano-banana@2-lite` on Runware: the studio runs ONE
+ * model across both the text-to-image and the reference-image (multimodal)
+ * path, so an empty admin setting must not silently drop back to a text-only
+ * AIR id like flux-schnell and break the reference-image branch. Verified
+ * against Runware on 2026-09-18: nano-banana accepts width/height as long as
+ * no `inputs.referenceImages` are sent.
  */
 function pickModel(
   providerName: string,
@@ -113,7 +121,26 @@ function pickModel(
     requested ||
     process.env.WEDDING_AI_MODEL ||
     providerDefault ||
-    (providerName === 'runware' ? 'runware:Flux-Schnell@1' : 'flux-schnell')
+    (providerName === 'runware' ? 'google:nano-banana@2-lite' : 'flux-schnell')
+  );
+}
+
+function isSvgReferenceImage(url: string) {
+  if (/^data:image\/svg\+xml(?:;|,)/i.test(url)) return true;
+
+  try {
+    return /\.svgz?$/i.test(new URL(url).pathname);
+  } catch {
+    return false;
+  }
+}
+
+function assertRasterReferenceImages(urls: string[]) {
+  const svgReference = urls.find(isSvgReferenceImage);
+  if (!svgReference) return;
+
+  throw new Error(
+    'SVG reference images are not supported by Runware. Upload the frame as PNG, JPEG, or WebP.'
   );
 }
 
@@ -123,9 +150,12 @@ export async function POST(
 ) {
   // Pre-declared so the catch below can read a model label even when an
   // earlier step throws before the multimodal switch has been computed.
-  let effectiveModel = 'runware:Flux-Schnell@1';
+  let effectiveModel = 'google:nano-banana@2-lite';
+  let projectId: string | undefined;
+  let projectMarkedGenerating = false;
   try {
     const { id } = await params;
+    projectId = id;
     // Guests may run their first generation before any account exists.
     const user = await getUserInfo();
     const guestId = request.headers.get('x-wedding-guest-id') || undefined;
@@ -265,12 +295,16 @@ export async function POST(
     }
 
     // When the user attached reference photos (personal elements) we need a
-    // multimodal model - flux-schnell is text-only. Auto-switch to a
-    // reference-image-capable model (default google:nano-banana@2-lite on
-    // Runware, which accepts `inputs.referenceImages`). The id is
-    // overridable via WEDDING_AI_MULTIMODAL_MODEL because Runware AIR ids
-    // have changed across nano-banana revisions and not every account has
-    // every version enabled.
+    // multimodal model - a text-only AIR id cannot consume reference images.
+    // Auto-switch to a reference-image-capable model (default
+    // google:nano-banana@2-lite on Runware, which accepts
+    // `inputs.referenceImages`). With the current defaults this resolves to
+    // the same AIR id as the text-to-image path (that is intentional: the
+    // studio runs one model everywhere), so what the switch really controls
+    // is the override slot - WEDDING_AI_MULTIMODAL_MODEL - plus the request
+    // shape below (referenceImages instead of width/height). The id stays
+    // overridable because Runware AIR ids have changed across nano-banana
+    // revisions and not every account has every version enabled.
     //
     // Admin-set model / WEDDING_AI_MODEL / explicit body.model can still
     // override this by passing body.model themselves.
@@ -289,6 +323,12 @@ export async function POST(
       ...personalImages,
     ];
     const allReferenceImages = [...referenceImages, ...personalReferenceImages];
+    // Runware's multimodal inputs accept raster images. Legacy admin frame
+    // records may still point at SVG artwork even though the upload endpoint
+    // now allows raster formats only. Reject those records before submitting
+    // (and before changing project state) instead of surfacing Runware's opaque
+    // "User generation failed" response.
+    assertRasterReferenceImages(allReferenceImages);
     const multimodalModel =
       process.env.WEDDING_AI_MULTIMODAL_MODEL || 'google:nano-banana@2-lite';
     effectiveModel = body.model
@@ -298,6 +338,7 @@ export async function POST(
         : model;
 
     await updateWeddingProject(id, 'generating');
+    projectMarkedGenerating = true;
 
     // Output dimensions. Default 1024 keeps the request within every
     // Runware model's hard size cap. Bump to 2048 only when the operator
@@ -407,6 +448,16 @@ export async function POST(
     // size-limit error returning an HTML body) shows up in the server
     // log instead of being silently masked by respErr.
     console.error('[wedding] generate failed', error);
+    if (projectId && projectMarkedGenerating) {
+      try {
+        await updateWeddingProject(projectId, 'failed');
+      } catch (statusError) {
+        console.error(
+          '[wedding] failed to roll project status back after generation error',
+          statusError
+        );
+      }
+    }
     const modelLabel = ` model: ${effectiveModel}`;
     const base =
       error instanceof Error && error.message
