@@ -10,6 +10,12 @@ import { and, asc, desc, eq, inArray, isNull, ne, or } from 'drizzle-orm';
 
 import { db } from '@/core/db';
 import {
+  runInDbTransaction,
+  withDb,
+  withDbRetry,
+  type DbExecutor,
+} from '@/core/db/transaction';
+import {
   order,
   weddingAsset,
   weddingExample,
@@ -23,8 +29,11 @@ import {
 import { getUuid } from '@/shared/lib/hash';
 import { OrderStatus } from '@/shared/models/order';
 import { WEDDING_PACK_PRODUCT_ID } from '@/shared/wedding/config';
-import { weddingPalettes, WeddingProjectInput } from '@/shared/wedding/types';
-import type { WeddingMatchExampleFlags } from '@/shared/wedding/types';
+import {
+  weddingPalettes,
+  WeddingProjectInput,
+  type WeddingMatchExampleFlags,
+} from '@/shared/wedding/types';
 
 export type WeddingProjectRow = typeof weddingProject.$inferSelect;
 export type WeddingGeneration = typeof weddingGeneration.$inferSelect;
@@ -78,9 +87,7 @@ function buildInput(
     .filter((element) => element.type === 'personal_image')
     .map((element) => element.value)
     .filter((url) => /^https?:\/\//.test(url) || url.startsWith('/'));
-  const frameElements = elements.filter(
-    (element) => element.type === 'frame'
-  );
+  const frameElements = elements.filter((element) => element.type === 'frame');
   const frameId = frameElements.length > 0 ? frameElements[0].value : null;
 
   // "Same as example" plumbing. The example image URL and the per-property
@@ -146,8 +153,8 @@ function buildInput(
   };
 }
 
-async function getProjectElements(projectId: string) {
-  return db()
+function getProjectElements(exec: DbExecutor, projectId: string) {
+  return exec
     .select()
     .from(weddingProjectElement)
     .where(eq(weddingProjectElement.projectId, projectId))
@@ -158,18 +165,26 @@ async function getProjectElements(projectId: string) {
 /* Projects                                                                    */
 /* -------------------------------------------------------------------------- */
 
-export async function getWeddingProject(
+/**
+ * Read a project plus its elements and generations through `exec`.
+ *
+ * Kept separate from `getWeddingProject` so a create can read its own result
+ * back on the transaction's connection instead of opening new ones (which is
+ * exactly where the old create flow used to fail *after* committing).
+ */
+async function loadWeddingProject(
+  exec: DbExecutor,
   id: string
 ): Promise<WeddingProject | null> {
-  const [row] = await db()
+  const [row] = await exec
     .select()
     .from(weddingProject)
     .where(eq(weddingProject.id, id));
   if (!row) return null;
 
   const [elements, generations] = await Promise.all([
-    getProjectElements(id),
-    db()
+    getProjectElements(exec, id),
+    exec
       .select()
       .from(weddingGeneration)
       .where(eq(weddingGeneration.projectId, id))
@@ -180,7 +195,11 @@ export async function getWeddingProject(
   ]);
 
   const input = buildInput(row, elements);
-  const frame = input.frameId ? await getWeddingFrame(input.frameId) : null;
+  // Read the frame on the same connection: opening a second one here used to
+  // double the failure surface of every project read.
+  const frame = input.frameId
+    ? await getWeddingFrame(input.frameId, exec)
+    : null;
   return {
     ...row,
     elements,
@@ -190,6 +209,17 @@ export async function getWeddingProject(
       frameUrl: frame?.url ?? null,
     },
   };
+}
+
+export async function getWeddingProject(
+  id: string
+): Promise<WeddingProject | null> {
+  // Wrapped so a dropped Hyperdrive connection is retried instead of failing
+  // the request — this read sits in front of generation, so a transient blip
+  // used to cost the user an entire generation attempt.
+  return withDb((exec) => loadWeddingProject(exec, id), {
+    label: 'getWeddingProject',
+  });
 }
 
 export async function listWeddingProjectsForUser(userId: string) {
@@ -255,28 +285,25 @@ export async function createWeddingProject(params: CreateWeddingProjectParams) {
           params.partner2.trim().charAt(0).toUpperCase(),
         ];
 
-  await db()
-    .insert(weddingProject)
-    .values({
-      id,
-      userId: params.userId ?? null,
-      guestId: params.guestId ?? null,
-      partner1: params.partner1.trim(),
-      partner2: params.partner2.trim(),
-      initials: initials.join(''),
-      weddingDate: params.weddingDate ?? null,
-      location: params.location ?? null,
-      venue: params.venue ?? null,
-      style: params.style,
-      layout: params.layout,
-      typography: params.typography ?? 'editorial_rose',
-      palette: JSON.stringify(params.palette ?? weddingPalettes[0].colors),
-      complexity: params.complexity ?? 'medium',
-      nameDisplay: params.nameDisplay ?? 'initials_amp',
-      showDate: params.showDate !== false,
-      status: params.status ?? 'draft',
-    })
-    .returning();
+  const projectValues = {
+    id,
+    userId: params.userId ?? null,
+    guestId: params.guestId ?? null,
+    partner1: params.partner1.trim(),
+    partner2: params.partner2.trim(),
+    initials: initials.join(''),
+    weddingDate: params.weddingDate ?? null,
+    location: params.location ?? null,
+    venue: params.venue ?? null,
+    style: params.style,
+    layout: params.layout,
+    typography: params.typography ?? 'editorial_rose',
+    palette: JSON.stringify(params.palette ?? weddingPalettes[0].colors),
+    complexity: params.complexity ?? 'medium',
+    nameDisplay: params.nameDisplay ?? 'initials_amp',
+    showDate: params.showDate !== false,
+    status: params.status ?? 'draft',
+  };
 
   const elements = [
     ...(params.flowers ?? []).map((value) => ({
@@ -313,8 +340,7 @@ export async function createWeddingProject(params: CreateWeddingProjectParams) {
     // flags are stored as two element rows. We only persist them when
     // exampleImage is a usable URL — matchExample without a reference
     // image is a no-op in the prompt compiler.
-    ...(params.exampleImage &&
-    /^https?:\/\//.test(params.exampleImage)
+    ...(params.exampleImage && /^https?:\/\//.test(params.exampleImage)
       ? [
           {
             id: getUuid(),
@@ -352,11 +378,40 @@ export async function createWeddingProject(params: CreateWeddingProjectParams) {
         ]
       : []),
   ];
-  if (elements.length > 0) {
-    await db().insert(weddingProjectElement).values(elements);
-  }
 
-  return getWeddingProject(id);
+  // Project + its element rows are written in ONE transaction on ONE
+  // connection. Previously each statement called `db()` separately, which on
+  // Cloudflare/Hyperdrive means a separate TCP connection — if the second
+  // one failed the project stayed committed with zero element rows (flowers,
+  // frame and the example wiring silently lost). A transaction makes the
+  // write all-or-nothing, and the read-back below reuses the same
+  // connection so a commit is never reported as a failure.
+  //
+  // Both writes are idempotent for a fixed `id`, so the transient-error
+  // retry can never create duplicate rows: the project insert skips an
+  // already-written row and the elements are replaced, not appended.
+  return runInDbTransaction(
+    async (tx) => {
+      await tx
+        .insert(weddingProject)
+        .values(projectValues)
+        .onConflictDoNothing();
+
+      if (elements.length > 0) {
+        await tx
+          .delete(weddingProjectElement)
+          .where(eq(weddingProjectElement.projectId, id));
+        await tx.insert(weddingProjectElement).values(elements);
+      }
+
+      const created = await loadWeddingProject(tx, id);
+      if (!created) {
+        throw new Error(`wedding project ${id} disappeared after insert`);
+      }
+      return created;
+    },
+    { retry: true, label: 'createWeddingProject' }
+  );
 }
 
 /** Update project status (string shorthand) or config fields. */
@@ -410,35 +465,52 @@ export async function updateWeddingProjectElements(
       values: patch.frameId ? [patch.frameId] : [],
     });
 
-  for (const { type, values } of byType) {
-    await db()
-      .delete(weddingProjectElement)
-      .where(
-        and(
-          eq(weddingProjectElement.projectId, id),
-          eq(weddingProjectElement.type, type)
-        )
-      );
-    if (values.length > 0) {
-      await db().insert(weddingProjectElement).values(
-        values.map((value) => ({
-          id: getUuid(),
-          projectId: id,
-          type,
-          value,
-        }))
-      );
-    }
-  }
+  if (byType.length === 0) return;
+
+  // Same reasoning as the create path: the delete/insert pairs used to run
+  // on separate connections, so a failure after a delete left the project
+  // missing that field entirely. One transaction keeps each field's swap
+  // atomic, and the whole patch is retried once on a transient error.
+  await runInDbTransaction(
+    async (tx) => {
+      for (const { type, values } of byType) {
+        await tx
+          .delete(weddingProjectElement)
+          .where(
+            and(
+              eq(weddingProjectElement.projectId, id),
+              eq(weddingProjectElement.type, type)
+            )
+          );
+        if (values.length > 0) {
+          await tx.insert(weddingProjectElement).values(
+            values.map((value) => ({
+              id: getUuid(),
+              projectId: id,
+              type,
+              value,
+            }))
+          );
+        }
+      }
+    },
+    { retry: true, label: 'updateWeddingProjectElements' }
+  );
 }
 
 export async function claimWeddingProject(id: string, userId: string) {
-  const [row] = await db()
-    .update(weddingProject)
-    .set({ userId })
-    .where(and(eq(weddingProject.id, id)))
-    .returning();
-  return row;
+  // Idempotent, so a retry after a dropped connection is harmless.
+  return withDbRetry(
+    async () => {
+      const [row] = await db()
+        .update(weddingProject)
+        .set({ userId })
+        .where(and(eq(weddingProject.id, id)))
+        .returning();
+      return row;
+    },
+    { label: 'claimWeddingProject' }
+  );
 }
 
 export async function canAccessWeddingProject({
@@ -450,15 +522,20 @@ export async function canAccessWeddingProject({
   userId?: string;
   guestId?: string;
 }): Promise<boolean> {
-  const [row] = await db()
-    .select()
-    .from(weddingProject)
-    .where(eq(weddingProject.id, id));
-  if (!row) return false;
-  if (userId && row.userId === userId) return true;
-  // Guests keep access only while the project has not been claimed yet.
-  if (!row.userId && guestId && row.guestId === guestId) return true;
-  return false;
+  return withDb(
+    async (exec) => {
+      const [row] = await exec
+        .select()
+        .from(weddingProject)
+        .where(eq(weddingProject.id, id));
+      if (!row) return false;
+      if (userId && row.userId === userId) return true;
+      // Guests keep access only while the project has not been claimed yet.
+      if (!row.userId && guestId && row.guestId === guestId) return true;
+      return false;
+    },
+    { label: 'canAccessWeddingProject' }
+  );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -510,15 +587,19 @@ export async function countWeddingGenerationBatches(
   projectId: string,
   candidatesPerBatch: number
 ) {
-  const rows = await db()
-    .select({ id: weddingGeneration.id })
-    .from(weddingGeneration)
-    .where(
-      and(
-        eq(weddingGeneration.projectId, projectId),
-        ne(weddingGeneration.status, 'failed')
-      )
-    );
+  const rows = await withDb(
+    async (exec) =>
+      await exec
+        .select({ id: weddingGeneration.id })
+        .from(weddingGeneration)
+        .where(
+          and(
+            eq(weddingGeneration.projectId, projectId),
+            ne(weddingGeneration.status, 'failed')
+          )
+        ),
+    { label: 'countWeddingGenerationBatches' }
+  );
   return Math.ceil(rows.length / candidatesPerBatch);
 }
 
@@ -527,25 +608,30 @@ export async function countProjectsWithGenerations(params: {
   userId?: string;
   guestId?: string;
 }) {
-  const owners = await db()
-    .select({
-      id: weddingProject.id,
-      userId: weddingProject.userId,
-      guestId: weddingProject.guestId,
-    })
-    .from(weddingProject)
-    .where(
-      params.userId
-        ? eq(weddingProject.userId, params.userId)
-        : eq(weddingProject.guestId, params.guestId ?? '__none__')
-    );
-  if (owners.length === 0) return 0;
-  const ids = owners.map((owner: { id: string }) => owner.id);
-  const rows = await db()
-    .selectDistinct({ projectId: weddingGeneration.projectId })
-    .from(weddingGeneration)
-    .where(inArray(weddingGeneration.projectId, ids));
-  return rows.length;
+  return withDb(
+    async (exec) => {
+      const owners = await exec
+        .select({
+          id: weddingProject.id,
+          userId: weddingProject.userId,
+          guestId: weddingProject.guestId,
+        })
+        .from(weddingProject)
+        .where(
+          params.userId
+            ? eq(weddingProject.userId, params.userId)
+            : eq(weddingProject.guestId, params.guestId ?? '__none__')
+        );
+      if (owners.length === 0) return 0;
+      const ids = owners.map((owner: { id: string }) => owner.id);
+      const rows = await exec
+        .selectDistinct({ projectId: weddingGeneration.projectId })
+        .from(weddingGeneration)
+        .where(inArray(weddingGeneration.projectId, ids));
+      return rows.length;
+    },
+    { label: 'countProjectsWithGenerations' }
+  );
 }
 
 /** Return one existing project that already contains a generation. */
@@ -553,29 +639,34 @@ export async function findWeddingProjectWithGeneration(params: {
   userId?: string;
   guestId?: string;
 }) {
-  const owners = await db()
-    .select({ id: weddingProject.id })
-    .from(weddingProject)
-    .where(
-      params.userId
-        ? eq(weddingProject.userId, params.userId)
-        : eq(weddingProject.guestId, params.guestId ?? '__none__')
-    );
-  if (owners.length === 0) return null;
+  return withDb(
+    async (exec) => {
+      const owners = await exec
+        .select({ id: weddingProject.id })
+        .from(weddingProject)
+        .where(
+          params.userId
+            ? eq(weddingProject.userId, params.userId)
+            : eq(weddingProject.guestId, params.guestId ?? '__none__')
+        );
+      if (owners.length === 0) return null;
 
-  const [row] = await db()
-    .select({ projectId: weddingGeneration.projectId })
-    .from(weddingGeneration)
-    .where(
-      inArray(
-        weddingGeneration.projectId,
-        owners.map((owner: { id: string }) => owner.id)
-      )
-    )
-    .orderBy(asc(weddingGeneration.createdAt))
-    .limit(1);
+      const [row] = await exec
+        .select({ projectId: weddingGeneration.projectId })
+        .from(weddingGeneration)
+        .where(
+          inArray(
+            weddingGeneration.projectId,
+            owners.map((owner: { id: string }) => owner.id)
+          )
+        )
+        .orderBy(asc(weddingGeneration.createdAt))
+        .limit(1);
 
-  return row?.projectId ?? null;
+      return row?.projectId ?? null;
+    },
+    { label: 'findWeddingProjectWithGeneration' }
+  );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -586,13 +677,19 @@ export async function hasPaidWeddingOrder(
   userId: string,
   projectId?: string
 ): Promise<boolean> {
-  const orders = await db()
-    .select({
-      projectId: order.projectId,
-      productId: order.productId,
-    })
-    .from(order)
-    .where(and(eq(order.userId, userId), eq(order.status, OrderStatus.PAID)));
+  const orders = await withDb(
+    async (exec) =>
+      await exec
+        .select({
+          projectId: order.projectId,
+          productId: order.productId,
+        })
+        .from(order)
+        .where(
+          and(eq(order.userId, userId), eq(order.status, OrderStatus.PAID))
+        ),
+    { label: 'hasPaidWeddingOrder' }
+  );
   return orders.some(
     (row: { projectId: string | null; productId: string | null }) =>
       (projectId ? row.projectId === projectId : false) ||
@@ -609,10 +706,17 @@ export async function saveWeddingAssets(
   assets: (typeof weddingAsset.$inferInsert)[]
 ) {
   if (assets.length === 0) return;
-  await db()
-    .delete(weddingAsset)
-    .where(and(eq(weddingAsset.projectId, projectId)));
-  await db().insert(weddingAsset).values(assets);
+  // Delete + insert must not be split across connections: a failure after
+  // the delete would leave the project with no assets at all.
+  await runInDbTransaction(
+    async (tx) => {
+      await tx
+        .delete(weddingAsset)
+        .where(and(eq(weddingAsset.projectId, projectId)));
+      await tx.insert(weddingAsset).values(assets);
+    },
+    { retry: true }
+  );
 }
 
 export async function getWeddingAssets(projectId: string) {
@@ -655,7 +759,10 @@ export type NewWeddingFrame = typeof weddingFrame.$inferInsert;
 export type WeddingExampleRow = typeof weddingExample.$inferSelect;
 export type NewWeddingExample = typeof weddingExample.$inferInsert;
 
-export async function listWeddingFrames(opts?: { style?: string; activeOnly?: boolean }) {
+export async function listWeddingFrames(opts?: {
+  style?: string;
+  activeOnly?: boolean;
+}) {
   const filters = [];
   if (opts?.style) {
     filters.push(
@@ -670,8 +777,11 @@ export async function listWeddingFrames(opts?: { style?: string; activeOnly?: bo
     .orderBy(asc(weddingFrame.sortOrder), asc(weddingFrame.createdAt));
 }
 
-export async function getWeddingFrame(id: string) {
-  const [row] = await db().select().from(weddingFrame).where(eq(weddingFrame.id, id));
+export async function getWeddingFrame(id: string, exec?: DbExecutor) {
+  const [row] = await (exec ?? db())
+    .select()
+    .from(weddingFrame)
+    .where(eq(weddingFrame.id, id));
   return row ?? null;
 }
 
@@ -783,6 +893,8 @@ export async function deleteWeddingExample(id: string) {
 }
 
 export async function countWeddingExamples() {
-  const rows = await db().select({ id: weddingExample.id }).from(weddingExample);
+  const rows = await db()
+    .select({ id: weddingExample.id })
+    .from(weddingExample);
   return rows.length;
 }
