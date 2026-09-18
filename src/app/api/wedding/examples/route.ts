@@ -70,7 +70,7 @@ export async function GET(request: Request) {
         rows.length === 0 && !style ? weddingHomeExampleFallbacks : rows;
       const response = respData({ items: getHomeExamples(homeRows) });
       const cacheControl =
-        'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400';
+        'public, max-age=60, s-maxage=600, stale-while-revalidate=3600';
       response.headers.set('Cache-Control', cacheControl);
       response.headers.set('CDN-Cache-Control', cacheControl);
       response.headers.set('Cloudflare-CDN-Cache-Control', cacheControl);

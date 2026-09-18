@@ -34,7 +34,10 @@ export function WeddingExamplesProvider({ children }: { children: ReactNode }) {
 
     fetch('/api/wedding/examples?surface=home', {
       signal: controller.signal,
-      cache: 'force-cache',
+      // 'no-cache' revalidates with the server on every load (304 keeps it
+      // cheap). 'force-cache' here would serve stale examples indefinitely,
+      // so admin edits never showed up without a hard reload.
+      cache: 'no-cache',
       headers: { Accept: 'application/json' },
     })
       .then(async (response) => {
