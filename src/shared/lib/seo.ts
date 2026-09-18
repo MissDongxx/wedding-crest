@@ -15,6 +15,9 @@ export function getMetadata(
     imageUrl?: string;
     appName?: string;
     noIndex?: boolean;
+    // Restrict the hreflang set (defaults to every locale). Use this for
+    // English-only pages so Google is not pointed at URLs that redirect.
+    alternateLocales?: readonly string[];
   } = {}
 ) {
   return async function generateMetadata({
@@ -55,7 +58,8 @@ export function getMetadata(
     const alternates = await getAlternates(
       options.canonicalUrl || '',
       locale || '',
-      configs.app_url
+      configs.app_url,
+      options.alternateLocales
     );
     const canonicalUrl = alternates.canonical;
 
@@ -180,12 +184,13 @@ async function getCanonicalUrl(
 export async function getAlternates(
   canonicalUrl: string,
   locale: string,
-  appUrl: string
+  appUrl: string,
+  alternateLocales?: readonly string[]
 ) {
   const canonical = await getCanonicalUrl(canonicalUrl, locale, appUrl);
 
   const languages: Record<string, string> = {};
-  for (const l of locales) {
+  for (const l of alternateLocales ?? locales) {
     languages[l] = await getCanonicalUrl(canonicalUrl, l, appUrl);
   }
   languages['x-default'] = await getCanonicalUrl(

@@ -1,7 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { envConfigs } from '@/config';
-import { locales } from '@/config/locale';
+import { defaultLocale } from '@/config/locale';
 import { getMetadata } from '@/shared/lib/seo';
 import { getAllConfigs } from '@/shared/models/config';
 import { DynamicPage } from '@/shared/types/blocks/landing';
@@ -11,13 +11,17 @@ export const revalidate = 3600;
 export const dynamic = 'force-static';
 export const dynamicParams = false;
 
+// The homepage is English-only: localized homepages (/zh, /ko, ...) were
+// removed. `dynamicParams = false` turns any other locale into a 404, and
+// middleware redirects those root URLs to the canonical English homepage.
 export function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
+  return [{ locale: defaultLocale }];
 }
 
 export const generateMetadata = getMetadata({
   metadataKey: 'pages.index.metadata',
   canonicalUrl: '/',
+  alternateLocales: [defaultLocale],
 });
 
 // JSON-LD structured data for homepage

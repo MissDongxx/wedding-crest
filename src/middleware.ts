@@ -22,6 +22,22 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 301);
   }
 
+  // Localized homepages (/zh, /ko, ...) no longer exist — only the English
+  // homepage is served. The homepage route is `force-static` with
+  // `dynamicParams = false`, so any other locale would 404; redirect those
+  // root URLs to the canonical homepage so already-indexed URLs consolidate
+  // instead of dropping out of the index.
+  const rootLocaleMatch = /^\/([a-zA-Z]{2}(?:-[a-zA-Z]{2})?)$/.exec(pathname);
+  if (
+    rootLocaleMatch &&
+    routing.locales.includes(rootLocaleMatch[1] as any) &&
+    rootLocaleMatch[1] !== routing.defaultLocale
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/';
+    return NextResponse.redirect(url, 308);
+  }
+
   // Handle internationalization first
   const intlResponse = intlMiddleware(request);
 

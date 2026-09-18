@@ -28,7 +28,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const sitemapEntries: MetadataRoute.Sitemap = [];
 
   staticRoutes.forEach((route) => {
-    locales.forEach((locale) => {
+    // The homepage is English-only now; every other route keeps its localized
+    // variants, which render and are indexed normally.
+    const routeLocales = route === '' ? [defaultLocale] : locales;
+    routeLocales.forEach((locale) => {
       const isDefault = locale === defaultLocale;
       const localePath = isDefault ? '' : `/${locale}`;
       const finalUrl = `${baseUrl}${localePath}${route}`;
