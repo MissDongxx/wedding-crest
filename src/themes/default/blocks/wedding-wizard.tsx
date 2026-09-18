@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -49,6 +44,18 @@ const MATCH_EXAMPLE_DEFAULT = {
 };
 
 type MatchExampleFlags = typeof MATCH_EXAMPLE_DEFAULT;
+
+/** Client-side projection of `/api/wedding/examples` rows. */
+type StyleExample = {
+  id: string;
+  name: string;
+  style: string;
+  imageUrl: string;
+  altText?: string | null;
+};
+
+/** Photos of the selected style kept in the first-slot preview panel. */
+const MAX_STYLE_EXAMPLES = 8;
 
 /**
  * Shape of the wizard state we round-trip through localStorage. Bump
@@ -309,21 +316,68 @@ export function WeddingWizard() {
       : MATCH_EXAMPLE_DEFAULT
   );
 
-  // Real product photos the user can start from on Step 2. Only loaded
-  // for users who arrived without an example (?exampleId=), to give them
-  // a one-click shortcut into a fully styled wizard. Fetched on demand
-  // when they reach the style step so the initial render stays light.
-  const [startExamples, setStartExamples] = useState<
-    Array<{
-      id: string;
-      name: string;
-      style: string;
-      imageUrl: string;
-      altText?: string | null;
-    }>
-  >([]);
+  // Real product photos of the *currently selected* style. Used for two
+  // things on the style step: the "Or start from an example" thumbnail row,
+  // and the representative photo the live preview panel shows while the user
+  // picks a style from scratch. `startExamplesStyle` records which style the
+  // payload belongs to, so a style switch falls back to the loading state
+  // instead of showing the previous style's photos.
+  const [startExamples, setStartExamples] = useState<StyleExample[]>([]);
+  const [startExamplesStyle, setStartExamplesStyle] = useState<string | null>(
+    null
+  );
   const [startExamplesLoading, setStartExamplesLoading] = useState(false);
+
+  // Ids of the styles that actually have published example photos. `null`
+  // means "unknown" — while the lookup is in flight, or if it failed — and
+  // in that state every style stays listed, so a flaky response can never
+  // leave the picker empty.
+  const [exampleStyleIds, setExampleStyleIds] = useState<string[] | null>(null);
   const router = useRouter();
+
+  // One cheap pass over the catalogue to learn which styles have photos.
+  // Runs once on mount (not gated on the step) so the answer is ready by
+  // the time the user reaches the style step and the grid never has to
+  // reshuffle in front of them.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const resp = await fetch('/api/wedding/examples');
+          const json: ApiEnvelope<{ items: StyleExample[] }> =
+            await resp.json();
+          if (!cancelled && json?.code === 0) {
+            const ids = Array.from(
+              new Set(
+                (json.data?.items ?? [])
+                  .filter((item): item is StyleExample =>
+                    Boolean(item?.imageUrl)
+                  )
+                  .map((item) => item.style)
+              )
+            );
+            // An empty catalogue means we learned nothing usable — treat it
+            // as unknown rather than hiding every style.
+            if (ids.length > 0) {
+              setExampleStyleIds(ids);
+              return;
+            }
+          }
+        } catch {
+          // fall through to the retry
+        }
+        if (cancelled) return;
+        if (attempt === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 400));
+        }
+      }
+      if (!cancelled) setExampleStyleIds(null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Restore the saved draft only after hydration. This keeps SSR markup
   // stable while retaining the draft across refreshes. The persistence
@@ -586,20 +640,42 @@ export function WeddingWizard() {
     setExamplePending(true);
     (async () => {
       try {
-        const resp = await fetch(
-          `/api/wedding/examples?id=${encodeURIComponent(exampleId)}`
-        );
-        const json: ApiEnvelope<{
-          items: Array<{
-            id: string;
-            name: string;
-            style: string;
-            imageUrl: string;
-            altText?: string | null;
-          }>;
-        }> = await resp.json();
+        // One retry: the example query intermittently fails on flaky DB
+        // links. Without it a deep link would silently lose the attached
+        // example (and its style) even though the URL still points at it.
+        let example:
+          | {
+              id: string;
+              name: string;
+              style: string;
+              imageUrl: string;
+              altText?: string | null;
+            }
+          | undefined;
+        for (let attempt = 0; attempt < 2 && !cancelled; attempt++) {
+          try {
+            const resp = await fetch(
+              `/api/wedding/examples?id=${encodeURIComponent(exampleId)}`
+            );
+            const json: ApiEnvelope<{
+              items: Array<{
+                id: string;
+                name: string;
+                style: string;
+                imageUrl: string;
+                altText?: string | null;
+              }>;
+            }> = await resp.json();
+            example = json?.data?.items?.[0];
+            if (example) break;
+          } catch {
+            // fall through to the retry
+          }
+          if (attempt === 0) {
+            await new Promise((resolve) => setTimeout(resolve, 400));
+          }
+        }
         if (cancelled) return;
-        const example = json?.data?.items?.[0];
         if (!example) {
           setExampleImage(null);
           setFromExampleStyle(null);
@@ -722,47 +798,52 @@ export function WeddingWizard() {
     );
   }, [frames, framesLoading]);
 
-  // When the user reaches the Style step (step 1) without an example
-  // attached, fetch a small set of real product photos for the currently
-  // selected style. Showing them under the style card gives the user a
-  // one-click "start from this look" shortcut — they tap a photo and
-  // the wizard refills with that example's image and palette. We only
-  // refetch when the selected style changes to keep the bandwidth small.
+  // Load the example photos for the selected style once the user is past the
+  // names step, and reuse them for both the "Or start from an example" row
+  // and the live preview's representative photo. Refetched only when the
+  // selected style changes, so the row and the preview always describe the
+  // style the user is currently looking at.
+  //
+  // This deliberately runs even while ?exampleId= is attached: the style step
+  // keeps its thumbnail row visible so an attached example can be swapped for
+  // a different one without leaving the wizard.
   useEffect(() => {
-    if (step !== 1) return;
-    if (fromExampleStyle) return;
-    if (exampleImage || examplePending) return;
+    if (step === 0) return;
+    if (startExamplesStyle === style) return;
     let cancelled = false;
     setStartExamplesLoading(true);
     (async () => {
+      // One retry: the examples query intermittently fails on flaky DB
+      // links (the route then answers with an error envelope), and an
+      // empty list would wrongly read as "this style has no examples".
       try {
-        const resp = await fetch(
-          `/api/wedding/examples?style=${encodeURIComponent(style)}`
-        );
-        const json: ApiEnvelope<{
-          items: Array<{
-            id: string;
-            name: string;
-            style: string;
-            imageUrl: string;
-            altText?: string | null;
-          }>;
-        }> = await resp.json();
-        if (cancelled) return;
-        const items = (json?.data?.items ?? []).filter(
-          (
-            item
-          ): item is {
-            id: string;
-            name: string;
-            style: string;
-            imageUrl: string;
-            altText?: string | null;
-          } => Boolean(item?.imageUrl)
-        );
-        setStartExamples(items.slice(0, 8));
-      } catch {
-        if (!cancelled) setStartExamples([]);
+        for (let attempt = 0; attempt < 2; attempt++) {
+          try {
+            const resp = await fetch(
+              `/api/wedding/examples?style=${encodeURIComponent(style)}`
+            );
+            const json: ApiEnvelope<{ items: StyleExample[] }> =
+              await resp.json();
+            const items = (json?.data?.items ?? []).filter(
+              (item): item is StyleExample => Boolean(item?.imageUrl)
+            );
+            if (!cancelled && json?.code === 0) {
+              setStartExamples(items.slice(0, MAX_STYLE_EXAMPLES));
+              setStartExamplesStyle(style);
+              return;
+            }
+          } catch {
+            // fall through to the retry
+          }
+          if (cancelled) return;
+          if (attempt === 0) {
+            await new Promise((resolve) => setTimeout(resolve, 400));
+          }
+        }
+        if (!cancelled) {
+          setStartExamples([]);
+          setStartExamplesStyle(style);
+        }
       } finally {
         if (!cancelled) setStartExamplesLoading(false);
       }
@@ -770,7 +851,7 @@ export function WeddingWizard() {
     return () => {
       cancelled = true;
     };
-  }, [step, style, fromExampleStyle, exampleImage, examplePending]);
+  }, [step, style, startExamplesStyle]);
 
   const canContinue = useCallback(() => {
     if (step === 0) {
@@ -945,6 +1026,44 @@ export function WeddingWizard() {
     setComplexity('medium');
     setMatchExample(MATCH_EXAMPLE_DEFAULT);
     clearPersistedWizardState();
+  };
+
+  // Pick a style on the style step. The picker stays visible even when the
+  // user arrived with an example photo, so this also has to handle the case
+  // where the new style contradicts the attached example: the example (and
+  // its example-derived "match the example" flags, which the summary step
+  // would otherwise still report as "same as example") is dropped, and the
+  // URL is rewritten without ?exampleId= so a refresh doesn't resurrect it.
+  const selectStyle = (nextStyle: string) => {
+    if (nextStyle === style) return;
+    setStyle(nextStyle);
+
+    const hasAttachedExample =
+      Boolean(searchParams.get('exampleId')) ||
+      exampleImage !== null ||
+      fromExampleStyle !== null;
+
+    // Sync the URL whenever it already pins a style or example: the ?style=
+    // effect re-reads the param on every searchParams change (and on every
+    // refresh), so a stale value would put the old style back. A visitor who
+    // arrived without params keeps a param-free URL — the localStorage draft
+    // already covers refreshes there.
+    const urlStyle = searchParams.get('style');
+    const needsUrlSync =
+      hasAttachedExample || (urlStyle !== null && urlStyle !== nextStyle);
+    if (!needsUrlSync) return;
+
+    setExampleImage(null);
+    setExamplePending(false);
+    setFromExampleStyle(null);
+    setMatchExample(MATCH_EXAMPLE_DEFAULT);
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('exampleId');
+    params.set('style', nextStyle);
+    router.replace(`${window.location.pathname}?${params.toString()}`, {
+      scroll: false,
+    });
   };
 
   // Upload reference photos to the shared storage service. The returned
@@ -1223,16 +1342,41 @@ export function WeddingWizard() {
 
   const styleConfig = weddingStyles.find((s) => s.id === style);
 
-  // When the user lands via ?exampleId=, the example already implies a
-  // style — there's no point making them re-pick it on step 2. We hide
-  // the style picker and just show a read-only "from your example" hint.
-  const hideStylePicker = fromExampleStyle !== null;
+  // Only offer styles that have real example photos behind them — a style
+  // with nothing to show would only produce a dead-end preview. The
+  // currently selected style is always kept in the list even without
+  // photos (?style= deep link, restored draft, edit mode) so the user can
+  // still see what is selected and switch away from it deliberately.
+  const selectableStyles = exampleStyleIds
+    ? weddingStyles.filter(
+        (styleOption) =>
+          styleOption.id === style || exampleStyleIds.includes(styleOption.id)
+      )
+    : weddingStyles;
 
-  // The preview panel only appears when an example photo is attached
-  // (?exampleId= in the URL). Without it, the right column would just hold
-  // a misleading placeholder, so the entire panel (and its grid track)
-  // is hidden.
-  const showPreviewPanel = exampleImage !== null || examplePending;
+  // Photos of the selected style. Only trusted once the payload has caught up
+  // with `style`, so switching style can't flash the previous style's photos.
+  const styleExamples = startExamplesStyle === style ? startExamples : [];
+  const stylePreviewExample = styleExamples[0] ?? null;
+
+  // The style picker is never hidden: an attached example implies a style,
+  // but the user can still switch — see `selectStyle`.
+  //
+  // The preview panel shows the attached example photo when there is one and
+  // a representative photo of the selected style otherwise, so the right
+  // column always mirrors what's picked on the style step. It appears from
+  // the style step onwards; on the names step only a deep-linked example
+  // (the photo the user clicked in) justifies showing it.
+  const previewImage: { url: string; alt: string } | null = exampleImage
+    ? exampleImage
+    : stylePreviewExample
+      ? {
+          url: stylePreviewExample.imageUrl,
+          alt: stylePreviewExample.altText ?? stylePreviewExample.name,
+        }
+      : null;
+  const showPreviewPanel =
+    previewImage !== null || examplePending || startExamplesLoading || step > 0;
 
   return (
     <div className="bg-background min-h-screen">
@@ -1430,139 +1574,144 @@ export function WeddingWizard() {
 
             {step === 1 && (
               <div className="space-y-8">
-                {hideStylePicker ? (
-                  // Arrived from a real product photo — the example's
-                  // style is locked in. Show it as a read-only hint so
-                  // the user understands why they don't see the picker.
-                  <div className="bg-muted/40 flex items-center gap-3 rounded-xl border px-4 py-3">
-                    <div
-                      aria-hidden
-                      className="size-2.5 shrink-0 rounded-full"
-                      style={{
-                        background: styleConfig?.previewColor ?? 'currentColor',
-                      }}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-muted-foreground text-xs tracking-widest uppercase">
-                        {t('choose_style')} <span aria-hidden>*</span>
-                      </p>
-                      <p className="truncate text-sm font-medium">
-                        {styleConfig?.name ?? fromExampleStyle}
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-5">
-                    <div className="space-y-3">
-                      <Label>
-                        {t('choose_style')} <span aria-hidden>*</span>
-                      </Label>
-                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                        {weddingStyles.map((styleOption) => (
-                          <button
-                            key={styleOption.id}
-                            type="button"
-                            onClick={() => setStyle(styleOption.id)}
-                            className={cn(
-                              'rounded-xl border p-3 text-left transition-colors',
-                              style === styleOption.id
-                                ? 'border-primary bg-accent'
-                                : 'hover:border-primary/40'
-                            )}
-                          >
-                            <div
-                              className="mb-2 h-2 w-8 rounded-full"
-                              style={{ background: styleOption.previewColor }}
-                            />
-                            <p className="text-sm font-medium">
-                              {styleOption.name}
-                            </p>
-                            <p className="text-muted-foreground text-xs">
-                              {styleOption.tagline}
-                            </p>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Quick-start from a real example: shows a row of
-                        admin-uploaded crests for the *currently selected*
-                        style. Tapping a thumbnail rewrites the URL with
-                        ?exampleId= and ?style= so the example effect
-                        refills the wizard with the photo + palette, and
-                        the user's style choice is preserved. Hidden while
-                        an example is already attached (the read-only
-                        "from your example" panel above already implies a
-                        one-pick shortcut) and during the initial fetch so
-                        the row never flickers. */}
-                    {startExamples.length > 0 ? (
-                      <div className="space-y-3">
-                        <div className="flex items-baseline justify-between gap-2">
-                          <p className="text-muted-foreground text-xs tracking-[0.2em] uppercase">
-                            {t('start_from_example')}
+                <div className="space-y-5">
+                  <div className="space-y-3">
+                    <Label>
+                      {t('choose_style')} <span aria-hidden>*</span>
+                    </Label>
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                      {selectableStyles.map((styleOption) => (
+                        <button
+                          key={styleOption.id}
+                          type="button"
+                          onClick={() => selectStyle(styleOption.id)}
+                          aria-pressed={style === styleOption.id}
+                          className={cn(
+                            'rounded-xl border p-3 text-left transition-colors',
+                            style === styleOption.id
+                              ? 'border-primary bg-accent'
+                              : 'hover:border-primary/40'
+                          )}
+                        >
+                          <div
+                            className="mb-2 h-2 w-8 rounded-full"
+                            style={{ background: styleOption.previewColor }}
+                          />
+                          <p className="text-sm font-medium">
+                            {styleOption.name}
                           </p>
-                          <Link
-                            href="/examples"
-                            className="text-muted-foreground hover:text-foreground text-xs underline-offset-4 hover:underline"
-                          >
-                            {t('see_more_examples')}
-                          </Link>
-                        </div>
-                        <div className="-mx-1 flex snap-x gap-3 overflow-x-auto px-1 pb-1">
-                          {startExamples.map((example) => {
-                            const names = example.name
-                              .split('&')
-                              .map((n) => n.trim());
-                            const [p1, p2] =
-                              names.length === 2
-                                ? [names[0], names[1]]
-                                : [example.name, ''];
-                            return (
-                              <button
-                                key={example.id}
-                                type="button"
-                                onClick={() => {
-                                  // Carry the user's current style choice
-                                  // through the deep link so the example's
-                                  // style doesn't override it.
-                                  const params = new URLSearchParams();
-                                  params.set('style', style);
-                                  params.set('exampleId', example.id);
-                                  router.push(`/create?${params.toString()}`);
-                                }}
-                                className="border-border/60 hover:border-primary/40 group w-28 shrink-0 snap-start overflow-hidden rounded-xl border text-left transition-colors sm:w-32"
-                                title={example.altText ?? example.name}
-                                aria-label={example.altText ?? example.name}
-                              >
-                                <div className="bg-wedding-ivory relative aspect-square w-full">
-                                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img
-                                    src={example.imageUrl}
-                                    alt={example.altText ?? example.name}
-                                    className="size-full object-cover"
-                                    loading="lazy"
-                                  />
-                                </div>
-                                <div className="bg-background/90 px-2 py-1.5 text-xs">
-                                  <p className="truncate font-medium">
-                                    {p2 ? `${p1} & ${p2}` : p1}
-                                  </p>
-                                </div>
-                              </button>
-                            );
-                          })}
-                        </div>
-                        <p className="text-muted-foreground text-xs">
-                          {t('start_from_example_hint')}
-                        </p>
-                      </div>
-                    ) : startExamplesLoading ? (
-                      <div className="text-muted-foreground text-xs">
-                        {t('start_from_example_loading')}
-                      </div>
-                    ) : null}
+                          <p className="text-muted-foreground text-xs">
+                            {styleOption.tagline}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                )}
+
+                  {/* Quick-start from a real example: admin-uploaded crests
+                      for the *currently selected* style. Tapping a thumbnail
+                      rewrites the URL with ?exampleId= and ?style= so the
+                      example effect refills the wizard with the photo and
+                      palette. The row stays visible while an example is
+                      attached — that is what lets the user swap to another
+                      one — and the attached one is marked as selected. */}
+                  {styleExamples.length > 0 ? (
+                    <div className="space-y-3">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <p className="text-muted-foreground text-xs tracking-[0.2em] uppercase">
+                          {t('start_from_example')}
+                        </p>
+                        <Link
+                          href="/examples"
+                          className="text-muted-foreground hover:text-foreground text-xs underline-offset-4 hover:underline"
+                        >
+                          {t('see_more_examples')}
+                        </Link>
+                      </div>
+                      <div className="-mx-1 flex snap-x gap-3 overflow-x-auto px-1 pb-1">
+                        {styleExamples.map((example) => {
+                          const names = example.name
+                            .split('&')
+                            .map((n) => n.trim());
+                          const [p1, p2] =
+                            names.length === 2
+                              ? [names[0], names[1]]
+                              : [example.name, ''];
+                          const isSelected =
+                            searchParams.get('exampleId') === example.id;
+                          return (
+                            <button
+                              key={example.id}
+                              type="button"
+                              onClick={() => {
+                                // Carry the user's current style choice
+                                // through the deep link so the example's
+                                // style doesn't override it.
+                                const params = new URLSearchParams(
+                                  searchParams.toString()
+                                );
+                                params.set('style', style);
+                                params.set('exampleId', example.id);
+                                router.push(
+                                  `${window.location.pathname}?${params.toString()}`,
+                                  { scroll: false }
+                                );
+                              }}
+                              aria-pressed={isSelected}
+                              className={cn(
+                                'border-border/60 hover:border-primary/40 group w-28 shrink-0 snap-start overflow-hidden rounded-xl border text-left transition-colors sm:w-32',
+                                isSelected &&
+                                  'border-primary ring-primary/30 ring-2'
+                              )}
+                              title={example.altText ?? example.name}
+                              aria-label={example.altText ?? example.name}
+                            >
+                              <div className="bg-wedding-ivory relative aspect-square w-full">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={example.imageUrl}
+                                  alt={example.altText ?? example.name}
+                                  className="size-full object-cover"
+                                  loading="lazy"
+                                />
+                                {isSelected && (
+                                  <span
+                                    aria-hidden
+                                    className="bg-primary text-primary-foreground absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full"
+                                  >
+                                    <svg
+                                      viewBox="0 0 12 12"
+                                      className="size-3"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="1.8"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    >
+                                      <path d="M2.5 6.2 4.8 8.5 9.5 3.5" />
+                                    </svg>
+                                  </span>
+                                )}
+                              </div>
+                              <div className="bg-background/90 px-2 py-1.5 text-xs">
+                                <p className="truncate font-medium">
+                                  {p2 ? `${p1} & ${p2}` : p1}
+                                </p>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="text-muted-foreground text-xs">
+                        {t('start_from_example_hint')}
+                      </p>
+                    </div>
+                  ) : startExamplesLoading ? (
+                    <div className="text-muted-foreground text-xs">
+                      {t('start_from_example_loading')}
+                    </div>
+                  ) : null}
+                </div>
 
                 <div className="space-y-3">
                   <p className="text-muted-foreground text-sm">
@@ -2229,34 +2378,72 @@ export function WeddingWizard() {
             </div>
           </div>
 
-          {/* live preview — only rendered when an ?exampleId= image is
-              attached. Without one (home hero, direct /create visit) the
-              right column is hidden so users aren't shown a misleading
-              placeholder before their crest is generated. */}
+          {/* live preview — shows the example photo the user clicked in, or,
+              when they start from scratch, a representative photo of the
+              selected style, so the right column always mirrors the current
+              pick and follows along when the style is switched. */}
           {showPreviewPanel ? (
             <div className="order-1 min-w-0 lg:order-2">
               <div className="bg-wedding-ivory sticky top-24 rounded-2xl border p-6">
                 <p className="text-muted-foreground mb-4 text-center text-xs tracking-[0.2em] uppercase">
                   {t('live_preview')}
                 </p>
-                {exampleImage ? (
-                  <div className="mx-auto w-full max-w-xs">
+                {previewImage ? (
+                  <div className="mx-auto w-full max-w-xs space-y-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={exampleImage.url}
-                      alt={exampleImage.alt}
+                      src={previewImage.url}
+                      alt={previewImage.alt}
                       className="w-full rounded-xl"
                     />
+                    <p className="text-center text-xs">
+                      <span className="text-muted-foreground">
+                        {exampleImage
+                          ? t('preview_source_example')
+                          : t('preview_source_style')}
+                      </span>{' '}
+                      <span className="font-medium">
+                        {exampleImage ? previewImage.alt : styleConfig?.name}
+                      </span>
+                    </p>
+                    <p className="text-muted-foreground text-center text-xs">
+                      {t('preview_note')}
+                    </p>
                   </div>
-                ) : (
+                ) : examplePending || startExamplesLoading ? (
                   <div
                     aria-hidden
                     className="bg-muted/40 mx-auto aspect-square w-full max-w-xs animate-pulse rounded-xl"
                   />
+                ) : (
+                  // A style with no example photo uploaded yet: show its
+                  // palette swatch rather than an empty panel.
+                  <div className="mx-auto w-full max-w-xs space-y-3">
+                    <div
+                      aria-hidden
+                      className="border-border/60 flex aspect-square w-full items-center justify-center rounded-xl border"
+                      style={{
+                        background: `${styleConfig?.previewColor ?? '#A3AA91'}1A`,
+                      }}
+                    >
+                      <span
+                        className="size-16 rounded-full"
+                        style={{
+                          background: styleConfig?.previewColor ?? '#A3AA91',
+                        }}
+                      />
+                    </div>
+                    <p className="text-center text-xs">
+                      <span className="text-muted-foreground">
+                        {t('preview_source_style')}
+                      </span>{' '}
+                      <span className="font-medium">{styleConfig?.name}</span>
+                    </p>
+                    <p className="text-muted-foreground text-center text-xs">
+                      {t('preview_no_photo')}
+                    </p>
+                  </div>
                 )}
-                <p className="text-muted-foreground mt-4 text-center text-xs">
-                  {t('preview_note')}
-                </p>
               </div>
             </div>
           ) : null}
