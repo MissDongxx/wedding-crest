@@ -755,7 +755,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
                 <li>· {t('unlock_feature_3')}</li>
                 <li>· {t('unlock_feature_4')}</li>
               </ul>
-              <p className="mt-4 font-serif text-2xl">$19</p>
+              <p className="mt-4 font-serif text-2xl">$9.9</p>
               <p className="text-muted-foreground text-xs">
                 {t('unlock_unit')}
               </p>
