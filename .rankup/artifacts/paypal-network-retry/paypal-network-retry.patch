@@ -1,0 +1,157 @@
+diff --git a/src/extensions/payment/paypal.ts b/src/extensions/payment/paypal.ts
+index df4de3c..2358779 100644
+--- a/src/extensions/payment/paypal.ts
++++ b/src/extensions/payment/paypal.ts
+@@ -41,6 +41,8 @@ export class PayPalProvider implements PaymentProvider {
+   private accessToken?: string;
+   private tokenExpiry?: number;
+
++  private static readonly NETWORK_RETRY_DELAYS_MS = [0, 300, 900];
++
+   constructor(configs: PayPalConfigs) {
+     this.configs = configs;
+     this.baseUrl =
+@@ -144,7 +146,8 @@ export class PayPalProvider implements PaymentProvider {
+     const result = await this.makeRequest(
+       '/v2/checkout/orders',
+       'POST',
+-      payload
++      payload,
++      this.getRequestId(order, 'order')
+     );
+
+     const approvalUrl = result.links?.find(
+@@ -184,7 +187,8 @@ export class PayPalProvider implements PaymentProvider {
+     const productResponse = await this.makeRequest(
+       '/v1/catalogs/products',
+       'POST',
+-      productPayload
++      productPayload,
++      this.getRequestId(order, 'product')
+     );
+
+     // Create a billing plan
+@@ -240,7 +244,8 @@ export class PayPalProvider implements PaymentProvider {
+     const planResponse = await this.makeRequest(
+       '/v1/billing/plans',
+       'POST',
+-      planPayload
++      planPayload,
++      this.getRequestId(order, 'plan')
+     );
+
+     // Create subscription
+@@ -277,7 +282,8 @@ export class PayPalProvider implements PaymentProvider {
+     const subscriptionResponse = await this.makeRequest(
+       '/v1/billing/subscriptions',
+       'POST',
+-      subscriptionPayload
++      subscriptionPayload,
++      this.getRequestId(order, 'subscription')
+     );
+
+     const approvalUrl = subscriptionResponse.links?.find(
+@@ -662,14 +668,18 @@ export class PayPalProvider implements PaymentProvider {
+       `${this.configs.clientId}:${this.configs.clientSecret}`
+     ).toString('base64');
+
+-    const response = await fetch(`${this.baseUrl}/v1/oauth2/token`, {
+-      method: 'POST',
+-      headers: {
+-        Authorization: `Basic ${credentials}`,
+-        'Content-Type': 'application/x-www-form-urlencoded',
++    const response = await this.fetchWithNetworkRetry(
++      `${this.baseUrl}/v1/oauth2/token`,
++      {
++        method: 'POST',
++        headers: {
++          Authorization: `Basic ${credentials}`,
++          'Content-Type': 'application/x-www-form-urlencoded',
++        },
++        body: 'grant_type=client_credentials',
+       },
+-      body: 'grant_type=client_credentials',
+-    });
++      true
++    );
+
+     const data = await response.json();
+
+@@ -683,12 +693,20 @@ export class PayPalProvider implements PaymentProvider {
+     this.tokenExpiry = Date.now() + data.expires_in * 1000;
+   }
+
+-  private async makeRequest(endpoint: string, method: string, data?: any) {
++  private async makeRequest(
++    endpoint: string,
++    method: string,
++    data?: any,
++    requestId?: string
++  ) {
+     const url = `${this.baseUrl}${endpoint}`;
+     const headers: Record<string, string> = {
+       Authorization: `Bearer ${this.accessToken}`,
+       'Content-Type': 'application/json',
+     };
++    if (requestId) {
++      headers['PayPal-Request-Id'] = requestId;
++    }
+
+     const config: RequestInit = {
+       method,
+@@ -699,7 +717,11 @@ export class PayPalProvider implements PaymentProvider {
+       config.body = JSON.stringify(data);
+     }
+
+-    const response = await fetch(url, config);
++    const response = await this.fetchWithNetworkRetry(
++      url,
++      config,
++      method === 'GET' || Boolean(requestId)
++    );
+
+     // Handle empty response (204 No Content)
+     if (response.status === 204) {
+@@ -723,6 +745,42 @@ export class PayPalProvider implements PaymentProvider {
+     return await response.json();
+   }
+
++  private getRequestId(order: PaymentOrder, operation: string) {
++    const orderNo = order.metadata?.order_no || order.orderNo;
++    if (!orderNo) return undefined;
++
++    // PayPal accepts request IDs up to 108 characters. A stable ID makes
++    // retries safe: PayPal returns the first result instead of duplicating it.
++    return `${orderNo}-${operation}`.slice(0, 108);
++  }
++
++  private async fetchWithNetworkRetry(
++    url: string,
++    config: RequestInit,
++    retryable: boolean
++  ) {
++    const delays = retryable ? PayPalProvider.NETWORK_RETRY_DELAYS_MS : [0];
++    let lastError: unknown;
++
++    for (let attempt = 0; attempt < delays.length; attempt++) {
++      if (delays[attempt] > 0) {
++        await new Promise((resolve) => setTimeout(resolve, delays[attempt]));
++      }
++
++      try {
++        return await fetch(url, config);
++      } catch (error) {
++        lastError = error;
++      }
++    }
++
++    const cause = (lastError as any)?.cause;
++    const reason = cause?.code || cause?.message || 'network error';
++    throw new Error(
++      `PayPal network request failed after ${delays.length} attempts: ${reason}`
++    );
++  }
++
+   private mapPayPalEventType(eventType: string): PaymentEventType {
+     switch (eventType) {
+       // Order events

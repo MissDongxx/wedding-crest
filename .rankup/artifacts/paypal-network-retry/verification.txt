@@ -1,0 +1,38 @@
+PayPal checkout network retry verification
+Date: 2026-09-20 Asia/Shanghai
+
+BASELINE
+Command/input: Browser click "Unlock My Crest" -> "Paypal" on http://localhost:3000/#pricing
+Literal browser output: checkout failed: checkout failed: fetch failed
+Literal server cause: ECONNRESET / UND_ERR_CONNECT_TIMEOUT connecting to api-m.paypal.com:443
+Result: FAIL (checkout remained on localhost)
+
+MODIFIED UNIT VERIFICATION
+Command: pnpm exec tsx .rankup/artifacts/paypal-network-retry/retry-harness.ts
+Input: OAuth fetch failures on calls 1-2; create-order fetch failures on calls 4-5
+Literal output: {"calls":6,"checkoutUrl":"https://www.paypal.com/checkoutnow?token=ORDER-OK","requestIds":[null,null,null,"ORDER-NO-123-order","ORDER-NO-123-order","ORDER-NO-123-order"]}
+Exit status: 0
+
+STATIC VERIFICATION
+Command: pnpm exec tsc --noEmit --pretty false
+Literal output: <empty>
+Exit status: 0
+Command: pnpm exec eslint src/extensions/payment/paypal.ts
+Literal output: 3 pre-existing unused-variable warnings at lines 567, 583, 584; 0 errors
+Exit status: 0
+Command: git diff --check -- src/extensions/payment/paypal.ts
+Literal output: <empty>
+Exit status: 0
+
+MODIFIED END-TO-END FRONTEND VERIFICATION
+Command/input: Browser click "Unlock My Crest" -> "Paypal" on http://localhost:3000/#pricing
+Literal visible output: PayPalアカウントへのログイン
+Literal navigation result: https://www.paypal.com/checkoutnow?token=<generated-order-token>
+Browser console result: no new localhost checkout error; historical pre-fix entries remain in the log
+Result: PASS (checkout created and redirected to PayPal; no financial confirmation was performed)
+
+ROLLBACK VERIFICATION
+Command: .rankup/artifacts/paypal-network-retry/rollback.sh /tmp/paypal-rollback-test.ts
+Literal output: restored /tmp/paypal-rollback-test.ts
+Command: cmp -s .rankup/artifacts/paypal-network-retry/paypal.ts.original /tmp/paypal-rollback-test.ts
+Exit status: 0

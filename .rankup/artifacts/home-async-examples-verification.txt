@@ -342,3 +342,20 @@ Live regression after binding update:
   GET /: HTTP 200, ttfb=1.780051s, total=1.827881s, bytes=165781, legacy_logo_refs=0, initial_examples_api_refs=0, skeleton_count=10.
   GET /zh/admin: HTTP 200 after redirect to /zh/sign-in?callbackUrl=%2Fadmin, Application error count=0.
   First four example image resources after the binding update: HTTP statuses=200,200,200,200.
+
+USER-REQUESTED FINAL DEPLOYMENT
+-------------------------------
+Command:
+  git diff --check && pnpm run cf:deploy
+First attempt: Cloudflare API returned HTTP 503 during script-settings PATCH; build and asset upload completed, deployment was not confirmed.
+Retry: exit status 0.
+Final Version ID:
+  8caad443-6da8-41c3-9a84-54f16f1654c2
+
+Post-deploy live verification:
+  POST /api/auth/sign-in/email: HTTP 401, ttfb=2.033939s, standard INVALID_EMAIL_OR_PASSWORD JSON.
+  POST /api/config/get-configs: HTTP 200, ttfb=1.359726s, app_logo present=true, host=images.weddingcrestdesign.com, path=/uploads/8522f64ceaf97b2cb5d15168df17710b.png.
+  GET /api/wedding/examples?surface=home: HTTP 200, ttfb=5.390483s, data.items=9, styles=3.
+  GET /: HTTP 200, ttfb=2.028847s, total=2.224713s, bytes=166848, legacy_logo_refs=0, initial_examples_api_refs=0, skeleton_count=10.
+  GET /zh/admin: HTTP 200 after redirect to /zh/sign-in?callbackUrl=%2Fadmin, Application error count=0.
+  First four example image resources: HTTP statuses=200,200,200,200.

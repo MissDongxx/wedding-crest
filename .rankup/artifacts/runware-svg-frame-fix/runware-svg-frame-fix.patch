@@ -1,0 +1,80 @@
+diff --git a/src/app/api/projects/[id]/generate/route.ts b/src/app/api/projects/[id]/generate/route.ts
+index a418aad..6e20d43 100644
+--- a/src/app/api/projects/[id]/generate/route.ts
++++ b/src/app/api/projects/[id]/generate/route.ts
+@@ -117,6 +117,25 @@ function pickModel(
+   );
+ }
+
++function isSvgReferenceImage(url: string) {
++  if (/^data:image\/svg\+xml(?:;|,)/i.test(url)) return true;
++
++  try {
++    return /\.svgz?$/i.test(new URL(url).pathname);
++  } catch {
++    return false;
++  }
++}
++
++function assertRasterReferenceImages(urls: string[]) {
++  const svgReference = urls.find(isSvgReferenceImage);
++  if (!svgReference) return;
++
++  throw new Error(
++    'SVG reference images are not supported by Runware. Upload the frame as PNG, JPEG, or WebP.'
++  );
++}
++
+ export async function POST(
+   request: Request,
+   { params }: { params: Promise<{ id: string }> }
+@@ -124,8 +143,11 @@ export async function POST(
+   // Pre-declared so the catch below can read a model label even when an
+   // earlier step throws before the multimodal switch has been computed.
+   let effectiveModel = 'runware:Flux-Schnell@1';
++  let projectId: string | undefined;
++  let projectMarkedGenerating = false;
+   try {
+     const { id } = await params;
++    projectId = id;
+     // Guests may run their first generation before any account exists.
+     const user = await getUserInfo();
+     const guestId = request.headers.get('x-wedding-guest-id') || undefined;
+@@ -289,6 +311,12 @@ export async function POST(
+       ...personalImages,
+     ];
+     const allReferenceImages = [...referenceImages, ...personalReferenceImages];
++    // Runware's multimodal inputs accept raster images. Legacy admin frame
++    // records may still point at SVG artwork even though the upload endpoint
++    // now allows raster formats only. Reject those records before submitting
++    // (and before changing project state) instead of surfacing Runware's opaque
++    // "User generation failed" response.
++    assertRasterReferenceImages(allReferenceImages);
+     const multimodalModel =
+       process.env.WEDDING_AI_MULTIMODAL_MODEL || 'google:nano-banana@2-lite';
+     effectiveModel = body.model
+@@ -298,6 +326,7 @@ export async function POST(
+         : model;
+
+     await updateWeddingProject(id, 'generating');
++    projectMarkedGenerating = true;
+
+     // Output dimensions. Default 1024 keeps the request within every
+     // Runware model's hard size cap. Bump to 2048 only when the operator
+@@ -407,6 +436,16 @@ export async function POST(
+     // size-limit error returning an HTML body) shows up in the server
+     // log instead of being silently masked by respErr.
+     console.error('[wedding] generate failed', error);
++    if (projectId && projectMarkedGenerating) {
++      try {
++        await updateWeddingProject(projectId, 'failed');
++      } catch (statusError) {
++        console.error(
++          '[wedding] failed to roll project status back after generation error',
++          statusError
++        );
++      }
++    }
+     const modelLabel = ` model: ${effectiveModel}`;
+     const base =
+       error instanceof Error && error.message

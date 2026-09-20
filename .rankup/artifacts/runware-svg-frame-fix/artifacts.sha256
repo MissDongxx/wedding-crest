@@ -1,0 +1,5 @@
+3e8d3de937a550f53562ca702ad37a324c260c78fe8936a72a80824a7ac4bc2a  .rankup/artifacts/runware-svg-frame-fix/modified/generate-route.ts
+37928aa1acfcb1662e1c2d3b6ad9353e6f2570ffc191b2be8fcf68001ffb26a7  .rankup/artifacts/runware-svg-frame-fix/runware-svg-frame-fix.patch
+23028dae1726d813e4d5d4b40efe94b465ce58ed654d9e358bc7af250a59d09b  .rankup/artifacts/runware-svg-frame-fix/verification.txt
+b4ecaeb45e050de9f8c7cbd5b6a2aa8773a310f9557faa7aa6c9133da06c321c  .rankup/artifacts/runware-svg-frame-fix/rollback.sh
+cf41d9b01fe8a4423dd3b7479f402717424ba6de268a144b49515214c451e16c  .rankup/artifacts/runware-svg-frame-fix/e2e-result.png

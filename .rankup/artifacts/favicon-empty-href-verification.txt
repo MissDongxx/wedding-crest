@@ -1,0 +1,70 @@
+FAVICON EMPTY-HREF FIX VERIFICATION
+===================================
+Date: 2026-08-28
+Changed source: src/app/layout.tsx
+Changed behavior: RootLayout renders the three favicon link elements only when faviconHref is non-empty. Configured admin logo/favicon behavior remains unchanged.
+
+BASELINE / MODIFIED HASHES
+---------------------------
+Baseline command:
+  git show HEAD:src/app/layout.tsx | shasum -a 256
+Baseline literal output:
+  233521bb3f29f4042f8114342a668f05e4e1d597ad3762519d81d86f3becd8a6  -
+Baseline exit status: 0
+
+Modified command:
+  shasum -a 256 src/app/layout.tsx
+Modified literal output:
+  28ed841b77e27600461c2201f1757fd41c943d3a104dcbfbfb3c7d401571ff9  src/app/layout.tsx
+Modified exit status: 0
+
+TARGETED STATIC CHECKS
+----------------------
+Command:
+  pnpm exec eslint src/app/layout.tsx src/shared/models/config.ts src/core/db/postgres.ts src/core/auth/client.ts src/config/db/schema.ts
+Literal result:
+  0 errors and 1 warning
+  warning: src/shared/models/config.ts:117:5 unused eslint-disable directive
+Exit status: 0
+
+Command:
+  pnpm exec tsc --noEmit --pretty false
+Literal result: (no output)
+Exit status: 0
+
+Command:
+  git diff --check
+Literal result: (no output)
+Exit status: 0
+
+PRODUCTION BUILD
+----------------
+Command:
+  pnpm run build
+Literal result excerpt:
+  Compiled successfully in 27.3s
+  Generating static pages (43/43)
+Exit status: 0
+
+LOCAL RUNTIME CHECK
+-------------------
+Command:
+  pnpm exec next start -H 127.0.0.1 -p 3017
+Result: server ready at http://127.0.0.1:3017; exit status 0 while running.
+
+Command:
+  curl -sS -D /tmp/wedding-local-home-after.headers http://127.0.0.1:3017/ -o /tmp/wedding-local-home-after.html
+Literal result:
+  HTTP_STATUS=307
+  EMPTY_LINK_HREF_MATCHES=0
+  ICON_LINK_COUNT=0
+Exit status: 0
+
+Final localized route request was attempted with /zh. The local process returned HTTP 500 because this sandbox hit EMFILE and could not resolve the configured localhost proxy target. The server was stopped after the check. No production deployment was performed for this local fix.
+
+PATCH / ROLLBACK
+----------------
+  git apply --reverse --check .rankup/artifacts/favicon-empty-href.patch: PASS
+  Clean-HEAD clone + git apply --check: PASS
+  Clean-HEAD clone + rollback script: PASS
+  Restored source diff: empty

@@ -1,0 +1,71 @@
+Runware SVG frame fix verification — 2026-09-18 Asia/Shanghai
+
+BASELINE (read-only production diagnosis)
+Command: frame/project correlation query for the previous 30 days
+Input: wedding_project joined to wedding_project_element(type=frame), wedding_frame, wedding_generation
+Literal result: {"extension":"svg","projects":22,"with_generation":0,"zero_generation":22}
+Exit status: 0
+
+MODIFICATION
+Code branch/field:
+- src/app/api/projects/[id]/generate/route.ts: referenceImages now rejects .svg/.svgz and SVG data URLs before Runware submission.
+- The same route now changes a project from generating to failed if provider submission throws.
+Production data:
+- 7 wedding_frame.url values migrated from SVG to 1536px PNG references.
+- 21 stale generating projects with zero generation rows changed to failed.
+Cloudflare deployment: version 60af33a7-f23a-43d0-aa15-091cd290315b
+
+STATIC / BUILD VERIFICATION
+Command: pnpm exec eslint 'src/app/api/projects/[id]/generate/route.ts'
+Literal output: (empty)
+Exit status: 0
+Command: pnpm exec tsc --noEmit
+Literal output: tsc_exit=0
+Exit status: 0
+Command: pnpm test:wedding
+Literal output suffix: exit=0
+Exit status: 0
+Command: git diff --check
+Literal output: diff_check_exit=0
+Exit status: 0
+Command: pnpm run build
+Literal output: Compiled successfully; Generating static pages (43/43)
+Exit status: 0
+Command: pnpm run cf:deploy
+Literal output: Current Version ID: 60af33a7-f23a-43d0-aa15-091cd290315b
+Exit status: 0
+
+PRODUCTION DATA / PROVIDER VERIFICATION
+Command: node .rankup/artifacts/runware-svg-frame-fix/verify-final.mjs
+Literal output:
+{
+  "frames": { "total": 7, "png": 7, "svg": 0 },
+  "stuckProjects": 0,
+  "e2e": {
+    "projectStatus": "complete",
+    "generationStatus": "complete",
+    "model": "google:nano-banana@2-lite",
+    "hasImage": true,
+    "providerHttp": 200,
+    "providerStatus": "success",
+    "providerHasImage": true
+  }
+}
+Exit status: 0
+
+BROWSER END-TO-END VERIFICATION
+Flow: production /create -> Names -> Classic Luxury -> oval-frame -> Black & Ivory -> Review -> Generate my crest
+Project: c0f68e43-5a77-4782-9722-8a4e2d0fc02b
+Literal UI/API result: projectStatus=complete, generationStatus=complete, hasImage=true
+Visible result: generated oval-frame crest rendered on /design/c0f68e43-5a77-4782-9722-8a4e2d0fc02b
+Browser console after clean reload: (no console errors)
+Screenshot: e2e-result.png (1280x1748 PNG)
+Exit status: 0
+
+ROLLBACK VERIFICATION
+Command: ROLLBACK_ROOT=/tmp/runware-svg-frame-rollback-verify ROLLBACK_SKIP_DATA=1 rollback.sh && cmp restored original
+Literal output: rollback complete; code_rollback_exit=0
+Exit status: 0
+Command: node rollback-data.mjs --verify-transaction
+Literal output: {"transactionRollbackVerified":{"frames":7,"projects":21},"liveSvgFramesAfterRollback":0,"liveGeneratingProjectsAfterRollback":0}
+Exit status: 0
