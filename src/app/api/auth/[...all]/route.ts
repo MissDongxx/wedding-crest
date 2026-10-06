@@ -23,6 +23,8 @@ function maybeRateLimitGetSession(request: Request): Response | null {
 }
 
 export async function POST(request: Request) {
+  const startedAt = Date.now();
+  const pathname = new URL(request.url).pathname;
   const limited = maybeRateLimitGetSession(request);
   if (limited) {
     return limited;
@@ -30,8 +32,15 @@ export async function POST(request: Request) {
 
   try {
     const auth = await getAuth(request);
+    console.info(
+      `[auth timing] ${pathname} getAuth=${Date.now() - startedAt}ms`
+    );
     const handler = toNextJsHandler(auth);
-    return await handler.POST(request);
+    const response = await handler.POST(request);
+    console.info(
+      `[auth timing] ${pathname} total=${Date.now() - startedAt}ms status=${response.status}`
+    );
+    return response;
   } catch (error) {
     console.error('[auth POST] Error:', error);
     return new Response(
