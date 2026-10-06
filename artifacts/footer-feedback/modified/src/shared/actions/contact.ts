@@ -74,18 +74,8 @@ export async function sendContactEmail(data: ContactFormData) {
     });
 
     if (!result.success) {
-      // Keep provider internals out of the visitor-facing toast (e.g. Brevo's
-      // "missing_parameter: ..." text). The full detail stays in the log.
-      console.error(
-        'Failed to send contact email via provider',
-        result.provider,
-        ':',
-        result.error
-      );
-      return {
-        success: false,
-        error: 'Failed to send message. Please try again.',
-      };
+      console.error('Failed to send contact email:', result.error);
+      return { success: false, error: result.error || 'Failed to send email' };
     }
 
     return { success: true };

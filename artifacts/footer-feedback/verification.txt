@@ -1,0 +1,30 @@
+Footer feedback verification record
+
+Baseline behavior:
+- Footer had navigation and support email links, but no inline communication form.
+
+Modified behavior:
+- Footer renders an accessible “Send us your feedback” region.
+- Form contains Name, Email, Subject, Message, and Send Message controls.
+- Mail recipient is support@weddingcrestdesign.com.
+- Client validation blocks short/invalid fields and displays literal field errors.
+- Server validation rejects invalid data before initializing the email provider.
+- User-provided HTML is escaped before email rendering.
+
+Static checks and literal results:
+1. pnpm exec eslint src/shared/actions/contact.ts src/shared/blocks/common/contact-form.tsx src/themes/default/blocks/footer.tsx
+   exit status: 0
+2. pnpm exec tsc --noEmit --pretty false
+   exit status: 0
+3. Invalid server input result:
+   {"success":false,"error":"Please check the form fields."}
+   exit status: 0
+4. git diff --check -- src/shared/actions/contact.ts src/shared/blocks/common/contact-form.tsx src/themes/default/blocks/footer.tsx
+   exit status: 0
+
+Browser verification at http://localhost:3000/:
+- Feedback region and all five controls are visible in the rendered footer.
+- support@weddingcrestdesign.com renders as a mailto link.
+- Invalid input displays Name/Subject/Message validation messages.
+- Browser console errors/warnings after the flow: []
+- A live valid submission was not triggered, avoiding a test email to the support inbox.

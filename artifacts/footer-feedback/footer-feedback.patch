@@ -1,0 +1,248 @@
+diff --git a/src/shared/actions/contact.ts b/src/shared/actions/contact.ts
+index cabb5e7..81f7ad7 100644
+--- a/src/shared/actions/contact.ts
++++ b/src/shared/actions/contact.ts
+@@ -2,6 +2,24 @@
+ 
+ import { getEmailService } from '@/shared/services/email';
+ 
++const MAX_NAME_LENGTH = 100;
++const MAX_SUBJECT_LENGTH = 200;
++const MAX_MESSAGE_LENGTH = 5000;
++
++function escapeHtml(value: string) {
++  return value.replace(
++    /[&<>'"]/g,
++    (character) =>
++      ({
++        '&': '&amp;',
++        '<': '&lt;',
++        '>': '&gt;',
++        "'": '&#39;',
++        '"': '&quot;',
++      })[character] || character
++  );
++}
++
+ export interface ContactFormData {
+   name: string;
+   email: string;
+@@ -11,6 +29,25 @@ export interface ContactFormData {
+ 
+ export async function sendContactEmail(data: ContactFormData) {
+   try {
++    const name = String(data.name || '').trim();
++    const email = String(data.email || '')
++      .trim()
++      .toLowerCase();
++    const subject = String(data.subject || '').trim();
++    const message = String(data.message || '').trim();
++
++    if (
++      name.length < 2 ||
++      name.length > MAX_NAME_LENGTH ||
++      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
++      subject.length < 5 ||
++      subject.length > MAX_SUBJECT_LENGTH ||
++      message.length < 10 ||
++      message.length > MAX_MESSAGE_LENGTH
++    ) {
++      return { success: false, error: 'Please check the form fields.' };
++    }
++
+     const emailService = await getEmailService();
+ 
+     const supportEmail = 'support@weddingcrestdesign.com';
+@@ -18,16 +55,16 @@ export async function sendContactEmail(data: ContactFormData) {
+ 
+     const result = await emailService.sendEmail({
+       to: supportEmail,
+-      subject: `[Contact Form] ${data.subject || 'New Message'}`,
+-      replyTo: data.email,
++      subject: `[Contact Form] ${subject}`,
++      replyTo: email,
+       html: `
+         <h2>New Contact Form Submission</h2>
+-        <p><strong>Name:</strong> ${data.name || 'N/A'}</p>
+-        <p><strong>Email:</strong> ${data.email}</p>
+-        <p><strong>Subject:</strong> ${data.subject}</p>
++        <p><strong>Name:</strong> ${escapeHtml(name)}</p>
++        <p><strong>Email:</strong> ${escapeHtml(email)}</p>
++        <p><strong>Subject:</strong> ${escapeHtml(subject)}</p>
+         <p><strong>Message:</strong></p>
+         <div style="white-space: pre-wrap; padding: 15px; background: #f5f5f5; border-radius: 5px;">
+-          ${data.message}
++          ${escapeHtml(message)}
+         </div>
+         <hr />
+         <p style="font-size: 12px; color: #666;">
+diff --git a/src/shared/blocks/common/contact-form.tsx b/src/shared/blocks/common/contact-form.tsx
+index f1a7705..18f91e8 100644
+--- a/src/shared/blocks/common/contact-form.tsx
++++ b/src/shared/blocks/common/contact-form.tsx
+@@ -19,6 +19,7 @@ import {
+ } from '@/shared/components/ui/form';
+ import { Input } from '@/shared/components/ui/input';
+ import { Textarea } from '@/shared/components/ui/textarea';
++import { cn } from '@/shared/lib/utils';
+ 
+ const contactFormSchema = z.object({
+   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+@@ -33,7 +34,7 @@ const contactFormSchema = z.object({
+ 
+ type ContactFormValues = z.infer<typeof contactFormSchema>;
+ 
+-export function ContactForm() {
++export function ContactForm({ compact = false }: { compact?: boolean }) {
+   const t = useTranslations('common.contact');
+   const [isSubmitting, setIsSubmitting] = useState(false);
+ 
+@@ -57,7 +58,7 @@ export function ContactForm() {
+       } else {
+         toast.error(result.error || t('error_message'));
+       }
+-    } catch (error) {
++    } catch {
+       toast.error(t('error_message'));
+     } finally {
+       setIsSubmitting(false);
+@@ -65,10 +66,26 @@ export function ContactForm() {
+   }
+ 
+   return (
+-    <div className="bg-card mx-auto w-full max-w-2xl rounded-2xl border p-8 shadow-sm">
++    <div
++      className={cn(
++        'w-full',
++        compact
++          ? 'bg-background/60 rounded-xl border p-4 sm:p-5'
++          : 'bg-card mx-auto max-w-2xl rounded-2xl border p-8 shadow-sm'
++      )}
++    >
+       <Form {...form}>
+-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
++        <form
++          onSubmit={form.handleSubmit(onSubmit)}
++          className={compact ? 'space-y-4' : 'space-y-6'}
++          aria-label="Send feedback"
++        >
++          <div
++            className={cn(
++              'grid grid-cols-1 md:grid-cols-2',
++              compact ? 'gap-4' : 'gap-6'
++            )}
++          >
+             <FormField
+               control={form.control}
+               name="name"
+@@ -76,7 +93,11 @@ export function ContactForm() {
+                 <FormItem>
+                   <FormLabel>{t('name_title')}</FormLabel>
+                   <FormControl>
+-                    <Input placeholder={t('name_placeholder')} {...field} />
++                    <Input
++                      autoComplete="name"
++                      placeholder={t('name_placeholder')}
++                      {...field}
++                    />
+                   </FormControl>
+                   <FormMessage />
+                 </FormItem>
+@@ -89,7 +110,12 @@ export function ContactForm() {
+                 <FormItem>
+                   <FormLabel>{t('email_title')}</FormLabel>
+                   <FormControl>
+-                    <Input placeholder={t('email_placeholder')} {...field} />
++                    <Input
++                      type="email"
++                      autoComplete="email"
++                      placeholder={t('email_placeholder')}
++                      {...field}
++                    />
+                   </FormControl>
+                   <FormMessage />
+                 </FormItem>
+@@ -118,7 +144,10 @@ export function ContactForm() {
+                 <FormControl>
+                   <Textarea
+                     placeholder={t('message_placeholder')}
+-                    className="min-h-[150px] resize-none"
++                    className={cn(
++                      'resize-none',
++                      compact ? 'min-h-24' : 'min-h-[150px]'
++                    )}
+                     {...field}
+                   />
+                 </FormControl>
+@@ -126,7 +155,11 @@ export function ContactForm() {
+               </FormItem>
+             )}
+           />
+-          <Button type="submit" className="w-full" disabled={isSubmitting}>
++          <Button
++            type="submit"
++            className={compact ? 'w-full sm:w-auto' : 'w-full'}
++            disabled={isSubmitting}
++          >
+             {isSubmitting ? t('sending_button') : t('submit_button')}
+           </Button>
+         </form>
+diff --git a/src/themes/default/blocks/footer.tsx b/src/themes/default/blocks/footer.tsx
+index 2c7f34a..f4ebdf3 100644
+--- a/src/themes/default/blocks/footer.tsx
++++ b/src/themes/default/blocks/footer.tsx
+@@ -1,10 +1,11 @@
+ import { Link } from '@/core/i18n/navigation';
+ import { BrandLogo } from '@/shared/blocks/common/brand-logo';
+ import { BuiltWith } from '@/shared/blocks/common/built-with';
++import { ContactForm } from '@/shared/blocks/common/contact-form';
+ import { Copyright } from '@/shared/blocks/common/copyright';
+ import { LocaleSelector } from '@/shared/blocks/common/locale-selector';
+-import { ThemeToggler } from '@/shared/blocks/common/theme-toggler';
+ import { SmartIcon } from '@/shared/blocks/common/smart-icon';
++import { ThemeToggler } from '@/shared/blocks/common/theme-toggler';
+ import { NavItem } from '@/shared/types/blocks/common';
+ import { Footer as FooterType } from '@/shared/types/blocks/landing';
+ 
+@@ -24,7 +25,9 @@ export function Footer({
+       <div className="container space-y-8 overflow-x-hidden">
+         <div className="grid min-w-0 gap-12 md:grid-cols-5">
+           <div className="min-w-0 space-y-4 break-words md:col-span-2 md:space-y-6">
+-            {footer.brand ? <BrandLogo brand={footer.brand} appLogo={appLogo} /> : null}
++            {footer.brand ? (
++              <BrandLogo brand={footer.brand} appLogo={appLogo} />
++            ) : null}
+ 
+             {footer.brand?.description ? (
+               <p
+@@ -58,6 +61,29 @@ export function Footer({
+           </div>
+         </div>
+ 
++        <section
++          aria-labelledby="footer-feedback-title"
++          className="bg-muted/30 grid min-w-0 gap-6 rounded-2xl border p-5 sm:p-6 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.5fr)] lg:items-start"
++        >
++          <div className="min-w-0 space-y-3">
++            <h2 id="footer-feedback-title" className="text-lg font-semibold">
++              Send us your feedback
++            </h2>
++            <p className="text-muted-foreground text-sm leading-6">
++              Questions, suggestions, or issues? Send a message and we’ll reply
++              by email.
++            </p>
++            <a
++              href="mailto:support@weddingcrestdesign.com"
++              className="text-primary inline-block text-sm font-medium break-all hover:underline"
++            >
++              support@weddingcrestdesign.com
++            </a>
++          </div>
++
++          <ContactForm compact />
++        </section>
++
+         <div className="flex min-w-0 flex-wrap items-center gap-4 sm:gap-8">
+           {footer.show_built_with !== false ? <BuiltWith /> : null}
+           <div className="min-w-0 flex-1" />
