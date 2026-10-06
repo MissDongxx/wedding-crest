@@ -13,45 +13,6 @@ export interface BrevoConfigs extends EmailConfigs {
 }
 
 /**
- * Split a `Name <user@example.com>` string into its parts. A bare address is
- * returned as `email` only, so callers can keep using the configured default
- * for whichever half is missing.
- */
-export function parseEmailAddress(value?: string): {
-  name?: string;
-  email?: string;
-} {
-  const raw = String(value || '').trim();
-  if (!raw) {
-    return {};
-  }
-
-  const angled = raw.match(/^(.*?)\s*<([^<>]+)>\s*$/);
-  if (angled) {
-    const name = angled[1].trim().replace(/^["']|["']$/g, '').trim();
-    return { name: name || undefined, email: angled[2].trim() };
-  }
-
-  return { email: raw };
-}
-
-/**
- * Brevo answers `missing_parameter: sender name is missing` when `sender.name`
- * is sent as an empty string (the admin "Brevo Sender Name" setting is a free
- * text field and is routinely saved blank). Never forward a blank name.
- */
-export function resolveSenderName(address: string): string {
-  const localPart = address.split('@')[0]?.replace(/[._-]+/g, ' ').trim();
-  if (!localPart) {
-    return 'Mailer';
-  }
-
-  return localPart.replace(/\b[a-z]/g, (character) =>
-    character.toUpperCase()
-  );
-}
-
-/**
  * Brevo email provider implementation using REST API (v3)
  */
 export class BrevoProvider implements EmailProvider {
@@ -71,27 +32,10 @@ export class BrevoProvider implements EmailProvider {
         html = await render(email.react);
       }
 
-      // Accept both a bare address and a `Name <address>` override.
-      const override = parseEmailAddress(email.from);
-      const senderEmail =
-        override.email || String(this.configs.defaultFromEmail || '').trim();
-      const senderName =
-        override.name ||
-        String(this.configs.defaultFromName || '').trim() ||
-        resolveSenderName(senderEmail);
-
-      if (!senderEmail) {
-        return {
-          success: false,
-          error: 'Brevo sender email is not configured',
-          provider: this.name,
-        };
-      }
-
       const payload: any = {
         sender: {
-          name: senderName,
-          email: senderEmail,
+          name: email.from ? undefined : this.configs.defaultFromName,
+          email: email.from || this.configs.defaultFromEmail,
         },
         to: (Array.isArray(email.to) ? email.to : [email.to]).map((e) => ({
           email: e,

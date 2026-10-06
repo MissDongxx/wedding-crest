@@ -1,0 +1,77 @@
+Brevo sender-name fix — verification record (2026-10-06)
+
+Reported symptom
+- Footer feedback box -> "Send Message" -> toast:
+  missing_parameter: sender name is missing
+
+Root cause (with data)
+- Live config, read from the shared Supabase instance, schema "wedding-crest", table config:
+    brevo_sender_name  = ""                                  <-- empty string
+    brevo_sender_email = "support@weddingcrestdesign.com"
+    app_name           = "Wedding Crest Design"
+    resend_api_key     = (absent)
+- With no resend_api_key, src/shared/services/email.ts registers Brevo as the only
+  provider and EmailManager picks providers[0] as default.
+- src/extensions/email/brevo.ts sent `sender: { name: "", email: ... }`
+  (JSON.stringify keeps "" ; it only drops undefined), and Brevo rejects a present
+  but empty sender name. The provider then formatted the rejection as
+  `${code}: ${message}` -> "missing_parameter: sender name is missing", i.e. the
+  exact string in the report.
+- Same failure hits every other Brevo caller (verification / password-reset mail in
+  src/core/auth/config.ts, /api/email/send-email), and no caller ever passes `from`.
+
+Evidence: paired online probes (no email is delivered by either probe)
+
+  # A. pre-fix payload shape (blank name) + harmless invalid recipient
+  POST https://api.brevo.com/v3/smtp/email
+  {"sender":{"name":"","email":"support@weddingcrestdesign.com"},"to":[{"email":"probe@example.invalid"}],...}
+  -> 400 {"code":"missing_parameter","message":"sender name is missing"}
+
+  # B. post-fix payload shape (name resolved), only the recipient is deliberately invalid
+  POST https://api.brevo.com/v3/smtp/email
+  {"sender":{"name":"Wedding Crest Design","email":"support@weddingcrestdesign.com"},"to":[{"email":"not-an-email"}],...}
+  -> 400 {"code":"invalid_parameter","message":"email is not valid in to"}
+  The sender block now passes validation; the only remaining error is the planted bad recipient.
+  No test email was sent to support@ at any point.
+
+  # C. sender identity is verified on the Brevo side
+  GET /v3/account -> 200 (free plan, 300 credits)
+  GET /v3/senders -> 200 [{"id":6,"name":"WeddingCrestDesign",
+                            "email":"support@weddingcrestdesign.com","active":true}, ...]
+
+Changes
+1. src/extensions/email/brevo.ts
+   - new parseEmailAddress() -> splits "Name <addr>" instead of treating the whole
+     string as the sender email (the old `email.from ? undefined : ...` branch was
+     wrong for both halves).
+   - new resolveSenderName() -> derives a non-empty display name from the address.
+   - senderEmail = override.email || defaultFromEmail.trim()
+     senderName  = override.name || defaultFromName.trim() || resolveSenderName(senderEmail)
+   - missing senderEmail now returns a readable error instead of relaying a Brevo 400.
+2. src/shared/services/email.ts
+   - defaultFromName falls back to app_name, so a blank admin field can no longer
+     produce an empty sender name.
+3. src/shared/actions/contact.ts (committed together with the footer feedback
+   form, see commit "feat(footer): add an inline feedback form")
+   - provider error text is logged server-side only; the visitor gets a generic message.
+4. Live config (data change, no deploy required)
+   - "wedding-crest".config.brevo_sender_name : "" -> "Wedding Crest Design"
+   - Effective within the 5-minute in-memory config cache per isolate;
+     on Cloudflare getConfigs() bypasses unstable_cache and reads the DB directly.
+
+Static checks and literal results
+1. pnpm exec eslint src/extensions/email/brevo.ts src/shared/services/email.ts src/shared/actions/contact.ts
+   exit status: 0
+2. pnpm exec tsc --noEmit --pretty false
+   exit status: 0 (clean after `artifacts` was added to tsconfig `exclude`; before
+   that the only diagnostics were two snapshot copies under
+   artifacts/sign-in-loading-fix/modified/, which no longer resolve their
+   neighbour ./social-providers)
+3. git apply --reverse --check artifacts/brevo-sender-fix/brevo-sender-fix.patch
+   exit status: 0  (REVERSE_CHECK_OK) — the patch is exactly reversible.
+
+Deployment status
+- Not deployed. The config row alone already repairs the live footer form.
+- The code hardening takes effect on the next `npm run cf:deploy`; the working tree
+  also carries unrelated in-progress changes (admin payments, sign-in), so a deploy
+  must not be triggered casually.

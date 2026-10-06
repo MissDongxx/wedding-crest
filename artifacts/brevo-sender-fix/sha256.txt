@@ -1,0 +1,2 @@
+63a83d08f63f4d86f944b4932fd1ab2e7a8af89223b7f7ee793687203a92fb18  src/extensions/email/brevo.ts
+2228ee0d9272ee7e924c458b0ab57fc951887994989b77671a0e0e514fd6f805  src/shared/services/email.ts

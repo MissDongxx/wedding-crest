@@ -21,19 +21,11 @@ export function getEmailServiceWithConfigs(configs: Configs) {
   }
 
   if (configs.brevo_api_key) {
-    // Brevo hard-rejects a blank `sender.name`, and the admin field is often
-    // saved as an empty string. Fall back to the app name so sending never
-    // depends on an optional setting being filled in.
-    const senderName =
-      String(configs.brevo_sender_name || '').trim() ||
-      String(configs.app_name || '').trim() ||
-      undefined;
-
     emailManager.addProvider(
       new BrevoProvider({
         apiKey: configs.brevo_api_key,
         defaultFromEmail: configs.brevo_sender_email,
-        defaultFromName: senderName,
+        defaultFromName: configs.brevo_sender_name,
       })
     );
   }

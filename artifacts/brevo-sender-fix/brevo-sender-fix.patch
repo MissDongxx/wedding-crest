@@ -1,0 +1,105 @@
+diff --git a/src/extensions/email/brevo.ts b/src/extensions/email/brevo.ts
+index 247daa2..ed2e8b6 100644
+--- a/src/extensions/email/brevo.ts
++++ b/src/extensions/email/brevo.ts
+@@ -12,6 +12,45 @@ export interface BrevoConfigs extends EmailConfigs {
+   defaultFromName?: string;
+ }
+ 
++/**
++ * Split a `Name <user@example.com>` string into its parts. A bare address is
++ * returned as `email` only, so callers can keep using the configured default
++ * for whichever half is missing.
++ */
++export function parseEmailAddress(value?: string): {
++  name?: string;
++  email?: string;
++} {
++  const raw = String(value || '').trim();
++  if (!raw) {
++    return {};
++  }
++
++  const angled = raw.match(/^(.*?)\s*<([^<>]+)>\s*$/);
++  if (angled) {
++    const name = angled[1].trim().replace(/^["']|["']$/g, '').trim();
++    return { name: name || undefined, email: angled[2].trim() };
++  }
++
++  return { email: raw };
++}
++
++/**
++ * Brevo answers `missing_parameter: sender name is missing` when `sender.name`
++ * is sent as an empty string (the admin "Brevo Sender Name" setting is a free
++ * text field and is routinely saved blank). Never forward a blank name.
++ */
++export function resolveSenderName(address: string): string {
++  const localPart = address.split('@')[0]?.replace(/[._-]+/g, ' ').trim();
++  if (!localPart) {
++    return 'Mailer';
++  }
++
++  return localPart.replace(/\b[a-z]/g, (character) =>
++    character.toUpperCase()
++  );
++}
++
+ /**
+  * Brevo email provider implementation using REST API (v3)
+  */
+@@ -32,10 +71,27 @@ export class BrevoProvider implements EmailProvider {
+         html = await render(email.react);
+       }
+ 
++      // Accept both a bare address and a `Name <address>` override.
++      const override = parseEmailAddress(email.from);
++      const senderEmail =
++        override.email || String(this.configs.defaultFromEmail || '').trim();
++      const senderName =
++        override.name ||
++        String(this.configs.defaultFromName || '').trim() ||
++        resolveSenderName(senderEmail);
++
++      if (!senderEmail) {
++        return {
++          success: false,
++          error: 'Brevo sender email is not configured',
++          provider: this.name,
++        };
++      }
++
+       const payload: any = {
+         sender: {
+-          name: email.from ? undefined : this.configs.defaultFromName,
+-          email: email.from || this.configs.defaultFromEmail,
++          name: senderName,
++          email: senderEmail,
+         },
+         to: (Array.isArray(email.to) ? email.to : [email.to]).map((e) => ({
+           email: e,
+diff --git a/src/shared/services/email.ts b/src/shared/services/email.ts
+index a4ce0e3..c8290cd 100644
+--- a/src/shared/services/email.ts
++++ b/src/shared/services/email.ts
+@@ -21,11 +21,19 @@ export function getEmailServiceWithConfigs(configs: Configs) {
+   }
+ 
+   if (configs.brevo_api_key) {
++    // Brevo hard-rejects a blank `sender.name`, and the admin field is often
++    // saved as an empty string. Fall back to the app name so sending never
++    // depends on an optional setting being filled in.
++    const senderName =
++      String(configs.brevo_sender_name || '').trim() ||
++      String(configs.app_name || '').trim() ||
++      undefined;
++
+     emailManager.addProvider(
+       new BrevoProvider({
+         apiKey: configs.brevo_api_key,
+         defaultFromEmail: configs.brevo_sender_email,
+-        defaultFromName: configs.brevo_sender_name,
++        defaultFromName: senderName,
+       })
+     );
+   }
