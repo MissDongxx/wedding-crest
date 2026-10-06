@@ -1,0 +1,24 @@
+Sign-in loading investigation and verification
+
+Root cause evidence:
+- Browser DOM reproduced a disabled sign-in button with a spinner.
+- Server log recorded POST /api/auth/sign-in/email taking 168604ms and another taking 210722ms.
+- The page SignIn component set loading=true before the request but deliberately left onResponse/onSuccess as no-ops and had no finally block.
+- Therefore a delayed response, failed redirect, interrupted navigation, or back/forward cache restore could leave loading=true indefinitely.
+
+Modified behavior:
+- Both full-page and modal sign-in requests have a 30-second AbortController deadline.
+- Both components clear the timer and reset loading in finally.
+- A pageshow listener resets stale loading state after browser back/forward cache restoration.
+- Timeout produces: Sign in timed out. Please try again.
+
+Verification:
+- prettier check: exit 0
+- targeted eslint: exit 0
+- TypeScript noEmit: exit 0
+- git diff --check: exit 0
+- Browser after a delayed sign-in probe: button disabled immediately, then enabled after the 30-second deadline.
+- Reloaded sign-in page: buttonEnabled=true.
+- Browser console warnings/errors after reload: []
+- Local read-only database probes: ping 611ms, user lookup 237ms, session lookup 231ms.
+- Local endpoint health after recovery: get-session 0.362s, sign-in page 0.346s.

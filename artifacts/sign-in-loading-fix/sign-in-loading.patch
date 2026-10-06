@@ -1,0 +1,172 @@
+diff --git a/src/shared/blocks/sign/sign-in-form.tsx b/src/shared/blocks/sign/sign-in-form.tsx
+index 50aa880..d93bb98 100644
+--- a/src/shared/blocks/sign/sign-in-form.tsx
++++ b/src/shared/blocks/sign/sign-in-form.tsx
+@@ -1,6 +1,6 @@
+ 'use client';
+ 
+-import { useState } from 'react';
++import { useEffect, useState } from 'react';
+ import { Loader2 } from 'lucide-react';
+ import { useLocale, useTranslations } from 'next-intl';
+ import { toast } from 'sonner';
+@@ -15,6 +15,8 @@ import { useAppContext } from '@/shared/contexts/app';
+ 
+ import { SocialProviders } from './social-providers';
+ 
++const SIGN_IN_TIMEOUT_MS = 30_000;
++
+ export function SignInForm({
+   callbackUrl = '/',
+   className,
+@@ -31,6 +33,12 @@ export function SignInForm({
+   const [password, setPassword] = useState('');
+   const [loading, setLoading] = useState(false);
+ 
++  useEffect(() => {
++    const resetLoading = () => setLoading(false);
++    window.addEventListener('pageshow', resetLoading);
++    return () => window.removeEventListener('pageshow', resetLoading);
++  }, []);
++
+   const { configs, setIsShowSignModal, setUser, fetchUserInfo } =
+     useAppContext();
+ 
+@@ -72,6 +80,11 @@ export function SignInForm({
+ 
+     // Set loading immediately to avoid duplicate submits before request hooks fire.
+     setLoading(true);
++    const controller = new AbortController();
++    const timeoutId = window.setTimeout(
++      () => controller.abort(),
++      SIGN_IN_TIMEOUT_MS
++    );
+ 
+     try {
+       await signIn.email(
+@@ -81,12 +94,7 @@ export function SignInForm({
+           callbackURL: callbackUrl,
+         },
+         {
+-          onRequest: (ctx) => {
+-            // loading is already set above; keep as no-op for safety
+-          },
+-          onResponse: (ctx) => {
+-            // Do NOT reset loading here; navigation may not have completed yet.
+-          },
++          signal: controller.signal,
+           onSuccess: async () => {
+             try {
+               const res: any = await authClient.getSession();
+@@ -97,7 +105,6 @@ export function SignInForm({
+               }
+             } catch {}
+             setIsShowSignModal(false);
+-            setLoading(false);
+             router.refresh();
+           },
+           onError: (e: any) => {
+@@ -120,12 +127,17 @@ export function SignInForm({
+             }
+ 
+             toast.error(e?.error?.message || 'sign in failed');
+-            setLoading(false);
+           },
+         }
+       );
+     } catch (e: any) {
+-      toast.error(e?.message || 'sign in failed');
++      toast.error(
++        e?.name === 'AbortError'
++          ? 'Sign in timed out. Please try again.'
++          : e?.message || 'sign in failed'
++      );
++    } finally {
++      window.clearTimeout(timeoutId);
+       setLoading(false);
+     }
+   };
+diff --git a/src/shared/blocks/sign/sign-in.tsx b/src/shared/blocks/sign/sign-in.tsx
+index df89390..ffc79ab 100644
+--- a/src/shared/blocks/sign/sign-in.tsx
++++ b/src/shared/blocks/sign/sign-in.tsx
+@@ -1,6 +1,6 @@
+ 'use client';
+ 
+-import { useState } from 'react';
++import { useEffect, useState } from 'react';
+ import { Loader2 } from 'lucide-react';
+ import { useLocale, useTranslations } from 'next-intl';
+ import { toast } from 'sonner';
+@@ -22,6 +22,8 @@ import { Label } from '@/shared/components/ui/label';
+ 
+ import { SocialProviders } from './social-providers';
+ 
++const SIGN_IN_TIMEOUT_MS = 30_000;
++
+ export function SignIn({
+   configs,
+   callbackUrl = '/',
+@@ -37,7 +39,12 @@ export function SignIn({
+   const [email, setEmail] = useState(defaultEmail || '');
+   const [password, setPassword] = useState('');
+   const [loading, setLoading] = useState(false);
+-  const [rememberMe, setRememberMe] = useState(false);
++
++  useEffect(() => {
++    const resetLoading = () => setLoading(false);
++    window.addEventListener('pageshow', resetLoading);
++    return () => window.removeEventListener('pageshow', resetLoading);
++  }, []);
+ 
+   const isGoogleAuthEnabled = configs.google_auth_enabled === 'true';
+   const isGithubAuthEnabled = configs.github_auth_enabled === 'true';
+@@ -77,6 +84,11 @@ export function SignIn({
+ 
+     // Set loading immediately to avoid duplicate submits before request hooks fire.
+     setLoading(true);
++    const controller = new AbortController();
++    const timeoutId = window.setTimeout(
++      () => controller.abort(),
++      SIGN_IN_TIMEOUT_MS
++    );
+ 
+     try {
+       await signIn.email(
+@@ -86,15 +98,7 @@ export function SignIn({
+           callbackURL: callbackUrl,
+         },
+         {
+-          onRequest: (ctx) => {
+-            // loading is already set above; keep as no-op for safety
+-          },
+-          onResponse: (ctx) => {
+-            // Do NOT reset loading here; navigation may not have completed yet.
+-          },
+-          onSuccess: (ctx) => {
+-            // Keep loading=true until navigation completes.
+-          },
++          signal: controller.signal,
+           onError: (e: any) => {
+             const status = e?.error?.status;
+             if (status === 403) {
+@@ -119,12 +123,17 @@ export function SignIn({
+             }
+ 
+             toast.error(e?.error?.message || 'sign in failed');
+-            setLoading(false);
+           },
+         }
+       );
+     } catch (e: any) {
+-      toast.error(e?.message || 'sign in failed');
++      toast.error(
++        e?.name === 'AbortError'
++          ? 'Sign in timed out. Please try again.'
++          : e?.message || 'sign in failed'
++      );
++    } finally {
++      window.clearTimeout(timeoutId);
+       setLoading(false);
+     }
+   };
