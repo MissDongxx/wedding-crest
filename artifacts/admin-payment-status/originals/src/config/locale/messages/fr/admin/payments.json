@@ -13,10 +13,7 @@
   },
   "list": {
     "title": "Paiements",
-    "crumbs": {
-      "admin": "Admin",
-      "payments": "Paiements"
-    },
+    "crumbs": { "admin": "Admin", "payments": "Paiements" },
     "tabs": {
       "all": "Tous",
       "subscription": "Abonnement",
@@ -28,9 +25,8 @@
         "options": {
           "all": "Tous",
           "paid": "Payé",
-          "created": "En attente / expiré",
-          "failed": "Échoué",
-          "canceled": "Annulé par l’utilisateur"
+          "created": "Créé",
+          "failed": "Échoué"
         }
       },
       "provider": {
@@ -45,18 +41,7 @@
       }
     },
     "search": {
-      "order_no": {
-        "title": "N° de Commande",
-        "placeholder": "N° de Commande"
-      }
-    },
-    "status": {
-      "paid": "Payé",
-      "failed": "Échec du paiement",
-      "canceled": "Annulé par l’utilisateur",
-      "expired": "Impayé (expiré)",
-      "awaiting_payment": "En attente du paiement",
-      "pending": "Création du paiement"
+      "order_no": { "title": "N° de Commande", "placeholder": "N° de Commande" }
     }
   }
 }

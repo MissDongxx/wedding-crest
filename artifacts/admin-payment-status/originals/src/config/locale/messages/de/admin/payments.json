@@ -28,9 +28,8 @@
         "options": {
           "all": "Alle",
           "paid": "Bezahlt",
-          "created": "Ausstehend / abgelaufen",
-          "failed": "Fehlgeschlagen",
-          "canceled": "Vom Benutzer storniert"
+          "created": "Erstellt",
+          "failed": "Fehlgeschlagen"
         }
       },
       "provider": {
@@ -49,14 +48,6 @@
         "title": "Bestellnummer",
         "placeholder": "Bestellnummer"
       }
-    },
-    "status": {
-      "paid": "Bezahlt",
-      "failed": "Zahlung fehlgeschlagen",
-      "canceled": "Vom Benutzer storniert",
-      "expired": "Unbezahlt (abgelaufen)",
-      "awaiting_payment": "Zahlung ausstehend",
-      "pending": "Zahlung wird erstellt"
     }
   }
 }

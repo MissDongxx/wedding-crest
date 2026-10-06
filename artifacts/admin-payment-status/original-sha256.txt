@@ -1,0 +1,12 @@
+5bfe60bd0f28322371281558a1408283cfae697496ea23c6e596f38c0025f5a5  artifacts/admin-payment-status/originals/src/app/[locale]/(admin)/admin/payments/page.tsx.original
+516be8f1155a20de384f85b5bc21e4889e118c4cdc5c7385b068db2f4b51e0a4  artifacts/admin-payment-status/originals/src/app/api/payment/checkout/route.ts.original
+c551e2fc62163bc6a43ddb2b9825369ffd7e3e1ea7789b3009023a6ea2a9ce2f  artifacts/admin-payment-status/originals/src/config/locale/messages/de/admin/payments.json
+122707ab57888840adabc43189a5c3073beff2b95dfd669b68cb7604fc459f69  artifacts/admin-payment-status/originals/src/config/locale/messages/en/admin/payments.json
+17136f11e60d0caab1062356d4fbe8f6edf9929acfc6eaee3f28e4030ffb5619  artifacts/admin-payment-status/originals/src/config/locale/messages/fr/admin/payments.json
+f3ecf12060dd0bfeb7764d80b3dae2237c49dae640734a948425cdb4bcd24265  artifacts/admin-payment-status/originals/src/config/locale/messages/it/admin/payments.json
+9f12ec2304be511ff719c9985e91c1f84ec49a08401cac07b63f1a9e4236347f  artifacts/admin-payment-status/originals/src/config/locale/messages/ko/admin/payments.json
+a59c41801911b6d6c973ad83079dcfd521f062079c2c092b63260b0570eec0b6  artifacts/admin-payment-status/originals/src/config/locale/messages/pt-BR/admin/payments.json
+38f6e0b276520903d011d71ca8237e408b026acd294b5fe005954b4f67ed79f6  artifacts/admin-payment-status/originals/src/config/locale/messages/th/admin/payments.json
+d6fbbe26e802eac8760662126a65e59eb4fb8c45d91ef9ce872be4924ec1cc27  artifacts/admin-payment-status/originals/src/config/locale/messages/zh/admin/payments.json
+9ac91a78b1e7e9f439b9203094a5869a6d9a39d5a7d9d8b6e1852c1417a92702  artifacts/admin-payment-status/originals/src/shared/models/order.ts.original
+a4c15d8b1e2505a6f403220aa1200bdef6b8e0913df4f1eaed9ab511c2955f2c  artifacts/admin-payment-status/originals/src/shared/services/payment.ts.original

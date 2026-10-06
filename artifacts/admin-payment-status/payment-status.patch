@@ -1,0 +1,479 @@
+diff --git a/src/app/[locale]/(admin)/admin/payments/page.tsx b/src/app/[locale]/(admin)/admin/payments/page.tsx
+index 8003561..d0cfdfd 100644
+--- a/src/app/[locale]/(admin)/admin/payments/page.tsx
++++ b/src/app/[locale]/(admin)/admin/payments/page.tsx
+@@ -4,10 +4,35 @@ import { PERMISSIONS, requirePermission } from '@/core/rbac';
+ import { PaymentType } from '@/extensions/payment/types';
+ import { Header, Main, MainHeader } from '@/shared/blocks/dashboard';
+ import { TableCard } from '@/shared/blocks/table';
++import { Badge } from '@/shared/components/ui/badge';
++import {
++  getPaymentDisplayStatus,
++  PaymentDisplayStatus,
++} from '@/shared/lib/payment-status';
+ import { getOrders, getOrdersCount, OrderStatus } from '@/shared/models/order';
+ import { Crumb, Filter, Search, Tab } from '@/shared/types/blocks/common';
+ import { type Table } from '@/shared/types/blocks/table';
+ 
++function getDisplayStatusPresentation(
++  item: { status: string; createdAt: Date | string },
++  t: Awaited<ReturnType<typeof getTranslations>>
++) {
++  const displayStatus = getPaymentDisplayStatus(item.status, item.createdAt);
++  const classNames: Record<PaymentDisplayStatus, string> = {
++    paid: 'bg-emerald-600 text-white',
++    failed: 'bg-destructive text-white',
++    canceled: 'bg-slate-500 text-white',
++    expired: 'bg-amber-600 text-white',
++    awaiting_payment: 'bg-blue-600 text-white',
++    pending: 'bg-blue-600 text-white',
++  };
++
++  return {
++    label: t(`list.status.${displayStatus}`),
++    className: classNames[displayStatus],
++  };
++}
++
+ export default async function PaymentsPage({
+   params,
+   searchParams,
+@@ -90,6 +115,10 @@ export default async function PaymentsPage({
+           value: OrderStatus.FAILED,
+           label: t('list.filters.status.options.failed'),
+         },
++        {
++          value: OrderStatus.CANCELED,
++          label: t('list.filters.status.options.canceled'),
++        },
+       ],
+     },
+     {
+@@ -159,7 +188,14 @@ export default async function PaymentsPage({
+         },
+         type: 'copy',
+       },
+-      { name: 'status', title: t('fields.status'), type: 'label' },
++      {
++        name: 'status',
++        title: t('fields.status'),
++        callback: (item) => {
++          const status = getDisplayStatusPresentation(item, t);
++          return <Badge className={status.className}>{status.label}</Badge>;
++        },
++      },
+       {
+         name: 'paymentType',
+         title: t('fields.type'),
+diff --git a/src/app/api/payment/checkout/route.ts b/src/app/api/payment/checkout/route.ts
+index 070d40a..974afc4 100644
+--- a/src/app/api/payment/checkout/route.ts
++++ b/src/app/api/payment/checkout/route.ts
+@@ -221,7 +221,10 @@ export async function POST(req: Request) {
+         ...(metadata || {}),
+       },
+       successUrl: `${configs.app_url}/api/payment/callback?order_no=${orderNo}`,
+-      cancelUrl: `${callbackBaseUrl}/pricing`,
++      // Record an explicit buyer cancellation before returning to pricing.
++      // Without this callback, canceled and abandoned checkouts both remain
++      // indistinguishable in the `created` state.
++      cancelUrl: `${configs.app_url}/api/payment/cancel?order_no=${orderNo}`,
+     };
+ 
+     // checkout with predefined product
+diff --git a/src/config/locale/messages/de/admin/payments.json b/src/config/locale/messages/de/admin/payments.json
+index 659e8c0..7426b78 100644
+--- a/src/config/locale/messages/de/admin/payments.json
++++ b/src/config/locale/messages/de/admin/payments.json
+@@ -28,8 +28,9 @@
+         "options": {
+           "all": "Alle",
+           "paid": "Bezahlt",
+-          "created": "Erstellt",
+-          "failed": "Fehlgeschlagen"
++          "created": "Ausstehend / abgelaufen",
++          "failed": "Fehlgeschlagen",
++          "canceled": "Vom Benutzer storniert"
+         }
+       },
+       "provider": {
+@@ -48,6 +49,14 @@
+         "title": "Bestellnummer",
+         "placeholder": "Bestellnummer"
+       }
++    },
++    "status": {
++      "paid": "Bezahlt",
++      "failed": "Zahlung fehlgeschlagen",
++      "canceled": "Vom Benutzer storniert",
++      "expired": "Unbezahlt (abgelaufen)",
++      "awaiting_payment": "Zahlung ausstehend",
++      "pending": "Zahlung wird erstellt"
+     }
+   }
+ }
+diff --git a/src/config/locale/messages/en/admin/payments.json b/src/config/locale/messages/en/admin/payments.json
+index bd98761..f7ccab6 100644
+--- a/src/config/locale/messages/en/admin/payments.json
++++ b/src/config/locale/messages/en/admin/payments.json
+@@ -28,8 +28,9 @@
+         "options": {
+           "all": "All",
+           "paid": "Paid",
+-          "created": "Created",
+-          "failed": "Failed"
++          "created": "Awaiting / expired",
++          "failed": "Failed",
++          "canceled": "Canceled by user"
+         }
+       },
+       "provider": {
+@@ -48,6 +49,14 @@
+         "title": "Order No",
+         "placeholder": "Order No"
+       }
++    },
++    "status": {
++      "paid": "Paid",
++      "failed": "Payment failed",
++      "canceled": "Canceled by user",
++      "expired": "Unpaid (expired)",
++      "awaiting_payment": "Awaiting payment",
++      "pending": "Creating payment"
+     }
+   }
+ }
+diff --git a/src/config/locale/messages/fr/admin/payments.json b/src/config/locale/messages/fr/admin/payments.json
+index ed7b271..d951eef 100644
+--- a/src/config/locale/messages/fr/admin/payments.json
++++ b/src/config/locale/messages/fr/admin/payments.json
+@@ -13,7 +13,10 @@
+   },
+   "list": {
+     "title": "Paiements",
+-    "crumbs": { "admin": "Admin", "payments": "Paiements" },
++    "crumbs": {
++      "admin": "Admin",
++      "payments": "Paiements"
++    },
+     "tabs": {
+       "all": "Tous",
+       "subscription": "Abonnement",
+@@ -25,8 +28,9 @@
+         "options": {
+           "all": "Tous",
+           "paid": "Payé",
+-          "created": "Créé",
+-          "failed": "Échoué"
++          "created": "En attente / expiré",
++          "failed": "Échoué",
++          "canceled": "Annulé par l’utilisateur"
+         }
+       },
+       "provider": {
+@@ -41,7 +45,18 @@
+       }
+     },
+     "search": {
+-      "order_no": { "title": "N° de Commande", "placeholder": "N° de Commande" }
++      "order_no": {
++        "title": "N° de Commande",
++        "placeholder": "N° de Commande"
++      }
++    },
++    "status": {
++      "paid": "Payé",
++      "failed": "Échec du paiement",
++      "canceled": "Annulé par l’utilisateur",
++      "expired": "Impayé (expiré)",
++      "awaiting_payment": "En attente du paiement",
++      "pending": "Création du paiement"
+     }
+   }
+ }
+diff --git a/src/config/locale/messages/it/admin/payments.json b/src/config/locale/messages/it/admin/payments.json
+index c5b5a42..c4d0316 100644
+--- a/src/config/locale/messages/it/admin/payments.json
++++ b/src/config/locale/messages/it/admin/payments.json
+@@ -28,8 +28,9 @@
+         "options": {
+           "all": "Tutti",
+           "paid": "Pagato",
+-          "created": "Creato",
+-          "failed": "Fallito"
++          "created": "In attesa / scaduto",
++          "failed": "Fallito",
++          "canceled": "Annullato dall’utente"
+         }
+       },
+       "provider": {
+@@ -48,6 +49,14 @@
+         "title": "N° Ordine",
+         "placeholder": "N° Ordine"
+       }
++    },
++    "status": {
++      "paid": "Pagato",
++      "failed": "Pagamento non riuscito",
++      "canceled": "Annullato dall’utente",
++      "expired": "Non pagato (scaduto)",
++      "awaiting_payment": "In attesa del pagamento",
++      "pending": "Creazione pagamento"
+     }
+   }
+ }
+diff --git a/src/config/locale/messages/ko/admin/payments.json b/src/config/locale/messages/ko/admin/payments.json
+index cc1fa34..1c837e9 100644
+--- a/src/config/locale/messages/ko/admin/payments.json
++++ b/src/config/locale/messages/ko/admin/payments.json
+@@ -28,8 +28,9 @@
+         "options": {
+           "all": "전체",
+           "paid": "결제 완료",
+-          "created": "생성됨",
+-          "failed": "실패"
++          "created": "결제 대기 / 만료",
++          "failed": "실패",
++          "canceled": "사용자 취소"
+         }
+       },
+       "provider": {
+@@ -48,6 +49,14 @@
+         "title": "주문 번호",
+         "placeholder": "주문 번호"
+       }
++    },
++    "status": {
++      "paid": "결제 완료",
++      "failed": "결제 실패",
++      "canceled": "사용자 취소",
++      "expired": "미결제(만료)",
++      "awaiting_payment": "결제 대기 중",
++      "pending": "결제 생성 중"
+     }
+   }
+ }
+diff --git a/src/config/locale/messages/pt-BR/admin/payments.json b/src/config/locale/messages/pt-BR/admin/payments.json
+index 033b9c6..1d0241d 100644
+--- a/src/config/locale/messages/pt-BR/admin/payments.json
++++ b/src/config/locale/messages/pt-BR/admin/payments.json
+@@ -13,7 +13,10 @@
+   },
+   "list": {
+     "title": "Pagamentos",
+-    "crumbs": { "admin": "Admin", "payments": "Pagamentos" },
++    "crumbs": {
++      "admin": "Admin",
++      "payments": "Pagamentos"
++    },
+     "tabs": {
+       "all": "Todos",
+       "subscription": "Assinatura",
+@@ -25,8 +28,9 @@
+         "options": {
+           "all": "Todos",
+           "paid": "Pago",
+-          "created": "Criado",
+-          "failed": "Falhou"
++          "created": "Aguardando / expirado",
++          "failed": "Falhou",
++          "canceled": "Cancelado pelo usuário"
+         }
+       },
+       "provider": {
+@@ -45,6 +49,14 @@
+         "title": "Número do Pedido",
+         "placeholder": "Número do Pedido"
+       }
++    },
++    "status": {
++      "paid": "Pago",
++      "failed": "Falha no pagamento",
++      "canceled": "Cancelado pelo usuário",
++      "expired": "Não pago (expirado)",
++      "awaiting_payment": "Aguardando pagamento",
++      "pending": "Criando pagamento"
+     }
+   }
+ }
+diff --git a/src/config/locale/messages/th/admin/payments.json b/src/config/locale/messages/th/admin/payments.json
+index b586296..e8754ba 100644
+--- a/src/config/locale/messages/th/admin/payments.json
++++ b/src/config/locale/messages/th/admin/payments.json
+@@ -28,8 +28,9 @@
+         "options": {
+           "all": "ทั้งหมด",
+           "paid": "ชำระแล้ว",
+-          "created": "สร้างแล้ว",
+-          "failed": "ล้มเหลว"
++          "created": "รอชำระ / หมดอายุ",
++          "failed": "ล้มเหลว",
++          "canceled": "ผู้ใช้ยกเลิก"
+         }
+       },
+       "provider": {
+@@ -48,6 +49,14 @@
+         "title": "เลขที่คำสั่งซื้อ",
+         "placeholder": "เลขที่คำสั่งซื้อ"
+       }
++    },
++    "status": {
++      "paid": "ชำระแล้ว",
++      "failed": "ชำระเงินไม่สำเร็จ",
++      "canceled": "ผู้ใช้ยกเลิก",
++      "expired": "ยังไม่ชำระ (หมดอายุ)",
++      "awaiting_payment": "รอการชำระเงิน",
++      "pending": "กำลังสร้างรายการชำระเงิน"
+     }
+   }
+ }
+diff --git a/src/config/locale/messages/zh/admin/payments.json b/src/config/locale/messages/zh/admin/payments.json
+index 6655079..70c92e5 100644
+--- a/src/config/locale/messages/zh/admin/payments.json
++++ b/src/config/locale/messages/zh/admin/payments.json
+@@ -28,8 +28,9 @@
+         "options": {
+           "all": "全部",
+           "paid": "已支付",
+-          "created": "已创建",
+-          "failed": "支付失败"
++          "created": "待支付 / 已过期",
++          "failed": "支付失败",
++          "canceled": "用户已取消"
+         }
+       },
+       "provider": {
+@@ -48,6 +49,14 @@
+         "title": "订单号",
+         "placeholder": "订单号"
+       }
++    },
++    "status": {
++      "paid": "已支付",
++      "failed": "支付失败",
++      "canceled": "用户已取消",
++      "expired": "未支付（已过期）",
++      "awaiting_payment": "等待用户付款",
++      "pending": "正在创建支付"
+     }
+   }
+ }
+diff --git a/src/shared/models/order.ts b/src/shared/models/order.ts
+index 6dab4b3..cd48628 100644
+--- a/src/shared/models/order.ts
++++ b/src/shared/models/order.ts
+@@ -28,6 +28,7 @@ export enum OrderStatus {
+   COMPLETED = 'completed', // checkout completed, but failed
+   PAID = 'paid', // order paid success
+   FAILED = 'failed', // order paid, but failed
++  CANCELED = 'canceled', // buyer explicitly canceled checkout
+ }
+ 
+ /**
+diff --git a/src/shared/services/payment.ts b/src/shared/services/payment.ts
+index b5516bc..eb379e3 100644
+--- a/src/shared/services/payment.ts
++++ b/src/shared/services/payment.ts
+@@ -139,10 +139,15 @@ export async function handleCheckoutSuccess({
+     return;
+   }
+ 
+-  // Only process orders in CREATED or PENDING status
++  // Only process open orders. A success event is also allowed to correct an
++  // order marked canceled if PayPal completed it during a redirect race.
+   if (
+     order.status !== OrderStatus.CREATED &&
+-    order.status !== OrderStatus.PENDING
++    order.status !== OrderStatus.PENDING &&
++    !(
++      order.status === OrderStatus.CANCELED &&
++      session.paymentStatus === PaymentStatus.SUCCESS
++    )
+   ) {
+     return;
+   }
+diff --git a/src/app/api/payment/cancel/route.ts b/src/app/api/payment/cancel/route.ts
+new file mode 100644
+index 0000000..d6d2aaa
+--- /dev/null
++++ b/src/app/api/payment/cancel/route.ts
+@@ -0,0 +1,41 @@
++import { redirect } from 'next/navigation';
++
++import { envConfigs } from '@/config';
++import {
++  findOrderByOrderNo,
++  OrderStatus,
++  updateOrderByOrderNo,
++} from '@/shared/models/order';
++import { getUserInfo } from '@/shared/models/user';
++
++export async function GET(req: Request) {
++  const pricingUrl = `${envConfigs.app_url}/pricing?payment=canceled`;
++  const { searchParams } = new URL(req.url);
++  const orderNo = searchParams.get('order_no');
++
++  if (orderNo) {
++    try {
++      const [order, user] = await Promise.all([
++        findOrderByOrderNo(orderNo),
++        getUserInfo(),
++      ]);
++
++      // Only the signed-in owner can cancel an order, and only an unpaid
++      // checkout may transition to canceled. The optimistic status guard also
++      // prevents a late cancel redirect from overwriting a paid order.
++      if (order && user && order.userId === user.id) {
++        await updateOrderByOrderNo(
++          orderNo,
++          { status: OrderStatus.CANCELED },
++          { expectedStatus: OrderStatus.CREATED }
++        );
++      }
++    } catch {
++      // The buyer should always make it back to pricing. A transient database
++      // failure leaves the order as `created`, which the Admin page will later
++      // display as expired rather than risking a false canceled status.
++    }
++  }
++
++  redirect(pricingUrl);
++}
+diff --git a/src/shared/lib/payment-status.ts b/src/shared/lib/payment-status.ts
+new file mode 100644
+index 0000000..fa40f5d
+--- /dev/null
++++ b/src/shared/lib/payment-status.ts
+@@ -0,0 +1,32 @@
++import { OrderStatus } from '@/shared/models/order';
++
++export const PAYPAL_ORDER_EXPIRY_MS = 3 * 60 * 60 * 1000;
++
++export type PaymentDisplayStatus =
++  | 'paid'
++  | 'failed'
++  | 'canceled'
++  | 'expired'
++  | 'awaiting_payment'
++  | 'pending';
++
++export function getPaymentDisplayStatus(
++  status: string,
++  createdAt: Date | string,
++  now = Date.now()
++): PaymentDisplayStatus {
++  if (status === OrderStatus.PAID) return 'paid';
++  if (status === OrderStatus.FAILED) return 'failed';
++  if (status === OrderStatus.CANCELED) return 'canceled';
++
++  if (status === OrderStatus.CREATED) {
++    const createdAtMs = new Date(createdAt).getTime();
++    const isExpired =
++      Number.isFinite(createdAtMs) &&
++      now - createdAtMs >= PAYPAL_ORDER_EXPIRY_MS;
++
++    return isExpired ? 'expired' : 'awaiting_payment';
++  }
++
++  return 'pending';
++}

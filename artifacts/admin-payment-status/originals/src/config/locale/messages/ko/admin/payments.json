@@ -28,9 +28,8 @@
         "options": {
           "all": "전체",
           "paid": "결제 완료",
-          "created": "결제 대기 / 만료",
-          "failed": "실패",
-          "canceled": "사용자 취소"
+          "created": "생성됨",
+          "failed": "실패"
         }
       },
       "provider": {
@@ -49,14 +48,6 @@
         "title": "주문 번호",
         "placeholder": "주문 번호"
       }
-    },
-    "status": {
-      "paid": "결제 완료",
-      "failed": "결제 실패",
-      "canceled": "사용자 취소",
-      "expired": "미결제(만료)",
-      "awaiting_payment": "결제 대기 중",
-      "pending": "결제 생성 중"
     }
   }
 }

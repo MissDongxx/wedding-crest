@@ -28,9 +28,8 @@
         "options": {
           "all": "Tutti",
           "paid": "Pagato",
-          "created": "In attesa / scaduto",
-          "failed": "Fallito",
-          "canceled": "Annullato dall’utente"
+          "created": "Creato",
+          "failed": "Fallito"
         }
       },
       "provider": {
@@ -49,14 +48,6 @@
         "title": "N° Ordine",
         "placeholder": "N° Ordine"
       }
-    },
-    "status": {
-      "paid": "Pagato",
-      "failed": "Pagamento non riuscito",
-      "canceled": "Annullato dall’utente",
-      "expired": "Non pagato (scaduto)",
-      "awaiting_payment": "In attesa del pagamento",
-      "pending": "Creazione pagamento"
     }
   }
 }

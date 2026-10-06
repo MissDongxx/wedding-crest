@@ -221,10 +221,7 @@ export async function POST(req: Request) {
         ...(metadata || {}),
       },
       successUrl: `${configs.app_url}/api/payment/callback?order_no=${orderNo}`,
-      // Record an explicit buyer cancellation before returning to pricing.
-      // Without this callback, canceled and abandoned checkouts both remain
-      // indistinguishable in the `created` state.
-      cancelUrl: `${configs.app_url}/api/payment/cancel?order_no=${orderNo}`,
+      cancelUrl: `${callbackBaseUrl}/pricing`,
     };
 
     // checkout with predefined product

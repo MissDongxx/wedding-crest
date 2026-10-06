@@ -28,9 +28,8 @@
         "options": {
           "all": "All",
           "paid": "Paid",
-          "created": "Awaiting / expired",
-          "failed": "Failed",
-          "canceled": "Canceled by user"
+          "created": "Created",
+          "failed": "Failed"
         }
       },
       "provider": {
@@ -49,14 +48,6 @@
         "title": "Order No",
         "placeholder": "Order No"
       }
-    },
-    "status": {
-      "paid": "Paid",
-      "failed": "Payment failed",
-      "canceled": "Canceled by user",
-      "expired": "Unpaid (expired)",
-      "awaiting_payment": "Awaiting payment",
-      "pending": "Creating payment"
     }
   }
 }

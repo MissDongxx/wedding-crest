@@ -13,10 +13,7 @@
   },
   "list": {
     "title": "Pagamentos",
-    "crumbs": {
-      "admin": "Admin",
-      "payments": "Pagamentos"
-    },
+    "crumbs": { "admin": "Admin", "payments": "Pagamentos" },
     "tabs": {
       "all": "Todos",
       "subscription": "Assinatura",
@@ -28,9 +25,8 @@
         "options": {
           "all": "Todos",
           "paid": "Pago",
-          "created": "Aguardando / expirado",
-          "failed": "Falhou",
-          "canceled": "Cancelado pelo usuário"
+          "created": "Criado",
+          "failed": "Falhou"
         }
       },
       "provider": {
@@ -49,14 +45,6 @@
         "title": "Número do Pedido",
         "placeholder": "Número do Pedido"
       }
-    },
-    "status": {
-      "paid": "Pago",
-      "failed": "Falha no pagamento",
-      "canceled": "Cancelado pelo usuário",
-      "expired": "Não pago (expirado)",
-      "awaiting_payment": "Aguardando pagamento",
-      "pending": "Criando pagamento"
     }
   }
 }

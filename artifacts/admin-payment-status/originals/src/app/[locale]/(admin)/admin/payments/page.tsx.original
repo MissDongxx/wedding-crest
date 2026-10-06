@@ -4,34 +4,9 @@ import { PERMISSIONS, requirePermission } from '@/core/rbac';
 import { PaymentType } from '@/extensions/payment/types';
 import { Header, Main, MainHeader } from '@/shared/blocks/dashboard';
 import { TableCard } from '@/shared/blocks/table';
-import { Badge } from '@/shared/components/ui/badge';
-import {
-  getPaymentDisplayStatus,
-  PaymentDisplayStatus,
-} from '@/shared/lib/payment-status';
 import { getOrders, getOrdersCount, OrderStatus } from '@/shared/models/order';
 import { Crumb, Filter, Search, Tab } from '@/shared/types/blocks/common';
 import { type Table } from '@/shared/types/blocks/table';
-
-function getDisplayStatusPresentation(
-  item: { status: string; createdAt: Date | string },
-  t: Awaited<ReturnType<typeof getTranslations>>
-) {
-  const displayStatus = getPaymentDisplayStatus(item.status, item.createdAt);
-  const classNames: Record<PaymentDisplayStatus, string> = {
-    paid: 'bg-emerald-600 text-white',
-    failed: 'bg-destructive text-white',
-    canceled: 'bg-slate-500 text-white',
-    expired: 'bg-amber-600 text-white',
-    awaiting_payment: 'bg-blue-600 text-white',
-    pending: 'bg-blue-600 text-white',
-  };
-
-  return {
-    label: t(`list.status.${displayStatus}`),
-    className: classNames[displayStatus],
-  };
-}
 
 export default async function PaymentsPage({
   params,
@@ -115,10 +90,6 @@ export default async function PaymentsPage({
           value: OrderStatus.FAILED,
           label: t('list.filters.status.options.failed'),
         },
-        {
-          value: OrderStatus.CANCELED,
-          label: t('list.filters.status.options.canceled'),
-        },
       ],
     },
     {
@@ -188,14 +159,7 @@ export default async function PaymentsPage({
         },
         type: 'copy',
       },
-      {
-        name: 'status',
-        title: t('fields.status'),
-        callback: (item) => {
-          const status = getDisplayStatusPresentation(item, t);
-          return <Badge className={status.className}>{status.label}</Badge>;
-        },
-      },
+      { name: 'status', title: t('fields.status'), type: 'label' },
       {
         name: 'paymentType',
         title: t('fields.type'),

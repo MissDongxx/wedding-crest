@@ -139,15 +139,10 @@ export async function handleCheckoutSuccess({
     return;
   }
 
-  // Only process open orders. A success event is also allowed to correct an
-  // order marked canceled if PayPal completed it during a redirect race.
+  // Only process orders in CREATED or PENDING status
   if (
     order.status !== OrderStatus.CREATED &&
-    order.status !== OrderStatus.PENDING &&
-    !(
-      order.status === OrderStatus.CANCELED &&
-      session.paymentStatus === PaymentStatus.SUCCESS
-    )
+    order.status !== OrderStatus.PENDING
   ) {
     return;
   }
