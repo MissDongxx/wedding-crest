@@ -9,7 +9,16 @@ const compat = new FlatCompat({
 export default [
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
-    ignores: ['.next/**', 'node_modules/**', '**/.source/**', 'next-env.d.ts'],
+    ignores: [
+      '.next/**',
+      'node_modules/**',
+      '**/.source/**',
+      'next-env.d.ts',
+      // Change-verification snapshots (original/modified copies of src files).
+      // They are evidence, not source, and their copies do not resolve
+      // neighbours such as ./social-providers.
+      'artifacts/**',
+    ],
   },
   {
     rules: {

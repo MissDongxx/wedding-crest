@@ -28,3 +28,11 @@ Browser verification at http://localhost:3000/:
 - Invalid input displays Name/Subject/Message validation messages.
 - Browser console errors/warnings after the flow: []
 - A live valid submission was not triggered, avoiding a test email to the support inbox.
+
+Follow-up (2026-10-06, after the change shipped)
+- A real submission answered `missing_parameter: sender name is missing`. The cause
+  was not in this form: the live config stored `brevo_sender_name` as an empty
+  string and the Brevo provider forwarded it verbatim. Root cause, evidence and
+  the fix live in artifacts/brevo-sender-fix/.
+- The patch in this directory was regenerated from the committed change
+  (331885d) so it still reverse-applies cleanly.

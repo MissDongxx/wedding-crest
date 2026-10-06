@@ -1,5 +1,5 @@
 diff --git a/src/shared/actions/contact.ts b/src/shared/actions/contact.ts
-index cabb5e7..81f7ad7 100644
+index cabb5e7..d7ce3d5 100644
 --- a/src/shared/actions/contact.ts
 +++ b/src/shared/actions/contact.ts
 @@ -2,6 +2,24 @@
@@ -76,6 +76,27 @@ index cabb5e7..81f7ad7 100644
          </div>
          <hr />
          <p style="font-size: 12px; color: #666;">
+@@ -37,8 +74,18 @@ export async function sendContactEmail(data: ContactFormData) {
+     });
+ 
+     if (!result.success) {
+-      console.error('Failed to send contact email:', result.error);
+-      return { success: false, error: result.error || 'Failed to send email' };
++      // Keep provider internals out of the visitor-facing toast (e.g. Brevo's
++      // "missing_parameter: ..." text). The full detail stays in the log.
++      console.error(
++        'Failed to send contact email via provider',
++        result.provider,
++        ':',
++        result.error
++      );
++      return {
++        success: false,
++        error: 'Failed to send message. Please try again.',
++      };
+     }
+ 
+     return { success: true };
 diff --git a/src/shared/blocks/common/contact-form.tsx b/src/shared/blocks/common/contact-form.tsx
 index f1a7705..18f91e8 100644
 --- a/src/shared/blocks/common/contact-form.tsx
