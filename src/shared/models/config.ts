@@ -272,12 +272,13 @@ export async function getAllConfigs(options?: {
     configs.app_logo = '';
   }
 
-  // A stale admin value must not publish localhost or the former product
-  // domain into canonical URLs, Open Graph metadata, or auth redirects.
+  // A stale admin value must not publish localhost or a placeholder domain
+  // into canonical URLs, Open Graph metadata, or auth redirects.
   if (
     process.env.NODE_ENV === 'production' &&
     (!configs.app_url ||
       configs.app_url.includes('localhost') ||
+      configs.app_url.includes('your-domain.com') ||
       configs.app_url.includes('removegeminiwatermark.org'))
   ) {
     configs.app_url = envConfigs.app_url;

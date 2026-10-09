@@ -6,6 +6,18 @@ import { routing } from '@/core/i18n/config';
 
 const intlMiddleware = createIntlMiddleware(routing);
 
+// Paths that belonged to the former remove-watermark product line. They used
+// to be live and indexed under the old brand, so requests are permanently
+// redirected to the homepage instead of being left to 404. Matching is by
+// whole path segment (see below) so `/blogging` is not caught by `/blog`.
+const LEGACY_PREFIXES = [
+  '/tools',
+  '/blog',
+  '/docs',
+  '/shortcuts',
+  '/showcases',
+];
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -19,6 +31,29 @@ export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.protocol = 'https:';
     url.host = apexHost;
+    return NextResponse.redirect(url, 301);
+  }
+
+  // Retire the former remove-watermark product line with a permanent redirect.
+  // These URLs (`/tools/gemini`, `/blog/*`, `/docs/*`, `/shortcuts`,
+  // `/showcases`) were live and crawled under the old brand, so a 301 to the
+  // homepage consolidates whatever equity they carry instead of dropping them
+  // into a soft 404. Locale-prefixed variants (`/zh/blog`, ...) are folded to
+  // the default path first so they resolve in a single hop — `/zh` itself
+  // would otherwise add a second redirect.
+  const segments = pathname.split('/').filter(Boolean);
+  const hasLocalePrefix = routing.locales.includes(segments[0] as any);
+  const legacyPath = hasLocalePrefix
+    ? `/${segments.slice(1).join('/')}`
+    : pathname;
+  if (
+    LEGACY_PREFIXES.some(
+      (prefix) => legacyPath === prefix || legacyPath.startsWith(`${prefix}/`)
+    )
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/';
+    url.search = '';
     return NextResponse.redirect(url, 301);
   }
 

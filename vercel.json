@@ -12,9 +12,6 @@
     "src/app/api/**/*.ts": {
       "maxDuration": 30
     },
-    "src/app/api/v1/remove-watermark/**/*.ts": {
-      "maxDuration": 60
-    },
     "src/app/api/ai/**/*.ts": {
       "maxDuration": 60
     },

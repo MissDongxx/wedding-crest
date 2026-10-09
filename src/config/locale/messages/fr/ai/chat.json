@@ -2,10 +2,10 @@
   "sidebar": {
     "header": {
       "brand": {
-        "title": "Chat Supprimer le Watermark Gemini",
+        "title": "Wedding Crest Design Chat",
         "logo": {
           "src": "",
-          "alt": "Chat Supprimer le Watermark Gemini"
+          "alt": "Wedding Crest Design Chat"
         },
         "url": "/chat"
       },
@@ -59,26 +59,8 @@
             "target": "_blank"
           },
           {
-            "title": "GitHub",
-            "url": "https://github.com/your-app-name",
-            "icon": "Github",
-            "target": "_blank"
-          },
-          {
-            "title": "Twitter",
-            "url": "https://twitter.com/your-app-name",
-            "icon": "RiTwitterXFill",
-            "target": "_blank"
-          },
-          {
-            "title": "Discord",
-            "url": "https://discord.gg/your-app-name",
-            "icon": "RiDiscordFill",
-            "target": "_blank"
-          },
-          {
             "title": "E-mail",
-            "url": "mailto:support@your-domain.com",
+            "url": "mailto:support@weddingcrestdesign.com",
             "icon": "Mail",
             "target": "_blank"
           }

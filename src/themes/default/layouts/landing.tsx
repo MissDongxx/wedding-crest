@@ -24,13 +24,12 @@ export default async function LandingLayout({
   const publicConfigs = await getPublicConfigs();
   const appLogo = publicConfigs.app_logo;
 
-  // The Partners block previously rendered 9 third-party "featured on"
-  // badges for the old removegeminiwatermark.org product at 5% opacity in
-  // every page's footer. Next.js auto-preloads any <img> in the SSR'd
-  // viewport, so each of those badges was being fetched cross-origin with
-  // a high-priority preload on every page load. Removed here — the
-  // Partners theme block is preserved on disk for the day this app ships
-  // a real partner list, but it's not rendered until then.
+  // The Partners block used to render 9 third-party "featured on" badges at
+  // 5% opacity in every page's footer. Next.js auto-preloads any <img> in
+  // the SSR'd viewport, so each badge was fetched cross-origin with a
+  // high-priority preload on every page load. It is no longer rendered, and
+  // the block itself was removed along with the rest of the legacy product
+  // (see the cleanup of the watermark-remover line).
   return (
     <div className="h-screen w-screen">
       <Header header={header} appLogo={appLogo} />

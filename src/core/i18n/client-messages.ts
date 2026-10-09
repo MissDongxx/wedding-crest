@@ -20,7 +20,6 @@ export const clientLocaleMessagesPaths = [
   'pages/create',
   'pages/design',
   'pages/pricing',
-  'pages/blog',
   'ai/chat',
   'ai/image',
   'ai/music',
