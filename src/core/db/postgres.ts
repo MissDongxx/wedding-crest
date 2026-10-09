@@ -129,7 +129,20 @@ export function getPostgresDb() {
   //   `idle_timeout` releases the socket once the request goes quiet;
   //   `invalidatePostgresConnection()` drops it earlier when a retry needs
   //   a clean one.
-  if (isHyperdrive || process.env.NODE_ENV === 'production') {
+  // `initOpenNextCloudflareForDev()` also exposes the local Hyperdrive binding
+  // to `next dev`, but there the Cloudflare context is a single process-wide
+  // global (OpenNext assigns it once in `addCloudflareContextToNodejsGlobal`)
+  // instead of one object per request. The cache below would therefore behave
+  // like a module-level singleton: its socket goes stale, and the next query
+  // hangs until it times out. That surfaced as every /admin request bouncing
+  // back to /sign-in, because `getSignUser()` turns a timed-out session lookup
+  // into "not signed in".
+  //
+  // Only take this branch where the context really is request-scoped. In dev we
+  // fall through to the configured singleton pool below, which keeps the
+  // connection warm across requests.
+  const isProd = process.env.NODE_ENV === 'production';
+  if (isProd || (isHyperdrive && isCloudflareWorker)) {
     const requestKey = currentRequestKey();
     const cached = requestKey ? requestConnections.get(requestKey) : undefined;
     if (cached) return cached.db;
