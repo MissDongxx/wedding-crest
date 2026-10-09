@@ -143,6 +143,10 @@ export default async function PaymentsPage({
           value: 'paypal',
           label: t('list.filters.provider.options.paypal'),
         },
+        {
+          value: 'waffo',
+          label: t('list.filters.provider.options.waffo'),
+        },
       ],
     },
   ];

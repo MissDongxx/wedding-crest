@@ -3,6 +3,7 @@ import {
   PaymentManager,
   PayPalProvider,
   StripeProvider,
+  WaffoProvider,
 } from '@/extensions/payment';
 import {
   PaymentSession,
@@ -95,6 +96,32 @@ export function getPaymentServiceWithConfigs(configs: Configs) {
       }),
       defaultProvider === 'paypal'
     );
+  }
+
+  // add waffo provider
+  if (configs.waffo_enabled === 'true') {
+    // The SDK constructor rejects a missing merchant id / private key, and this
+    // factory feeds *every* payment flow — so a half-filled config must not be
+    // allowed to take the whole payment stack down.
+    if (!configs.waffo_merchant_id || !configs.waffo_private_key) {
+      console.error(
+        'waffo is enabled but waffo_merchant_id / waffo_private_key is not configured; skipping provider'
+      );
+    } else {
+      paymentManager.addProvider(
+        new WaffoProvider({
+          merchantId: configs.waffo_merchant_id,
+          privateKey: configs.waffo_private_key,
+          storeId: configs.waffo_store_id,
+          environment:
+            configs.waffo_environment === 'prod' ? 'prod' : 'test',
+          priceMode:
+            configs.waffo_price_mode === 'snapshot' ? 'snapshot' : 'product',
+          taxCategory: configs.waffo_tax_category || undefined,
+        }),
+        defaultProvider === 'waffo'
+      );
+    }
   }
 
   return paymentManager;

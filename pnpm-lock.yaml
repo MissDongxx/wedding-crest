@@ -141,6 +141,9 @@ importers:
       '@vercel/analytics':
         specifier: ^1.5.0
         version: 1.5.0(next@15.5.7(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react@19.2.1)
+      '@waffo/pancake-ts':
+        specifier: ^0.25.0
+        version: 0.25.0
       ai:
         specifier: ^5.0.39
         version: 5.0.39(zod@4.1.5)
@@ -3514,6 +3517,10 @@ packages:
   '@vercel/oidc@3.0.3':
     resolution: {integrity: sha512-yNEQvPcVrK9sIe637+I0jD6leluPxzwJKx/Haw6F4H77CdDsszUn5V3o96LPziXkSNE2B83+Z3mjqGKBK/R6Gg==}
     engines: {node: '>= 20'}
+
+  '@waffo/pancake-ts@0.25.0':
+    resolution: {integrity: sha512-6Zye8je5nhTh2tuu7XBZycqdgg3CwEiS0DLDGvbPZQiSwmraqPBRdy4qMDCJ5IbdZhjRRFlDcNSZSmEr3BE0dg==}
+    engines: {node: '>=20.0.0'}
 
   abort-controller@3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
@@ -10973,6 +10980,8 @@ snapshots:
       react: 19.2.1
 
   '@vercel/oidc@3.0.3': {}
+
+  '@waffo/pancake-ts@0.25.0': {}
 
   abort-controller@3.0.0:
     dependencies:

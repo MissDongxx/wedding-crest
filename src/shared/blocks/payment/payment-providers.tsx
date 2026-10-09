@@ -107,6 +107,15 @@ export function PaymentProviders({
     });
   }
 
+  if (configs.waffo_enabled === 'true' && isProviderAllowed('waffo')) {
+    providers.push({
+      name: 'waffo',
+      title: 'Waffo Pancake',
+      icon_url: '/imgs/icons/waffo.png',
+      onClick: () => handlePayment({ provider: 'waffo' }),
+    });
+  }
+
   return (
     <div
       className={cn(

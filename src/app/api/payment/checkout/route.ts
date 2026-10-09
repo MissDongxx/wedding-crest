@@ -320,18 +320,27 @@ async function getPaymentProductId(
   provider: string,
   checkoutCurrency: string
 ) {
-  if (provider !== 'creem') {
-    // currently only creem supports payment product id mapping
+  // Map the local pricing product_id to the provider-side product id. Each
+  // provider keeps its own mapping because the ids are not interchangeable —
+  // sending a Creem id to Waffo (or vice versa) fails checkout.
+  const configKey =
+    provider === 'creem'
+      ? 'creem_product_ids'
+      : provider === 'waffo'
+        ? 'waffo_product_ids'
+        : '';
+
+  if (!configKey) {
     return;
   }
 
   try {
     const configs = await getAllConfigs();
-    const creemProductIds = configs.creem_product_ids;
-    if (creemProductIds) {
-      const productIds = JSON.parse(creemProductIds);
+    const productIds = configs[configKey];
+    if (productIds) {
+      const mapping = JSON.parse(productIds);
       return (
-        productIds[`${productId}_${checkoutCurrency}`] || productIds[productId]
+        mapping[`${productId}_${checkoutCurrency}`] || mapping[productId]
       );
     }
   } catch {

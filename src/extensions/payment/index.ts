@@ -127,3 +127,4 @@ export const paymentManager = new PaymentManager();
 export * from './stripe';
 export * from './creem';
 export * from './paypal';
+export * from './waffo';
