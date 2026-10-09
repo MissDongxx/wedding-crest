@@ -81,6 +81,27 @@
             "group": "one-time"
           }
         ]
+      },
+      "faq": {
+        "block": "faq",
+        "id": "faq",
+        "title": "关于 AI 与内容规则",
+        "description": "生成前值得了解的几件事。",
+        "items": [
+          {
+            "question": "用哪个 AI 模型生成我的徽章？",
+            "answer": "徽章图像由 Google 的 Gemini 图像生成模型（即 \"Nano Banana\" 系列）生成，并通过 Runware 推理平台调用；文生图与参考图生成使用同一模型系列。为保障质量与可用性，我们可能会更新或替换底层模型。如需了解当前使用的模型，可发送邮件至 support@weddingcrestdesign.com。"
+          },
+          {
+            "question": "哪些内容不能生成？",
+            "answer": "色情与 NSFW 内容、暴力血腥内容、仇恨言论与骚扰、儿童性虐待材料（CSAM）、深度伪造与冒充，以及侵犯版权或商标的内容，均被禁止。详情请见《可接受使用政策》，其中还说明了我们的内容审核方式、举报渠道与处置措施。"
+          },
+          {
+            "question": "违反规则会怎样？",
+            "answer": "视情节轻重，我们可能发出警告、移除内容、冻结生成功能、暂停或终止账户；对于 CSAM 或可信暴力威胁等最严重的情形，我们会向执法机关举报。"
+          }
+        ],
+        "tip": "详见 <a href=\"/zh/acceptable-use\">可接受使用政策</a>与<a href=\"/zh/terms-of-service\">服务条款</a>。"
       }
     }
   },

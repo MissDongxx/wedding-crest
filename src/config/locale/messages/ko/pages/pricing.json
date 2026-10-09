@@ -81,6 +81,27 @@
             "group": "one-time"
           }
         ]
+      },
+      "faq": {
+        "block": "faq",
+        "id": "faq",
+        "title": "AI and Content Rules",
+        "description": "A few things worth knowing before you generate.",
+        "items": [
+          {
+            "question": "Which AI model generates my crest?",
+            "answer": "Crest images are generated with Google's Gemini image generation models (the \"Nano Banana\" family), accessed through the Runware inference platform. The same model family serves both the text-to-image and the reference-image path, and we may update or replace the underlying model over time. Ask us any time at support@weddingcrestdesign.com."
+          },
+          {
+            "question": "What am I not allowed to generate?",
+            "answer": "Sexual or NSFW content, violence or gore, hate speech and harassment, child sexual abuse material (CSAM), deepfakes and impersonation, and content that infringes copyright or trademarks are all prohibited. Our Acceptable Use Policy sets out the full standards, how we review content, how to report a violation, and what happens if someone breaks the rules."
+          },
+          {
+            "question": "What happens if I break the rules?",
+            "answer": "Depending on the severity and repetition, we may warn you, remove the content, freeze generations, or suspend or terminate your account. For the most serious cases — CSAM or credible threats of violence — we report to law enforcement without prior notice."
+          }
+        ],
+        "tip": "See our <a href=\"/acceptable-use\">Acceptable Use Policy</a> and <a href=\"/terms-of-service\">Terms of Service</a>."
       }
     }
   },

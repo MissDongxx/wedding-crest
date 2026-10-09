@@ -172,6 +172,11 @@
               "target": "_self"
             },
             {
+              "title": "可接受使用政策",
+              "url": "/acceptable-use",
+              "target": "_self"
+            },
+            {
               "title": "Contact",
               "url": "/contact",
               "target": "_self"
@@ -205,6 +210,10 @@
         {
           "title": "Terms of Service",
           "url": "/terms-of-service"
+        },
+        {
+          "title": "可接受使用政策",
+          "url": "/acceptable-use"
         }
       ]
     },
