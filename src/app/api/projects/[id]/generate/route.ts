@@ -26,6 +26,10 @@ import {
   WEDDING_PACK_PRODUCT_ID,
 } from '@/shared/wedding/config';
 import {
+  compileAssistantEditPrompt,
+  editPlanSchema,
+} from '@/shared/wedding/edit-plan';
+import {
   compileWeddingDesignEditPrompt,
   compileWeddingPrompt,
   compileWeddingTextEditPrompt,
@@ -34,6 +38,7 @@ import {
 import type { WeddingProjectInput } from '@/shared/wedding/types';
 
 const editKindSchema = z.enum([
+  'assistant',
   'design',
   'lettering',
   'reduce_colors',
@@ -54,6 +59,7 @@ const inputSchema = z.object({
     .object({
       sourceGenerationId: z.string().trim().min(1),
       kind: editKindSchema,
+      plan: editPlanSchema.optional(),
     })
     .optional(),
 });
@@ -66,6 +72,7 @@ const QUICK_EDIT_INSTRUCTIONS: Record<
   z.infer<typeof editKindSchema>,
   (input: { personalElements: string[]; complexity: string }) => string
 > = {
+  assistant: () => '',
   design: () => '',
   lettering: () => '',
   reduce_colors: () =>
@@ -260,7 +267,11 @@ export async function POST(
         await updateWeddingProject(id, projectUpdate as any);
       }
 
-      if (body.edit.kind === 'lettering') {
+      if (body.edit.kind === 'assistant') {
+        if (!body.edit.plan)
+          return respErr('confirmed edit plan required', 400);
+        prompt = compileAssistantEditPrompt(body.edit.plan);
+      } else if (body.edit.kind === 'lettering') {
         prompt = compileWeddingTextEditPrompt(sourceInput);
       } else if (body.edit.kind === 'design') {
         prompt = compileWeddingDesignEditPrompt(sourceInput);
@@ -463,8 +474,6 @@ export async function POST(
       error instanceof Error && error.message
         ? error.message
         : 'generation failed';
-    return respErr(
-      base.includes('model:') ? base : `${base}${modelLabel}`
-    );
+    return respErr(base.includes('model:') ? base : `${base}${modelLabel}`);
   }
 }

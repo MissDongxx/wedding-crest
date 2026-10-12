@@ -88,5 +88,28 @@
   "quick_edits_hint": "Klicke auf einen Quick-Edit, um ihn einzureihen, und übernehme die Änderungen, um neu zu rendern.",
   "download_preparing": "Preparing AI image files…",
   "download_error": "The AI image pack could not be prepared. Please try again.",
-  "select_error": "Dieses Design konnte nicht ausgewählt werden."
+  "select_error": "Dieses Design konnte nicht ausgewählt werden.",
+  "assistant": {
+    "eyebrow": "DESIGN ASSISTANT",
+    "title": "Describe your changes",
+    "hint": "We will inspect this version and prepare a plan before generating. Planning uses no image generation allowance.",
+    "request": "What would you like to change?",
+    "placeholder": "Fewer flowers, pale blue instead of pink. Keep the names and border.",
+    "understand": "Prepare edit plan",
+    "thinking": "Reviewing your request…",
+    "answer": "Or describe your preference",
+    "continue_label": "Continue",
+    "changes": "This edit will change",
+    "preserve": "We will try to preserve",
+    "warning": "Image editing may also change other details. Your previous versions stay available for comparison. Confirming uses one generation allowance.",
+    "confirm": "Confirm edit · 1 generation",
+    "working": "Submitting edit…",
+    "revise": "Revise request",
+    "quota": "Your image generation allowance is exhausted. Existing versions remain available.",
+    "error": "Something went wrong. Please retry.",
+    "version_hint": "Previous versions are kept. Click a version to adopt and inspect it; your download uses the selected version as primary.",
+    "fallback": "Need more specific changes?",
+    "fallback_hint": "Try Quick edits and Edit details above first. If those do not cover your needs, open the design assistant to describe your changes."
+  },
+  "generation_ready": "Your new design is ready. See your crest above."
 }

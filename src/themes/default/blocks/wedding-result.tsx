@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -15,8 +15,11 @@ import {
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
+import { DesignEditAssistant } from '@/shared/components/wedding/design-edit-assistant';
+import { readJsonResponse } from '@/shared/lib/read-json-response';
 import { cn } from '@/shared/lib/utils';
 import { layoutsForStyle } from '@/shared/wedding/config';
+import type { EditPlan } from '@/shared/wedding/edit-plan';
 import {
   WEDDING_MAX_FLOWERS,
   WEDDING_MAX_PALETTE_COLORS,
@@ -97,29 +100,6 @@ function stageLabel(stage: string | null | undefined) {
   return STAGE_STATUS_COPY[stage] ?? stage;
 }
 
-/**
- * Return only the generations belonging to the most recent batch.
- *
- * Each call to /api/projects/[id]/generate appends WEDDING_MAX_CANDIDATES
- * new rows without removing the previous batch, and the rows are stored
- * ordered by (candidateIndex, createdAt) so the LAST row per candidate
- * index is always the newest one. After a regenerate the project
- * therefore holds two interleaved batches: the client only ever wants to
- * show the latest one, both for the master crest and for the alternates
- * grid.
- */
-function latestBatchOf(generations: GenerationData[]): GenerationData[] {
-  if (generations.length === 0) return [];
-  const byIndex = new Map<number, GenerationData>();
-  for (const generation of generations) {
-    if (generation.candidateIndex == null) continue;
-    byIndex.set(generation.candidateIndex, generation);
-  }
-  return [...byIndex.values()].sort(
-    (a, b) => (a.candidateIndex ?? 0) - (b.candidateIndex ?? 0)
-  );
-}
-
 export function WeddingResult({ projectId }: { projectId: string }) {
   const t = useTranslations('pages.design');
   const router = useRouter();
@@ -149,6 +129,39 @@ export function WeddingResult({ projectId }: { projectId: string }) {
   // processed and the page is stuck on the "Hang tight" banner with no
   // EditPanel, no alternates and no selection update.
   const [pollEpoch, setPollEpoch] = useState(0);
+  const previousStatus = useRef<string | null>(null);
+  const awaitingGeneration = useRef(false);
+  const displayedGeneration = useRef<string | null>(null);
+
+  useEffect(() => {
+    displayedGeneration.current = null;
+    previousStatus.current = null;
+    awaitingGeneration.current = false;
+  }, [projectId]);
+
+  useEffect(() => {
+    if (!data) return;
+    const justCompleted =
+      data.status === 'complete' &&
+      (previousStatus.current === 'generating' || awaitingGeneration.current);
+    previousStatus.current = data.status;
+    if (data.status === 'failed') awaitingGeneration.current = false;
+    if (!justCompleted) return;
+    awaitingGeneration.current = false;
+    displayedGeneration.current =
+      [...data.generations]
+        .filter((g) => Boolean(g.sourceImageUrl))
+        .sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''))[0]
+        ?.id ?? null;
+    setSelectedIndex(0);
+    toast.success(t('generation_ready'));
+    window.scrollTo({
+      top: 0,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'auto'
+        : 'smooth',
+    });
+  }, [data, t]);
 
   const guestId =
     typeof window !== 'undefined'
@@ -184,14 +197,23 @@ export function WeddingResult({ projectId }: { projectId: string }) {
         : body;
       setError(null);
       setData(normalizedBody);
-      // Only honor a persisted "selected" within the latest batch. After
-      // a regenerate the project keeps the old batch's selected row, and
-      // a plain findIndex would jump the user back to a stale image.
-      const latest = latestBatchOf(normalizedBody.generations);
+      // Keep every finished version available and honor the adopted image.
+      const latest = [...normalizedBody.generations]
+        .filter((g) => Boolean(g.sourceImageUrl))
+        .sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''));
       const persistedSelection = latest.findIndex(
         (generation) => generation.selected
       );
-      setSelectedIndex(persistedSelection >= 0 ? persistedSelection : 0);
+      const displayedIndex = latest.findIndex(
+        (g) => g.id === displayedGeneration.current
+      );
+      setSelectedIndex(
+        displayedIndex >= 0
+          ? displayedIndex
+          : persistedSelection >= 0
+            ? persistedSelection
+            : 0
+      );
       return normalizedBody;
     } catch {
       setError(t('load_error'));
@@ -243,7 +265,10 @@ export function WeddingResult({ projectId }: { projectId: string }) {
 
   const project = data?.project;
   const generations = useMemo(
-    () => latestBatchOf(data?.generations ?? []),
+    () =>
+      [...(data?.generations ?? [])]
+        .filter((g) => Boolean(g.sourceImageUrl))
+        .sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? '')),
     [data?.generations]
   );
   const selectedGeneration = generations[selectedIndex];
@@ -273,6 +298,8 @@ export function WeddingResult({ projectId }: { projectId: string }) {
         ) {
           setSelectedIndex(previousIndex);
           toast.error(envelope.message || t('select_error'));
+        } else {
+          displayedGeneration.current = generation.id;
         }
       } catch {
         setSelectedIndex(previousIndex);
@@ -300,8 +327,12 @@ export function WeddingResult({ projectId }: { projectId: string }) {
           envelope = {};
         }
         const detail =
-          envelope.message || envelope.error || raw.trim() || t('download_error');
-        const statusLine = `${response.status} ${response.statusText || ''}`.trim();
+          envelope.message ||
+          envelope.error ||
+          raw.trim() ||
+          t('download_error');
+        const statusLine =
+          `${response.status} ${response.statusText || ''}`.trim();
         toast.error(statusLine ? `${statusLine}: ${detail}` : detail);
         // eslint-disable-next-line no-console
         console.error(
@@ -334,6 +365,45 @@ export function WeddingResult({ projectId }: { projectId: string }) {
     }
   }, [project, downloading, t]);
 
+  const confirmAssistantEdit = useCallback(
+    async (plan: EditPlan) => {
+      if (!project || !selectedGeneration || busy) return false;
+      setBusy(true);
+      try {
+        const response = await fetch(`/api/projects/${project.id}/generate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(guestId ? { 'x-wedding-guest-id': guestId } : {}),
+          },
+          body: JSON.stringify({
+            edit: {
+              kind: 'assistant',
+              sourceGenerationId: selectedGeneration.id,
+              plan,
+            },
+          }),
+        });
+        const envelope = await readJsonResponse<ApiEnvelope<unknown>>(response);
+        if (!response.ok || envelope.code !== 0)
+          throw new Error(envelope.message || t('update_error'));
+        setSelectedIndex(0);
+        setProgressStage('queued');
+        setProgressPercent(5);
+        awaitingGeneration.current = true;
+        setPollEpoch((epoch) => epoch + 1);
+        await fetchJob();
+        return true;
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : t('update_error'));
+        return false;
+      } finally {
+        setBusy(false);
+      }
+    },
+    [project, selectedGeneration, busy, guestId, fetchJob, t]
+  );
+
   const regenerate = useCallback(async () => {
     if (!project) return;
     setBusy(true);
@@ -364,8 +434,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
         if (body?.error === 'quota_exceeded') {
           toast.error(t('quota_exceeded'));
         } else {
-          const detail =
-            body?.message || body?.error || t('update_error');
+          const detail = body?.message || body?.error || t('update_error');
           const statusLine =
             `${response.status} ${response.statusText || ''}`.trim();
           toast.error(statusLine ? `${statusLine}: ${detail}` : detail);
@@ -379,6 +448,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
       // this, a previous 'complete' status would have killed the loop
       // and the new batch would never be polled - the page would freeze
       // on the "Hang tight" banner with no alternates, no EditPanel.
+      awaitingGeneration.current = true;
       setPollEpoch((epoch) => epoch + 1);
       await fetchJob();
     } catch (error) {
@@ -491,6 +561,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
           // Same reason as in regenerate(): the polling loop was probably
           // idle (the project was 'complete'), so we need to restart it
           // to pick up the new edit generation.
+          awaitingGeneration.current = true;
           setPollEpoch((epoch) => epoch + 1);
         }
 
@@ -686,11 +757,16 @@ export function WeddingResult({ projectId }: { projectId: string }) {
                 <p className="text-muted-foreground mb-3 text-xs tracking-[0.2em] uppercase">
                   {t('alternates')}
                 </p>
+                <p className="text-muted-foreground mb-3 text-sm">
+                  {t('assistant.version_hint')}
+                </p>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {generations.map((gen, idx) => (
                     <button
                       key={gen.id}
                       type="button"
+                      aria-pressed={selectedIndex === idx}
+                      disabled={busy}
                       onClick={() => selectGeneration(idx)}
                       className={cn(
                         'bg-wedding-ivory rounded-2xl border p-3 transition-colors',
@@ -722,7 +798,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
                 if (!open) setPreviewIndex(null);
               }}
             >
-              <DialogContent className="max-w-3xl">
+              <DialogContent className="max-w-3xl" aria-describedby={undefined}>
                 {previewIndex !== null && generations[previewIndex] && (
                   <>
                     <DialogTitle>
@@ -857,6 +933,25 @@ export function WeddingResult({ projectId }: { projectId: string }) {
                   show_date_off: t('show_date_off'),
                 }}
               />
+            )}
+
+            {isComplete && selectedGeneration && (
+              <details className="rounded-2xl border p-5">
+                <summary className="cursor-pointer font-serif text-lg">
+                  {t('assistant.fallback')}
+                </summary>
+                <p className="text-muted-foreground mt-2 text-sm">
+                  {t('assistant.fallback_hint')}
+                </p>
+                <DesignEditAssistant
+                  projectId={project.id}
+                  sourceGenerationId={selectedGeneration.id}
+                  guestId={guestId}
+                  disabled={busy}
+                  allowed={data?.allowance.allowed ?? false}
+                  onConfirm={confirmAssistantEdit}
+                />
+              </details>
             )}
 
             <div className="rounded-2xl border p-6">

@@ -996,6 +996,15 @@ export async function getSettings() {
       tab: 'ai',
     },
     {
+      name: 'runware_assistant_model',
+      title: 'Runware Design Assistant Model',
+      type: 'text',
+      placeholder: 'google:gemini@3.1-flash-lite',
+      group: 'runware',
+      tip: 'Gemini text/vision model for edit planning. Separate from the image generation model; leave empty for google:gemini@3.1-flash-lite.',
+      tab: 'ai',
+    },
+    {
       name: 'runware_custom_storage',
       title: 'Runware Custom Storage',
       type: 'switch',

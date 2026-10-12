@@ -88,5 +88,28 @@
   "quick_edits_hint": "点击一个快捷修改加入待提交，然后点击应用修改重新生成。",
   "download_preparing": "Preparing AI image files…",
   "download_error": "The AI image pack could not be prepared. Please try again.",
-  "select_error": "选择这个设计失败，请重试。"
+  "select_error": "选择这个设计失败，请重试。",
+  "assistant": {
+    "eyebrow": "设计修改助手",
+    "title": "描述你想修改的内容",
+    "hint": "先查看当前版本并准备修改单，确认后才生成。准备修改单不消耗生图次数。",
+    "request": "你希望修改什么？",
+    "placeholder": "花少一点，粉色换成浅蓝。保留姓名和边框。",
+    "understand": "准备修改单",
+    "thinking": "正在理解你的需求…",
+    "answer": "或补充你的偏好",
+    "continue_label": "继续",
+    "changes": "本次修改",
+    "preserve": "尽量保持",
+    "warning": "图像编辑可能影响其他细节。旧版本会保留供你比较。确认后消耗1次生图额度。",
+    "confirm": "确认修改 · 消耗1次",
+    "working": "正在提交修改…",
+    "revise": "调整需求",
+    "quota": "生图额度已用完，已有版本仍可查看。",
+    "error": "请求出错，请重试。",
+    "version_hint": "旧版本会保留。点击任一版本采用并放大查看；下载以你选中的版本为主。",
+    "fallback": "需要更具体的修改？",
+    "fallback_hint": "先试试上方快捷调整和编辑细节。如果仍不能满足需求，再展开设计助手描述修改。"
+  },
+  "generation_ready": "新设计已生成，请查看上方图片。"
 }

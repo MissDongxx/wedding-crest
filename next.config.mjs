@@ -22,6 +22,8 @@ const syncInflateFix = resolve(
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Parallel verification servers must not overwrite the active Turbopack cache.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   output: process.env.VERCEL ? undefined : 'standalone',
   reactStrictMode: false,
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
