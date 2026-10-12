@@ -84,5 +84,19 @@
     "after_label": "Dopo — Filigrana Rimossa",
     "alt_original": "Immagine originale con filigrana",
     "alt_clean": "Immagine pulita senza filigrana"
+  },
+  "contact": {
+    "name_title": "Nome",
+    "name_placeholder": "Il tuo nome",
+    "email_title": "Email",
+    "email_placeholder": "tua@email.com",
+    "subject_title": "Oggetto",
+    "subject_placeholder": "Come possiamo aiutarti?",
+    "message_title": "Messaggio",
+    "message_placeholder": "Descrivi la tua richiesta...",
+    "submit_button": "Invia messaggio",
+    "sending_button": "Invio in corso...",
+    "success_message": "Messaggio inviato con successo!",
+    "error_message": "Invio del messaggio non riuscito. Riprova."
   }
 }

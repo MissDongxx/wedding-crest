@@ -18,3 +18,6 @@
 
 ## 生成完成提示和定位
 生成或修改完成后弹本地化成功提示、自动回到页面顶部并展示最新图片；已完成项目再次打开不弹提示。用displayedGeneration防止重复轮询把刚展示的新图切回旧选择。独立缓存验证浏览器结果scrollY=0、主图URL为最新fixture、toast=true，未消耗真实额度。证据artifacts/generation-complete/verification.md。
+
+## 德语／意大利语切换issues修复
+缺失的是页脚反馈表单的common.contact命名空间，而非助手翻译。补齐de/it的12项contact文案；实际原项目通过语言菜单it→de→it验证，表单标签与占位符正常，无新增控制台错误，issues提示消失。只改两份JSON，未发邮件、未生图、未发布。证据artifacts/locale-contact-fix/verification.md。

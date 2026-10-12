@@ -84,5 +84,19 @@
     "after_label": "Nachher — Wasserzeichen Entfernt",
     "alt_original": "Originalbild mit Wasserzeichen",
     "alt_clean": "Saubereres Bild ohne Wasserzeichen"
+  },
+  "contact": {
+    "name_title": "Name",
+    "name_placeholder": "Dein Name",
+    "email_title": "E-Mail",
+    "email_placeholder": "deine@email.com",
+    "subject_title": "Betreff",
+    "subject_placeholder": "Wie können wir helfen?",
+    "message_title": "Nachricht",
+    "message_placeholder": "Erzähle uns mehr über deine Anfrage ...",
+    "submit_button": "Nachricht senden",
+    "sending_button": "Wird gesendet ...",
+    "success_message": "Nachricht erfolgreich gesendet!",
+    "error_message": "Die Nachricht konnte nicht gesendet werden. Bitte versuche es erneut."
   }
 }
