@@ -178,7 +178,7 @@ export async function POST(
     // Hard generation quota (spec: cost protection).
     const [batches, paid, projectsWithGenerations] = await Promise.all([
       countWeddingGenerationBatches(id, WEDDING_MAX_CANDIDATES),
-      user ? hasPaidWeddingOrder(user.id, id) : Promise.resolve(false),
+      hasPaidWeddingOrder(user?.id, id, guestId),
       countProjectsWithGenerations(
         user ? { userId: user.id } : { guestId: guestId ?? '__none__' }
       ),

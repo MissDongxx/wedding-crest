@@ -145,5 +145,16 @@
         }
       ]
     }
-  ]
+  ],
+  "header": {
+    "brand": {
+      "title": "ระบบหลังบ้าน",
+      "logo": {
+        "src": "",
+        "alt": "ระบบหลังบ้าน"
+      },
+      "url": "/admin"
+    },
+    "show_trigger": false
+  }
 }

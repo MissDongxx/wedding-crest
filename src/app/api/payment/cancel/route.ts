@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { envConfigs } from '@/config';
@@ -7,9 +8,13 @@ import {
   updateOrderByOrderNo,
 } from '@/shared/models/order';
 import { getUserInfo } from '@/shared/models/user';
+import {
+  canAccessWeddingCheckout,
+  weddingCheckoutCookie,
+} from '@/shared/models/wedding-checkout';
 
 export async function GET(req: Request) {
-  const pricingUrl = `${envConfigs.app_url}/pricing?payment=canceled`;
+  let pricingUrl = `${envConfigs.app_url}/pricing?payment=canceled`;
   const { searchParams } = new URL(req.url);
   const orderNo = searchParams.get('order_no');
 
@@ -20,10 +25,19 @@ export async function GET(req: Request) {
         getUserInfo(),
       ]);
 
-      // Only the signed-in owner can cancel an order, and only an unpaid
+      // Only the account owner or checkout guest can cancel an order; only an unpaid
       // checkout may transition to canceled. The optimistic status guard also
       // prevents a late cancel redirect from overwriting a paid order.
-      if (order && user && order.userId === user.id) {
+      const guestId = (await cookies()).get(
+        weddingCheckoutCookie(orderNo)
+      )?.value;
+      if (order && (await canAccessWeddingCheckout(order, user?.id, guestId))) {
+        if (order.projectId && order.callbackUrl) {
+          const returnUrl = new URL(order.callbackUrl);
+          returnUrl.searchParams.delete('paid');
+          returnUrl.searchParams.set('payment', 'canceled');
+          pricingUrl = returnUrl.toString();
+        }
         await updateOrderByOrderNo(
           orderNo,
           { status: OrderStatus.CANCELED },

@@ -84,5 +84,19 @@
     "after_label": "Après — Filigrane Supprimé",
     "alt_original": "Image originale avec filigrane",
     "alt_clean": "Image propre sans filigrane"
+  },
+  "contact": {
+    "name_title": "Nom",
+    "name_placeholder": "Votre nom",
+    "email_title": "E-mail",
+    "email_placeholder": "votre@email.com",
+    "subject_title": "Objet",
+    "subject_placeholder": "Comment pouvons-nous vous aider ?",
+    "message_title": "Message",
+    "message_placeholder": "Décrivez votre demande…",
+    "submit_button": "Envoyer le message",
+    "sending_button": "Envoi en cours…",
+    "success_message": "Message envoyé avec succès !",
+    "error_message": "Échec de l’envoi du message. Veuillez réessayer."
   }
 }

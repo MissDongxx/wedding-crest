@@ -26,11 +26,15 @@
     "crisp": "Crisp",
     "credit": "Créditos",
     "appinfo": "Informações do App",
-    "user_role": "Função do Usuário"
+    "user_role": "Função do Usuário",
+    "brevo": "Brevo"
   },
   "edit": {
     "title": "Configurações",
-    "crumbs": { "admin": "Admin", "settings": "Configurações" },
+    "crumbs": {
+      "admin": "Admin",
+      "settings": "Configurações"
+    },
     "tabs": {
       "general": "Geral",
       "auth": "Autenticação",
@@ -44,6 +48,8 @@
       "affiliate": "Afiliados",
       "customer_service": "Atendimento"
     },
-    "buttons": { "submit": "Salvar" }
+    "buttons": {
+      "submit": "Salvar"
+    }
   }
 }

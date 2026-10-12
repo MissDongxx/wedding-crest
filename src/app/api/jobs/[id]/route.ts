@@ -68,7 +68,7 @@ export async function GET(
       await claimWeddingProject(id, user.id);
     }
 
-    const paid = user ? await hasPaidWeddingOrder(user.id, id) : false;
+    const paid = await hasPaidWeddingOrder(user?.id, id, guestId);
 
     const aiService = await getAIService();
     const assets: NewWeddingAsset[] = [];

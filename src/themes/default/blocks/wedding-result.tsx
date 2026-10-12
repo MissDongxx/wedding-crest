@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -15,6 +15,7 @@ import {
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
+import { WeddingApplicationPreview } from '@/shared/components/wedding/wedding-application-preview';
 import { DesignEditAssistant } from '@/shared/components/wedding/design-edit-assistant';
 import { readJsonResponse } from '@/shared/lib/read-json-response';
 import { cn } from '@/shared/lib/utils';
@@ -276,10 +277,12 @@ export function WeddingResult({ projectId }: { projectId: string }) {
   const selectGeneration = useCallback(
     async (index: number) => {
       const generation = generations[index];
-      if (!project || !generation) return;
+      if (!project || !generation || busy) return;
       const previousIndex = selectedIndex;
+      const previousGenerationId = displayedGeneration.current;
+      displayedGeneration.current = generation.id;
       setSelectedIndex(index);
-      setPreviewIndex(index);
+      setBusy(true);
       try {
         const response = await fetch(`/api/projects/${project.id}/select`, {
           method: 'POST',
@@ -296,24 +299,30 @@ export function WeddingResult({ projectId }: { projectId: string }) {
           !response.ok ||
           (envelope.code !== undefined && envelope.code !== 0)
         ) {
+          displayedGeneration.current = previousGenerationId;
           setSelectedIndex(previousIndex);
           toast.error(envelope.message || t('select_error'));
         } else {
           displayedGeneration.current = generation.id;
         }
       } catch {
+        displayedGeneration.current = previousGenerationId;
         setSelectedIndex(previousIndex);
         toast.error(t('select_error'));
+      } finally {
+        setBusy(false);
       }
     },
-    [generations, project, selectedIndex, guestId, t]
+    [generations, project, selectedIndex, guestId, t, busy]
   );
 
   const downloadIdentityPack = useCallback(async () => {
     if (!project || downloading) return;
     setDownloading(true);
     try {
-      const response = await fetch(`/api/projects/${project.id}/download`);
+      const response = await fetch(`/api/projects/${project.id}/download`, {
+        headers: guestId ? { 'x-wedding-guest-id': guestId } : {},
+      });
       const contentType = response.headers.get('content-type') || '';
       if (!response.ok || contentType.includes('application/json')) {
         // Read the raw text first so a non-JSON (proxy, HTML error page)
@@ -363,7 +372,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
     } finally {
       setDownloading(false);
     }
-  }, [project, downloading, t]);
+  }, [project, downloading, guestId, t]);
 
   const confirmAssistantEdit = useCallback(
     async (plan: EditPlan) => {
@@ -578,12 +587,6 @@ export function WeddingResult({ projectId }: { projectId: string }) {
 
   const checkout = useCallback(async () => {
     if (!project) return;
-    if (!data?.signedIn) {
-      // guest flow: must sign in (or create a free account) before payment
-      const next = `/design/${project.id}?paid=1`;
-      router.push(`/sign-in?callbackUrl=${encodeURIComponent(next)}`);
-      return;
-    }
     setPaying(true);
     try {
       const response = await fetch('/api/payment/checkout', {
@@ -594,6 +597,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
         },
         body: JSON.stringify({
           product_id: 'wedding_identity_pack',
+          locale: document.documentElement.lang,
           metadata: { project_id: project.id },
         }),
       });
@@ -626,7 +630,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
     } finally {
       setPaying(false);
     }
-  }, [project, guestId, t, data?.signedIn, router]);
+  }, [project, guestId, t]);
 
   if (error && !data) {
     return (
@@ -655,6 +659,48 @@ export function WeddingResult({ projectId }: { projectId: string }) {
   const isComplete = data?.status === 'complete';
   const isFailed = data?.status === 'failed';
   const paid = data?.paid ?? false;
+
+  const alternatesPanel = (
+isComplete && generations.length > 1 && (
+              <div>
+                <p className="text-muted-foreground mb-3 text-xs tracking-[0.2em] uppercase">
+                  {t('alternates')}
+                </p>
+                <p className="text-muted-foreground mb-3 text-sm">
+                  {t('assistant.version_hint')}
+                </p>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {generations.map((gen, idx) => (
+                    <button
+                      key={gen.id}
+                      type="button"
+                      aria-pressed={selectedIndex === idx}
+                      disabled={busy}
+                      onClick={() => selectGeneration(idx)}
+                      className={cn(
+                        'bg-wedding-ivory rounded-2xl border p-3 transition-colors',
+                        selectedIndex === idx
+                          ? 'border-primary ring-primary/30 ring-2'
+                          : 'hover:border-primary/40'
+                      )}
+                    >
+                      <CrestMini
+                        generation={gen}
+                        paid={paid}
+                        alt={`${project.partner1} and ${project.partner2} wedding crest option ${idx + 1}`}
+                      />
+                      <p className="text-muted-foreground mt-2 text-center text-xs">
+                        {t('candidate_label', { index: idx + 1 })}
+                        {gen.reviewScore != null
+                          ? ` · ${Math.round(gen.reviewScore * 10) / 10}`
+                          : ''}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )
+  );
 
   return (
     <div className="bg-background min-h-screen">
@@ -733,18 +779,26 @@ export function WeddingResult({ projectId }: { projectId: string }) {
         )}
 
         <div className="grid gap-8 lg:grid-cols-[1fr_400px]">
-          {/* master crest + candidates */}
+          {/* master crest, application previews and editing */}
           <div className="space-y-8">
             <div className="bg-wedding-ivory rounded-2xl border p-6">
               <p className="text-muted-foreground mb-3 text-xs tracking-[0.2em] uppercase">
                 {t('master_crest')}
               </p>
-              <AiCrestImage
-                generation={selectedGeneration}
-                paid={paid}
-                alt={`${project.partner1} and ${project.partner2} wedding crest`}
-                className="mx-auto w-full max-w-md"
-              />
+              <button
+                type="button"
+                className="mx-auto block w-full max-w-md cursor-zoom-in rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:cursor-default"
+                aria-label={t('preview.zoom')}
+                disabled={!isComplete || !selectedGeneration?.sourceImageUrl}
+                onClick={() => setPreviewIndex(selectedIndex)}
+              >
+                <AiCrestImage
+                  generation={selectedGeneration}
+                  paid={paid}
+                  alt={`${project.partner1} and ${project.partner2} wedding crest`}
+                  className="w-full"
+                />
+              </button>
               {!paid && isComplete && (
                 <p className="text-muted-foreground mt-4 text-center text-xs">
                   {t('preview_watermark')}
@@ -752,139 +806,20 @@ export function WeddingResult({ projectId }: { projectId: string }) {
               )}
             </div>
 
-            {isComplete && generations.length > 1 && (
-              <div>
-                <p className="text-muted-foreground mb-3 text-xs tracking-[0.2em] uppercase">
-                  {t('alternates')}
-                </p>
-                <p className="text-muted-foreground mb-3 text-sm">
-                  {t('assistant.version_hint')}
-                </p>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {generations.map((gen, idx) => (
-                    <button
-                      key={gen.id}
-                      type="button"
-                      aria-pressed={selectedIndex === idx}
-                      disabled={busy}
-                      onClick={() => selectGeneration(idx)}
-                      className={cn(
-                        'bg-wedding-ivory rounded-2xl border p-3 transition-colors',
-                        selectedIndex === idx
-                          ? 'border-primary ring-primary/30 ring-2'
-                          : 'hover:border-primary/40'
-                      )}
-                    >
-                      <CrestMini
-                        generation={gen}
-                        paid={paid}
-                        alt={`${project.partner1} and ${project.partner2} wedding crest option ${idx + 1}`}
-                      />
-                      <p className="text-muted-foreground mt-2 text-center text-xs">
-                        {t('candidate_label', { index: idx + 1 })}
-                        {gen.reviewScore != null
-                          ? ` · ${Math.round(gen.reviewScore * 10) / 10}`
-                          : ''}
-                      </p>
-                    </button>
-                  ))}
-                </div>
-              </div>
+            {alternatesPanel && <div className="lg:hidden">{alternatesPanel}</div>}
+
+            {isComplete && selectedGeneration?.sourceImageUrl && (
+              <WeddingApplicationPreview
+                imageUrl={selectedGeneration.sourceImageUrl}
+                partner1={project.partner1}
+                partner2={project.partner2}
+                date={project.showDate ? project.weddingDate : null}
+                palette={project.palette}
+                paid={paid}
+              />
             )}
 
-            <Dialog
-              open={previewIndex !== null}
-              onOpenChange={(open) => {
-                if (!open) setPreviewIndex(null);
-              }}
-            >
-              <DialogContent className="max-w-3xl" aria-describedby={undefined}>
-                {previewIndex !== null && generations[previewIndex] && (
-                  <>
-                    <DialogTitle>
-                      {t('candidate_label', { index: previewIndex + 1 })}
-                    </DialogTitle>
-                    <div className="bg-wedding-ivory rounded-2xl border p-4 sm:p-8">
-                      <CrestMini
-                        generation={generations[previewIndex]}
-                        paid={paid}
-                        alt={`${project.partner1} and ${project.partner2} wedding crest option ${previewIndex + 1}`}
-                        className="mx-auto w-full max-w-2xl"
-                      />
-                    </div>
-                  </>
-                )}
-              </DialogContent>
-            </Dialog>
-          </div>
-
-          {/* unlock panel */}
-          <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
-            <div id="wedding-pricing" className="rounded-2xl border p-6">
-              <p className="font-serif text-xl">{t('unlock_title')}</p>
-              <p className="text-muted-foreground mt-2 text-sm">
-                {t('unlock_description')}
-              </p>
-              <ul className="mt-4 space-y-2 text-sm">
-                <li>· {t('unlock_feature_1')}</li>
-                <li>· {t('unlock_feature_2')}</li>
-                <li>· {t('unlock_feature_3')}</li>
-                <li>· {t('unlock_feature_4')}</li>
-              </ul>
-              <p className="mt-4 font-serif text-2xl">$9.9</p>
-              <p className="text-muted-foreground text-xs">
-                {t('unlock_unit')}
-              </p>
-              {!paid ? (
-                <>
-                  {!data?.signedIn && (
-                    <p className="text-muted-foreground mt-3 text-xs">
-                      {t('unlock_signin_hint')}
-                    </p>
-                  )}
-                  <Button
-                    className="mt-4 w-full"
-                    size="lg"
-                    onClick={checkout}
-                    disabled={paying || !isComplete}
-                  >
-                    {paying ? t('unlock_processing') : t('unlock_cta')}
-                  </Button>
-                  {data?.allowance &&
-                    !data.allowance.allowed &&
-                    showAllowanceHint && (
-                      <div className="bg-muted/40 text-muted-foreground relative mt-3 rounded-lg p-3 pr-9 text-xs">
-                        <button
-                          type="button"
-                          className="hover:bg-background/80 absolute top-2 right-2 rounded p-1 transition-colors"
-                          onClick={() => setShowAllowanceHint(false)}
-                          aria-label={t('dismiss_allowance_hint')}
-                        >
-                          <X className="size-3.5" aria-hidden="true" />
-                        </button>
-                        <p>{data.allowance.reason || t('allowance_hint')}</p>
-                        <a
-                          className="text-primary mt-2 inline-block font-medium underline underline-offset-2"
-                          href="#wedding-pricing"
-                        >
-                          {t('allowance_link')}
-                        </a>
-                      </div>
-                    )}
-                </>
-              ) : (
-                <Button
-                  className="mt-4 w-full"
-                  size="lg"
-                  onClick={downloadIdentityPack}
-                  disabled={downloading}
-                >
-                  {downloading ? t('download_preparing') : t('download_zip')}
-                </Button>
-              )}
-            </div>
-
-            {/* edit panel follows the pricing module */}
+            {/* editing belongs to the main design column */}
             {isComplete && (
               <EditPanel
                 project={project}
@@ -892,6 +827,20 @@ export function WeddingResult({ projectId }: { projectId: string }) {
                 hasSelectedGeneration={!!selectedGeneration}
                 draftResetKey={draftResetKey}
                 onApply={applyPanelChanges}
+                otherLabel={t('assistant.other_changes')}
+                otherChanges={selectedGeneration ? <>
+                <p className="text-muted-foreground mt-2 text-sm">
+                  {t('assistant.fallback_hint')}
+                </p>
+                <DesignEditAssistant
+                  projectId={project.id}
+                  sourceGenerationId={selectedGeneration.id}
+                  guestId={guestId}
+                  disabled={busy}
+                  allowed={data?.allowance.allowed ?? false}
+                  onConfirm={confirmAssistantEdit}
+                />
+                </> : null}
                 t={{
                   quick_edits: t('quick_edits'),
                   quick_edits_hint: t('quick_edits_hint'),
@@ -935,42 +884,96 @@ export function WeddingResult({ projectId }: { projectId: string }) {
               />
             )}
 
-            {isComplete && selectedGeneration && (
-              <details className="rounded-2xl border p-5">
-                <summary className="cursor-pointer font-serif text-lg">
-                  {t('assistant.fallback')}
-                </summary>
-                <p className="text-muted-foreground mt-2 text-sm">
-                  {t('assistant.fallback_hint')}
-                </p>
-                <DesignEditAssistant
-                  projectId={project.id}
-                  sourceGenerationId={selectedGeneration.id}
-                  guestId={guestId}
-                  disabled={busy}
-                  allowed={data?.allowance.allowed ?? false}
-                  onConfirm={confirmAssistantEdit}
-                />
-              </details>
-            )}
+            <Dialog
+              open={previewIndex !== null}
+              onOpenChange={(open) => {
+                if (!open) setPreviewIndex(null);
+              }}
+            >
+              <DialogContent className="max-w-3xl" aria-describedby={undefined}>
+                {previewIndex !== null && generations[previewIndex] && (
+                  <>
+                    <DialogTitle>
+                      {t('candidate_label', { index: previewIndex + 1 })}
+                    </DialogTitle>
+                    <div className="bg-wedding-ivory rounded-2xl border p-4 sm:p-8">
+                      <CrestMini
+                        generation={generations[previewIndex]}
+                        paid={paid}
+                        alt={`${project.partner1} and ${project.partner2} wedding crest option ${previewIndex + 1}`}
+                        className="mx-auto w-full max-w-2xl"
+                      />
+                    </div>
+                  </>
+                )}
+              </DialogContent>
+            </Dialog>
+          </div>
 
-            <div className="rounded-2xl border p-6">
-              <p className="text-muted-foreground text-xs tracking-[0.2em] uppercase">
-                {t('regenerate_title')}
-              </p>
+          {/* alternates and unlock panel */}
+          <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+            {alternatesPanel && <div className="hidden lg:block">{alternatesPanel}</div>}
+
+            <div id="wedding-pricing" className="rounded-2xl border p-6">
+              <p className="font-serif text-xl">{t('unlock_title')}</p>
               <p className="text-muted-foreground mt-2 text-sm">
-                {t('regenerate_hint')}
+                {t('unlock_description')}
               </p>
-              <Button
-                className="mt-3 w-full"
-                variant="outline"
-                onClick={regenerate}
-                disabled={busy || !isComplete}
-                aria-busy={busy}
-              >
-                {busy ? t('generating_hint') : t('regenerate_cta')}
-              </Button>
+              <ul className="mt-4 space-y-2 text-sm">
+                <li>· {t('unlock_feature_1')}</li>
+                <li>· {t('unlock_feature_2')}</li>
+                <li>· {t('unlock_feature_3')}</li>
+                <li>· {t('unlock_feature_4')}</li>
+              </ul>
+              <p className="mt-4 font-serif text-2xl">$9.9</p>
+              <p className="text-muted-foreground text-xs">
+                {t('unlock_unit')}
+              </p>
+              {!paid ? (
+                <>
+                  <Button
+                    className="mt-4 w-full"
+                    size="lg"
+                    onClick={checkout}
+                    disabled={paying || !isComplete}
+                  >
+                    {paying ? t('unlock_processing') : t('unlock_cta')}
+                  </Button>
+                  {data?.allowance &&
+                    !data.allowance.allowed &&
+                    showAllowanceHint && (
+                      <div className="bg-muted/40 text-muted-foreground relative mt-3 rounded-lg p-3 pr-9 text-xs">
+                        <button
+                          type="button"
+                          className="hover:bg-background/80 absolute top-2 right-2 rounded p-1 transition-colors"
+                          onClick={() => setShowAllowanceHint(false)}
+                          aria-label={t('dismiss_allowance_hint')}
+                        >
+                          <X className="size-3.5" aria-hidden="true" />
+                        </button>
+                        <p>{data.allowance.reason || t('allowance_hint')}</p>
+                        <a
+                          className="text-primary mt-2 inline-block font-medium underline underline-offset-2"
+                          href="#wedding-pricing"
+                        >
+                          {t('allowance_link')}
+                        </a>
+                      </div>
+                    )}
+                </>
+              ) : (
+                <Button
+                  className="mt-4 w-full"
+                  size="lg"
+                  onClick={downloadIdentityPack}
+                  disabled={downloading}
+                >
+                  {downloading ? t('download_preparing') : t('download_zip')}
+                </Button>
+              )}
             </div>
+
+
           </div>
         </div>
       </div>
@@ -1029,15 +1032,12 @@ function AiCrestImage({
       />
       {!paid && (
         <div
-          className="pointer-events-none absolute inset-0 grid grid-cols-2 place-items-center overflow-hidden opacity-20"
+          className="pointer-events-none absolute inset-0 grid grid-cols-3 grid-rows-3 place-items-center overflow-hidden"
           aria-hidden="true"
         >
-          {Array.from({ length: 8 }, (_, index) => (
-            <span
-              key={index}
-              className="-rotate-[24deg] text-[10px] font-semibold tracking-[0.28em] text-black sm:text-xs"
-            >
-              PREVIEW
+          {Array.from({ length: 9 }, (_, index) => (
+            <span key={index} className="-rotate-12 text-[7px] font-normal tracking-[0.1em] whitespace-nowrap text-stone-600/10 sm:text-[9px]">
+              Wedding Crest · Preview
             </span>
           ))}
         </div>
@@ -1133,6 +1133,8 @@ function EditPanel({
   hasSelectedGeneration,
   draftResetKey,
   onApply,
+  otherChanges,
+  otherLabel,
   t,
 }: {
   project: ProjectData;
@@ -1144,9 +1146,11 @@ function EditPanel({
     regenKind: 'artwork' | 'quick_edit' | 'lettering' | null;
     quickEdit: QuickEditKind | null;
   }) => Promise<void>;
+  otherChanges: ReactNode;
+  otherLabel: string;
   t: EditPanelTexts;
 }) {
-  const [activeTab, setActiveTab] = useState<'quick' | 'edit'>('quick');
+  const [activeTab, setActiveTab] = useState<'quick' | 'edit' | 'other'>('quick');
   const [category, setCategory] = useState<EditCategory | null>(null);
   const [customColor, setCustomColor] = useState('');
   const [colorError, setColorError] = useState<string | null>(null);
@@ -1362,10 +1366,10 @@ function EditPanel({
 
   return (
     <div className="space-y-4 rounded-2xl border p-5">
-      <div className="grid gap-4 md:grid-cols-[180px_1fr]">
+      <div className="space-y-4">
         {/* Left: tab buttons */}
         <div
-          className="flex flex-row gap-2 md:flex-col"
+          className="grid grid-cols-3 gap-2"
           role="tablist"
           aria-label="Edit tabs"
         >
@@ -1397,11 +1401,14 @@ function EditPanel({
           >
             {t.edit_title}
           </button>
+          <button type="button" role="tab" aria-selected={activeTab === 'other'} onClick={() => setActiveTab('other')} className={cn('rounded-lg border px-3 py-2 text-left text-sm transition-colors', activeTab === 'other' ? 'border-primary bg-accent text-accent-foreground' : 'border-input hover:border-primary/40')}>
+            {otherLabel}
+          </button>
         </div>
 
         {/* Right: active tab content */}
         <div className="space-y-4">
-          {activeTab === 'quick' ? (
+          {activeTab === 'other' ? otherChanges : activeTab === 'quick' ? (
             <div className="space-y-3">
               <p className="text-muted-foreground text-sm">
                 {t.quick_edits_hint}
@@ -1870,7 +1877,7 @@ function EditPanel({
       </div>
 
       {/* Footer: pending count + apply button (shared by both tabs) */}
-      <div className="flex flex-col gap-2 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
+      {activeTab !== 'other' && <div className="flex flex-col gap-2 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="text-muted-foreground text-xs">
           {hasChanges
             ? t.edit_pending(fieldChangeCount + (hasQuickEdit ? 1 : 0))
@@ -1887,7 +1894,7 @@ function EditPanel({
         >
           {t.edit_apply}
         </Button>
-      </div>
+      </div>}
     </div>
   );
 }

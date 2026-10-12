@@ -5,5 +5,7 @@
   "description": "Browse real crests designed for couples. Tap any crest to start your own with that style.",
   "browse_all": "Browse this style",
   "start_from_this": "Start from this",
-  "detail_meta_title": "{title} — wedding crest example"
+  "detail_meta_title": "{title} — wedding crest example",
+  "empty": "아직 예시가 없습니다. 나중에 다시 확인하거나 새 디자인을 시작하세요.",
+  "couple_format": "{p1} & {p2}"
 }

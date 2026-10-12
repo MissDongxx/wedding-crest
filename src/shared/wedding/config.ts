@@ -11,9 +11,10 @@ export const WEDDING_PAID_REGENERATIONS = 3;
 export const WEDDING_PACK_PRODUCT_ID = 'wedding_identity_pack';
 
 /** Generation batches: initial run + regenerations. */
-export const WEDDING_GUEST_MAX_BATCHES = 1;
+export const WEDDING_GUEST_MAX_BATCHES = 1 + WEDDING_FREE_REGENERATIONS;
 export const WEDDING_FREE_MAX_BATCHES = 1 + WEDDING_FREE_REGENERATIONS;
-export const WEDDING_PAID_MAX_BATCHES = 1 + WEDDING_PAID_REGENERATIONS;
+export const WEDDING_PAID_MAX_BATCHES =
+  WEDDING_FREE_MAX_BATCHES + WEDDING_PAID_REGENERATIONS;
 export const WEDDING_FREE_MAX_PROJECTS = 1;
 
 export function getWeddingStyle(styleId: string) {
@@ -81,33 +82,21 @@ export interface GenerationAllowance {
 }
 
 /**
- * Hard generation quota (spec: cost protection). Guests get one generation
- * per device; signed-in free users get one project plus four regenerations;
+ * Hard generation quota (spec: cost protection). Guests
+ * and signed-in free users get one project plus four regenerations;
  * paid users unlock three regenerations on the purchased project.
  */
 export function decideGenerationAllowance(
   params: GenerationAllowanceParams
 ): GenerationAllowance {
-  const { batches, paid, isGuest, projectsWithGenerations } = params;
-
-  if (isGuest) {
-    if (batches >= WEDDING_GUEST_MAX_BATCHES) {
-      return {
-        allowed: false,
-        reason:
-          'Free preview is limited to one generation per device. Create an account to save your crest and regenerate.',
-        maxBatches: WEDDING_GUEST_MAX_BATCHES,
-      };
-    }
-    return { allowed: true, maxBatches: WEDDING_GUEST_MAX_BATCHES };
-  }
+  const { batches, paid, projectsWithGenerations } = params;
 
   if (paid) {
     if (batches >= WEDDING_PAID_MAX_BATCHES) {
       return {
         allowed: false,
         reason:
-          'This project reached its 3 included regenerations. Start a new project for a fresh composition.',
+          'This project has used its 5 free generations and 3 additional paid generations.',
         maxBatches: WEDDING_PAID_MAX_BATCHES,
       };
     }

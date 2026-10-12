@@ -1,76 +1,4 @@
 {
-  "header": {
-    "brand": {
-      "title": "แชท AI",
-      "logo": {
-        "src": "",
-        "alt": "แชท AI",
-        "width": 100,
-        "height": 100
-      },
-      "url": "/chat"
-    },
-    "show_trigger": false
-  },
-  "buttons": [
-    {
-      "title": "เริ่มแชทใหม่",
-      "icon": "Plus",
-      "url": "/chat",
-      "variant": "outline"
-    }
-  ],
-  "main_navs": [
-    {
-      "items": [
-        {
-          "title": "ประวัติการใช้งาน",
-          "icon": "History",
-          "url": "/chat/history"
-        }
-      ]
-    }
-  ],
-  "bottom_nav": {
-    "items": []
-  },
-  "user": {
-    "nav": {
-      "items": [
-        {
-          "title": "โปรไฟล์",
-          "url": "/settings/profile",
-          "icon": "User",
-          "target": "_blank"
-        }
-      ]
-    },
-    "show_email": false,
-    "show_signout": true,
-    "signout_callback": "/chat",
-    "signin_callback": "/chat"
-  },
-  "footer": {
-    "nav": {
-      "items": [
-        {
-          "title": "หน้าหลัก",
-          "url": "/",
-          "icon": "Home",
-          "target": "_blank"
-        },
-        {
-          "title": "อีเมล",
-          "url": "mailto:support@weddingcrestdesign.com",
-          "icon": "Mail",
-          "target": "_blank"
-        }
-      ]
-    },
-    "show_theme": true,
-    "show_locale": false
-  },
-  "variant": "sidebar",
   "library": {
     "title": "คลังข้อมูล",
     "icon": "History",
@@ -99,5 +27,79 @@
     "next": "ถัดไป",
     "open": "เปิดแชท",
     "untitled": "บทสนทนาที่ไม่มีชื่อ"
+  },
+  "sidebar": {
+    "header": {
+      "brand": {
+        "title": "แชท AI",
+        "logo": {
+          "src": "",
+          "alt": "แชท AI",
+          "width": 100,
+          "height": 100
+        },
+        "url": "/chat"
+      },
+      "show_trigger": false
+    },
+    "buttons": [
+      {
+        "title": "เริ่มแชทใหม่",
+        "icon": "Plus",
+        "url": "/chat",
+        "variant": "outline"
+      }
+    ],
+    "main_navs": [
+      {
+        "items": [
+          {
+            "title": "ประวัติการใช้งาน",
+            "icon": "History",
+            "url": "/chat/history"
+          }
+        ]
+      }
+    ],
+    "bottom_nav": {
+      "items": []
+    },
+    "user": {
+      "nav": {
+        "items": [
+          {
+            "title": "โปรไฟล์",
+            "url": "/settings/profile",
+            "icon": "User",
+            "target": "_blank"
+          }
+        ]
+      },
+      "show_email": false,
+      "show_signout": true,
+      "signout_callback": "/chat",
+      "signin_callback": "/chat"
+    },
+    "footer": {
+      "nav": {
+        "items": [
+          {
+            "title": "หน้าหลัก",
+            "url": "/",
+            "icon": "Home",
+            "target": "_blank"
+          },
+          {
+            "title": "อีเมล",
+            "url": "mailto:support@weddingcrestdesign.com",
+            "icon": "Mail",
+            "target": "_blank"
+          }
+        ]
+      },
+      "show_theme": true,
+      "show_locale": false
+    },
+    "variant": "sidebar"
   }
 }

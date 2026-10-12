@@ -1,9 +1,14 @@
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { envConfigs } from '@/config';
 import { PaymentType } from '@/extensions/payment/types';
 import { findOrderByOrderNo } from '@/shared/models/order';
 import { getUserInfo } from '@/shared/models/user';
+import {
+  canAccessWeddingCheckout,
+  weddingCheckoutCookie,
+} from '@/shared/models/wedding-checkout';
 import {
   getPaymentService,
   handleCheckoutSuccess,
@@ -22,10 +27,7 @@ export async function GET(req: Request) {
     }
 
     // get sign user
-    const user = await getUserInfo();
-    if (!user || !user.email) {
-      throw new Error('no auth, please sign in');
-    }
+    const user = await getUserInfo(true);
 
     // get order
     const order = await findOrderByOrderNo(orderNo);
@@ -38,7 +40,10 @@ export async function GET(req: Request) {
       throw new Error('invalid order');
     }
 
-    if (order.userId !== user.id) {
+    const guestId = (await cookies()).get(
+      weddingCheckoutCookie(orderNo)
+    )?.value;
+    if (!(await canAccessWeddingCheckout(order, user?.id, guestId))) {
       throw new Error('order and user not match');
     }
 

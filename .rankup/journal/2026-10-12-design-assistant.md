@@ -21,3 +21,6 @@
 
 ## 德语／意大利语切换issues修复
 缺失的是页脚反馈表单的common.contact命名空间，而非助手翻译。补齐de/it的12项contact文案；实际原项目通过语言菜单it→de→it验证，表单标签与占位符正常，无新增控制台错误，issues提示消失。只改两份JSON，未发邮件、未生图、未发布。证据artifacts/locale-contact-fix/verification.md。
+
+## 全语种同类错误扫描
+对照8种语言39份命名空间，补齐fr/ko/pt-BR/th反馈表单、7语种examples空态/情侣格式、7语种首页样式tip、6语种Brevo分组，并修正泰语AI聊天sidebar错误层级及admin header缺失。增加scripts/verify-locale-messages.mjs，缺键/类型/命名参数检查全通过。实际原项目fr→ko→pt-BR→th切换无控制台错误。后台/聊天/空态仅静态验证，不等同完整E2E。证据artifacts/locale-audit/verification.md。

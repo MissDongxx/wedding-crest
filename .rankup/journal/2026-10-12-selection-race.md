@@ -1,0 +1,1 @@
+Supported mechanism: optimistic selectedIndex previously updated before displayedGeneration ref, allowing in-flight job refresh to restore old selection while select request was pending. Record selected generation ref synchronously before request, restore prior ref/index on failures. Historical two-click cause not browser-reproduced.

@@ -26,11 +26,15 @@
     "crisp": "Crisp",
     "credit": "Crédit",
     "appinfo": "Informations App",
-    "user_role": "Rôle Utilisateur"
+    "user_role": "Rôle Utilisateur",
+    "brevo": "Brevo"
   },
   "edit": {
     "title": "Paramètres",
-    "crumbs": { "admin": "Admin", "settings": "Paramètres" },
+    "crumbs": {
+      "admin": "Admin",
+      "settings": "Paramètres"
+    },
     "tabs": {
       "general": "Général",
       "auth": "Authentification",
@@ -44,6 +48,8 @@
       "affiliate": "Affiliation",
       "customer_service": "Service Client"
     },
-    "buttons": { "submit": "Enregistrer" }
+    "buttons": {
+      "submit": "Enregistrer"
+    }
   }
 }

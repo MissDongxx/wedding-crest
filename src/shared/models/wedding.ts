@@ -404,6 +404,38 @@ export async function createWeddingProject(params: CreateWeddingProjectParams) {
         await tx.insert(weddingProjectElement).values(elements);
       }
 
+      // A prepaid pack belongs to its signed-in purchaser until atomically
+      // claimed by one newly created project. Pending/unpaid orders never qualify.
+      if (params.userId) {
+        const available = await tx
+          .select({ id: order.id })
+          .from(order)
+          .where(
+            and(
+              eq(order.userId, params.userId),
+              eq(order.productId, WEDDING_PACK_PRODUCT_ID),
+              eq(order.status, OrderStatus.PAID),
+              isNull(order.projectId)
+            )
+          )
+          .orderBy(asc(order.createdAt), asc(order.id));
+        for (const purchase of available) {
+          const claimed = await tx
+            .update(order)
+            .set({ projectId: id })
+            .where(
+              and(
+                eq(order.id, purchase.id),
+                eq(order.userId, params.userId),
+                eq(order.status, OrderStatus.PAID),
+                isNull(order.projectId)
+              )
+            )
+            .returning({ id: order.id });
+          if (claimed.length > 0) break;
+        }
+      }
+
       const created = await loadWeddingProject(tx, id);
       if (!created) {
         throw new Error(`wedding project ${id} disappeared after insert`);
@@ -674,27 +706,33 @@ export async function findWeddingProjectWithGeneration(params: {
 /* -------------------------------------------------------------------------- */
 
 export async function hasPaidWeddingOrder(
-  userId: string,
-  projectId?: string
+  userId: string | undefined,
+  projectId?: string,
+  guestId?: string
 ): Promise<boolean> {
+  // Entitlement belongs to exactly one project; first verify its owner.
+  if (
+    !projectId ||
+    !(await canAccessWeddingProject({ id: projectId, userId, guestId }))
+  ) {
+    return false;
+  }
   const orders = await withDb(
     async (exec) =>
       await exec
-        .select({
-          projectId: order.projectId,
-          productId: order.productId,
-        })
+        .select({ id: order.id })
         .from(order)
         .where(
-          and(eq(order.userId, userId), eq(order.status, OrderStatus.PAID))
-        ),
+          and(
+            eq(order.projectId, projectId),
+            eq(order.productId, WEDDING_PACK_PRODUCT_ID),
+            eq(order.status, OrderStatus.PAID)
+          )
+        )
+        .limit(1),
     { label: 'hasPaidWeddingOrder' }
   );
-  return orders.some(
-    (row: { projectId: string | null; productId: string | null }) =>
-      (projectId ? row.projectId === projectId : false) ||
-      row.productId === WEDDING_PACK_PRODUCT_ID
-  );
+  return orders.length > 0;
 }
 
 /* -------------------------------------------------------------------------- */

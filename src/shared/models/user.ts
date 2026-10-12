@@ -76,8 +76,8 @@ export async function getUserByUserIds(userIds: string[]) {
   return result;
 }
 
-export async function getUserInfo() {
-  const signUser = await getSignUser();
+export async function getUserInfo(strict = false) {
+  const signUser = await getSignUser(strict);
 
   return signUser;
 }
@@ -92,26 +92,32 @@ export async function getUserCredits(userId: string) {
 // Keep the bound finite without turning a valid session into a false sign-in.
 const SESSION_LOOKUP_TIMEOUT_MS = 10000;
 
-export const getSignUser = cache(async () => {
+export const getSignUser = cache(async (strict = false) => {
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
     const session = await Promise.race([
       (async () => {
         const auth = await getAuth();
-        return auth.api.getSession({
-          headers: await headers(),
-        });
+        const requestHeaders = await headers();
+        for (let attempt = 0; ; attempt++) {
+          try { return await auth.api.getSession({ headers: requestHeaders }); }
+          catch (error) {
+            if (!strict || attempt >= 1) throw error;
+            await new Promise((resolve) => setTimeout(resolve, 300));
+          }
+        }
       })(),
       new Promise<null>((_, reject) => {
         timer = setTimeout(
           () => reject(new Error('session lookup timed out')),
-          SESSION_LOOKUP_TIMEOUT_MS
+          strict ? SESSION_LOOKUP_TIMEOUT_MS * 2 : SESSION_LOOKUP_TIMEOUT_MS
         );
       }),
     ]);
 
     return session?.user;
-  } catch {
+  } catch (error) {
+    if (strict) throw error;
     // An unavailable auth database should produce the normal sign-in flow,
     // rather than a server-component exception on every admin route.
     return null;

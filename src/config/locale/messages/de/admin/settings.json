@@ -26,7 +26,8 @@
     "crisp": "Crisp",
     "credit": "Guthaben",
     "appinfo": "App-Informationen",
-    "user_role": "Benutzerrolle"
+    "user_role": "Benutzerrolle",
+    "brevo": "Brevo"
   },
   "edit": {
     "title": "Einstellungen",

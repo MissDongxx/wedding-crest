@@ -84,5 +84,19 @@
     "after_label": "หลัง — ลายน้ำถูกลบแล้ว",
     "alt_original": "รูปภาพต้นฉบับที่มีลายน้ำ",
     "alt_clean": "รูปภาพสะอาดไม่มีลายน้ำ"
+  },
+  "contact": {
+    "name_title": "ชื่อ",
+    "name_placeholder": "ชื่อของคุณ",
+    "email_title": "อีเมล",
+    "email_placeholder": "your@email.com",
+    "subject_title": "หัวข้อ",
+    "subject_placeholder": "เราช่วยอะไรคุณได้บ้าง?",
+    "message_title": "ข้อความ",
+    "message_placeholder": "โปรดอธิบายคำถามของคุณ...",
+    "submit_button": "ส่งข้อความ",
+    "sending_button": "กำลังส่ง...",
+    "success_message": "ส่งข้อความเรียบร้อยแล้ว!",
+    "error_message": "ส่งข้อความไม่สำเร็จ โปรดลองอีกครั้ง"
   }
 }

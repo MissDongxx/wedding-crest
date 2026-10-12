@@ -1,0 +1,1 @@
+Latest user correction: keep full-image watermark coverage, not a bottom badge. Main/modal/alternates and stationery use a sparse 3x3 text grid at 10% opacity, no backdrop/border; paid images unchanged. Static/SSR pass; actual visual approval pending. Latest artifacts: artifacts/wedding-watermark-full-subtle. Cosmetic overlay is not secured asset delivery.

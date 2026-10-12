@@ -292,11 +292,12 @@ export function Pricing({
         return;
       }
 
-      if (!response.ok) {
-        throw new Error(`request failed with status ${response.status}`);
-      }
-
       const { code, message, data } = await response.json();
+      if (!response.ok) {
+        throw new Error(
+          message || `request failed with status ${response.status}`
+        );
+      }
       if (code !== 0) {
         throw new Error(message);
       }

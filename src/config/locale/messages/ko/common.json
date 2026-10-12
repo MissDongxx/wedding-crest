@@ -84,5 +84,19 @@
     "after_label": "처리 후 — 워터마크 제거됨",
     "alt_original": "워터마크가 있는 원본 이미지",
     "alt_clean": "워터마크가 제거된 깨끗한 이미지"
+  },
+  "contact": {
+    "name_title": "이름",
+    "name_placeholder": "이름을 입력하세요",
+    "email_title": "이메일",
+    "email_placeholder": "your@email.com",
+    "subject_title": "제목",
+    "subject_placeholder": "무엇을 도와드릴까요?",
+    "message_title": "메시지",
+    "message_placeholder": "문의 내용을 자세히 알려 주세요...",
+    "submit_button": "메시지 보내기",
+    "sending_button": "전송 중...",
+    "success_message": "메시지가 전송되었습니다!",
+    "error_message": "메시지 전송에 실패했습니다. 다시 시도해 주세요."
   }
 }

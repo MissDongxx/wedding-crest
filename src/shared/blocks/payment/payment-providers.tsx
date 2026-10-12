@@ -110,7 +110,7 @@ export function PaymentProviders({
   if (configs.waffo_enabled === 'true' && isProviderAllowed('waffo')) {
     providers.push({
       name: 'waffo',
-      title: 'Waffo Pancake',
+      title: 'Credit Card',
       icon_url: '/imgs/icons/waffo.png',
       onClick: () => handlePayment({ provider: 'waffo' }),
     });

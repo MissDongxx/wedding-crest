@@ -19,7 +19,7 @@ export async function POST(
     const { generationId } = z
       .object({ generationId: z.string().min(1) })
       .parse(await request.json());
-    const user = await getUserInfo();
+    const user = await getUserInfo(true);
     const guestId = request.headers.get('x-wedding-guest-id') || undefined;
     if (!(await canAccessWeddingProject({ id, userId: user?.id, guestId })))
       return respErr('project not found');
@@ -39,7 +39,7 @@ export async function POST(
           updateWeddingGeneration(generation.id, { status: 'complete' })
         )
     );
-    await updateWeddingProject(id, 'selected');
+    await updateWeddingProject(id, 'complete');
     await updateWeddingGeneration(generationId, { status: 'selected' });
     return respData({
       projectId: id,
@@ -49,7 +49,8 @@ export async function POST(
     return respErr(
       error instanceof z.ZodError
         ? 'invalid generation selection'
-        : 'select generation failed'
+        : 'Selection is temporarily unavailable. Please retry.',
+      error instanceof z.ZodError ? 400 : 503
     );
   }
 }

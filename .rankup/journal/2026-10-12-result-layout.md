@@ -1,0 +1,1 @@
+Master image click opens zoom with no visible zoom button; alternates selects only. Editor left, alternates right. Strengthened unpaid watermarks; paid entitlement unchanged. Lint/tsc/SSR and source checks passed; actual browser verification pending. Artifacts: artifacts/wedding-result-layout.

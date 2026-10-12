@@ -1,8 +1,10 @@
 import JSZip from 'jszip';
 
 import { respErr } from '@/shared/lib/resp';
+import { getAllConfigs } from '@/shared/models/config';
 import { getUserInfo } from '@/shared/models/user';
 import {
+  canAccessWeddingProject,
   getWeddingProject,
   hasPaidWeddingOrder,
   type WeddingGeneration,
@@ -34,7 +36,64 @@ function imageExtension(buffer: Buffer, contentType: string | null) {
 }
 
 async function fetchAiArtwork(url: string) {
-  const response = await fetch(url);
+  let response: Response | undefined;
+  // Only stored artwork under our configured public R2 domain can use signed
+  // reads. Credentials never leave the server; ownership/payment checks above
+  // still run before this helper is called.
+  const configs = await getAllConfigs();
+  if (
+    configs.r2_domain &&
+    configs.r2_access_key &&
+    configs.r2_secret_key &&
+    configs.r2_bucket_name
+  ) {
+    const publicBase = new URL(configs.r2_domain);
+    const source = new URL(url);
+    const prefix = publicBase.pathname.replace(/\/$/, '') + '/';
+    if (
+      source.origin === publicBase.origin &&
+      source.pathname.startsWith(prefix)
+    ) {
+      const key = source.pathname.slice(prefix.length);
+      const endpoint =
+        configs.r2_endpoint ||
+        `https://${configs.r2_account_id}.r2.cloudflarestorage.com`;
+      if (key && new URL(endpoint).protocol === 'https:') {
+        try {
+          const { AwsClient } = await import('aws4fetch');
+          const client = new AwsClient({
+            accessKeyId: configs.r2_access_key,
+            secretAccessKey: configs.r2_secret_key,
+            region: 'auto',
+            service: 's3',
+          });
+          const stored = await client.fetch(
+            new Request(
+              `${endpoint.replace(/\/$/, '')}/${encodeURIComponent(configs.r2_bucket_name)}/${key}`,
+              { signal: AbortSignal.timeout(15000) }
+            )
+          );
+          if (stored.ok) response = stored;
+        } catch {
+          // Public fetch remains a fallback when the storage endpoint is down.
+        }
+      }
+    }
+  }
+  for (let attempt = 0; !response?.ok && attempt < 3; attempt++) {
+    try {
+      response = await fetch(url, { signal: AbortSignal.timeout(15000) });
+      if (response.ok || response.status < 500 || attempt === 2) break;
+    } catch {
+      if (attempt === 2)
+        throw new Error(
+          `Artwork download temporarily unavailable from ${new URL(url).host}. Please retry.`
+        );
+    }
+    await new Promise((resolve) => setTimeout(resolve, 300 * (attempt + 1)));
+  }
+  if (!response)
+    throw new Error('Artwork download temporarily unavailable. Please retry.');
   if (!response.ok) {
     // The previous error was just "could not fetch AI artwork (404)" with
     // no URL hint, so a stale provider URL or a misconfigured storage
@@ -59,18 +118,21 @@ async function fetchAiArtwork(url: string) {
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const user = await getUserInfo();
-    if (!user) return respErr('sign in is required before download');
+    const user = await getUserInfo(true);
+    const guestId = request.headers.get('x-wedding-guest-id') || undefined;
     const project = await getWeddingProject(id);
-    if (!project || project.userId !== user.id)
-      return respErr('project not found');
-    if (!(await hasPaidWeddingOrder(user.id, id)))
-      return respErr('paid Wedding Image Pack required');
+    if (
+      !project ||
+      !(await canAccessWeddingProject({ id, userId: user?.id, guestId }))
+    )
+      return respErr('project not found', 404);
+    if (!(await hasPaidWeddingOrder(user?.id, id, guestId)))
+      return respErr('paid Wedding Image Pack required', 402);
 
     const downloadable = project.generations.filter(
       (generation: WeddingGeneration) =>
@@ -162,7 +224,8 @@ export async function GET(
     // envelope so the toast can show it verbatim.
     console.error('[wedding] download failed', error);
     return respErr(
-      error instanceof Error ? error.message : 'download failed'
+      error instanceof Error ? error.message : 'download failed',
+      502
     );
   }
 }

@@ -84,5 +84,19 @@
     "after_label": "Depois — Marca d'água Removida",
     "alt_original": "Imagem original com marca d'água",
     "alt_clean": "Imagem limpa sem marca d'água"
+  },
+  "contact": {
+    "name_title": "Nome",
+    "name_placeholder": "Seu nome",
+    "email_title": "E-mail",
+    "email_placeholder": "seu@email.com",
+    "subject_title": "Assunto",
+    "subject_placeholder": "Como podemos ajudar?",
+    "message_title": "Mensagem",
+    "message_placeholder": "Conte-nos mais sobre sua dúvida...",
+    "submit_button": "Enviar mensagem",
+    "sending_button": "Enviando...",
+    "success_message": "Mensagem enviada com sucesso!",
+    "error_message": "Falha ao enviar a mensagem. Tente novamente."
   }
 }

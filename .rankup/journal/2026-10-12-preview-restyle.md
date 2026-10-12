@@ -1,0 +1,2 @@
+# Stationery preview restyle
+Replaced generic identical cards with invitation/envelope composition, arched welcome sign/easel and landscape thank-you card. Original artwork and watermarks retained. Etsy reference: https://www.etsy.com/listing/1218758357/custom-wedding-stationery-suite-with (text/captions only; photos inaccessible). Lint/tsc passed; baseline and modified SSR tests passed. Actual browser visual/interaction QA remains pending. Artifacts: artifacts/wedding-preview-restyle.

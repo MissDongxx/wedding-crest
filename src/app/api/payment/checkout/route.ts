@@ -1,3 +1,5 @@
+import { cookies } from 'next/headers';
+
 import { loadMessages } from '@/core/i18n/request';
 import {
   PaymentInterval,
@@ -15,8 +17,17 @@ import {
   updateOrderByOrderNo,
 } from '@/shared/models/order';
 import { getUserInfo } from '@/shared/models/user';
+import {
+  canAccessWeddingProject,
+  getWeddingProject,
+} from '@/shared/models/wedding';
+import {
+  ensureWeddingGuestBuyer,
+  weddingCheckoutCookie,
+} from '@/shared/models/wedding-checkout';
 import { getPaymentService } from '@/shared/services/payment';
 import { PricingCurrency } from '@/shared/types/blocks/pricing';
+import { WEDDING_PACK_PRODUCT_ID } from '@/shared/wedding/config';
 
 export async function POST(req: Request) {
   try {
@@ -49,10 +60,40 @@ export async function POST(req: Request) {
       return respErr('invalid pricing item');
     }
 
-    // get sign user
-    const user = await getUserInfo();
-    if (!user || !user.email) {
-      return respErr('no auth, please sign in');
+    const user = await getUserInfo(true);
+    const guestId = req.headers.get('x-wedding-guest-id') || undefined;
+    const isWeddingPack = product_id === WEDDING_PACK_PRODUCT_ID;
+    const projectId =
+      typeof metadata?.project_id === 'string'
+        ? metadata.project_id
+        : undefined;
+    if (isWeddingPack && projectId) {
+      if (
+        !projectId ||
+        !(await canAccessWeddingProject({
+          id: projectId,
+          userId: user?.id,
+          guestId,
+        }))
+      ) {
+        return respErr('project not found', 404);
+      }
+      const project = await getWeddingProject(projectId);
+      if (
+        !project?.generations.some(
+          (generation) =>
+            ['complete', 'selected'].includes(generation.status) &&
+            generation.sourceImageUrl
+        )
+      )
+        return respErr('completed crest required before checkout', 400);
+    }
+    if ((!isWeddingPack || !projectId) && !user?.email) {
+      return respErr('no auth, please sign in', 401);
+    }
+    // Anonymous checkout is restricted to this one-time, project-scoped product.
+    if (!user && pricingItem.interval !== PaymentInterval.ONE_TIME) {
+      return respErr('sign in is required for subscriptions', 401);
     }
 
     // get configs
@@ -143,6 +184,7 @@ export async function POST(req: Request) {
         ? PaymentType.ONE_TIME
         : PaymentType.SUBSCRIPTION;
 
+    const buyerId = user?.id || (await ensureWeddingGuestBuyer(projectId!));
     const orderNo = getSnowId();
 
     // get payment product id from pricing table in local file
@@ -202,23 +244,25 @@ export async function POST(req: Request) {
     }
 
     const callbackUrl =
-      paymentType === PaymentType.SUBSCRIPTION
-        ? `${callbackBaseUrl}/settings/billing`
-        : `${callbackBaseUrl}/settings/payments`;
+      isWeddingPack && projectId
+        ? `${callbackBaseUrl}/design/${encodeURIComponent(projectId!)}?paid=1`
+        : isWeddingPack
+          ? `${callbackBaseUrl}/create?prepaid=1`
+          : paymentType === PaymentType.SUBSCRIPTION
+            ? `${callbackBaseUrl}/settings/billing`
+            : `${callbackBaseUrl}/settings/payments`;
 
     // build checkout order
     const checkoutOrder: PaymentOrder = {
       description: pricingItem.product_name,
-      customer: {
-        name: user.name,
-        email: user.email,
-      },
+      customer: user ? { name: user.name, email: user.email } : undefined,
       type: paymentType,
       metadata: {
+        ...(metadata || {}),
         app_name: configs.app_name,
         order_no: orderNo,
-        user_id: user.id,
-        ...(metadata || {}),
+        user_id: buyerId,
+        ...(isWeddingPack && projectId ? { project_id: projectId } : {}),
       },
       successUrl: `${configs.app_url}/api/payment/callback?order_no=${orderNo}`,
       // Record an explicit buyer cancellation before returning to pricing.
@@ -256,9 +300,9 @@ export async function POST(req: Request) {
     const order: NewOrder = {
       id: getUuid(),
       orderNo: orderNo,
-      userId: user.id,
-      projectId: metadata?.project_id || null,
-      userEmail: user.email,
+      userId: buyerId,
+      projectId: isWeddingPack ? (projectId ?? null) : null,
+      userEmail: user?.email || '',
       status: OrderStatus.PENDING,
       amount: checkoutAmount, // use the amount for selected currency
       currency: checkoutCurrency,
@@ -297,6 +341,15 @@ export async function POST(req: Request) {
         paymentProvider: result.provider,
       });
 
+      if (!user && guestId && projectId) {
+        (await cookies()).set(weddingCheckoutCookie(orderNo), guestId, {
+          httpOnly: true,
+          secure: new URL(req.url).protocol === 'https:',
+          sameSite: 'lax',
+          path: '/api/payment',
+          maxAge: 60 * 60 * 24,
+        });
+      }
       return respData(result.checkoutInfo);
     } catch (e: any) {
       console.error('PayPal checkout creation failed:', e);
@@ -339,9 +392,7 @@ async function getPaymentProductId(
     const productIds = configs[configKey];
     if (productIds) {
       const mapping = JSON.parse(productIds);
-      return (
-        mapping[`${productId}_${checkoutCurrency}`] || mapping[productId]
-      );
+      return mapping[`${productId}_${checkoutCurrency}`] || mapping[productId];
     }
   } catch {
     return;
