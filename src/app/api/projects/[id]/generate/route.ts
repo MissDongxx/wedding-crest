@@ -8,20 +8,17 @@ import { getUserInfo } from '@/shared/models/user';
 import {
   canAccessWeddingProject,
   claimWeddingProject,
-  countProjectsWithGenerations,
-  countWeddingGenerationBatches,
-  createWeddingGeneration,
-  findWeddingProjectWithGeneration,
   getActiveWeddingPromptTemplate,
   getWeddingGeneration,
   getWeddingProject,
-  hasPaidWeddingOrder,
+  reserveWeddingGenerationBatch,
+  settleFailedWeddingReservation,
+  updateWeddingGeneration,
   updateWeddingProject,
   upsertWeddingPromptTemplate,
 } from '@/shared/models/wedding';
 import { getAIService } from '@/shared/services/ai';
 import {
-  decideGenerationAllowance,
   WEDDING_MAX_CANDIDATES,
   WEDDING_PACK_PRODUCT_ID,
 } from '@/shared/wedding/config';
@@ -160,6 +157,9 @@ export async function POST(
   let effectiveModel = 'google:nano-banana@2-lite';
   let projectId: string | undefined;
   let projectMarkedGenerating = false;
+  let reservationIds: string[] = [];
+  let providerAttempted = false;
+  const submittedCandidateIds: string[] = [];
   try {
     const { id } = await params;
     projectId = id;
@@ -174,37 +174,6 @@ export async function POST(
       return respErr('project not found');
 
     if (user && !project.userId) await claimWeddingProject(id, user.id);
-
-    // Hard generation quota (spec: cost protection).
-    const [batches, paid, projectsWithGenerations] = await Promise.all([
-      countWeddingGenerationBatches(id, WEDDING_MAX_CANDIDATES),
-      hasPaidWeddingOrder(user?.id, id, guestId),
-      countProjectsWithGenerations(
-        user ? { userId: user.id } : { guestId: guestId ?? '__none__' }
-      ),
-    ]);
-    const allowance = decideGenerationAllowance({
-      batches,
-      paid,
-      isGuest: !user,
-      projectsWithGenerations,
-    });
-    if (!allowance.allowed)
-      // 402 Payment Required: the user's free quota (or paid regeneration
-      // quota) is exhausted. Returning a real 4xx lets the wizard branch
-      // on status and avoid logging a console.error for what is a normal
-      // product state ("you've used your free generation, buy the pack").
-      return respErr(
-        allowance.reason ?? 'generation limit reached',
-        402,
-        batches === 0 && projectsWithGenerations >= 1 && user
-          ? {
-              generatedProjectId: await findWeddingProjectWithGeneration({
-                userId: user.id,
-              }),
-            }
-          : undefined
-      );
 
     const body = inputSchema.parse(await request.json().catch(() => ({})));
     // Bypass the 1-minute in-memory cache so a freshly-saved admin key
@@ -236,6 +205,7 @@ export async function POST(
     let prompt: string;
     let referenceImages: string[] = [];
     let sourceInput: WeddingProjectInput | null = null;
+    const projectUpdate: Record<string, unknown> = {};
     if (body.edit) {
       const source = await getWeddingGeneration(body.edit.sourceGenerationId);
       if (!source || source.projectId !== id) {
@@ -249,7 +219,6 @@ export async function POST(
       // Apply quick-edit setting mutations BEFORE compiling the prompt.
       // The persisted project state stays in sync with what the prompt
       // asked the model to do.
-      const projectUpdate: Record<string, unknown> = {};
       sourceInput = { ...project.input };
       if (body.edit.kind === 'reduce_colors') {
         const nextPalette = sourceInput.palette.slice(0, 2);
@@ -262,9 +231,6 @@ export async function POST(
         const nextElements = sourceInput.personalElements.slice(0, -1);
         projectUpdate.personalElements = JSON.stringify(nextElements);
         sourceInput.personalElements = nextElements;
-      }
-      if (Object.keys(projectUpdate).length > 0) {
-        await updateWeddingProject(id, projectUpdate as any);
       }
 
       if (body.edit.kind === 'assistant') {
@@ -348,8 +314,42 @@ export async function POST(
         ? multimodalModel
         : model;
 
-    await updateWeddingProject(id, 'generating');
+    const versions = getWeddingVersions();
+    reservationIds = Array.from({ length: WEDDING_MAX_CANDIDATES }, () =>
+      getUuid()
+    );
+    const reservation = await reserveWeddingGenerationBatch({
+      projectId: id,
+      userId: user?.id,
+      guestId,
+      candidates: reservationIds.map((candidateId, candidateIndex) => ({
+        id: candidateId,
+        projectId: id,
+        candidateIndex,
+        provider: provider.name,
+        model: effectiveModel,
+        prompt,
+        promptVersion: versions.promptVersion,
+        styleVersion: versions.styleVersion,
+        layoutVersion: versions.layoutVersion,
+        status: 'reserved',
+        cost: 0,
+      })),
+    });
+    if (!reservation.allowed) {
+      reservationIds = [];
+      return respErr(
+        reservation.reason ?? 'generation limit reached',
+        402,
+        reservation.generatedProjectId
+          ? { generatedProjectId: reservation.generatedProjectId }
+          : undefined
+      );
+    }
     projectMarkedGenerating = true;
+    if (Object.keys(projectUpdate).length > 0) {
+      await updateWeddingProject(id, projectUpdate as any);
+    }
 
     // Output dimensions. Default 1024 keeps the request within every
     // Runware model's hard size cap. Bump to 2048 only when the operator
@@ -380,6 +380,13 @@ export async function POST(
         baseOptions.referenceImages = allReferenceImages;
       }
 
+      // Record the attempt before crossing the provider boundary: a timeout
+      // can still have incurred provider cost, so retries must not erase it.
+      await updateWeddingGeneration(reservationIds[candidateIndex], {
+        status: 'generating',
+        cost: -1,
+      });
+      providerAttempted = true;
       const result = await provider.generate({
         params: {
           mediaType: AIMediaType.IMAGE,
@@ -393,6 +400,14 @@ export async function POST(
         throw new Error(
           `AI provider did not return a task id for candidate ${candidateIndex + 1}`
         );
+
+      // Persist the provider receipt before optional ai_task bookkeeping.
+      // A bookkeeping failure must not erase an already submitted task.
+      await updateWeddingGeneration(reservationIds[candidateIndex], {
+        providerTaskId: result.taskId,
+        sourceImageUrl: result.taskInfo?.images?.[0]?.imageUrl ?? null,
+      });
+      submittedCandidateIds.push(reservationIds[candidateIndex]);
 
       // ai_task rows require a FK'd user; guests are tracked in
       // wedding_generation only.
@@ -423,9 +438,7 @@ export async function POST(
           })
         : null;
       created.push(
-        await createWeddingGeneration({
-          id: getUuid(),
-          projectId: id,
+        await updateWeddingGeneration(reservationIds[candidateIndex], {
           aiTaskId: aiTask?.id ?? null,
           candidateIndex,
           provider: provider.name,
@@ -461,12 +474,38 @@ export async function POST(
     console.error('[wedding] generate failed', error);
     if (projectId && projectMarkedGenerating) {
       try {
-        await updateWeddingProject(projectId, 'failed');
+        await settleFailedWeddingReservation(reservationIds, providerAttempted);
       } catch (statusError) {
         console.error(
           '[wedding] failed to roll project status back after generation error',
           statusError
         );
+      }
+    }
+    if (projectId && projectMarkedGenerating) {
+      const hasSubmittedCandidates = submittedCandidateIds.length > 0;
+      try {
+        await updateWeddingProject(
+          projectId,
+          hasSubmittedCandidates ? 'generating' : 'failed'
+        );
+      } catch (statusError) {
+        console.error(
+          '[wedding] failed to reconcile project generation status',
+          statusError
+        );
+      }
+      // A submitted receipt is already durable and polling can finish it.
+      // Do not turn optional bookkeeping or a later candidate failure into
+      // an error that makes the frontend abandon the accepted provider task.
+      if (hasSubmittedCandidates) {
+        return respData({
+          jobId: projectId,
+          projectId,
+          candidates: submittedCandidateIds,
+          status: 'generating',
+          productForUnlock: WEDDING_PACK_PRODUCT_ID,
+        });
       }
     }
     const modelLabel = ` model: ${effectiveModel}`;

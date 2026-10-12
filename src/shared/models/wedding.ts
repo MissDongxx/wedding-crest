@@ -6,7 +6,7 @@
  * the `wedding_*` table family.
  */
 
-import { and, asc, desc, eq, inArray, isNull, ne, or } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNull, ne, or, sql } from 'drizzle-orm';
 
 import { db } from '@/core/db';
 import {
@@ -15,6 +15,7 @@ import {
   withDbRetry,
   type DbExecutor,
 } from '@/core/db/transaction';
+import { envConfigs } from '@/config';
 import {
   order,
   weddingAsset,
@@ -28,7 +29,10 @@ import {
 } from '@/config/db/schema';
 import { getUuid } from '@/shared/lib/hash';
 import { OrderStatus } from '@/shared/models/order';
-import { WEDDING_PACK_PRODUCT_ID } from '@/shared/wedding/config';
+import {
+  decideGenerationAllowance,
+  WEDDING_PACK_PRODUCT_ID,
+} from '@/shared/wedding/config';
 import {
   weddingPalettes,
   WeddingProjectInput,
@@ -582,6 +586,171 @@ export async function getWeddingGeneration(id: string) {
   return row ?? null;
 }
 
+/** Persist quota before external work. Locks are transaction-scoped, never held
+ * during provider calls. Reserved rows count toward both batch and owner limits.
+ * Fail closed on dialects whose transaction abstraction is non-transactional.
+ */
+export async function reserveWeddingGenerationBatch(params: {
+  projectId: string;
+  userId?: string;
+  guestId?: string;
+  candidates: (typeof weddingGeneration.$inferInsert)[];
+}) {
+  if (envConfigs.database_provider !== 'postgresql') {
+    throw new Error(
+      'Atomic wedding generation reservation requires PostgreSQL'
+    );
+  }
+  return runInDbTransaction(async (tx) => {
+    const ownerKey = params.userId
+      ? `wedding:user:${params.userId}`
+      : `wedding:guest:${params.guestId ?? '__none__'}`;
+    await tx.execute(
+      sql`select pg_advisory_xact_lock(hashtextextended(${ownerKey}, 0))`
+    );
+    await tx.execute(
+      sql`select pg_advisory_xact_lock(hashtextextended(${`wedding:project:${params.projectId}`}, 0))`
+    );
+    const [project] = await tx
+      .select()
+      .from(weddingProject)
+      .where(eq(weddingProject.id, params.projectId))
+      .for('update');
+    if (
+      !project ||
+      !(
+        (params.userId && project.userId === params.userId) ||
+        (!project.userId &&
+          params.guestId &&
+          project.guestId === params.guestId)
+      )
+    ) {
+      throw new Error('project not found');
+    }
+    const owners = await tx
+      .select({ id: weddingProject.id })
+      .from(weddingProject)
+      .where(
+        params.userId
+          ? eq(weddingProject.userId, params.userId)
+          : eq(weddingProject.guestId, params.guestId ?? '__none__')
+      );
+    const rows = await tx
+      .select()
+      .from(weddingGeneration)
+      .where(
+        inArray(
+          weddingGeneration.projectId,
+          owners.map((owner: { id: string }) => owner.id)
+        )
+      );
+    const counted = rows.filter(
+      (row: WeddingGeneration) =>
+        row.status !== 'failed' || row.cost === -1 || !!row.providerTaskId
+    );
+    const projectRows = counted.filter(
+      (row: WeddingGeneration) => row.projectId === params.projectId
+    );
+    const batches = Math.ceil(projectRows.length / params.candidates.length);
+    const projectsWithGenerations = new Set(
+      counted.map((row: WeddingGeneration) => row.projectId)
+    ).size;
+    const paidOrders = await tx
+      .select({ id: order.id })
+      .from(order)
+      .where(
+        and(
+          eq(order.projectId, params.projectId),
+          eq(order.productId, WEDDING_PACK_PRODUCT_ID),
+          eq(order.status, OrderStatus.PAID)
+        )
+      )
+      .limit(1);
+    const allowance = decideGenerationAllowance({
+      batches,
+      paid: paidOrders.length > 0,
+      isGuest: !params.userId,
+      projectsWithGenerations,
+    });
+    if (!allowance.allowed)
+      return {
+        allowed: false as const,
+        reason: allowance.reason,
+        generatedProjectId:
+          batches === 0 && projectsWithGenerations >= 1 && params.userId
+            ? counted[0]?.projectId
+            : undefined,
+      };
+    // Same-project duplicate clicks must not submit overlapping batches, even
+    // when the project still has regeneration quota.
+    if (
+      projectRows.some(
+        (row: WeddingGeneration) =>
+          row.status === 'reserved' || row.status === 'generating'
+      )
+    ) {
+      return {
+        allowed: false as const,
+        reason: 'A generation is already in progress for this project.',
+      };
+    }
+    await tx.insert(weddingGeneration).values(
+      params.candidates.map((candidate) => ({
+        ...candidate,
+        status: 'reserved',
+      }))
+    );
+    await tx
+      .update(weddingProject)
+      .set({ status: 'generating' })
+      .where(eq(weddingProject.id, params.projectId));
+    return { allowed: true as const };
+  });
+}
+
+/** Release only a batch with no provider attempts. After any attempt, retain
+ * every slot as charged (cost=-1 is an internal quota marker, not money).
+ * This protects paid/ambiguous submissions and keeps partial batches whole.
+ */
+export async function settleFailedWeddingReservation(
+  ids: string[],
+  attempted: boolean
+) {
+  if (!ids.length) return;
+  if (!attempted) {
+    await db()
+      .delete(weddingGeneration)
+      .where(
+        and(
+          inArray(weddingGeneration.id, ids),
+          or(
+            eq(weddingGeneration.status, 'reserved'),
+            and(
+              eq(weddingGeneration.status, 'generating'),
+              isNull(weddingGeneration.providerTaskId)
+            )
+          )
+        )
+      );
+  } else {
+    await db()
+      .update(weddingGeneration)
+      .set({ status: 'failed', cost: -1 })
+      .where(
+        and(
+          inArray(weddingGeneration.id, ids),
+          or(
+            eq(weddingGeneration.status, 'reserved'),
+            and(
+              eq(weddingGeneration.status, 'generating'),
+              isNull(weddingGeneration.providerTaskId)
+            )
+          )
+        )
+      );
+  }
+}
+
 export async function createWeddingGeneration(
   data: typeof weddingGeneration.$inferInsert
 ) {
@@ -612,8 +781,8 @@ export async function createWeddingReview(
 }
 
 /**
- * Number of generate batches already stored for the project. Failed
- * candidates do not count so a misconfigured provider never burns quota.
+ * Number of batches stored, including reservations and submitted failures.
+ * Only failed rows with no provider submission/charge marker are refundable.
  */
 export async function countWeddingGenerationBatches(
   projectId: string,
@@ -627,7 +796,11 @@ export async function countWeddingGenerationBatches(
         .where(
           and(
             eq(weddingGeneration.projectId, projectId),
-            ne(weddingGeneration.status, 'failed')
+            or(
+              ne(weddingGeneration.status, 'failed'),
+              eq(weddingGeneration.cost, -1),
+              sql`${weddingGeneration.providerTaskId} is not null`
+            )
           )
         ),
     { label: 'countWeddingGenerationBatches' }
@@ -659,7 +832,16 @@ export async function countProjectsWithGenerations(params: {
       const rows = await exec
         .selectDistinct({ projectId: weddingGeneration.projectId })
         .from(weddingGeneration)
-        .where(inArray(weddingGeneration.projectId, ids));
+        .where(
+          and(
+            inArray(weddingGeneration.projectId, ids),
+            or(
+              ne(weddingGeneration.status, 'failed'),
+              eq(weddingGeneration.cost, -1),
+              sql`${weddingGeneration.providerTaskId} is not null`
+            )
+          )
+        );
       return rows.length;
     },
     { label: 'countProjectsWithGenerations' }

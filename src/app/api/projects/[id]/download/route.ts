@@ -11,6 +11,7 @@ import {
 } from '@/shared/models/wedding';
 import { getWeddingStyle, getWeddingTypography } from '@/shared/wedding/config';
 import { formatWeddingDate } from '@/shared/wedding/display-text';
+import { chooseDownloadGeneration } from '@/shared/wedding/result-data';
 
 function fileName(...parts: string[]) {
   return parts
@@ -139,10 +140,10 @@ export async function GET(
         ['selected', 'complete'].includes(generation.status) &&
         Boolean(generation.sourceImageUrl)
     );
-    const primary =
-      downloadable.find(
-        (generation: WeddingGeneration) => generation.status === 'selected'
-      ) ?? downloadable[0];
+    const generationId = new URL(request.url).searchParams.get('generationId');
+    const primary = chooseDownloadGeneration(project.generations, generationId);
+    if (generationId !== null && !primary)
+      return respErr('requested completed crest not found', 404);
     if (!primary?.sourceImageUrl) return respErr('completed crest not found');
 
     const style = getWeddingStyle(project.input.style);

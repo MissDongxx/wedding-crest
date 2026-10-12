@@ -3,7 +3,7 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
 import { Button } from '@/shared/components/ui/button';
@@ -18,6 +18,7 @@ import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import { WeddingApplicationPreview } from '@/shared/components/wedding/wedding-application-preview';
 import { DesignEditAssistant } from '@/shared/components/wedding/design-edit-assistant';
 import { readJsonResponse } from '@/shared/lib/read-json-response';
+import { normalizeWeddingProject } from '@/shared/wedding/result-data';
 import { cn } from '@/shared/lib/utils';
 import { layoutsForStyle } from '@/shared/wedding/config';
 import type { EditPlan } from '@/shared/wedding/edit-plan';
@@ -103,6 +104,7 @@ function stageLabel(stage: string | null | undefined) {
 
 export function WeddingResult({ projectId }: { projectId: string }) {
   const t = useTranslations('pages.design');
+  const locale = useLocale();
   const router = useRouter();
 
   const [data, setData] = useState<JobResponse | null>(null);
@@ -190,12 +192,10 @@ export function WeddingResult({ projectId }: { projectId: string }) {
       const rawProject = body.project as ProjectData & {
         input?: Partial<ProjectData>;
       };
-      const normalizedBody: JobResponse = rawProject.input
-        ? {
-            ...body,
-            project: { ...rawProject, ...rawProject.input },
-          }
-        : body;
+      const normalizedBody: JobResponse = {
+        ...body,
+        project: normalizeWeddingProject<ProjectData>(rawProject),
+      };
       setError(null);
       setData(normalizedBody);
       // Keep every finished version available and honor the adopted image.
@@ -317,12 +317,13 @@ export function WeddingResult({ projectId }: { projectId: string }) {
   );
 
   const downloadIdentityPack = useCallback(async () => {
-    if (!project || downloading) return;
+    if (!project || !selectedGeneration || downloading || busy) return;
     setDownloading(true);
     try {
-      const response = await fetch(`/api/projects/${project.id}/download`, {
-        headers: guestId ? { 'x-wedding-guest-id': guestId } : {},
-      });
+      const response = await fetch(
+        `/api/projects/${project.id}/download?generationId=${encodeURIComponent(selectedGeneration.id)}`,
+        { headers: guestId ? { 'x-wedding-guest-id': guestId } : {} }
+      );
       const contentType = response.headers.get('content-type') || '';
       if (!response.ok || contentType.includes('application/json')) {
         // Read the raw text first so a non-JSON (proxy, HTML error page)
@@ -350,7 +351,27 @@ export function WeddingResult({ projectId }: { projectId: string }) {
         return;
       }
 
-      const blob = await response.blob();
+      const { completeWeddingImagePack } = await import(
+        '@/shared/wedding/image-pack'
+      );
+      const blob = await completeWeddingImagePack(await response.blob(), {
+        partner1: project.partner1,
+        partner2: project.partner2,
+        dateLabel: (() => {
+          const value = project.weddingDate;
+          if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return '';
+          const date = new Date(`${value}T12:00:00Z`);
+          if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value) return '';
+          return new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC' }).format(date);
+        })(),
+        palette: project.palette,
+        invitationHeading: t('preview.invitation_heading'),
+        welcomeHeading: t('preview.welcome_heading'),
+        thanksHeading: t('preview.thanks_heading'),
+        invitationBody: t('preview.invitation_body'),
+        welcomeBody: t('preview.welcome_body'),
+        thanksBody: t('preview.thanks_body'),
+      });
       const disposition = response.headers.get('content-disposition') || '';
       const fileNameMatch = disposition.match(/filename="([^"]+)"/i);
       const objectUrl = URL.createObjectURL(blob);
@@ -372,7 +393,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
     } finally {
       setDownloading(false);
     }
-  }, [project, downloading, guestId, t]);
+  }, [project, selectedGeneration, downloading, busy, guestId, t, locale]);
 
   const confirmAssistantEdit = useCallback(
     async (plan: EditPlan) => {
@@ -508,7 +529,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
             (envelope as { project?: ProjectData }).project;
           if (updatedProject) {
             setData((prev) =>
-              prev ? { ...prev, project: updatedProject } : prev
+              prev ? { ...prev, project: normalizeWeddingProject<ProjectData>(updatedProject) } : prev
             );
           }
         }
@@ -966,7 +987,7 @@ isComplete && generations.length > 1 && (
                   className="mt-4 w-full"
                   size="lg"
                   onClick={downloadIdentityPack}
-                  disabled={downloading}
+                  disabled={downloading || busy}
                 >
                   {downloading ? t('download_preparing') : t('download_zip')}
                 </Button>
