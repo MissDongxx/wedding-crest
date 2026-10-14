@@ -5,6 +5,7 @@ import { Check, Loader2 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
+import { useRouter } from '@/core/i18n/navigation';
 import { SmartIcon } from '@/shared/blocks/common/smart-icon';
 import { PaymentModal } from '@/shared/blocks/payment/payment-modal';
 import { Badge } from '@/shared/components/ui/badge';
@@ -33,6 +34,7 @@ import {
   PricingItem,
   Pricing as PricingType,
 } from '@/shared/types/blocks/pricing';
+import { WEDDING_PACK_PRODUCT_ID } from '@/shared/wedding/config';
 
 // Helper function to get all available currencies from a pricing item
 function getCurrenciesFromItem(item: PricingItem | null): PricingCurrency[] {
@@ -86,6 +88,7 @@ export function Pricing({
   currentSubscription?: Subscription;
 }) {
   const locale = useLocale();
+  const router = useRouter();
   const t = useTranslations('pages.pricing.messages');
 
   const {
@@ -203,6 +206,13 @@ export function Pricing({
   };
 
   const handlePayment = async (item: PricingItem) => {
+    // Guest purchases need a completed project so the pack can be delivered.
+    // Start with the free design flow instead of opening generic sign-in.
+    if (!user && item.product_id === WEDDING_PACK_PRODUCT_ID) {
+      router.push('/create');
+      return;
+    }
+
     if (!user) {
       setIsShowSignModal(true);
       return;

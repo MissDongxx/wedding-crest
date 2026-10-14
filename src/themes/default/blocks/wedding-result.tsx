@@ -946,7 +946,18 @@ isComplete && generations.length > 1 && (
                 <li>· {t('unlock_feature_3')}</li>
                 <li>· {t('unlock_feature_4')}</li>
               </ul>
-              <p className="mt-4 font-serif text-2xl">$9.9</p>
+              <div className="mt-4 space-y-2">
+                <p className="text-primary text-sm font-medium">
+                  {t('unlock_offer')}
+                </p>
+                <div className="flex items-baseline gap-3">
+                  <span className="font-serif text-2xl">$2.9</span>
+                  <del className="text-muted-foreground text-sm">$9.9</del>
+                </div>
+                <p className="text-primary text-sm font-medium">
+                  {t('unlock_savings')}
+                </p>
+              </div>
               <p className="text-muted-foreground text-xs">
                 {t('unlock_unit')}
               </p>

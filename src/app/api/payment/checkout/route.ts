@@ -138,7 +138,17 @@ export async function POST(req: Request) {
     }
 
     // get default payment provider
-    const paymentService = await getPaymentService();
+    // The wedding pack's promotional amount comes from the server pricing
+    // table, not the provider's (potentially stale) catalog price.
+    const paymentService = await getPaymentService(
+      isWeddingPack && paymentProviderName === 'waffo'
+        ? {
+            ...configs,
+            waffo_price_mode: 'snapshot',
+            waffo_tax_category: configs.waffo_tax_category || 'digital_goods',
+          }
+        : configs
+    );
 
     const paymentProvider = paymentService.getProvider(paymentProviderName);
     if (!paymentProvider || !paymentProvider.name) {

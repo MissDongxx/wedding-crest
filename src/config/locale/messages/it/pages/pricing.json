@@ -1,7 +1,7 @@
 {
   "metadata": {
     "title": "Pricing - Wedding Crest Design",
-    "description": "Design your wedding crest free, then unlock the complete Wedding Image Pack with original AI-generated image files for $9.9."
+    "description": "Design your wedding crest free, then unlock the complete Wedding Image Pack with original AI-generated image files for $2.9."
   },
   "page": {
     "title": "Wedding Crest Design Pricing",
@@ -51,7 +51,7 @@
           {
             "title": "Wedding Image Pack",
             "description": "Unlock watermark-free original AI image files for one wedding project. Pay once - it is yours forever.",
-            "label": "Most Popular",
+            "label": "Offerta a tempo limitato",
             "features_title": "Everything in Free, plus",
             "features": [
               "Watermark-free source-quality image files",
@@ -63,12 +63,13 @@
               "Commercial use for your wedding"
             ],
             "interval": "one-time",
-            "amount": 990,
+            "amount": 290,
             "currency": "USD",
-            "price": "$9.9",
+            "price": "$2.9",
+            "original_price": "$9.9",
             "unit": "one-time",
             "is_featured": true,
-            "tip": "One payment · Yours forever",
+            "tip": "Risparmia $7 (−71%) · Un solo pagamento · Tuo per sempre",
             "button": {
               "title": "Unlock My Crest",
               "url": "/create",

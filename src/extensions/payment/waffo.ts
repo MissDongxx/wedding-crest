@@ -1,10 +1,10 @@
 import {
+  verifyWebhook,
+  WaffoPancake,
   type CreateCheckoutSessionParams,
   type TaxCategory,
   type WebhookEvent,
   type WebhookEventData,
-  WaffoPancake,
-  verifyWebhook,
 } from '@waffo/pancake-ts';
 
 import {
@@ -176,6 +176,26 @@ function addInterval(
  *
  * @website https://waffo.ai/
  */
+// Next's development runtime can replace global fetch, so the SDK needs an
+// explicit proxy transport. Production/Workers keep their normal fetch path.
+let developmentProxyFetch: Promise<typeof fetch> | undefined;
+
+function proxyFetch(proxyUrl: string): typeof fetch {
+  return async (input, init) => {
+    developmentProxyFetch ??= import('undici').then(
+      ({ ProxyAgent, fetch: networkFetch }) => {
+        const dispatcher = new ProxyAgent(proxyUrl);
+        return ((input, init) =>
+          networkFetch(input as Parameters<typeof networkFetch>[0], {
+            ...(init as Parameters<typeof networkFetch>[1]),
+            dispatcher,
+          }) as unknown as Promise<Response>) as typeof fetch;
+      }
+    );
+    return (await developmentProxyFetch)(input, init);
+  };
+}
+
 export class WaffoProvider implements PaymentProvider {
   readonly name = 'waffo';
   configs: WaffoConfigs;
@@ -197,6 +217,9 @@ export class WaffoProvider implements PaymentProvider {
       privateKey: configs.privateKey,
       environment: this.environment,
       webhookPublicKey: configs.webhookPublicKey,
+      ...(process.env.NODE_ENV === 'development' && process.env.HTTPS_PROXY
+        ? { fetch: proxyFetch(process.env.HTTPS_PROXY) }
+        : {}),
     });
   }
 
@@ -256,7 +279,33 @@ export class WaffoProvider implements PaymentProvider {
       };
     }
 
-    const result = await this.client.checkout.createSession(params);
+    let result: Awaited<ReturnType<typeof this.client.checkout.createSession>>;
+    for (let attempt = 0; ; attempt++) {
+      try {
+        result = await this.client.checkout.createSession(params, {
+          idempotencyKey: order.orderNo,
+        });
+        break;
+      } catch (error) {
+        const cause =
+          error instanceof Error
+            ? (error.cause as { code?: string; message?: string } | undefined)
+            : undefined;
+        // Retry only connection failures that prove the request was never
+        // sent. An ambiguous reset after sending or an API error must not
+        // create a second checkout session.
+        const unsent =
+          cause?.code === 'UND_ERR_CONNECT_TIMEOUT' ||
+          (cause?.code === 'ECONNRESET' &&
+            cause.message?.includes(
+              'before secure TLS connection was established'
+            ));
+        if (!unsent || attempt >= 2) throw error;
+        await new Promise((resolve) =>
+          setTimeout(resolve, 250 * (attempt + 1))
+        );
+      }
+    }
 
     return {
       provider: this.name,
@@ -447,7 +496,10 @@ export class WaffoProvider implements PaymentProvider {
     return (minorUnits / 100).toFixed(2);
   }
 
-  private toMinorUnits(displayAmount: string | number, currency: string): number {
+  private toMinorUnits(
+    displayAmount: string | number,
+    currency: string
+  ): number {
     const value =
       typeof displayAmount === 'number'
         ? displayAmount
@@ -507,7 +559,8 @@ export class WaffoProvider implements PaymentProvider {
     }
 
     const charged = data.chargedAmount ?? data.amount;
-    const listTotal = data.listPrice?.total ?? data.planPrice?.total ?? data.total;
+    const listTotal =
+      data.listPrice?.total ?? data.planPrice?.total ?? data.total;
 
     const session: PaymentSession = {
       provider: this.name,
