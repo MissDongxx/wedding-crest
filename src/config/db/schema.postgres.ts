@@ -766,3 +766,16 @@ export const weddingExample = table(
     index('idx_wedding_example_active_style').on(table.style, table.isActive),
   ]
 );
+
+export const weddingFunnelEvent = table('wedding_funnel_event', {
+  id: text('id').primaryKey(),
+  anonymousId: text('anonymous_id').notNull(),
+  userId: text('user_id'),
+  projectId: text('project_id'),
+  eventName: text('event_name').notNull(),
+  flowId: text('flow_id').notNull(),
+  generationId: text('generation_id'),
+  entryPosition: text('entry_position').notNull(),
+  isTest: boolean('is_test').notNull().default(false),
+  createdAt: timestamp('created_at').notNull(),
+}, (t) => [index('idx_wedding_funnel_created').on(t.createdAt), index('idx_wedding_funnel_project').on(t.projectId)]);

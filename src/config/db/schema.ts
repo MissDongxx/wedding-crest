@@ -36,3 +36,5 @@ export const weddingAsset = activeSchema.weddingAsset;
 export const weddingPromptTemplate = activeSchema.weddingPromptTemplate;
 export const weddingFrame = activeSchema.weddingFrame;
 export const weddingExample = activeSchema.weddingExample;
+
+export const weddingFunnelEvent = activeSchema.weddingFunnelEvent;

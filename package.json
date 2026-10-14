@@ -28,9 +28,9 @@
     "rbac:assign": "tsx scripts/with-env.ts npx tsx scripts/assign-role.ts",
     "postinstall": "fumadocs-mdx",
     "patch:cf": "node scripts/patch-cf-canvas.mjs",
-    "cf:preview": "node scripts/patch-cf-canvas.mjs && opennextjs-cloudflare build && node scripts/patch-cf-canvas.mjs && opennextjs-cloudflare preview",
-    "cf:deploy": "node scripts/patch-cf-canvas.mjs && opennextjs-cloudflare build && node scripts/patch-cf-canvas.mjs && opennextjs-cloudflare deploy",
-    "cf:upload": "node scripts/patch-cf-canvas.mjs && opennextjs-cloudflare build && node scripts/patch-cf-canvas.mjs && opennextjs-cloudflare upload",
+    "cf:preview": "node scripts/patch-cf-canvas.mjs && opennextjs-cloudflare build && node scripts/patch-cf-canvas.mjs && node scripts/patch-cf-canvas.mjs --check && opennextjs-cloudflare preview",
+    "cf:deploy": "node scripts/patch-cf-canvas.mjs && opennextjs-cloudflare build && node scripts/patch-cf-canvas.mjs && node scripts/patch-cf-canvas.mjs --check && opennextjs-cloudflare deploy",
+    "cf:upload": "node scripts/patch-cf-canvas.mjs && opennextjs-cloudflare build && node scripts/patch-cf-canvas.mjs && node scripts/patch-cf-canvas.mjs --check && opennextjs-cloudflare upload",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv src/shared/types/cloudflare.d.ts"
   },
   "dependencies": {

@@ -13,6 +13,7 @@ import { Progress } from '@/shared/components/ui/progress';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import { cn } from '@/shared/lib/utils';
 import { resolveWeddingDisplayTexts } from '@/shared/wedding/display-text';
+import { trackWeddingFunnel } from '@/shared/wedding/funnel-client';
 import {
   WEDDING_MAX_FLOWERS,
   WEDDING_MAX_PALETTE_COLORS,
@@ -1119,6 +1120,9 @@ export function WeddingWizard() {
   };
 
   const submit = async () => {
+    if (submitting) return;
+    const analyticsFlowId = crypto.randomUUID();
+    trackWeddingFunnel('create_clicked', undefined, undefined, analyticsFlowId);
     setSubmitting(true);
     // eslint-disable-next-line no-console
     console.log('[wedding-wizard] submit start (v2 hardened)');
@@ -1222,6 +1226,13 @@ export function WeddingWizard() {
       if (data.guestId && !guestId) {
         localStorage.setItem('wedding_guest_id', data.guestId);
       }
+
+      trackWeddingFunnel(
+        'project_created',
+        projectId,
+        undefined,
+        analyticsFlowId
+      );
 
       const generateResponse = await fetch(
         `/api/projects/${projectId}/generate`,

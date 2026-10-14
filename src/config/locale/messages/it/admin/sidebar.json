@@ -57,6 +57,11 @@
           "icon": "DollarSign",
           "children": [
             {
+              "title": "Create funnel",
+              "url": "/admin/wedding/funnel",
+              "icon": "ChartNoAxesCombined"
+            },
+            {
               "title": "Pagamenti",
               "url": "/admin/payments",
               "icon": "DollarSign"

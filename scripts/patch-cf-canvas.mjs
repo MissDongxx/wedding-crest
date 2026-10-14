@@ -14,13 +14,17 @@
  *
  * Idempotent — running it on a clean build is a no-op.
  */
-import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'fs';
+import { existsSync, lstatSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 const root = join(process.cwd(), '.open-next');
+const checkOnly = process.argv.includes('--check');
 if (!existsSync(root)) {
   console.log('[patch-cf] No .open-next directory found, skipping.');
-  process.exit(0);
+  process.exit(checkOnly ? 1 : 0);
+}
+if (lstatSync(root).isSymbolicLink()) {
+  throw new Error('[patch-cf] Build root must not be a symbolic link.');
 }
 
 // Stub for `canvas` — no API surface, the only consumer is bundle
@@ -95,17 +99,32 @@ const STUBS = {
 
 let totalPatched = 0;
 let totalFiles = 0;
+let totalSkipped = 0;
 
 function walk(dir) {
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry);
-    const st = statSync(full);
+    const st = lstatSync(full);
+    if (st.isSymbolicLink()) {
+      totalSkipped += 1;
+      continue;
+    }
     if (st.isDirectory()) {
       walk(full);
     } else if (st.isFile() && (full.endsWith('.js') || full.endsWith('.mjs'))) {
       totalFiles += 1;
       let code = readFileSync(full, 'utf-8');
       let patched = false;
+      // Same rule as OpenNext patchNextServer.removeMiddlewareManifestRule.
+      // Worker middlewareHandler already executes middleware before the Next handler.
+      const manifestMethod = /getMiddlewareManifest\s*\(\s*\)\s*\{[^{}]*require\s*\(\s*this\.middlewareManifestPath\s*\)[^{}]*\}/g;
+      if (manifestMethod.test(code)) {
+        code = code.replace(manifestMethod, 'getMiddlewareManifest(){return null}');
+        patched = true;
+      }
+      if (/require\s*\(\s*this\.middlewareManifestPath\s*\)/.test(code)) {
+        throw new Error(`[patch-cf] Unrecognized Next middleware manifest loader: ${full}`);
+      }
       for (const [mod, stub] of Object.entries(STUBS)) {
         // match require("mod") and require('mod'), but not require("mod/sub")
         const re = new RegExp(
@@ -118,8 +137,15 @@ function walk(dir) {
         }
       }
       if (patched) {
-        writeFileSync(full, code);
         totalPatched += 1;
+        if (checkOnly) {
+          console.error(`[patch-cf] Unsupported import remains: ${full.replace(process.cwd() + '/', '')}`);
+          continue;
+        }
+        // Replace the directory entry, never mutate another file sharing this inode.
+        const temporary = `${full}.cf-patch-${process.pid}`;
+        writeFileSync(temporary, code, { flag: 'wx', mode: st.mode & 0o777 });
+        renameSync(temporary, full);
         console.log(`[patch-cf] stubbed in ${full.replace(process.cwd() + '/', '')}`);
       }
     }
@@ -128,5 +154,7 @@ function walk(dir) {
 
 walk(root);
 console.log(
-  `[patch-cf] scanned ${totalFiles} files, patched ${totalPatched} (canvas/child_process).`
+  `[patch-cf] scanned ${totalFiles} files, ${checkOnly ? "remaining" : "patched"} ${totalPatched}, skipped ${totalSkipped} symbolic links (canvas/child_process/Next middleware manifest).`
 );
+
+if (checkOnly && totalPatched > 0) process.exitCode = 1;

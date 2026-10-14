@@ -57,6 +57,11 @@
           "icon": "DollarSign",
           "children": [
             {
+              "title": "Create 漏斗",
+              "url": "/admin/wedding/funnel",
+              "icon": "ChartNoAxesCombined"
+            },
+            {
               "title": "支付",
               "url": "/admin/payments",
               "icon": "DollarSign"

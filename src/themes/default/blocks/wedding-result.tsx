@@ -1,6 +1,13 @@
 'use client';
 
-import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -15,13 +22,17 @@ import {
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
-import { WeddingApplicationPreview } from '@/shared/components/wedding/wedding-application-preview';
 import { DesignEditAssistant } from '@/shared/components/wedding/design-edit-assistant';
+import { WeddingApplicationPreview } from '@/shared/components/wedding/wedding-application-preview';
 import { readJsonResponse } from '@/shared/lib/read-json-response';
-import { normalizeWeddingProject } from '@/shared/wedding/result-data';
 import { cn } from '@/shared/lib/utils';
 import { layoutsForStyle } from '@/shared/wedding/config';
 import type { EditPlan } from '@/shared/wedding/edit-plan';
+import {
+  observeWeddingExposure,
+  trackWeddingFunnel,
+} from '@/shared/wedding/funnel-client';
+import { normalizeWeddingProject } from '@/shared/wedding/result-data';
 import {
   WEDDING_MAX_FLOWERS,
   WEDDING_MAX_PALETTE_COLORS,
@@ -361,8 +372,15 @@ export function WeddingResult({ projectId }: { projectId: string }) {
           const value = project.weddingDate;
           if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return '';
           const date = new Date(`${value}T12:00:00Z`);
-          if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value) return '';
-          return new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC' }).format(date);
+          if (
+            Number.isNaN(date.getTime()) ||
+            date.toISOString().slice(0, 10) !== value
+          )
+            return '';
+          return new Intl.DateTimeFormat(locale, {
+            dateStyle: 'long',
+            timeZone: 'UTC',
+          }).format(date);
         })(),
         palette: project.palette,
         invitationHeading: t('preview.invitation_heading'),
@@ -529,7 +547,13 @@ export function WeddingResult({ projectId }: { projectId: string }) {
             (envelope as { project?: ProjectData }).project;
           if (updatedProject) {
             setData((prev) =>
-              prev ? { ...prev, project: normalizeWeddingProject<ProjectData>(updatedProject) } : prev
+              prev
+                ? {
+                    ...prev,
+                    project:
+                      normalizeWeddingProject<ProjectData>(updatedProject),
+                  }
+                : prev
             );
           }
         }
@@ -606,8 +630,12 @@ export function WeddingResult({ projectId }: { projectId: string }) {
     [project, guestId, t, fetchJob, selectedGeneration]
   );
 
+  const isComplete = data?.status === 'complete';
+  const paid = data?.paid ?? false;
+
   const checkout = useCallback(async () => {
-    if (!project) return;
+    if (!project || paying) return;
+    trackWeddingFunnel('unlock_clicked', project.id);
     setPaying(true);
     try {
       const response = await fetch('/api/payment/checkout', {
@@ -635,23 +663,54 @@ export function WeddingResult({ projectId }: { projectId: string }) {
         !response.ok ||
         (envelope.code !== undefined && envelope.code !== 0)
       ) {
+        trackWeddingFunnel('checkout_failed', project.id);
         toast.error(envelope.error || envelope.message || t('pay_error'));
         return;
       }
       const checkoutInfo = envelope.data ?? envelope;
       const checkoutUrl = checkoutInfo.checkoutUrl || checkoutInfo.url;
       if (!checkoutUrl) {
+        trackWeddingFunnel('checkout_failed', project.id);
         toast.error(t('pay_error'));
         return;
       }
       window.location.href = checkoutUrl;
     } catch (error) {
+      trackWeddingFunnel('checkout_failed', project.id);
       console.error('[wedding-result] checkout failed', error);
       toast.error(error instanceof Error ? error.message : t('pay_error'));
     } finally {
       setPaying(false);
     }
-  }, [project, guestId, t]);
+  }, [project, guestId, t, paying]);
+
+  useEffect(() => {
+    if (!project || !selectedGeneration) return;
+    const image = document.querySelector<HTMLImageElement>(
+      '[data-funnel-result] img'
+    );
+    const unlock = document.getElementById('wedding-pricing');
+    const stops: (() => void)[] = [];
+    if (image)
+      stops.push(
+        observeWeddingExposure(
+          image,
+          'result_viewed',
+          project.id,
+          selectedGeneration.id
+        )
+      );
+    if (unlock && !paid && isComplete)
+      stops.push(
+        observeWeddingExposure(
+          unlock,
+          'unlock_viewed',
+          project.id,
+          selectedGeneration.id
+        )
+      );
+    return () => stops.forEach((stop) => stop());
+  }, [project, selectedGeneration, paid, isComplete]);
 
   if (error && !data) {
     return (
@@ -677,50 +736,46 @@ export function WeddingResult({ projectId }: { projectId: string }) {
     );
   }
 
-  const isComplete = data?.status === 'complete';
   const isFailed = data?.status === 'failed';
-  const paid = data?.paid ?? false;
 
-  const alternatesPanel = (
-isComplete && generations.length > 1 && (
-              <div>
-                <p className="text-muted-foreground mb-3 text-xs tracking-[0.2em] uppercase">
-                  {t('alternates')}
-                </p>
-                <p className="text-muted-foreground mb-3 text-sm">
-                  {t('assistant.version_hint')}
-                </p>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {generations.map((gen, idx) => (
-                    <button
-                      key={gen.id}
-                      type="button"
-                      aria-pressed={selectedIndex === idx}
-                      disabled={busy}
-                      onClick={() => selectGeneration(idx)}
-                      className={cn(
-                        'bg-wedding-ivory rounded-2xl border p-3 transition-colors',
-                        selectedIndex === idx
-                          ? 'border-primary ring-primary/30 ring-2'
-                          : 'hover:border-primary/40'
-                      )}
-                    >
-                      <CrestMini
-                        generation={gen}
-                        paid={paid}
-                        alt={`${project.partner1} and ${project.partner2} wedding crest option ${idx + 1}`}
-                      />
-                      <p className="text-muted-foreground mt-2 text-center text-xs">
-                        {t('candidate_label', { index: idx + 1 })}
-                        {gen.reviewScore != null
-                          ? ` · ${Math.round(gen.reviewScore * 10) / 10}`
-                          : ''}
-                      </p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )
+  const alternatesPanel = isComplete && generations.length > 1 && (
+    <div>
+      <p className="text-muted-foreground mb-3 text-xs tracking-[0.2em] uppercase">
+        {t('alternates')}
+      </p>
+      <p className="text-muted-foreground mb-3 text-sm">
+        {t('assistant.version_hint')}
+      </p>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {generations.map((gen, idx) => (
+          <button
+            key={gen.id}
+            type="button"
+            aria-pressed={selectedIndex === idx}
+            disabled={busy}
+            onClick={() => selectGeneration(idx)}
+            className={cn(
+              'bg-wedding-ivory rounded-2xl border p-3 transition-colors',
+              selectedIndex === idx
+                ? 'border-primary ring-primary/30 ring-2'
+                : 'hover:border-primary/40'
+            )}
+          >
+            <CrestMini
+              generation={gen}
+              paid={paid}
+              alt={`${project.partner1} and ${project.partner2} wedding crest option ${idx + 1}`}
+            />
+            <p className="text-muted-foreground mt-2 text-center text-xs">
+              {t('candidate_label', { index: idx + 1 })}
+              {gen.reviewScore != null
+                ? ` · ${Math.round(gen.reviewScore * 10) / 10}`
+                : ''}
+            </p>
+          </button>
+        ))}
+      </div>
+    </div>
   );
 
   return (
@@ -808,17 +863,19 @@ isComplete && generations.length > 1 && (
               </p>
               <button
                 type="button"
-                className="mx-auto block w-full max-w-md cursor-zoom-in rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:cursor-default"
+                className="focus-visible:outline-primary mx-auto block w-full max-w-md cursor-zoom-in rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 disabled:cursor-default"
                 aria-label={t('preview.zoom')}
                 disabled={!isComplete || !selectedGeneration?.sourceImageUrl}
                 onClick={() => setPreviewIndex(selectedIndex)}
               >
-                <AiCrestImage
-                  generation={selectedGeneration}
-                  paid={paid}
-                  alt={`${project.partner1} and ${project.partner2} wedding crest`}
-                  className="w-full"
-                />
+                <div data-funnel-result>
+                  <AiCrestImage
+                    generation={selectedGeneration}
+                    paid={paid}
+                    alt={`${project.partner1} and ${project.partner2} wedding crest`}
+                    className="w-full"
+                  />
+                </div>
               </button>
               {!paid && isComplete && (
                 <p className="text-muted-foreground mt-4 text-center text-xs">
@@ -827,7 +884,9 @@ isComplete && generations.length > 1 && (
               )}
             </div>
 
-            {alternatesPanel && <div className="lg:hidden">{alternatesPanel}</div>}
+            {alternatesPanel && (
+              <div className="lg:hidden">{alternatesPanel}</div>
+            )}
 
             {isComplete && selectedGeneration?.sourceImageUrl && (
               <WeddingApplicationPreview
@@ -849,19 +908,23 @@ isComplete && generations.length > 1 && (
                 draftResetKey={draftResetKey}
                 onApply={applyPanelChanges}
                 otherLabel={t('assistant.other_changes')}
-                otherChanges={selectedGeneration ? <>
-                <p className="text-muted-foreground mt-2 text-sm">
-                  {t('assistant.fallback_hint')}
-                </p>
-                <DesignEditAssistant
-                  projectId={project.id}
-                  sourceGenerationId={selectedGeneration.id}
-                  guestId={guestId}
-                  disabled={busy}
-                  allowed={data?.allowance.allowed ?? false}
-                  onConfirm={confirmAssistantEdit}
-                />
-                </> : null}
+                otherChanges={
+                  selectedGeneration ? (
+                    <>
+                      <p className="text-muted-foreground mt-2 text-sm">
+                        {t('assistant.fallback_hint')}
+                      </p>
+                      <DesignEditAssistant
+                        projectId={project.id}
+                        sourceGenerationId={selectedGeneration.id}
+                        guestId={guestId}
+                        disabled={busy}
+                        allowed={data?.allowance.allowed ?? false}
+                        onConfirm={confirmAssistantEdit}
+                      />
+                    </>
+                  ) : null
+                }
                 t={{
                   quick_edits: t('quick_edits'),
                   quick_edits_hint: t('quick_edits_hint'),
@@ -933,7 +996,9 @@ isComplete && generations.length > 1 && (
 
           {/* alternates and unlock panel */}
           <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
-            {alternatesPanel && <div className="hidden lg:block">{alternatesPanel}</div>}
+            {alternatesPanel && (
+              <div className="hidden lg:block">{alternatesPanel}</div>
+            )}
 
             <div id="wedding-pricing" className="rounded-2xl border p-6">
               <p className="font-serif text-xl">{t('unlock_title')}</p>
@@ -1004,8 +1069,6 @@ isComplete && generations.length > 1 && (
                 </Button>
               )}
             </div>
-
-
           </div>
         </div>
       </div>
@@ -1068,7 +1131,10 @@ function AiCrestImage({
           aria-hidden="true"
         >
           {Array.from({ length: 9 }, (_, index) => (
-            <span key={index} className="-rotate-12 text-[7px] font-normal tracking-[0.1em] whitespace-nowrap text-stone-600/10 sm:text-[9px]">
+            <span
+              key={index}
+              className="-rotate-12 text-[7px] font-normal tracking-[0.1em] whitespace-nowrap text-stone-600/10 sm:text-[9px]"
+            >
               Wedding Crest · Preview
             </span>
           ))}
@@ -1182,7 +1248,9 @@ function EditPanel({
   otherLabel: string;
   t: EditPanelTexts;
 }) {
-  const [activeTab, setActiveTab] = useState<'quick' | 'edit' | 'other'>('quick');
+  const [activeTab, setActiveTab] = useState<'quick' | 'edit' | 'other'>(
+    'quick'
+  );
   const [category, setCategory] = useState<EditCategory | null>(null);
   const [customColor, setCustomColor] = useState('');
   const [colorError, setColorError] = useState<string | null>(null);
@@ -1433,14 +1501,27 @@ function EditPanel({
           >
             {t.edit_title}
           </button>
-          <button type="button" role="tab" aria-selected={activeTab === 'other'} onClick={() => setActiveTab('other')} className={cn('rounded-lg border px-3 py-2 text-left text-sm transition-colors', activeTab === 'other' ? 'border-primary bg-accent text-accent-foreground' : 'border-input hover:border-primary/40')}>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'other'}
+            onClick={() => setActiveTab('other')}
+            className={cn(
+              'rounded-lg border px-3 py-2 text-left text-sm transition-colors',
+              activeTab === 'other'
+                ? 'border-primary bg-accent text-accent-foreground'
+                : 'border-input hover:border-primary/40'
+            )}
+          >
             {otherLabel}
           </button>
         </div>
 
         {/* Right: active tab content */}
         <div className="space-y-4">
-          {activeTab === 'other' ? otherChanges : activeTab === 'quick' ? (
+          {activeTab === 'other' ? (
+            otherChanges
+          ) : activeTab === 'quick' ? (
             <div className="space-y-3">
               <p className="text-muted-foreground text-sm">
                 {t.quick_edits_hint}
@@ -1909,24 +1990,26 @@ function EditPanel({
       </div>
 
       {/* Footer: pending count + apply button (shared by both tabs) */}
-      {activeTab !== 'other' && <div className="flex flex-col gap-2 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-muted-foreground text-xs">
-          {hasChanges
-            ? t.edit_pending(fieldChangeCount + (hasQuickEdit ? 1 : 0))
-            : ''}
-          {hasChanges ? ' · ' : ''}
-          {applyHint}
+      {activeTab !== 'other' && (
+        <div className="flex flex-col gap-2 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-muted-foreground text-xs">
+            {hasChanges
+              ? t.edit_pending(fieldChangeCount + (hasQuickEdit ? 1 : 0))
+              : ''}
+            {hasChanges ? ' · ' : ''}
+            {applyHint}
+          </div>
+          <Button
+            type="button"
+            onClick={handleApply}
+            disabled={
+              busy || !hasChanges || (!hasSelectedGeneration && hasQuickEdit)
+            }
+          >
+            {t.edit_apply}
+          </Button>
         </div>
-        <Button
-          type="button"
-          onClick={handleApply}
-          disabled={
-            busy || !hasChanges || (!hasSelectedGeneration && hasQuickEdit)
-          }
-        >
-          {t.edit_apply}
-        </Button>
-      </div>}
+      )}
     </div>
   );
 }
