@@ -541,7 +541,7 @@ export async function claimWeddingProject(id: string, userId: string) {
       const [row] = await db()
         .update(weddingProject)
         .set({ userId })
-        .where(and(eq(weddingProject.id, id)))
+        .where(and(eq(weddingProject.id, id), isNull(weddingProject.userId)))
         .returning();
       return row;
     },

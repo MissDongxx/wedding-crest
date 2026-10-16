@@ -20,7 +20,7 @@
         "id": "hero",
         "title": "Create a Wedding Crest Design That Feels Like You",
         "description": "Design a custom wedding crest for invitations, signage, menus, and thank-you cards. Choose your style, colors, and typography, then get one polished crest design to make your celebration feel cohesive.",
-        "tip": "No signup needed to try · Free preview with watermark",
+        "tip": "Sign in for 3 free previews · No card required",
         "buttons": [
           {
             "title": "Create My Wedding Crest",
@@ -139,12 +139,12 @@
             "answer": "A monogram focuses on the couple's initials. A wedding crest combines those initials or names with illustrated florals, arches, borders, or personal motifs. AI renders both the lettering and illustration together in the finished crest image."
           },
           {
-            "question": "Can I try it before signing up?",
-            "answer": "Yes! You can generate up to 5 crest designs for one wedding project without an account, with watermarked previews. Pay once to unlock the Wedding Image Pack without signing in. Guest designs stay on this device; signing in is optional for saving them across devices."
+            "question": "Can I try it for free?",
+            "answer": "Yes! Sign in to generate up to 3 watermarked crest previews for one wedding project. No card is required. When you love a design, pay once to download the Wedding Image Pack without the preview watermark."
           },
           {
             "question": "How many designs do I get?",
-            "answer": "Each generation produces one finished crest design. Free accounts can create one project with five total generations. The Wedding Identity Pack unlocks three regenerations and the full download kit."
+            "answer": "Each generation produces one finished crest design. Free accounts can create one project with three total generations. The Wedding Identity Pack unlocks five regenerations and the full download kit."
           },
           {
             "question": "What files do I get?",

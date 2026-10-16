@@ -2,19 +2,19 @@ import { z } from 'zod';
 
 import { getUuid } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
-import { getWeddingExample } from '@/shared/models/wedding';
+import { getUserInfo } from '@/shared/models/user';
 import {
   createWeddingProject,
+  getWeddingExample,
   listWeddingProjectsForGuest,
   listWeddingProjectsForUser,
 } from '@/shared/models/wedding';
-import { getUserInfo } from '@/shared/models/user';
 import { selectLayout } from '@/shared/wedding/config';
 import {
+  isWeddingExampleStyle,
   WEDDING_MAX_FLOWERS,
   WEDDING_MAX_PALETTE_COLORS,
   WEDDING_MAX_PERSONAL_ELEMENTS,
-  isWeddingExampleStyle,
   weddingStyles,
 } from '@/shared/wedding/types';
 
@@ -76,10 +76,7 @@ const createSchema = z.object({
   // multimodal generation cost bounded and the prompt focused. Each URL
   // must point to an http(s) resource or a local path the storage service
   // can resolve at generation time.
-  personalImages: z
-    .array(z.string().trim().min(1).max(2000))
-    .max(2)
-    .optional(),
+  personalImages: z.array(z.string().trim().min(1).max(2000)).max(2).optional(),
   frameId: z.string().trim().min(1).max(80).nullable().optional(),
   // "Same as example" wiring. The client only sends the example id — the
   // server resolves it to the active example's imageUrl and validates the
@@ -113,8 +110,10 @@ const createSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const body = createSchema.parse(await request.json());
     const user = await getUserInfo();
+    if (!user)
+      return respErr('Sign in to create your free wedding design.', 401);
+    const body = createSchema.parse(await request.json());
     const guestId = request.headers.get('x-wedding-guest-id') || getUuid();
 
     const styleConfig = weddingStyles.find((s) => s.id === body.style);
@@ -127,14 +126,12 @@ export async function POST(request: Request) {
     // the known example styles. If anything fails, we silently drop the
     // example wiring and let the project fall back to the regular flow.
     let exampleImage: string | null = null;
-    let matchExample:
-      | {
-          border: boolean;
-          palette: boolean;
-          flowers: boolean;
-          elements: boolean;
-        }
-      | null = null;
+    let matchExample: {
+      border: boolean;
+      palette: boolean;
+      flowers: boolean;
+      elements: boolean;
+    } | null = null;
     if (body.exampleId) {
       const example = await getWeddingExample(body.exampleId);
       if (

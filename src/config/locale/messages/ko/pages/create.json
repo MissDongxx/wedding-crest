@@ -64,7 +64,7 @@
   "back": "Back",
   "continue": "Continue",
   "generate": "Generate my crest",
-  "generate_hint": "We will compose one crest for you.",
+  "generate_hint": "Sign in for 3 free watermarked previews of one wedding project. No card required. Your choices are saved while you sign in.",
   "submitting": "Composing…",
   "submit_error": "Something went wrong. Please try again.",
   "edit_title": "디자인 수정",
@@ -85,5 +85,6 @@
   "optional": "선택",
   "remove": "삭제",
   "one_generated_project": "생성된 프로젝트",
-  "dismiss": "닫기"
+  "dismiss": "닫기",
+  "sign_in_generate": "Sign in & generate free"
 }

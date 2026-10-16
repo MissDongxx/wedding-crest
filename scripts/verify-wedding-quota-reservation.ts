@@ -161,7 +161,7 @@ const request = (projectId: string, id: string, guest = false) => ({
   candidates: [{ id, projectId, candidateIndex: 0, cost: 0 }],
 });
 async function main() {
-  for (const guest of [false, true]) {
+  for (const guest of [false]) {
     reset(guest);
     const same = await Promise.all([
       reserve(request('a', '1', guest)),
@@ -182,6 +182,32 @@ async function main() {
       `PASS cross-project concurrent ${guest ? 'guest' : 'account'}: one free project`
     );
   }
+  reset(true);
+  const denied = await reserve(request('a', 'anonymous', true));
+  assert.equal(denied.allowed, false);
+  assert.match(denied.reason, /Sign in/);
+  assert.equal(data.generations.length, 0);
+  console.log('PASS unpaid guest reservation blocked before rows/provider');
+  data.orders.push({ projectId: 'a', productId: 'pack', status: 'paid' });
+  assert.equal(
+    (await reserve(request('a', 'legacy-paid', true))).allowed,
+    true
+  );
+  console.log('PASS legacy paid guest reservation preserved');
+  reset(true);
+  data.generations = Array.from({ length: 2 }, (_, i) => ({
+    id: String(i),
+    projectId: 'a',
+    status: 'complete',
+    cost: 0,
+  }));
+  data.projects[0].userId = 'user'; // Same project claimed at login, no quota reset.
+  assert.equal((await reserve(request('a', 'third'))).allowed, true);
+  data.generations.find((row) => row.id === 'third')!.status = 'complete';
+  assert.equal((await reserve(request('a', 'fourth'))).allowed, false);
+  console.log(
+    'PASS claimed guest history retains exactly three total free generations'
+  );
   reset();
   await reserve(request('a', '1'));
   await settle(['1'], false);
@@ -241,7 +267,7 @@ async function main() {
     'PASS partial multi-candidate batch preserves receipt and full reserved quota'
   );
   reset();
-  data.generations = Array.from({ length: 5 }, (_, i) => ({
+  data.generations = Array.from({ length: 3 }, (_, i) => ({
     id: String(i),
     projectId: 'a',
     status: 'complete',
@@ -249,18 +275,15 @@ async function main() {
   }));
   assert.equal((await reserve(request('a', 'free-limit'))).allowed, false);
   data.orders.push({ projectId: 'a', productId: 'pack', status: 'paid' });
-  assert.equal((await reserve(request('a', 'paid'))).allowed, true);
-  data.generations.find((row) => row.id === 'paid')!.status = 'complete';
-  data.generations.push(
-    ...[6, 7].map((i) => ({
-      id: String(i),
-      projectId: 'a',
-      status: 'complete',
-      cost: 0,
-    }))
-  );
+  for (let extra = 0; extra < 5; extra++) {
+    const id = `paid-${extra}`;
+    assert.equal((await reserve(request('a', id))).allowed, true);
+    data.generations.find((row) => row.id === id)!.status = 'complete';
+  }
   assert.equal((await reserve(request('a', 'paid-limit'))).allowed, false);
-  console.log('PASS free limit 5, paid unlock and paid limit 8');
+  console.log(
+    'PASS free limit 3, five additional paid generations, total limit 8'
+  );
   (context.envConfigs as any).database_provider = 'd1';
   await assert.rejects(reserve(request('a', 'd1')), /requires PostgreSQL/);
   console.log('PASS non-transactional dialect fails closed');

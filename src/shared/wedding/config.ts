@@ -4,10 +4,10 @@ export const WEDDING_PROMPT_VERSION = 'wedding-illustration-v5-reference-first';
 export const WEDDING_STYLE_VERSION = 'style-system-v1';
 export const WEDDING_LAYOUT_VERSION = 'layout-engine-v1';
 export const WEDDING_MAX_CANDIDATES = 1;
-// Free users get five total generation batches: the initial generation plus
-// four regenerations.
-export const WEDDING_FREE_REGENERATIONS = 4;
-export const WEDDING_PAID_REGENERATIONS = 3;
+// Free users get three total generation batches: the initial generation plus
+// two regenerations.
+export const WEDDING_FREE_REGENERATIONS = 2;
+export const WEDDING_PAID_REGENERATIONS = 5;
 export const WEDDING_PACK_PRODUCT_ID = 'wedding_identity_pack';
 
 /** Generation batches: initial run + regenerations. */
@@ -82,9 +82,9 @@ export interface GenerationAllowance {
 }
 
 /**
- * Hard generation quota (spec: cost protection). Guests
- * and signed-in free users get one project plus four regenerations;
- * paid users unlock three regenerations on the purchased project.
+ * Hard generation quota (spec: cost protection). Signed-in free users
+ * get one project plus two regenerations;
+ * paid users unlock five regenerations on the purchased project.
  */
 export function decideGenerationAllowance(
   params: GenerationAllowanceParams
@@ -96,11 +96,20 @@ export function decideGenerationAllowance(
       return {
         allowed: false,
         reason:
-          'This project has used its 5 free generations and 3 additional paid generations.',
+          'This project has used its 3 free generations and 5 additional paid generations.',
         maxBatches: WEDDING_PAID_MAX_BATCHES,
       };
     }
     return { allowed: true, maxBatches: WEDDING_PAID_MAX_BATCHES };
+  }
+
+  if (params.isGuest) {
+    return {
+      allowed: false,
+      reason:
+        'Sign in to use your 3 free generations. Your existing designs are kept.',
+      maxBatches: WEDDING_FREE_MAX_BATCHES,
+    };
   }
 
   if (batches === 0 && projectsWithGenerations >= WEDDING_FREE_MAX_PROJECTS) {
@@ -116,7 +125,7 @@ export function decideGenerationAllowance(
     return {
       allowed: false,
       reason:
-        'The free plan includes four regenerations. Unlock the Wedding Identity Pack for three more.',
+        'The free plan includes two regenerations. Unlock the Wedding Identity Pack for five more.',
       maxBatches: WEDDING_FREE_MAX_BATCHES,
     };
   }

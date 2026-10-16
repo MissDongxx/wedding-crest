@@ -11,6 +11,7 @@ import {
   getActiveWeddingPromptTemplate,
   getWeddingGeneration,
   getWeddingProject,
+  hasPaidWeddingOrder,
   reserveWeddingGenerationBatch,
   settleFailedWeddingReservation,
   updateWeddingGeneration,
@@ -163,7 +164,7 @@ export async function POST(
   try {
     const { id } = await params;
     projectId = id;
-    // Guests may run their first generation before any account exists.
+    // Free generation requires a session; paid legacy guests retain access.
     const user = await getUserInfo();
     const guestId = request.headers.get('x-wedding-guest-id') || undefined;
     const project = await getWeddingProject(id);
@@ -171,8 +172,16 @@ export async function POST(
       !project ||
       !(await canAccessWeddingProject({ id, userId: user?.id, guestId }))
     )
-      return respErr('project not found');
+      return user
+        ? respErr('project not found')
+        : respErr('Sign in to continue your wedding design.', 401);
 
+    if (!user && !(await hasPaidWeddingOrder(undefined, id, guestId))) {
+      return respErr(
+        'Sign in to use your 3 free generations. Your existing designs are kept.',
+        401
+      );
+    }
     if (user && !project.userId) await claimWeddingProject(id, user.id);
 
     const body = inputSchema.parse(await request.json().catch(() => ({})));

@@ -64,7 +64,7 @@
   "back": "Back",
   "continue": "Continue",
   "generate": "Generate my crest",
-  "generate_hint": "We will compose one crest for you.",
+  "generate_hint": "Sign in for 3 free watermarked previews of one wedding project. No card required. Your choices are saved while you sign in.",
   "submitting": "Composing…",
   "submit_error": "Something went wrong. Please try again.",
   "edit_title": "Edite seu design",
@@ -85,5 +85,6 @@
   "optional": "Opcional",
   "remove": "Remover",
   "one_generated_project": "projeto gerado",
-  "dismiss": "Fechar"
+  "dismiss": "Fechar",
+  "sign_in_generate": "Sign in & generate free"
 }

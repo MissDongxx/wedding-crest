@@ -7,6 +7,7 @@ import {
   canAccessWeddingProject,
   getWeddingGeneration,
   getWeddingProject,
+  hasPaidWeddingOrder,
 } from '@/shared/models/wedding';
 import { assistantReplySchema } from '@/shared/wedding/edit-plan';
 
@@ -46,7 +47,11 @@ export async function POST(
     const guestId = request.headers.get('x-wedding-guest-id') || undefined;
     if (!user && !guestId) return respErr('project access required', 401);
     if (!(await canAccessWeddingProject({ id, userId: user?.id, guestId })))
-      return respErr('project not found', 404);
+      return user
+        ? respErr('project not found', 404)
+        : respErr('Sign in to continue your wedding design.', 401);
+    if (!user && !(await hasPaidWeddingOrder(undefined, id, guestId)))
+      return respErr('Sign in to adjust your free wedding design.', 401);
     const body = requestSchema.parse(await request.json());
     const [project, source, configs] = await Promise.all([
       getWeddingProject(id),

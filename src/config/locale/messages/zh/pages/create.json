@@ -64,7 +64,7 @@
   "back": "Back",
   "continue": "Continue",
   "generate": "Generate my crest",
-  "generate_hint": "We will compose one crest for you.",
+  "generate_hint": "登录后即可为一个婚礼项目免费生成 5 次带水印预览，无需银行卡。登录期间会保留你的选择。",
   "submitting": "Composing…",
   "submit_error": "Something went wrong. Please try again.",
   "edit_title": "编辑你的设计",
@@ -85,5 +85,6 @@
   "optional": "选填",
   "remove": "移除",
   "one_generated_project": "已有的生成项目",
-  "dismiss": "关闭"
+  "dismiss": "关闭",
+  "sign_in_generate": "登录并免费生成"
 }

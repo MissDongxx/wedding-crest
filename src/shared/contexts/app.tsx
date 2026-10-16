@@ -20,6 +20,8 @@ export interface ContextValue {
   setUser: (user: User | null) => void;
   isCheckSign: boolean;
   setIsCheckSign: (isCheckSign: boolean) => void;
+  signInCallbackUrl: string | undefined;
+  setSignInCallbackUrl: (url: string | undefined) => void;
   isShowSignModal: boolean;
   setIsShowSignModal: (show: boolean) => void;
   isShowPaymentModal: boolean;
@@ -46,7 +48,13 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   const [isCheckSign, setIsCheckSign] = useState(!!envConfigs.auth_secret);
 
   // show sign modal
-  const [isShowSignModal, setIsShowSignModal] = useState(false);
+  const [isShowSignModal, setIsShowSignModalState] = useState(false);
+  const [signInCallbackUrl, setSignInCallbackUrl] = useState<string>();
+  const setIsShowSignModal = useCallback((show: boolean) => {
+    setIsShowSignModalState(show);
+    // Clear flow-specific routing on every close, including form success.
+    if (!show) setSignInCallbackUrl(undefined);
+  }, []);
 
   // show payment modal
   const [isShowPaymentModal, setIsShowPaymentModal] = useState(false);
@@ -138,6 +146,8 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       setUser,
       isCheckSign,
       setIsCheckSign,
+      signInCallbackUrl,
+      setSignInCallbackUrl,
       isShowSignModal,
       setIsShowSignModal,
       isShowPaymentModal,
@@ -151,7 +161,10 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     [
       user,
       isCheckSign,
+      signInCallbackUrl,
+      setSignInCallbackUrl,
       isShowSignModal,
+      setIsShowSignModal,
       isShowPaymentModal,
       configs,
       fetchConfigs,

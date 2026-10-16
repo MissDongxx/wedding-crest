@@ -148,14 +148,19 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const body = patchSchema.parse(await request.json());
     const user = await getUserInfo();
     const guestId = guestIdFrom(request);
     if (!(await canAccessWeddingProject({ id, userId: user?.id, guestId }))) {
-      return respErr('project not found');
+      return user
+        ? respErr('project not found')
+        : respErr('Sign in to continue your wedding design.', 401);
     }
     const project = await getWeddingProject(id);
-    if (!project) return respErr('project not found');
+    if (!project)
+      return user
+        ? respErr('project not found')
+        : respErr('Sign in to continue your wedding design.', 401);
+    const body = patchSchema.parse(await request.json());
 
     const values: Record<string, unknown> = {};
     const elementPatch: WeddingElementPatch = {};

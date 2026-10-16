@@ -18,6 +18,7 @@ export function DesignEditAssistant({
   disabled,
   allowed,
   onConfirm,
+  onAuthRequired,
 }: {
   projectId: string;
   sourceGenerationId: string;
@@ -25,6 +26,7 @@ export function DesignEditAssistant({
   disabled: boolean;
   allowed: boolean;
   onConfirm: (plan: EditPlan) => Promise<boolean>;
+  onAuthRequired?: () => void;
 }) {
   const t = useTranslations('pages.design.assistant');
   const locale = useLocale();
@@ -72,6 +74,10 @@ export function DesignEditAssistant({
           }),
         }
       );
+      if (response.status === 401 && onAuthRequired) {
+        if (current === epoch.current) onAuthRequired();
+        return;
+      }
       const body = await readJsonResponse<{
         code?: number;
         message?: string;

@@ -11,6 +11,7 @@ import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { Progress } from '@/shared/components/ui/progress';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
+import { useAppContext } from '@/shared/contexts/app';
 import { cn } from '@/shared/lib/utils';
 import { resolveWeddingDisplayTexts } from '@/shared/wedding/display-text';
 import { trackWeddingFunnel } from '@/shared/wedding/funnel-client';
@@ -129,10 +130,12 @@ function isWeddingNameDisplay(
  * The state is restored in an effect after hydration so the server and
  * client render the same initial tree.
  */
-function readPersistedWizardState(): Partial<PersistedWizardState> {
+function readPersistedWizardState(
+  key = WIZARD_STORAGE_KEY
+): Partial<PersistedWizardState> {
   if (typeof window === 'undefined') return {};
   try {
-    const raw = window.localStorage.getItem(WIZARD_STORAGE_KEY);
+    const raw = window.localStorage.getItem(key);
     if (!raw) return {};
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object') return {};
@@ -143,10 +146,10 @@ function readPersistedWizardState(): Partial<PersistedWizardState> {
   }
 }
 
-function clearPersistedWizardState() {
+function clearPersistedWizardState(key = WIZARD_STORAGE_KEY) {
   if (typeof window === 'undefined') return;
   try {
-    window.localStorage.removeItem(WIZARD_STORAGE_KEY);
+    window.localStorage.removeItem(key);
   } catch {
     // ignore
   }
@@ -167,6 +170,8 @@ type ApiEnvelope<T> = {
  */
 export function WeddingWizard() {
   const t = useTranslations('pages.create');
+  const { user, isCheckSign, setIsShowSignModal, setSignInCallbackUrl } =
+    useAppContext();
   const searchParams = useSearchParams();
   // When the result page sends the user back to the create flow to make
   // tweaks, it links to /create?edit=<projectId>. The wizard then runs
@@ -174,6 +179,9 @@ export function WeddingWizard() {
   // via PATCH instead of POST, and end in /design/<id> (regenerate).
   const editId = searchParams.get('edit') ?? null;
   const isEditMode = editId !== null;
+  const draftKey = editId
+    ? `${WIZARD_STORAGE_KEY}:edit:${editId}`
+    : WIZARD_STORAGE_KEY;
 
   // Keep the server render deterministic. localStorage is restored in an
   // effect below; reading it during render would make the first client tree
@@ -506,6 +514,40 @@ export function WeddingWizard() {
         // Land the user on the review step so they see the summary of
         // the existing design and only navigate back to change a field.
         const reviewStep = WIZARD_STEPS.length - 1;
+        // Keep unsaved edit choices across OAuth/verification redirects too.
+        const saved = readPersistedWizardState(draftKey);
+        if (typeof saved.partner1 === 'string') setPartner1(saved.partner1);
+        if (typeof saved.partner2 === 'string') setPartner2(saved.partner2);
+        if (typeof saved.weddingDate === 'string')
+          setWeddingDate(saved.weddingDate);
+        if (typeof saved.typography === 'string')
+          setTypography(saved.typography);
+        if (typeof saved.customHex === 'string') setCustomHex(saved.customHex);
+        if (typeof saved.location === 'string') setLocation(saved.location);
+        if (typeof saved.venue === 'string') setVenue(saved.venue);
+        if (typeof saved.customFlower === 'string')
+          setCustomFlower(saved.customFlower);
+        if (typeof saved.customElement === 'string')
+          setCustomElement(saved.customElement);
+        if (isStringArray(saved.palette)) setPalette(saved.palette);
+        if (isStringArray(saved.flowers)) setFlowers(saved.flowers);
+        if (isStringArray(saved.personalElements))
+          setPersonalElements(saved.personalElements);
+        if (isStringArray(saved.personalImages))
+          setPersonalImages(saved.personalImages);
+        if (isWeddingNameDisplay(saved.nameDisplay))
+          setNameDisplay(saved.nameDisplay);
+        if (isWeddingComplexity(saved.complexity))
+          setComplexity(saved.complexity);
+        if (
+          typeof saved.style === 'string' &&
+          weddingStyles.some((item) => item.id === saved.style)
+        )
+          setStyle(saved.style);
+        if (saved.frameId === null || typeof saved.frameId === 'string')
+          setFrameId(saved.frameId);
+        if (isMatchExample(saved.matchExample))
+          setMatchExample(saved.matchExample);
         setStep(reviewStep);
         setIsEditPrefilled(true);
       } catch (error) {
@@ -519,7 +561,7 @@ export function WeddingWizard() {
     return () => {
       cancelled = true;
     };
-  }, [editId, isEditMode, t]);
+  }, [draftKey, editId, isEditMode, t]);
 
   // Persist the form state to localStorage on every change. Writing on
   // every state mutation is fine here — the payload is small (a few
@@ -531,11 +573,10 @@ export function WeddingWizard() {
   // - submitting / examplePending / uploadingImages are flags that would
   //   look stuck if a refresh happens mid-flight.
   // - frames are refetched from the API based on `style`.
-  // Edit mode is excluded: the project is the source of truth and any
-  // local draft from a prior fresh-wizard session would otherwise leak
-  // back into it on the next visit.
+  // Edit drafts use a project-specific key and are saved only after prefill,
+  // preserving unsaved choices through sign-in without leaking between projects.
   useEffect(() => {
-    if (isEditMode) return;
+    if (isEditMode && !isEditPrefilled) return;
     if (!isHydrated || typeof window === 'undefined') return;
     try {
       const payload: PersistedWizardState = {
@@ -559,13 +600,15 @@ export function WeddingWizard() {
         complexity,
         matchExample,
       };
-      window.localStorage.setItem(WIZARD_STORAGE_KEY, JSON.stringify(payload));
+      window.localStorage.setItem(draftKey, JSON.stringify(payload));
     } catch {
       // Quota exceeded or storage disabled — non-fatal, the wizard
       // still works in memory.
     }
   }, [
     isEditMode,
+    isEditPrefilled,
+    draftKey,
     step,
     partner1,
     partner2,
@@ -1026,7 +1069,7 @@ export function WeddingWizard() {
     setPersonalImages([]);
     setComplexity('medium');
     setMatchExample(MATCH_EXAMPLE_DEFAULT);
-    clearPersistedWizardState();
+    clearPersistedWizardState(draftKey);
   };
 
   // Pick a style on the style step. The picker stays visible even when the
@@ -1119,8 +1162,18 @@ export function WeddingWizard() {
     }
   };
 
+  const requestSignIn = () => {
+    // Keep the persisted review draft even if the session expires mid-submit.
+    setSignInCallbackUrl(window.location.pathname + window.location.search);
+    setIsShowSignModal(true);
+  };
+
   const submit = async () => {
-    if (submitting) return;
+    if (submitting || isCheckSign) return;
+    if (!user) {
+      requestSignIn();
+      return;
+    }
     const analyticsFlowId = crypto.randomUUID();
     trackWeddingFunnel('create_clicked', undefined, undefined, analyticsFlowId);
     setSubmitting(true);
@@ -1177,6 +1230,11 @@ export function WeddingWizard() {
         },
         body: JSON.stringify(payload),
       });
+
+      if (response.status === 401) {
+        requestSignIn();
+        return;
+      }
 
       // Read raw text first so a non-JSON (e.g. 500 HTML) response still
       // surfaces a useful error instead of a generic "Something went wrong".
@@ -1246,6 +1304,10 @@ export function WeddingWizard() {
           },
         }
       );
+      if (generateResponse.status === 401) {
+        requestSignIn();
+        return;
+      }
       const generateRaw = await generateResponse.text();
       let generateEnvelope: ApiEnvelope<{
         candidates?: string[];
@@ -1333,10 +1395,9 @@ export function WeddingWizard() {
       window.location.href = `/design/${projectId}`;
       // Clear the in-progress draft so the next visit to /create starts
       // fresh. We do this after the redirect is queued so the
-      // localStorage write doesn't race the navigation. Edit mode
-      // doesn't write a draft in the first place (the persistence
-      // effect is gated), so this is a no-op there.
-      clearPersistedWizardState();
+      // localStorage write doesn't race the navigation. Clear only this
+      // flow's key so edit and fresh-project drafts stay independent.
+      clearPersistedWizardState(draftKey);
     } catch (error) {
       // Network failure, AbortError, JSON parse, etc.
       const message =
@@ -2357,14 +2418,16 @@ export function WeddingWizard() {
                 <Button
                   size="lg"
                   className="w-full sm:w-auto"
-                  disabled={submitting || !isEditPrefilled}
+                  disabled={submitting || isCheckSign || !isEditPrefilled}
                   onClick={submit}
                 >
                   {submitting
                     ? t('submitting')
                     : isEditMode
                       ? t('edit_generate')
-                      : t('generate')}
+                      : user
+                        ? t('generate')
+                        : t('sign_in_generate')}
                 </Button>
               </div>
             )}

@@ -24,6 +24,7 @@ import { Label } from '@/shared/components/ui/label';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import { DesignEditAssistant } from '@/shared/components/wedding/design-edit-assistant';
 import { WeddingApplicationPreview } from '@/shared/components/wedding/wedding-application-preview';
+import { useAppContext } from '@/shared/contexts/app';
 import { readJsonResponse } from '@/shared/lib/read-json-response';
 import { cn } from '@/shared/lib/utils';
 import { layoutsForStyle } from '@/shared/wedding/config';
@@ -44,6 +45,8 @@ import {
   weddingStyles,
   weddingTypography,
 } from '@/shared/wedding/types';
+
+type DesignFeedback = 'like' | 'adjust' | 'dislike';
 
 interface GenerationData {
   id: string;
@@ -117,12 +120,25 @@ export function WeddingResult({ projectId }: { projectId: string }) {
   const t = useTranslations('pages.design');
   const locale = useLocale();
   const router = useRouter();
+  const {
+    user,
+    setUser,
+    isCheckSign,
+    setIsShowSignModal,
+    setSignInCallbackUrl,
+  } = useAppContext();
 
   const [data, setData] = useState<JobResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [busy, setBusy] = useState(false);
   const [paying, setPaying] = useState(false);
+  const [feedbackByGeneration, setFeedbackByGeneration] = useState<
+    Record<string, DesignFeedback>
+  >({});
+  const [editingGenerationId, setEditingGenerationId] = useState<string | null>(
+    null
+  );
   const [downloading, setDownloading] = useState(false);
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
   const [showAllowanceHint, setShowAllowanceHint] = useState(true);
@@ -148,6 +164,22 @@ export function WeddingResult({ projectId }: { projectId: string }) {
   const displayedGeneration = useRef<string | null>(null);
 
   useEffect(() => {
+    try {
+      const saved = JSON.parse(
+        localStorage.getItem(`wedding_feedback:${projectId}`) || '{}'
+      );
+      setFeedbackByGeneration(
+        Object.fromEntries(
+          Object.entries(saved).filter(
+            ([, value]) =>
+              value === 'like' || value === 'adjust' || value === 'dislike'
+          )
+        ) as Record<string, DesignFeedback>
+      );
+    } catch {
+      setFeedbackByGeneration({});
+    }
+    setEditingGenerationId(null);
     displayedGeneration.current = null;
     previousStatus.current = null;
     awaitingGeneration.current = false;
@@ -235,6 +267,17 @@ export function WeddingResult({ projectId }: { projectId: string }) {
     }
   }, [projectId, guestId, t]);
 
+  // Refresh guest allowance exactly once when current auth becomes signed in.
+  // fetchJob preserves the displayed generation and existing feedback/editor state.
+  const allowanceUserId = useRef<string | null>(null);
+  useEffect(() => {
+    if (isCheckSign) return;
+    const userId = user?.id ?? null;
+    if (allowanceUserId.current === userId || (userId && !data)) return;
+    allowanceUserId.current = userId;
+    if (userId && !data?.signedIn) void fetchJob();
+  }, [user?.id, isCheckSign, fetchJob, data]);
+
   useEffect(() => {
     let cancelled = false;
     let poll = 0;
@@ -284,6 +327,9 @@ export function WeddingResult({ projectId }: { projectId: string }) {
     [data?.generations]
   );
   const selectedGeneration = generations[selectedIndex];
+  const selectedFeedback = selectedGeneration
+    ? feedbackByGeneration[selectedGeneration.id]
+    : undefined;
 
   const selectGeneration = useCallback(
     async (index: number) => {
@@ -413,9 +459,38 @@ export function WeddingResult({ projectId }: { projectId: string }) {
     }
   }, [project, selectedGeneration, downloading, busy, guestId, t, locale]);
 
+  const openGenerationSignIn = useCallback(() => {
+    setSignInCallbackUrl?.(window.location.pathname + window.location.search);
+    setIsShowSignModal(true);
+  }, [setSignInCallbackUrl, setIsShowSignModal]);
+
+  const requireGenerationSignIn = useCallback(() => {
+    if (data?.paid) return false;
+    if (isCheckSign) return true;
+    if (user) return false;
+    openGenerationSignIn();
+    return true;
+  }, [data?.paid, isCheckSign, user, openGenerationSignIn]);
+
+  const handleAuthRequired = useCallback(() => {
+    setUser(null);
+    setData((current) => (current ? { ...current, signedIn: false } : current));
+    openGenerationSignIn();
+  }, [setUser, openGenerationSignIn]);
+
+  const handleExpiredSession = useCallback(
+    (response: Response) => {
+      if (response.status !== 401) return false;
+      handleAuthRequired();
+      return true;
+    },
+    [handleAuthRequired]
+  );
+
   const confirmAssistantEdit = useCallback(
     async (plan: EditPlan) => {
       if (!project || !selectedGeneration || busy) return false;
+      if (requireGenerationSignIn()) return false;
       setBusy(true);
       try {
         const response = await fetch(`/api/projects/${project.id}/generate`, {
@@ -432,6 +507,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
             },
           }),
         });
+        if (handleExpiredSession(response)) return false;
         const envelope = await readJsonResponse<ApiEnvelope<unknown>>(response);
         if (!response.ok || envelope.code !== 0)
           throw new Error(envelope.message || t('update_error'));
@@ -449,11 +525,20 @@ export function WeddingResult({ projectId }: { projectId: string }) {
         setBusy(false);
       }
     },
-    [project, selectedGeneration, busy, guestId, fetchJob, t]
+    [
+      project,
+      selectedGeneration,
+      busy,
+      guestId,
+      fetchJob,
+      t,
+      requireGenerationSignIn,
+      handleExpiredSession,
+    ]
   );
 
   const regenerate = useCallback(async () => {
-    if (!project) return;
+    if (!project || requireGenerationSignIn()) return;
     setBusy(true);
     try {
       const response = await fetch(`/api/projects/${project.id}/generate`, {
@@ -463,6 +548,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
           ...(guestId ? { 'x-wedding-guest-id': guestId } : {}),
         },
       });
+      if (handleExpiredSession(response)) return;
       const raw = await response.text();
       let body: ApiEnvelope<unknown> = {};
       try {
@@ -505,7 +591,14 @@ export function WeddingResult({ projectId }: { projectId: string }) {
     } finally {
       setBusy(false);
     }
-  }, [project, guestId, t, fetchJob]);
+  }, [
+    project,
+    guestId,
+    t,
+    fetchJob,
+    requireGenerationSignIn,
+    handleExpiredSession,
+  ]);
 
   const applyPanelChanges = useCallback(
     async (params: {
@@ -517,7 +610,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
         | 'remove_personal_element'
         | null;
     }) => {
-      if (!project) return;
+      if (!project || requireGenerationSignIn()) return;
       setBusy(true);
       try {
         // 1. Persist any project field changes first.
@@ -530,6 +623,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
             },
             body: JSON.stringify(params.fieldPatch),
           });
+          if (handleExpiredSession(response)) return;
           const envelope = (await response
             .json()
             .catch(() => ({}))) as ApiEnvelope<{ project?: ProjectData }>;
@@ -593,6 +687,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
             },
             body: JSON.stringify({ edit: editBody }),
           });
+          if (handleExpiredSession(response)) return;
           const envelope = (await response
             .json()
             .catch(() => ({}))) as ApiEnvelope<unknown> & { error?: string };
@@ -627,7 +722,15 @@ export function WeddingResult({ projectId }: { projectId: string }) {
         setBusy(false);
       }
     },
-    [project, guestId, t, fetchJob, selectedGeneration]
+    [
+      project,
+      guestId,
+      t,
+      fetchJob,
+      selectedGeneration,
+      requireGenerationSignIn,
+      handleExpiredSession,
+    ]
   );
 
   const isComplete = data?.status === 'complete';
@@ -856,8 +959,8 @@ export function WeddingResult({ projectId }: { projectId: string }) {
 
         <div className="grid gap-8 lg:grid-cols-[1fr_400px]">
           {/* master crest, application previews and editing */}
-          <div className="space-y-8">
-            <div className="bg-wedding-ivory rounded-2xl border p-6">
+          <div className="contents">
+            <div className="bg-wedding-ivory rounded-2xl border p-6 lg:col-start-1 lg:row-start-1">
               <p className="text-muted-foreground mb-3 text-xs tracking-[0.2em] uppercase">
                 {t('master_crest')}
               </p>
@@ -884,88 +987,292 @@ export function WeddingResult({ projectId }: { projectId: string }) {
               )}
             </div>
 
-            {alternatesPanel && (
-              <div className="lg:hidden">{alternatesPanel}</div>
+            {isComplete && selectedGeneration?.sourceImageUrl && (
+              <div
+                id="wedding-pricing"
+                className="border-primary/20 bg-primary/5 rounded-2xl border p-4 sm:p-6 lg:col-start-2 lg:row-start-1 lg:self-start"
+              >
+                <p className="font-serif text-xl">{t('unlock_title')}</p>
+                <p className="text-muted-foreground mt-2 text-sm">
+                  {t('unlock_description')}
+                </p>
+
+                <p className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <span className="font-serif text-2xl">$2.9</span>
+                  <span className="text-muted-foreground text-sm">
+                    {t('unlock_unit')}
+                  </span>
+                </p>
+                {!paid ? (
+                  <>
+                    <Button
+                      className="mt-4 min-h-12 w-full text-center whitespace-normal"
+                      size="lg"
+                      onClick={checkout}
+                      disabled={paying || !isComplete}
+                    >
+                      {paying ? t('unlock_processing') : t('unlock_cta')}
+                    </Button>
+                    {data?.allowance &&
+                      !data.allowance.allowed &&
+                      showAllowanceHint && (
+                        <div className="bg-muted/40 text-muted-foreground relative mt-3 rounded-lg p-3 pr-9 text-xs">
+                          <button
+                            type="button"
+                            className="hover:bg-background/80 absolute top-2 right-2 rounded p-1 transition-colors"
+                            onClick={() => setShowAllowanceHint(false)}
+                            aria-label={t('dismiss_allowance_hint')}
+                          >
+                            <X className="size-3.5" aria-hidden="true" />
+                          </button>
+                          <p>
+                            {!user && !isCheckSign
+                              ? t('feedback.signin_edit')
+                              : data.allowance.reason || t('allowance_hint')}
+                          </p>
+                          {!user && !isCheckSign ? (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="mt-2 min-h-11 w-full whitespace-normal"
+                              onClick={openGenerationSignIn}
+                            >
+                              {t('feedback.signin_edit')}
+                            </Button>
+                          ) : (
+                            <a
+                              className="text-primary mt-2 inline-block font-medium underline underline-offset-2"
+                              href="#wedding-pricing"
+                            >
+                              {t('allowance_link')}
+                            </a>
+                          )}
+                        </div>
+                      )}
+                  </>
+                ) : (
+                  <Button
+                    className="mt-4 min-h-12 w-full text-center whitespace-normal"
+                    size="lg"
+                    onClick={downloadIdentityPack}
+                    disabled={downloading || busy}
+                  >
+                    {downloading ? t('download_preparing') : t('download_zip')}
+                  </Button>
+                )}
+                <ul className="mt-4 space-y-2 text-sm">
+                  <li>· {t('unlock_feature_1')}</li>
+                  <li>· {t('unlock_feature_2')}</li>
+                  <li>· {t('unlock_feature_3')}</li>
+                  <li>· {t('unlock_feature_4')}</li>
+                  <li>· {t('unlock_feature_5')}</li>
+                </ul>
+              </div>
             )}
 
             {isComplete && selectedGeneration?.sourceImageUrl && (
-              <WeddingApplicationPreview
-                imageUrl={selectedGeneration.sourceImageUrl}
-                partner1={project.partner1}
-                partner2={project.partner2}
-                date={project.showDate ? project.weddingDate : null}
-                palette={project.palette}
-                paid={paid}
-              />
+              <div className="lg:col-start-1">
+                <WeddingApplicationPreview
+                  imageUrl={selectedGeneration.sourceImageUrl}
+                  partner1={project.partner1}
+                  partner2={project.partner2}
+                  date={project.showDate ? project.weddingDate : null}
+                  palette={project.palette}
+                  paid={paid}
+                />
+              </div>
+            )}
+
+            {isComplete && selectedGeneration && (
+              <section
+                aria-labelledby="design-feedback-title"
+                className="rounded-2xl border p-4 sm:p-6 lg:col-start-1"
+              >
+                <h2 id="design-feedback-title" className="font-serif text-xl">
+                  {t('feedback.title')}
+                </h2>
+                <p className="text-muted-foreground mt-2 text-sm">
+                  {t('feedback.hint')}
+                </p>
+                <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                  {(['like', 'adjust', 'dislike'] as const).map((feedback) => (
+                    <Button
+                      key={feedback}
+                      type="button"
+                      variant={
+                        selectedFeedback === feedback ? 'default' : 'outline'
+                      }
+                      aria-pressed={selectedFeedback === feedback}
+                      disabled={busy}
+                      className="min-h-11 whitespace-normal"
+                      onClick={() => {
+                        setFeedbackByGeneration((previous) => ({
+                          ...previous,
+                          [selectedGeneration.id]: feedback,
+                        }));
+                        try {
+                          localStorage.setItem(
+                            `wedding_feedback:${projectId}`,
+                            JSON.stringify({
+                              ...feedbackByGeneration,
+                              [selectedGeneration.id]: feedback,
+                            })
+                          );
+                        } catch {
+                          /* Feedback still works if storage is unavailable. */
+                        }
+                        void trackWeddingFunnel(
+                          {
+                            like: 'feedback_liked',
+                            adjust: 'feedback_adjust',
+                            dislike: 'feedback_unsatisfied',
+                          }[feedback],
+                          project.id,
+                          selectedGeneration.id
+                        );
+                        setEditingGenerationId(null);
+                      }}
+                    >
+                      {t(`feedback.${feedback}`)}
+                    </Button>
+                  ))}
+                </div>
+                {selectedFeedback && (
+                  <div className="mt-4" aria-live="polite">
+                    <p className="text-muted-foreground text-sm">
+                      {selectedFeedback === 'like' && paid
+                        ? t('download_zip')
+                        : t(`feedback.${selectedFeedback}_hint`)}
+                    </p>
+                    {selectedFeedback === 'like' ? (
+                      <Button
+                        type="button"
+                        className="mt-3 min-h-12 w-full whitespace-normal sm:w-auto"
+                        disabled={paying || downloading || busy}
+                        onClick={paid ? downloadIdentityPack : checkout}
+                      >
+                        {paid
+                          ? downloading
+                            ? t('download_preparing')
+                            : t('download_zip')
+                          : paying
+                            ? t('unlock_processing')
+                            : t('unlock_cta')}
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="mt-3 min-h-11 w-full sm:w-auto"
+                        disabled={busy || (!paid && isCheckSign)}
+                        aria-expanded={
+                          editingGenerationId === selectedGeneration.id
+                        }
+                        aria-controls="wedding-design-editor"
+                        onClick={() => {
+                          if (requireGenerationSignIn()) return;
+                          setEditingGenerationId((current) =>
+                            current === selectedGeneration.id
+                              ? null
+                              : selectedGeneration.id
+                          );
+                        }}
+                      >
+                        {!paid && !user
+                          ? t('feedback.signin_edit')
+                          : editingGenerationId === selectedGeneration.id
+                            ? t('feedback.close_edit')
+                            : t('feedback.open_edit')}
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </section>
             )}
 
             {/* editing belongs to the main design column */}
-            {isComplete && (
-              <EditPanel
-                project={project}
-                busy={busy}
-                hasSelectedGeneration={!!selectedGeneration}
-                draftResetKey={draftResetKey}
-                onApply={applyPanelChanges}
-                otherLabel={t('assistant.other_changes')}
-                otherChanges={
-                  selectedGeneration ? (
-                    <>
-                      <p className="text-muted-foreground mt-2 text-sm">
-                        {t('assistant.fallback_hint')}
-                      </p>
-                      <DesignEditAssistant
-                        projectId={project.id}
-                        sourceGenerationId={selectedGeneration.id}
-                        guestId={guestId}
-                        disabled={busy}
-                        allowed={data?.allowance.allowed ?? false}
-                        onConfirm={confirmAssistantEdit}
-                      />
-                    </>
-                  ) : null
-                }
-                t={{
-                  quick_edits: t('quick_edits'),
-                  quick_edits_hint: t('quick_edits_hint'),
-                  reduce_colors: t('reduce_colors'),
-                  make_simpler: t('make_simpler'),
-                  remove_personal_element: t('remove_personal_element'),
-                  edit_title: t('edit_title'),
-                  edit_hint: t('edit_hint'),
-                  edit_select_category: t('edit_select_category'),
-                  edit_category_lettering: t('edit_category_lettering'),
-                  edit_category_colors: t('edit_category_colors'),
-                  edit_category_flowers: t('edit_category_flowers'),
-                  edit_category_elements: t('edit_category_elements'),
-                  edit_category_frame: t('edit_category_frame'),
-                  edit_partner1: t('edit_partner1'),
-                  edit_partner2: t('edit_partner2'),
-                  edit_date: t('edit_date'),
-                  edit_palette_label: t('edit_palette_label'),
-                  edit_custom_color: t('edit_custom_color'),
-                  edit_invalid_hex: t('edit_invalid_hex'),
-                  edit_add: t('edit_add'),
-                  edit_flowers_label: t('edit_flowers_label'),
-                  edit_elements_label: t('edit_elements_label'),
-                  edit_frame_none: t('edit_frame_none'),
-                  edit_frame_loading: t('edit_frame_loading'),
-                  edit_frame_empty: t('edit_frame_empty'),
-                  edit_pending: (count) => t('edit_pending', { count }),
-                  edit_apply: t('edit_apply'),
-                  edit_apply_lettering_hint: t('edit_apply_lettering_hint'),
-                  edit_apply_regenerate_hint: t('edit_apply_regenerate_hint'),
-                  edit_apply_quick_edit_hint: t('edit_apply_quick_edit_hint'),
-                  edit_names_required: t('edit_names_required'),
-                  edit_limit: (count) => t('edit_limit', { count }),
-                  typography_pairing: t('typography_pairing'),
-                  layout_label: t('layout_label'),
-                  name_display_label: t('name_display_label'),
-                  show_date_label: t('show_date_label'),
-                  show_date_on: t('show_date_on'),
-                  show_date_off: t('show_date_off'),
-                }}
-              />
+            {isComplete &&
+              (paid || user) &&
+              selectedGeneration &&
+              selectedFeedback &&
+              selectedFeedback !== 'like' &&
+              editingGenerationId === selectedGeneration.id && (
+                <div id="wedding-design-editor" className="lg:col-start-1">
+                  <EditPanel
+                    project={project}
+                    busy={busy}
+                    hasSelectedGeneration={!!selectedGeneration}
+                    draftResetKey={draftResetKey}
+                    onApply={applyPanelChanges}
+                    otherLabel={t('assistant.other_changes')}
+                    otherChanges={
+                      selectedGeneration ? (
+                        <>
+                          <p className="text-muted-foreground mt-2 text-sm">
+                            {t('assistant.fallback_hint')}
+                          </p>
+                          <DesignEditAssistant
+                            projectId={project.id}
+                            sourceGenerationId={selectedGeneration.id}
+                            guestId={guestId}
+                            disabled={busy}
+                            allowed={data?.allowance.allowed ?? false}
+                            onConfirm={confirmAssistantEdit}
+                            onAuthRequired={handleAuthRequired}
+                          />
+                        </>
+                      ) : null
+                    }
+                    t={{
+                      quick_edits: t('quick_edits'),
+                      quick_edits_hint: t('quick_edits_hint'),
+                      reduce_colors: t('reduce_colors'),
+                      make_simpler: t('make_simpler'),
+                      remove_personal_element: t('remove_personal_element'),
+                      edit_title: t('edit_title'),
+                      edit_hint: t('edit_hint'),
+                      edit_select_category: t('edit_select_category'),
+                      edit_category_lettering: t('edit_category_lettering'),
+                      edit_category_colors: t('edit_category_colors'),
+                      edit_category_flowers: t('edit_category_flowers'),
+                      edit_category_elements: t('edit_category_elements'),
+                      edit_category_frame: t('edit_category_frame'),
+                      edit_partner1: t('edit_partner1'),
+                      edit_partner2: t('edit_partner2'),
+                      edit_date: t('edit_date'),
+                      edit_palette_label: t('edit_palette_label'),
+                      edit_custom_color: t('edit_custom_color'),
+                      edit_invalid_hex: t('edit_invalid_hex'),
+                      edit_add: t('edit_add'),
+                      edit_flowers_label: t('edit_flowers_label'),
+                      edit_elements_label: t('edit_elements_label'),
+                      edit_frame_none: t('edit_frame_none'),
+                      edit_frame_loading: t('edit_frame_loading'),
+                      edit_frame_empty: t('edit_frame_empty'),
+                      edit_pending: (count) => t('edit_pending', { count }),
+                      edit_apply: t('edit_apply'),
+                      edit_apply_lettering_hint: t('edit_apply_lettering_hint'),
+                      edit_apply_regenerate_hint: t(
+                        'edit_apply_regenerate_hint'
+                      ),
+                      edit_apply_quick_edit_hint: t(
+                        'edit_apply_quick_edit_hint'
+                      ),
+                      edit_names_required: t('edit_names_required'),
+                      edit_limit: (count) => t('edit_limit', { count }),
+                      typography_pairing: t('typography_pairing'),
+                      layout_label: t('layout_label'),
+                      name_display_label: t('name_display_label'),
+                      show_date_label: t('show_date_label'),
+                      show_date_on: t('show_date_on'),
+                      show_date_off: t('show_date_off'),
+                    }}
+                  />
+                </div>
+              )}
+
+            {alternatesPanel && (
+              <div className="lg:hidden">{alternatesPanel}</div>
             )}
 
             <Dialog
@@ -994,82 +1301,11 @@ export function WeddingResult({ projectId }: { projectId: string }) {
             </Dialog>
           </div>
 
-          {/* alternates and unlock panel */}
-          <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
-            {alternatesPanel && (
-              <div className="hidden lg:block">{alternatesPanel}</div>
-            )}
-
-            <div id="wedding-pricing" className="rounded-2xl border p-6">
-              <p className="font-serif text-xl">{t('unlock_title')}</p>
-              <p className="text-muted-foreground mt-2 text-sm">
-                {t('unlock_description')}
-              </p>
-              <ul className="mt-4 space-y-2 text-sm">
-                <li>· {t('unlock_feature_1')}</li>
-                <li>· {t('unlock_feature_2')}</li>
-                <li>· {t('unlock_feature_3')}</li>
-                <li>· {t('unlock_feature_4')}</li>
-              </ul>
-              <div className="mt-4 space-y-2">
-                <p className="text-primary text-sm font-medium">
-                  {t('unlock_offer')}
-                </p>
-                <div className="flex items-baseline gap-3">
-                  <span className="font-serif text-2xl">$2.9</span>
-                  <del className="text-muted-foreground text-sm">$9.9</del>
-                </div>
-                <p className="text-primary text-sm font-medium">
-                  {t('unlock_savings')}
-                </p>
-              </div>
-              <p className="text-muted-foreground text-xs">
-                {t('unlock_unit')}
-              </p>
-              {!paid ? (
-                <>
-                  <Button
-                    className="mt-4 w-full"
-                    size="lg"
-                    onClick={checkout}
-                    disabled={paying || !isComplete}
-                  >
-                    {paying ? t('unlock_processing') : t('unlock_cta')}
-                  </Button>
-                  {data?.allowance &&
-                    !data.allowance.allowed &&
-                    showAllowanceHint && (
-                      <div className="bg-muted/40 text-muted-foreground relative mt-3 rounded-lg p-3 pr-9 text-xs">
-                        <button
-                          type="button"
-                          className="hover:bg-background/80 absolute top-2 right-2 rounded p-1 transition-colors"
-                          onClick={() => setShowAllowanceHint(false)}
-                          aria-label={t('dismiss_allowance_hint')}
-                        >
-                          <X className="size-3.5" aria-hidden="true" />
-                        </button>
-                        <p>{data.allowance.reason || t('allowance_hint')}</p>
-                        <a
-                          className="text-primary mt-2 inline-block font-medium underline underline-offset-2"
-                          href="#wedding-pricing"
-                        >
-                          {t('allowance_link')}
-                        </a>
-                      </div>
-                    )}
-                </>
-              ) : (
-                <Button
-                  className="mt-4 w-full"
-                  size="lg"
-                  onClick={downloadIdentityPack}
-                  disabled={downloading || busy}
-                >
-                  {downloading ? t('download_preparing') : t('download_zip')}
-                </Button>
-              )}
+          {alternatesPanel && (
+            <div className="hidden lg:col-start-2 lg:row-start-2 lg:block lg:self-start">
+              {alternatesPanel}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
