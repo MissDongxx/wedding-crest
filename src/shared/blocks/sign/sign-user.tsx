@@ -5,8 +5,8 @@ import { Fragment } from 'react/jsx-runtime';
 import { Coins, LayoutDashboard, Loader2, LogOut, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-import { authClient, signOut, useSession } from '@/core/auth/client';
-import { Link, useRouter } from '@/core/i18n/navigation';
+import { authClient, useSession } from '@/core/auth/client';
+import { Link } from '@/core/i18n/navigation';
 import {
   Avatar,
   AvatarFallback,
@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu';
 import { useAppContext } from '@/shared/contexts/app';
+import { useSignOut } from '@/shared/hooks/use-sign-out';
 import { cn } from '@/shared/lib/utils';
 import { User as UserType } from '@/shared/models/user';
 import { NavItem, UserNav } from '@/shared/types/blocks/common';
@@ -43,7 +44,7 @@ export function SignUser({
   userNav?: UserNav;
 }) {
   const t = useTranslations('common.sign');
-  const router = useRouter();
+  const { handleSignOut, isSigningOut } = useSignOut();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -230,17 +231,18 @@ export function SignUser({
             {userNav?.show_sign_out && (
               <DropdownMenuItem
                 className="w-full cursor-pointer"
-                onClick={() =>
-                  signOut({
-                    fetchOptions: {
-                      onSuccess: () => {
-                        router.push('/');
-                      },
-                    },
-                  })
-                }
+                disabled={isSigningOut}
+                aria-busy={isSigningOut}
+                onSelect={(event) => {
+                  event.preventDefault();
+                  void handleSignOut();
+                }}
               >
-                <LogOut />
+                {isSigningOut ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <LogOut />
+                )}
                 <span>{t('sign_out_title')}</span>
               </DropdownMenuItem>
             )}

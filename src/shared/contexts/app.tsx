@@ -12,6 +12,7 @@ import {
 } from 'react';
 
 import { getAuthClient } from '@/core/auth/client';
+import { isOneTapOriginAllowed } from '@/core/auth/one-tap';
 import { envConfigs } from '@/config';
 import { User } from '@/shared/models/user';
 
@@ -43,6 +44,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   // sign user
   const [user, setUser] = useState<User | null>(null);
   const userRef = useRef<User | null>(null);
+  const oneTapAttemptedRef = useRef(false);
 
   // is check sign (true during SSR and initial render to avoid hydration mismatch when auth is enabled)
   const [isCheckSign, setIsCheckSign] = useState(!!envConfigs.auth_secret);
@@ -115,10 +117,25 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const showOneTap = useCallback(async (configs: Record<string, string>) => {
+    if (
+      typeof window === 'undefined' ||
+      !configs.google_client_id ||
+      configs.google_one_tap_enabled !== 'true' ||
+      !isOneTapOriginAllowed(window.location.origin, envConfigs.app_url) ||
+      userRef.current ||
+      oneTapAttemptedRef.current
+    ) {
+      return;
+    }
+    // Header and sidebar may both request the prompt. Share one attempt for
+    // this provider lifetime, including failed/cancelled requests and routes.
+    oneTapAttemptedRef.current = true;
     try {
       const authClient = getAuthClient(configs);
       await authClient.oneTap({
         callbackURL: '/',
+        autoSelect: false,
+        cancelOnTapOutside: true,
         onPromptNotification: (notification: any) => {
           // Handle prompt dismissal silently
           // This callback is triggered when the prompt is dismissed or skipped

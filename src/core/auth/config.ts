@@ -20,6 +20,8 @@ import { grantCreditsForNewUser } from '@/shared/models/credit';
 import { getEmailService } from '@/shared/services/email';
 import { grantRoleForNewUser } from '@/shared/services/rbac';
 
+import { getAuthTrustedOrigins } from './origins';
+
 // Best-effort dedupe to prevent sending verification emails too frequently.
 // This is especially helpful in dev/hot reload, transient network conditions,
 // and to add a server-side throttle beyond any client-side cooldown.
@@ -130,7 +132,18 @@ export async function getAuthOptions(
   return {
     ...authOptions,
     baseURL: runtimeBaseURL,
-    trustedOrigins: runtimeBaseURL ? [runtimeBaseURL] : [],
+    trustedOrigins: getAuthTrustedOrigins(
+      [
+        runtimeBaseURL,
+        configs.auth_url,
+        configs.AUTH_URL,
+        configs.app_url,
+        configs.NEXT_PUBLIC_APP_URL,
+        envConfigs.auth_url,
+        envConfigs.app_url,
+      ],
+      request
+    ),
     ...(runtimeSecret ? { secret: runtimeSecret } : {}),
     // Add database connection only when actually needed (runtime)
     // D1 is only available inside Cloudflare Workers runtime (not during build)

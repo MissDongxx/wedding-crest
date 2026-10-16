@@ -140,10 +140,11 @@ function getAuthPlugins(configs: Record<string, string>) {
         additionalOptions: {
           // Any extra options for the Google initialize method
         },
-        // Configure prompt behavior and exponential backoff:
+        // This SDK starts at attempt 0, so maxAttempts is the retry count.
+        // A dismissed/skipped FedCM prompt must not be automatically retried.
         promptOptions: {
           baseDelay: 1000, // Base delay in ms (default: 1000)
-          maxAttempts: 1, // Only attempt once to avoid multiple error logs (default: 5)
+          maxAttempts: 0,
         },
       })
     );

@@ -4,8 +4,8 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import { ChevronsUpDown, Loader2, LogOut, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-import { signOut, useSession } from '@/core/auth/client';
-import { Link, useRouter } from '@/core/i18n/navigation';
+import { useSession } from '@/core/auth/client';
+import { Link } from '@/core/i18n/navigation';
 import { SmartIcon } from '@/shared/blocks/common';
 import { SignModal } from '@/shared/blocks/sign/sign-modal';
 import {
@@ -30,6 +30,7 @@ import {
   useSidebar,
 } from '@/shared/components/ui/sidebar';
 import { useAppContext } from '@/shared/contexts/app';
+import { useSignOut } from '@/shared/hooks/use-sign-out';
 import { User as UserType } from '@/shared/models/user';
 import { NavItem } from '@/shared/types/blocks/common';
 import { SidebarUser as SidebarUserType } from '@/shared/types/blocks/dashboard';
@@ -38,7 +39,9 @@ import { SidebarUser as SidebarUserType } from '@/shared/types/blocks/dashboard'
 export function SidebarUser({ user }: { user: SidebarUserType }) {
   const t = useTranslations('common.sign');
   const { isMobile, open } = useSidebar();
-  const router = useRouter();
+  const { handleSignOut, isSigningOut } = useSignOut(
+    user.signout_callback || '/sign-in'
+  );
 
   // get session (MUST be called unconditionally to keep hook order stable)
   const { data: session, isPending } = useSession();
@@ -51,11 +54,6 @@ export function SidebarUser({ user }: { user: SidebarUserType }) {
   useEffect(() => {
     setHasMounted(true);
   }, []);
-
-  const handleSignOut = async () => {
-    await signOut();
-    router.push(user.signout_callback || '/sign-in');
-  };
 
   // get app context values
   const {
@@ -209,9 +207,18 @@ export function SidebarUser({ user }: { user: SidebarUserType }) {
                 ))}
                 <DropdownMenuItem
                   className="cursor-pointer"
-                  onClick={handleSignOut}
+                  disabled={isSigningOut}
+                  aria-busy={isSigningOut}
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    void handleSignOut();
+                  }}
                 >
-                  <LogOut />
+                  {isSigningOut ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <LogOut />
+                  )}
                   {t('sign_out_title')}
                 </DropdownMenuItem>
               </DropdownMenuGroup>
