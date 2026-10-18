@@ -8,8 +8,13 @@ export default function AuthCallbackPage() {
     // Small delay to ensure the session cookie is fully written
     const timer = setTimeout(() => {
       // Use localStorage event to notify the main page (works even when COOP blocks window.opener)
-      localStorage.setItem('auth-callback-success', Date.now().toString());
-      localStorage.removeItem('auth-callback-success');
+      try {
+        localStorage.setItem('auth-callback-success', Date.now().toString());
+        localStorage.removeItem('auth-callback-success');
+      } catch {
+        // Storage may be blocked. The main page also checks its session when
+        // the popup completes, so closing must not depend on this signal.
+      }
       window.close();
 
       // Fallback: if window.close() doesn't work (e.g. not opened as popup)

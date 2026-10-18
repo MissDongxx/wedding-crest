@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { RiGithubFill, RiGoogleFill } from 'react-icons/ri';
 import { toast } from 'sonner';
 
-import { signIn } from '@/core/auth/client';
+import { authClient, signIn } from '@/core/auth/client';
 import { defaultLocale } from '@/config/locale';
 import { Button } from '@/shared/components/ui/button';
 import { useAppContext } from '@/shared/contexts/app';
@@ -29,6 +29,9 @@ export function SocialProviders({
   const { setIsShowSignModal } = useAppContext();
   const popupRef = useRef<Window | null>(null);
   const popupTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const signInPendingRef = useRef(false);
+  const checkingSessionRef = useRef(false);
+  const completedRef = useRef(false);
 
   if (callbackUrl) {
     if (
@@ -49,25 +52,62 @@ export function SocialProviders({
   }, []);
 
   const handleAuthCallback = useCallback(() => {
+    if (completedRef.current || !signInPendingRef.current) return;
+    completedRef.current = true;
+    signInPendingRef.current = false;
     cleanupPopup();
     setIsShowSignModal(false);
     // Hard reload the page so the browser picks up the new session cookie
     window.location.reload();
   }, [cleanupPopup, setIsShowSignModal]);
 
-  // Listen for localStorage event from the popup callback page
-  // (works even when COOP blocks window.opener / postMessage)
-  useEffect(() => {
-    const onStorage = (event: StorageEvent) => {
-      if (event.key === 'auth-callback-success') {
+  const checkSession = useCallback(async () => {
+    if (!signInPendingRef.current || checkingSessionRef.current) return;
+    checkingSessionRef.current = true;
+    try {
+      const result = await authClient.getSession({
+        query: { disableCookieCache: true },
+        fetchOptions: { cache: 'no-store' },
+      });
+      if (result.data?.user?.id && signInPendingRef.current) {
         handleAuthCallback();
       }
-    };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
+    } catch {
+      // A transient check failure is not an OAuth failure; a later signal or
+      // bounded poll can confirm the session without restarting Google login.
+    } finally {
+      checkingSessionRef.current = false;
+    }
   }, [handleAuthCallback]);
 
+  // The storage signal is only an optimization. COOP/browser storage policy
+  // can lose it, so also verify the cookie-backed session on return/focus.
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === 'auth-callback-success' && event.newValue) {
+        void checkSession();
+      }
+    };
+    const onFocus = () => void checkSession();
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') void checkSession();
+    };
+    window.addEventListener('storage', onStorage);
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      signInPendingRef.current = false;
+      cleanupPopup();
+      window.removeEventListener('storage', onStorage);
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [checkSession, cleanupPopup]);
+
   const handleSignIn = async ({ provider }: { provider: string }) => {
+    cleanupPopup();
+    completedRef.current = false;
+    signInPendingRef.current = true;
     setLoading(true);
 
     // Open popup to the intermediate page that triggers signIn.social()
@@ -90,6 +130,7 @@ export function SocialProviders({
     );
 
     if (!popup) {
+      signInPendingRef.current = false;
       // Popup blocked - fall back to redirect
       toast.error('Popup blocked. Trying redirect...');
       setLoading(false);
@@ -109,17 +150,22 @@ export function SocialProviders({
 
     popupRef.current = popup;
 
-    // Poll to detect if popup was closed manually (without completing auth)
+    // Window.closed is unreliable after a cross-origin COOP navigation. Do
+    // not stop session synchronization merely because it reports true.
+    const deadline = Date.now() + 120_000;
     popupTimerRef.current = setInterval(() => {
+      void checkSession();
       try {
-        if (popup.closed) {
-          cleanupPopup();
-          setLoading(false);
-        }
+        if (popup.closed) setLoading(false);
       } catch {
-        // COOP may block access to popup.closed; ignore and keep polling
+        // Keep checking the same-origin session even if COOP hides the popup.
       }
-    }, 500);
+      if (Date.now() >= deadline) {
+        cleanupPopup();
+        setLoading(false);
+        // A late focus/storage signal may still confirm a slow Google flow.
+      }
+    }, 2000);
   };
 
   const providers: ButtonType[] = [];
