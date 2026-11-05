@@ -206,8 +206,15 @@ export function Pricing({
   };
 
   const handlePayment = async (item: PricingItem) => {
-    // Guest purchases need a completed project so the pack can be delivered.
-    // Start with the free design flow instead of opening generic sign-in.
+    if (item.product_id === 'wedding_human_design') {
+      router.push('/create?service=human');
+      return;
+    }
+    if (item.product_id === 'free') {
+      router.push('/create');
+      return;
+    }
+    // Visitors can prepare a design before signing in and purchasing.
     if (!user && item.product_id === WEDDING_PACK_PRODUCT_ID) {
       router.push('/create');
       return;

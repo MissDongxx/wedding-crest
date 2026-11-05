@@ -4,6 +4,8 @@ import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
 import { createMDX } from 'fumadocs-mdx/next';
 import createNextIntlPlugin from 'next-intl/plugin';
 
+import { nextRuntimeDistDir } from './scripts/next-runtime-config.mjs';
+
 const withMDX = createMDX();
 
 const withBundleAnalyzer = bundleAnalyzer({
@@ -20,10 +22,14 @@ const syncInflateFix = resolve(
   'src/shared/lib/sync-inflate-fix.js'
 );
 
+const projectRoot = resolve(import.meta.dirname);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Parallel verification servers must not overwrite the active Turbopack cache.
-  distDir: process.env.NEXT_DIST_DIR || '.next',
+  distDir: nextRuntimeDistDir(process.env.NEXT_DIST_DIR),
+  // A parent pnpm lockfile must not expand dev scanning/tracing to the home directory.
+  outputFileTracingRoot: projectRoot,
   output: process.env.VERCEL ? undefined : 'standalone',
   reactStrictMode: false,
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
@@ -73,6 +79,7 @@ const nextConfig = {
     return config;
   },
   turbopack: {
+    root: projectRoot,
     resolveAlias: {
       'pngjs/lib/sync-inflate': syncInflateFix,
     },

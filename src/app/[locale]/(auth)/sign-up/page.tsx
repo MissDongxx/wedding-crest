@@ -4,7 +4,7 @@ import { redirect } from '@/core/i18n/navigation';
 import { envConfigs } from '@/config';
 import { defaultLocale } from '@/config/locale';
 import { SignUp } from '@/shared/blocks/sign/sign-up';
-import { getAllConfigs } from '@/shared/models/config';
+import { getPublicConfigs } from '@/shared/models/config';
 import { getSignUser } from '@/shared/models/user';
 
 function safeInternalPath(raw?: string) {
@@ -59,7 +59,7 @@ export default async function SignUpPage({
     redirect({ href: target || '/', locale });
   }
 
-  const configs = await getAllConfigs();
+  const configs = await getPublicConfigs();
 
   return <SignUp configs={configs} callbackUrl={callbackUrl || '/'} />;
 }

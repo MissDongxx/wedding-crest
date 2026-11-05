@@ -20,7 +20,21 @@ assert.equal(raw.flowers, undefined);
 assert.deepEqual(normalizeWeddingProject({ id: 'flat', flowers: [] }), {
   id: 'flat',
   flowers: [],
+  showLocation: false,
 });
+assert.equal(
+  normalizeWeddingProject({
+    id: 'print',
+    showLocation: false,
+    input: { showLocation: true },
+  }).showLocation,
+  true
+);
+assert.equal(
+  normalizeWeddingProject({ id: 'legacy', showLocation: undefined })
+    .showLocation,
+  false
+);
 const generations = [
   { id: 'A', status: 'selected', sourceImageUrl: 'a.png' },
   { id: 'B', status: 'complete', sourceImageUrl: 'b.png' },
@@ -32,5 +46,5 @@ assert.equal(chooseDownloadGeneration(generations, 'foreign'), undefined);
 assert.equal(chooseDownloadGeneration(generations, 'pending'), undefined);
 assert.equal(chooseDownloadGeneration(generations, ''), undefined);
 console.log(
-  'PASS: PATCH normalization and explicit download selection (8 assertions)'
+  'PASS: PATCH normalization, legacy location default and explicit download selection'
 );

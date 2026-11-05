@@ -1,7 +1,23 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
+import { tsImport } from 'tsx/esm/api';
 import ts from 'typescript';
+
+const { applyWeddingPricing, WEDDING_PACK_PRICING } = await tsImport(
+  '../src/shared/wedding/pricing.ts',
+  import.meta.url
+).then((module) => module.default ?? module);
+const {
+  amount: packAmount,
+  price: packPrice,
+  savings: packSavings,
+} = WEDDING_PACK_PRICING;
+
+const checkoutContract = await tsImport(
+  '../src/shared/wedding/checkout-contract.ts',
+  import.meta.url
+).then((module) => module.default ?? module);
 
 // Regression: checkout amount
 {
@@ -22,7 +38,9 @@ import ts from 'typescript';
   const respond = (data) => Response.json({ code: 0, data });
   const modules = {
     'next/headers': { cookies: async () => ({ set() {} }) },
-    '@/core/i18n/request': { loadMessages: async () => pricing },
+    '@/core/i18n/request': {
+      loadMessages: async () => applyWeddingPricing('pages/pricing', pricing),
+    },
     '@/extensions/payment/types': {
       PaymentInterval: { ONE_TIME: 'one-time' },
       PaymentType: { ONE_TIME: 'one-time', SUBSCRIPTION: 'subscription' },
@@ -39,8 +57,17 @@ import ts from 'typescript';
     '@/shared/models/order': {
       OrderStatus: { PENDING: 'pending', CREATED: 'created' },
       createOrder: async () => {},
+      reserveWeddingCheckoutOrder: async (order) => ({ order, created: true }),
       updateOrderByOrderNo: async () => {},
     },
+    '@/shared/models/wedding-actor': {
+      getWeddingActor: async () => ({
+        user: { id: 'fixture-user', email: 'fixture@example.test' },
+        ownerId: 'fixture-user',
+      }),
+      getWeddingProjectOwner: () => undefined,
+    },
+    '@/shared/wedding/checkout-contract': checkoutContract,
     '@/shared/models/user': {
       getUserInfo: async () => ({
         id: 'fixture-user',
@@ -71,7 +98,12 @@ import ts from 'typescript';
         };
       },
     },
+    '@/shared/wedding/human-design': { humanDesignRequestSchema: {} },
     '@/shared/wedding/config': {
+      HUMAN_DESIGN_PRODUCT_ID: 'wedding_human_design',
+      HUMAN_DESIGN_AMOUNT: 3000,
+      isWeddingCheckoutProduct: (id) =>
+        id === 'wedding_identity_pack' || id === 'wedding_human_design',
       WEDDING_PACK_PRODUCT_ID: 'wedding_identity_pack',
     },
   };
@@ -111,7 +143,7 @@ import ts from 'typescript';
     'wedding checkout must not use stale provider catalog price'
   );
   assert.equal(chosen.waffo_tax_category, 'digital_goods');
-  assert.equal(orderSeen.price.amount, 290);
+  assert.equal(orderSeen.price.amount, packAmount);
   assert.equal(orderSeen.price.currency, 'usd');
   assert.equal(
     config.waffo_price_mode,
@@ -119,7 +151,7 @@ import ts from 'typescript';
     'do not mutate shared configuration'
   );
   console.log(
-    'PASS: real checkout route selects wedding-only snapshot, 290 USD cents; shared config unchanged'
+    `PASS: real checkout route selects wedding-only snapshot, ${packAmount} USD cents; shared config unchanged`
   );
 }
 
@@ -160,7 +192,7 @@ import ts from 'typescript';
   const order = {
     productId: 'PROD_fixture',
     orderNo: 'fixture',
-    price: { amount: 290, currency: 'USD' },
+    price: { amount: packAmount, currency: 'USD' },
     metadata: {},
   };
   const success = {
@@ -193,7 +225,7 @@ import ts from 'typescript';
   };
   const checkout = await p.createPayment({ order });
   assert.equal(calls, 3);
-  assert.equal(params.priceSnapshot.amount, '2.90');
+  assert.equal(params.priceSnapshot.amount, (packAmount / 100).toFixed(2));
   assert.equal(checkout.checkoutInfo.checkoutUrl, success.checkoutUrl);
   for (const err of [
     new Error('API rejected payment'),
@@ -222,7 +254,7 @@ import ts from 'typescript';
   await assert.rejects(() => q.createPayment({ order }));
   assert.equal(n, 3);
   console.log(
-    'PASS: unsent TLS failure recovers; 3 attempts maximum; API errors and post-send resets never retried; snapshot USD 2.90'
+    'PASS: unsent TLS failure recovers; 3 attempts maximum; API errors and post-send resets never retried; snapshot amount matches central price'
   );
 }
 
@@ -348,7 +380,7 @@ import ts from 'typescript';
     await exports.handlePayment({
       product_id: id,
       currency: 'USD',
-      amount: 290,
+      amount: packAmount,
     });
     return JSON.parse(JSON.stringify(calls));
   }
@@ -372,19 +404,30 @@ import ts from 'typescript';
 // Regression: every locale must display and charge the same promotion.
 for (const locale of ['en', 'zh', 'de', 'fr', 'it', 'ko', 'pt-BR', 'th']) {
   const dir = `src/config/locale/messages/${locale}/pages`;
-  const pricing = JSON.parse(fs.readFileSync(`${dir}/pricing.json`, 'utf8'));
+  const pricing = applyWeddingPricing(
+    'pages/pricing',
+    JSON.parse(fs.readFileSync(`${dir}/pricing.json`, 'utf8'))
+  );
   const item = pricing.page.sections.pricing.items.find(
     (item) => item.product_id === 'wedding_identity_pack'
   );
-  assert.equal(item.amount, 290);
+  assert.equal(item.amount, packAmount);
   assert.equal(item.currency, 'USD');
-  assert.equal(item.price, '$2.9');
-  assert.equal(item.original_price, '$9.9');
-  const design = JSON.parse(fs.readFileSync(`${dir}/design.json`, 'utf8'));
-  assert.ok(design.unlock_offer);
-  assert.ok(design.unlock_savings.includes('$7'));
-  assert.ok(design.unlock_cta.includes('$2.9'));
+  assert.equal(item.price, packPrice);
+  assert.equal(item.original_price, WEDDING_PACK_PRICING.originalPrice);
+  const design = applyWeddingPricing(
+    'pages/design',
+    JSON.parse(fs.readFileSync(`${dir}/design.json`, 'utf8'))
+  );
+  if (WEDDING_PACK_PRICING.originalPrice) {
+    assert.ok(design.unlock_offer);
+    assert.ok(design.unlock_savings.includes(packSavings));
+  } else {
+    assert.equal(design.unlock_offer, '');
+    assert.equal(design.unlock_savings, '');
+  }
+  assert.ok(design.unlock_cta.includes(packPrice));
 }
 console.log(
-  'PASS: all 8 locales display $2.9, reference $9.9, save $7, charge 290 USD cents'
+  `PASS: all 8 locales display ${packPrice}, reference ${WEDDING_PACK_PRICING.originalPrice}, save ${packSavings}, charge ${packAmount} USD cents`
 );

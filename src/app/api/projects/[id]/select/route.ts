@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 import { respData, respErr } from '@/shared/lib/resp';
-import { getUserInfo } from '@/shared/models/user';
 import {
   canAccessWeddingProject,
   getWeddingProject,
@@ -9,6 +8,10 @@ import {
   updateWeddingProject,
   type WeddingGeneration,
 } from '@/shared/models/wedding';
+import {
+  getWeddingActor,
+  getWeddingProjectOwner,
+} from '@/shared/models/wedding-actor';
 
 export async function POST(
   request: Request,
@@ -19,12 +22,13 @@ export async function POST(
     const { generationId } = z
       .object({ generationId: z.string().min(1) })
       .parse(await request.json());
-    const user = await getUserInfo(true);
+    const actor = await getWeddingActor();
     const guestId = request.headers.get('x-wedding-guest-id') || undefined;
-    if (!(await canAccessWeddingProject({ id, userId: user?.id, guestId })))
-      return respErr('project not found');
     const project = await getWeddingProject(id);
-    if (!project) return respErr('project not found');
+    if (!project) return respErr('project not found', 404);
+    const ownerId = getWeddingProjectOwner(actor, project);
+    if (!(await canAccessWeddingProject({ id, userId: ownerId, guestId })))
+      return respErr('project not found', 404);
     const selected = project.generations.find(
       (generation: WeddingGeneration) => generation.id === generationId
     );

@@ -12,6 +12,11 @@ export async function POST(request: Request) {
     let { provider, mediaType, model, prompt, options, scene } =
       await request.json();
 
+    // All image work must use the project endpoint's paid-access and atomic daily reservation.
+    // The retired generic image endpoint must not bypass account/project allowances.
+    if (mediaType === AIMediaType.IMAGE)
+      return respErr('Start image generation from your wedding design.', 400);
+
     if (!provider || !mediaType || !model) {
       throw new Error('invalid params');
     }

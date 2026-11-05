@@ -48,7 +48,7 @@ export async function SeoArticle({
             <Link href="/create">{t('cta')}</Link>
           </Button>
           <Button asChild size="lg" variant="outline">
-            <Link href="/examples">See examples</Link>
+            <Link href="/wedding-crest-examples">See examples</Link>
           </Button>
         </div>
       </ScrollAnimation>

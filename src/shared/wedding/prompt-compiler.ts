@@ -6,8 +6,55 @@ import {
   WEDDING_PROMPT_VERSION,
   WEDDING_STYLE_VERSION,
 } from './config';
-import { resolveWeddingDisplayTexts } from './display-text';
+import {
+  resolveWeddingDisplayTexts,
+  resolveWeddingLocationText,
+} from './display-text';
 import type { WeddingPromptRequest } from './types';
+
+/** Keep reference roles identical to the compiler's numbered image contract. */
+export function getWeddingReferenceImages(
+  input: WeddingPromptRequest,
+  edit?: { kind: string; sourceImageUrl: string }
+): string[] {
+  return [
+    ...(edit
+      ? [edit.sourceImageUrl]
+      : input.exampleImage
+        ? [input.exampleImage]
+        : []),
+    ...((!edit || edit.kind === 'design') && input.frameUrl
+      ? [input.frameUrl]
+      : []),
+    ...(input.personalImages ?? []).filter(Boolean),
+  ];
+}
+
+function inscriptionLines(input: WeddingPromptRequest) {
+  const texts = resolveWeddingDisplayTexts(input);
+  const location = resolveWeddingLocationText(input);
+  return [
+    `Main inscription: "${texts.headline}" (largest, centered; preserve its existing position when a crest reference is supplied).`,
+    ...(texts.names
+      ? [`Names line: "${texts.names}" (smaller than the main inscription).`]
+      : []),
+    ...(texts.date
+      ? [
+          `Date line: "${texts.date}" (secondary text, smaller than the main inscription).`,
+        ]
+      : []),
+    ...(location
+      ? [
+          `Location line: "${location}" (secondary text, smaller than the main inscription; print exactly, not as a scenic illustration).`,
+        ]
+      : []),
+    `Text placement: preserve an existing matching text region in the crest reference when available. For newly added secondary lines without an existing region, use clear lower-center negative space below the ${texts.names ? 'names line' : 'main inscription'}, in this order: ${[texts.date ? 'date' : '', location ? 'location' : ''].filter(Boolean).join(', ') || 'no additional lines'}. Never place text across the monogram, flowers or border; if space is insufficient, extend clean white space below the artwork rather than overlaying it.`,
+    `Exact text inventory: ${JSON.stringify([texts.headline, texts.names, texts.date, location].filter(Boolean))}. Each listed inscription appears once. Preserve intentional repeated letters within an inscription, including identical partner initials; do not deduplicate them. Replace old reference inscriptions rather than retaining or tracing their old letters. Add no extra characters or duplicated letterforms, stray stems, disconnected strokes, pseudo-letters, words, dates, logos or watermarks. Decorative flourishes must not resemble additional letters or alter the intended glyphs.`,
+  ];
+}
+
+const artisticLetteringRule =
+  'Artistic lettering: use a bespoke wedding monogram with graceful calligraphic rhythm, considered stroke contrast and balanced ornament; preserve the recognizable skeleton and exact count of the requested letters. Do not substitute generic word-processor typesetting or plain default serif/sans text. Supporting names, date and location stay smaller and clearly legible.';
 
 /**
  * Compile the wedding crest generation prompt.
@@ -27,7 +74,14 @@ import type { WeddingPromptRequest } from './types';
  *   model re-uses its lettering style; without one the style-recommended
  *   typography pairing is described.
  */
-export function compileWeddingPrompt(input: WeddingPromptRequest) {
+export interface WeddingLetteringEditOptions {
+  replaceLetteringStyle?: boolean;
+}
+
+export function compileWeddingPrompt(
+  input: WeddingPromptRequest,
+  options: WeddingLetteringEditOptions = {}
+) {
   const style = getWeddingStyle(input.style);
   const layout = getWeddingLayout(input.layout);
   const match = input.matchExample ?? null;
@@ -41,13 +95,15 @@ export function compileWeddingPrompt(input: WeddingPromptRequest) {
   // one. Legacy projects without the recorded style are treated as
   // "kept" so the reference stays authoritative.
   const styleSwitched =
-    hasExample && input.exampleStyle != null && input.exampleStyle !== input.style;
+    hasExample &&
+    input.exampleStyle != null &&
+    input.exampleStyle !== input.style;
 
   // --- Style / medium -------------------------------------------------------
   const styleLine = styleSwitched
     ? `Artistic style & medium: ${style.name}, ${style.medium}. Apply this style, overriding the example reference image's style.`
     : hasExample
-      ? "Artistic style & medium: follow the example reference image exactly."
+      ? 'Artistic style & medium: follow the example reference image exactly.'
       : `Visual medium: ${style.medium}.`;
 
   // --- Quality / resolution -------------------------------------------------
@@ -104,23 +160,21 @@ export function compileWeddingPrompt(input: WeddingPromptRequest) {
         : 'Personal elements: no extra personal object.';
 
   // --- Setting inspiration (typed -> overrides; blank -> follow reference) ----
-  const settingTyped = Boolean(input.location || input.venue);
+  const settingTyped =
+    !input.showLocation && Boolean(input.location || input.venue);
   const settingLine = settingTyped
     ? `Wedding setting inspiration: ${input.location || 'a refined destination wedding'}${input.venue ? `, ${input.venue}` : ''}${hasExample ? ". Use this setting, overriding the example's." : '.'}`
-    : hasExample
+    : hasExample || input.showLocation
       ? null
       : 'Wedding setting inspiration: a refined destination wedding.';
 
   // --- Complexity (visual density follows the reference when present) ---------
-  const complexityLine = hasExample
-    ? null
-    : `Complexity: ${input.complexity}.`;
+  const complexityLine = hasExample ? null : `Complexity: ${input.complexity}.`;
 
   // --- Border -----------------------------------------------------------------
-  // A picked frame always wins - even over the example. Without a frame the
-  // example's border is replicated when the flag asks for it.
+  // A selected frame supplies geometry only, never its decorative treatment.
   const borderLine = hasFrame
-    ? `Border / ornament: use the supplied frame reference image #${hasExample ? 2 : 1} as the exact framing language and paint it naturally into the finished crest${hasExample ? " - this border overrides the example's border" : ''}.`
+    ? `Border geometry only: reference image #${hasExample ? 2 : 1} supplies only the selected outer silhouette, contour and proportions. Reshape the border to that contour, without copying the frame reference's colors, line weight, texture, material, ornaments or lettering. ${hasExample && !styleSwitched ? "Preserve the example crest's border drawing technique, line treatment, brushwork, material, ornamental motifs and decorative character; adapt its existing ornaments to the new contour." : `Render the new contour in the selected ${style.name} medium (${style.medium}) and its ornamental language.`} Border colors follow the Palette instruction above, never the frame reference's colors. Paint it as an integrated border, not a pasted template.`
     : match?.border && hasExample
       ? "Border / framing: replicate the example reference image's border, corner ornaments and overall framing."
       : null;
@@ -130,30 +184,20 @@ export function compileWeddingPrompt(input: WeddingPromptRequest) {
   // user chose the initials-with-names display and typed both names; the
   // date line only when the date is shown. With a reference the model keeps
   // its lettering style; without one the style-recommended pairing applies.
-  const texts = resolveWeddingDisplayTexts(input);
   const typography = getWeddingTypography(input.typography);
-  const inscriptionLines = [
-    `Main inscription: "${texts.headline}" (largest and centered).`,
-    ...(texts.names
-      ? [`Names line: "${texts.names}" (smaller, below the main inscription).`]
-      : []),
-    ...(texts.date
+  const inscriptions = inscriptionLines(input);
+  const typographySection =
+    hasExample && !options.replaceLetteringStyle
       ? [
-          `Date line: "${texts.date}" (smallest, below the ${texts.names ? 'names line' : 'main inscription'}).`,
-        ]
-      : []),
-  ];
-  const typographySection = hasExample
-    ? [
-        "Lettering: replace the inscribed text with the following, keeping the example reference image's lettering style exactly (same typeface, weight, casing and size hierarchy):",
-        ...inscriptionLines,
-        "Render every quoted inscription exactly, letter for letter, in the example reference image's lettering style, with no extra words, dates, logos or watermarks.",
-      ].join('\n')
-    : [
-        ...inscriptionLines,
-        `Lettering style: ${typography.prompt}.`,
-        'Render every quoted inscription exactly, letter for letter, with no extra words, dates, logos or watermarks.',
-      ].join('\n');
+          "Lettering: replace the inscribed text with the following, keeping the example reference image's lettering style exactly (same typeface, weight, casing and size hierarchy):",
+          ...inscriptions,
+          "Render every quoted inscription exactly, letter for letter, in the example reference image's lettering style, with no extra words, dates, logos or watermarks.",
+        ].join('\n')
+      : [
+          ...inscriptions,
+          `Lettering style: ${typography.prompt}. ${artisticLetteringRule}`,
+          'Render every quoted inscription exactly, letter for letter, with no extra words, dates, logos or watermarks.',
+        ].join('\n');
 
   // --- Reference images ---------------------------------------------------------
   // Enumerate the attached references. Deliberately NO catch-all
@@ -177,7 +221,7 @@ export function compileWeddingPrompt(input: WeddingPromptRequest) {
             hasExample ? 'Reference image #1 is the example crest.' : ''
           }${
             hasFrame
-              ? ` Reference image #${hasExample ? 2 : 1} is the selected frame - integrate that border into the generated artwork rather than layering it afterward.`
+              ? ` Reference image #${hasExample ? 2 : 1} is the selected frame: geometry only, not a style, palette, ornament or lettering reference.`
               : ''
           }${
             personalImageCount > 0
@@ -215,48 +259,54 @@ export function compileWeddingPrompt(input: WeddingPromptRequest) {
  * typography described by the latest project settings while keeping
  * everything else identical.
  */
-export function compileWeddingTextEditPrompt(input: WeddingPromptRequest) {
-  const typography = getWeddingTypography(input.typography);
-  const texts = resolveWeddingDisplayTexts(input);
-  const inscriptionLines: string[] = [
-    `Main inscription: "${texts.headline}" (the largest, centered).`,
-  ];
-  if (texts.names) {
-    inscriptionLines.push(
-      `Names line: "${texts.names}" (smaller, below the main inscription).`
-    );
-  }
-  if (texts.date) {
-    inscriptionLines.push(
-      `Date line: "${texts.date}" (smallest, below the names line).`
-    );
-  }
+export function compileWeddingTextEditPrompt(
+  input: WeddingPromptRequest,
+  options: WeddingLetteringEditOptions = {}
+) {
   return [
     'Edit the wedding crest shown in the reference image.',
     'Keep the entire illustration - composition, framing, border, ornaments, palette, floral and personal motifs, and all artwork details - exactly as it appears.',
     'Keep a solid pure white (#FFFFFF) background exactly as in the reference image. Replace the lettering only; do not introduce transparency, a checkerboard, grid, paper texture, backdrop, shadow or gradient.',
-    'Replace ONLY the lettering in the crest with the following new typography, in the same centered position:',
-    ...inscriptionLines,
-    `Lettering style: ${typography.prompt}.`,
+    options.replaceLetteringStyle
+      ? 'Replace ONLY the inscriptions with the following exact text and explicitly requested lettering style:'
+      : 'Replace ONLY the inscriptions with the following exact text; retain the existing artistic lettering treatment:',
+    ...inscriptionLines(input),
+    'Location changes in this text-only edit add, replace or remove the printed location line only; keep all existing scenery, architecture and illustrated setting unchanged. Remove old date or location inscriptions omitted from the exact text inventory.',
+    options.replaceLetteringStyle
+      ? `Lettering style: the user explicitly requested ${getWeddingTypography(input.typography).prompt}. Apply this requested change instead of retaining the reference lettering style. ${artisticLetteringRule}`
+      : "Lettering style: preserve the current crest reference image's bespoke artistic letterforms, calligraphic character, stroke contrast, ornamental treatment and visual hierarchy; adapt only the requested characters. Do not replace its monogram with a default font or generic typesetting.",
     'Text rules: render every inscription exactly as quoted, letter for letter, in the same casing; keep the lettering crisp, evenly spaced and elegantly typeset so it reads clearly; include no other words, letters, numbers, dates, logos, watermarks or symbols anywhere in the image.',
     'Do not change anything else in the design.',
   ].join('\n');
 }
 
 /** Re-render the complete AI image after palette, motif, frame, or layout edits. */
-export function compileWeddingDesignEditPrompt(input: WeddingPromptRequest) {
-  const specification = compileWeddingPrompt({
-    ...input,
-    exampleImage: null,
-    exampleStyle: null,
-    frameUrl: null,
-    personalImages: [],
-    matchExample: null,
-  });
+export function compileWeddingDesignEditPrompt(
+  input: WeddingPromptRequest,
+  options: WeddingLetteringEditOptions = {}
+) {
+  const style = getWeddingStyle(input.style);
+  const layout = getWeddingLayout(input.layout);
+  const specification = compileWeddingPrompt(
+    {
+      ...input,
+      // The route sends the current crest first, not the original example.
+      exampleImage: 'current-crest-reference',
+      matchExample: null,
+    },
+    options
+  );
   return [
     'Redesign the wedding crest shown in reference image #1.',
     'Use the reference as the visual starting point, but apply every updated requirement in the complete specification below, including artwork, palette, motifs, frame, composition, and exact lettering.',
+    ...(input.showLocation
+      ? [
+          'The requested location is printed text only. Do not change the existing scenery, architecture or illustrated wedding setting to depict that location.',
+        ]
+      : []),
     specification,
+    `Reference image #1 is the current crest being edited, not the original library example. Every mention of the example in the specification refers to this current crest. ${options.replaceLetteringStyle ? 'The user explicitly requested the lettering style specified above; apply that change.' : 'Preserve its bespoke artistic lettering.'} Preserve all unchanged visual details. The selected frame, when supplied as reference image #2, controls geometry only.`,
+    `Selected artwork requirements take precedence over the reference: render the artwork in ${style.name}, ${style.medium}. Use the selected ${layout.shape} composition (${input.layout}); a supplied frame controls the outer border contour, not the artistic treatment. Keep the lettering style governed separately by the lettering instruction above.`,
     'Return one complete updated AI-generated crest image. Do not layer separate programmatic elements over the result.',
   ].join('\n\n');
 }

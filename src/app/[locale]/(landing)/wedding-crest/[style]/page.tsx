@@ -3,8 +3,10 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
+import { envConfigs } from '@/config';
 import { Button } from '@/shared/components/ui/button';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
+import { getAlternates } from '@/shared/lib/seo';
 import {
   listWeddingExamplesSafe,
   type WeddingExampleRow,
@@ -12,9 +14,8 @@ import {
 import { getWeddingStyle } from '@/shared/wedding/config';
 
 /**
- * URL: /wedding-crest/botanical_watercolor
- * Maps the raw WeddingStyleId (the URL segment) to its kebab-case
- * counterpart used as the i18n key under `pages.seo.styles.<key>`.
+ * Public URLs use kebab-case, matching the sitemap and navigation. Preserve
+ * legacy underscore URLs while canonicalizing them to the public URL.
  */
 const STYLE_ID_TO_KEY: Record<string, string> = {
   botanical_watercolor: 'botanical-watercolor',
@@ -25,10 +26,16 @@ const STYLE_ID_TO_KEY: Record<string, string> = {
   classic_luxury: 'classic-luxury',
 };
 
+function getStyleKey(style: string) {
+  return Object.prototype.hasOwnProperty.call(STYLE_ID_TO_KEY, style)
+    ? STYLE_ID_TO_KEY[style]
+    : Object.values(STYLE_ID_TO_KEY).find((key) => key === style);
+}
+
 export const revalidate = 60;
 
 export function generateStaticParams() {
-  return Object.keys(STYLE_ID_TO_KEY).map((style) => ({ style }));
+  return Object.values(STYLE_ID_TO_KEY).map((style) => ({ style }));
 }
 
 export async function generateMetadata({
@@ -37,13 +44,21 @@ export async function generateMetadata({
   params: Promise<{ locale: string; style: string }>;
 }) {
   const { locale, style } = await params;
-  const key = STYLE_ID_TO_KEY[style];
+  const key = getStyleKey(style);
   if (!key) return { title: 'Not found' };
   const t = await getTranslations({
     locale,
     namespace: `pages.seo.styles.${key}`,
   });
-  return { title: t('meta_title'), description: t('meta_description') };
+  return {
+    title: t('meta_title'),
+    description: t('meta_description'),
+    alternates: await getAlternates(
+      `/wedding-crest/${key}`,
+      locale,
+      envConfigs.app_url
+    ),
+  };
 }
 
 export default async function StylePage({
@@ -52,7 +67,7 @@ export default async function StylePage({
   params: Promise<{ locale: string; style: string }>;
 }) {
   const { locale, style } = await params;
-  const key = STYLE_ID_TO_KEY[style];
+  const key = getStyleKey(style);
   if (!key) notFound();
   setRequestLocale(locale);
   const t = await getTranslations(`pages.seo.styles.${key}`);
@@ -103,7 +118,7 @@ export default async function StylePage({
             <Link href={`/create?style=${seoStyleId}`}>{t('cta')}</Link>
           </Button>
           <Button asChild size="lg" variant="outline">
-            <Link href="/examples">See examples</Link>
+            <Link href="/wedding-crest-examples">See examples</Link>
           </Button>
         </div>
       </ScrollAnimation>

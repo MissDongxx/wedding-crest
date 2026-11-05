@@ -2,13 +2,18 @@ import { z } from 'zod';
 
 import { getUuid } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
-import { getUserInfo } from '@/shared/models/user';
 import {
   createWeddingProject,
+  getWeddingAccountAccess,
   getWeddingExample,
+  getWeddingProject,
   listWeddingProjectsForGuest,
   listWeddingProjectsForUser,
 } from '@/shared/models/wedding';
+import {
+  getWeddingActor,
+  getWeddingPurchaseOwner,
+} from '@/shared/models/wedding-actor';
 import { selectLayout } from '@/shared/wedding/config';
 import {
   isWeddingExampleStyle,
@@ -67,6 +72,7 @@ const createSchema = z.object({
     ])
     .optional(),
   showDate: z.boolean().optional(),
+  showLocation: z.boolean().optional(),
   flowers: z.array(cleanText(60)).max(WEDDING_MAX_FLOWERS).optional(),
   personalElements: z
     .array(cleanText(60))
@@ -110,11 +116,39 @@ const createSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const user = await getUserInfo();
-    if (!user)
-      return respErr('Sign in to create your free wedding design.', 401);
+    const actor = await getWeddingActor({ createGuest: true });
+    const ownerId = await getWeddingPurchaseOwner(actor);
+    if (!ownerId)
+      return respErr('Purchase your image pack to start a new design.', 402);
+    const requestKey = request.headers.get('x-wedding-request-id');
+    if (requestKey && !/^[0-9a-f-]{36}$/i.test(requestKey))
+      return respErr('invalid request id', 400);
+    const requestHash = requestKey
+      ? await crypto.subtle.digest(
+          'SHA-256',
+          new TextEncoder().encode(`${ownerId}:${requestKey}`)
+        )
+      : null;
+    const id = requestHash
+      ? Array.from(new Uint8Array(requestHash), (b) =>
+          b.toString(16).padStart(2, '0')
+        ).join('')
+      : undefined;
+    // An acknowledged purchase may already have spent its fifth slot on this exact request.
+    // Replaying a saved browser draft returns that owned project even when quota is now full.
+    const existing = id ? await getWeddingProject(id) : null;
+    if (existing && existing.userId === ownerId)
+      return respData({ project: existing });
+    const access = await getWeddingAccountAccess(ownerId);
+    if (!access.canCreateProject)
+      return respErr(
+        'Purchase your image pack to start a new design. Your choices are saved.',
+        402,
+        { reasonCode: 'payment_required' }
+      );
     const body = createSchema.parse(await request.json());
-    const guestId = request.headers.get('x-wedding-guest-id') || getUuid();
+    // Legacy header capabilities never choose an owner for new paid projects.
+    const guestId = getUuid();
 
     const styleConfig = weddingStyles.find((s) => s.id === body.style);
     if (!styleConfig) return respErr('unknown wedding style');
@@ -151,7 +185,8 @@ export async function POST(request: Request) {
     }
 
     const project = await createWeddingProject({
-      userId: user?.id,
+      id,
+      userId: ownerId,
       guestId,
       partner1: body.partner1,
       partner2: body.partner2,
@@ -166,6 +201,7 @@ export async function POST(request: Request) {
       complexity: body.complexity ?? 'medium',
       nameDisplay: body.nameDisplay ?? 'initials_amp',
       showDate: body.showDate !== false,
+      showLocation: body.showLocation === true,
       flowers: body.flowers ?? [],
       personalElements: body.personalElements ?? [],
       personalImages: body.personalImages ?? [],
@@ -185,6 +221,11 @@ export async function POST(request: Request) {
     if (error instanceof z.ZodError) {
       return respErr('invalid project details: ' + error.issues[0]?.message);
     }
+    if (
+      error instanceof Error &&
+      error.message.startsWith('Purchase your image pack')
+    )
+      return respErr(error.message, 402, { reasonCode: 'payment_required' });
     return respErr(
       error instanceof Error ? error.message : 'failed to create project'
     );
@@ -194,13 +235,24 @@ export async function POST(request: Request) {
 /** Project list for /my-designs (session user) or guest drafts. */
 export async function GET(request: Request) {
   try {
-    const user = await getUserInfo();
+    const actor = await getWeddingActor();
     const guestId = request.headers.get('x-wedding-guest-id') || undefined;
-    if (!user && !guestId) return respData({ projects: [] });
-
-    const projects = user
-      ? await listWeddingProjectsForUser(user.id)
-      : await listWeddingProjectsForGuest(guestId!);
+    const ownerIds = [
+      ...new Set(
+        [actor.user?.id, actor.guestOwnerId].filter((id): id is string =>
+          Boolean(id)
+        )
+      ),
+    ];
+    const groups = await Promise.all([
+      ...ownerIds.map((id) => listWeddingProjectsForUser(id)),
+      ...(guestId ? [listWeddingProjectsForGuest(guestId)] : []),
+    ]);
+    const projects = [
+      ...new Map(
+        groups.flat().map((project) => [project.id, project])
+      ).values(),
+    ];
     return respData({ projects });
   } catch (error) {
     return respErr(

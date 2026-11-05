@@ -12,6 +12,15 @@ import {
 } from '@/extensions/payment/types';
 import { getSnowId, getUuid } from '@/shared/lib/hash';
 import { Configs, getAllConfigs } from '@/shared/models/config';
+import {
+  assertWeddingPaymentMatches,
+  receiptEmail,
+} from '@/shared/wedding/checkout-contract';
+import {
+  HUMAN_DESIGN_PRODUCT_ID,
+  isWeddingCheckoutProduct,
+  WEDDING_PACK_PRODUCT_ID,
+} from '@/shared/wedding/config';
 
 import {
   calculateCreditExpirationTime,
@@ -113,8 +122,7 @@ export function getPaymentServiceWithConfigs(configs: Configs) {
           merchantId: configs.waffo_merchant_id,
           privateKey: configs.waffo_private_key,
           storeId: configs.waffo_store_id,
-          environment:
-            configs.waffo_environment === 'prod' ? 'prod' : 'test',
+          environment: configs.waffo_environment === 'prod' ? 'prod' : 'test',
           priceMode:
             configs.waffo_price_mode === 'snapshot' ? 'snapshot' : 'product',
           taxCategory: configs.waffo_tax_category || undefined,
@@ -161,6 +169,11 @@ export async function handleCheckoutSuccess({
     throw new Error('invalid order');
   }
 
+  if (isWeddingCheckoutProduct(order.productId)) {
+    await handleWeddingCheckoutResult(order, session);
+    return;
+  }
+
   // Idempotency check: if order is already paid, skip processing
   if (order.status === OrderStatus.PAID) {
     return;
@@ -197,7 +210,9 @@ export async function handleCheckoutSuccess({
       discountCurrency: session.paymentInfo?.discountCurrency,
       discountCode: session.paymentInfo?.discountCode,
       paymentEmail: session.paymentInfo?.paymentEmail,
-      paidAt: session.paymentInfo?.paidAt,
+      paidAt:
+        session.paymentInfo?.paidAt ??
+        (order.productId === WEDDING_PACK_PRODUCT_ID ? new Date() : undefined),
       invoiceId: session.paymentInfo?.invoiceId,
       invoiceUrl: session.paymentInfo?.invoiceUrl,
       subscriptionNo: '',
@@ -339,7 +354,9 @@ export async function handlePaymentSuccess({
       paymentEmail: session.paymentInfo?.paymentEmail,
       paymentUserName: session.paymentInfo?.paymentUserName,
       paymentUserId: session.paymentInfo?.paymentUserId,
-      paidAt: session.paymentInfo?.paidAt,
+      paidAt:
+        session.paymentInfo?.paidAt ??
+        (order.productId === WEDDING_PACK_PRODUCT_ID ? new Date() : undefined),
       invoiceId: session.paymentInfo?.invoiceId,
       invoiceUrl: session.paymentInfo?.invoiceUrl,
     };
@@ -611,4 +628,92 @@ export async function handleSubscriptionCanceled({
   });
 
   // console.log('handle subscription canceled', subscriptionInfo);
+}
+
+/** Wedding purchases grant order-based rights only, never subscription/credit side effects. */
+export async function handleWeddingCheckoutResult(
+  order: Order,
+  session: PaymentSession,
+  retry = true
+): Promise<void> {
+  assertWeddingPaymentMatches(order, session);
+  const email = receiptEmail(session.paymentInfo?.paymentEmail);
+  if (order.status === OrderStatus.PAID) {
+    if (
+      order.productId === HUMAN_DESIGN_PRODUCT_ID &&
+      session.paymentStatus === PaymentStatus.SUCCESS
+    ) {
+      const { notifyHumanDesignOrder } = await import(
+        '@/shared/services/human-design'
+      );
+      await notifyHumanDesignOrder(order);
+    }
+    // A webhook may deliver the buyer email after the browser already confirmed payment.
+    if (
+      session.paymentStatus === PaymentStatus.SUCCESS &&
+      email &&
+      !receiptEmail(order.paymentEmail)
+    ) {
+      await updateOrderByOrderNo(
+        order.orderNo,
+        { paymentEmail: email },
+        { expectedStatus: OrderStatus.PAID, onlyMissingPaymentEmail: true }
+      );
+    }
+    return;
+  }
+  const update: UpdateOrder = {};
+  if (session.paymentStatus === PaymentStatus.SUCCESS) {
+    Object.assign(update, {
+      status: OrderStatus.PAID,
+      paymentResult: JSON.stringify(session.paymentResult),
+      paymentAmount: session.paymentInfo!.paymentAmount,
+      paymentCurrency: session.paymentInfo!.paymentCurrency,
+      ...(email ? { paymentEmail: email } : {}),
+      paidAt: session.paymentInfo?.paidAt ?? new Date(),
+      transactionId: session.paymentInfo?.transactionId,
+      paymentUserName: session.paymentInfo?.paymentUserName,
+      paymentUserId: session.paymentInfo?.paymentUserId,
+      invoiceId: session.paymentInfo?.invoiceId,
+      invoiceUrl: session.paymentInfo?.invoiceUrl,
+    });
+  } else if (
+    session.paymentStatus === PaymentStatus.FAILED ||
+    session.paymentStatus === PaymentStatus.CANCELED
+  ) {
+    // Stale failures and cancel callbacks must never undo an authoritative success.
+    if (
+      ![OrderStatus.CREATED, OrderStatus.PENDING].includes(
+        order.status as OrderStatus
+      )
+    )
+      return;
+    update.status = OrderStatus.FAILED;
+    update.paymentResult = JSON.stringify(session.paymentResult);
+  } else if (session.paymentStatus === PaymentStatus.PROCESSING) {
+    if (
+      ![OrderStatus.CREATED, OrderStatus.PENDING].includes(
+        order.status as OrderStatus
+      )
+    )
+      return;
+    update.paymentResult = JSON.stringify(session.paymentResult);
+  } else throw new Error('unknown payment status');
+  const saved = await updateOrderByOrderNo(order.orderNo, update, {
+    expectedStatus: order.status as OrderStatus,
+  });
+  if (
+    saved &&
+    order.productId === HUMAN_DESIGN_PRODUCT_ID &&
+    session.paymentStatus === PaymentStatus.SUCCESS
+  ) {
+    const { notifyHumanDesignOrder } = await import(
+      '@/shared/services/human-design'
+    );
+    await notifyHumanDesignOrder(saved);
+  }
+  if (!saved && retry) {
+    const current = await findOrderByOrderNo(order.orderNo);
+    if (current) await handleWeddingCheckoutResult(current, session, false);
+  }
 }

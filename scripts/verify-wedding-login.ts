@@ -3,138 +3,283 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import ts from 'typescript';
 
-import { decideGenerationAllowance } from '../src/shared/wedding/config';
+import { weddingGenerationAllowance } from '../src/shared/wedding/access';
+import { getWeddingInitialGenerationIds } from '../src/shared/wedding/generation-request';
+import { getWeddingProjectOwner } from '../src/shared/wedding/guest-identity';
 
-// Execute literal route prefixes up to the first provider/schema operation.
-// Tests assert guest denial happens before parsing input, configuration or AI work.
+// Execute the actual route guard code; provider/configuration work is outside each slice.
 const fixtures = [
   {
-    path: 'src/app/api/projects/route.ts',
-    end: '    const body = createSchema.parse',
-    guestPaid: false,
-    method: 'POST',
-  },
-  {
     path: 'src/app/api/projects/[id]/generate/route.ts',
-    end: '    const body = inputSchema.parse',
-    guestPaid: true,
+    end: '    // Bypass the 1-minute',
     method: 'POST',
+    paidGate: true,
   },
   {
     path: 'src/app/api/projects/[id]/edit-assistant/route.ts',
     end: '    const body = requestSchema.parse',
-    guestPaid: true,
     method: 'POST',
+    paidGate: true,
   },
   {
     path: 'src/app/api/projects/[id]/route.ts',
     end: '    const body = patchSchema.parse',
-    guestPaid: true,
     method: 'PATCH',
+    paidGate: false,
+  },
+  {
+    path: 'src/app/api/projects/[id]/route.ts',
+    end: '    const paid =',
+    method: 'GET',
+    paidGate: false,
+  },
+  {
+    path: 'src/app/api/projects/[id]/select/route.ts',
+    end: '    const selected =',
+    method: 'POST',
+    paidGate: false,
+  },
+  {
+    path: 'src/app/api/projects/[id]/download/route.ts',
+    end: '    const downloadable =',
+    method: 'GET',
+    paidGate: true,
+  },
+  {
+    path: 'src/app/api/jobs/[id]/route.ts',
+    end: '    const paid =',
+    method: 'GET',
+    paidGate: false,
   },
 ];
 async function main() {
   for (const fixture of fixtures) {
-    const route = readFileSync(fixture.path, 'utf8');
-    const prefix = route.slice(
-      route.indexOf(`export async function ${fixture.method}(`),
-      route.indexOf(fixture.end)
-    );
-    const js = ts.transpileModule(
-      `${prefix}\nreturn { passed: true };\n} catch (error) { throw error; }\n}`,
-      {
-        compilerOptions: {
-          target: ts.ScriptTarget.ES2022,
-          module: ts.ModuleKind.CommonJS,
-        },
-      }
-    ).outputText;
-    let user: { id: string } | null = null;
+    const source = readFileSync(fixture.path, 'utf8');
+    const start = source.indexOf(`export async function ${fixture.method}(`);
+    const end = source.indexOf(fixture.end, start);
+    assert.ok(start >= 0 && end > start, fixture.path);
+    let actor: any = {
+      user: null,
+      guestOwnerId: 'guest-owner',
+      ownerId: 'guest-owner',
+    };
     let paid = false;
-    let claims = 0;
-    let canAccess = true;
-    let project: { id: string; userId: string | null; guestId: string } | null =
-      { id: 'a', userId: null, guestId: 'guest' };
+    let active = false;
+    let used = 0;
+    let project: any = { id: 'a', userId: 'guest-owner', guestId: 'legacy' };
+    let existing: any = null;
+    const owners: (string | undefined)[] = [];
     const context = vm.createContext({
       exports: {},
-      getUserInfo: async () => user,
+      getWeddingActor: async () => actor,
+      getWeddingProjectOwner,
       getWeddingProject: async () => project,
-      canAccessWeddingProject: async () => canAccess,
+      canAccessWeddingProject: async ({ userId, guestId }: any) =>
+        !!project &&
+        ((userId && userId === project.userId) ||
+          (!project.userId && guestId === project.guestId)),
       guestIdFrom: (request: Request) =>
         request.headers.get('x-wedding-guest-id'),
-      hasPaidWeddingOrder: async () => paid,
-      claimWeddingProject: async () => {
-        claims++;
+      hasPaidWeddingOrder: async (ownerId: string | undefined) => {
+        owners.push(ownerId);
+        return paid;
       },
-      respErr: (message: string, status: number) => ({ message, status }),
+      getWeddingGenerationAllowance: async (ownerId: string | undefined) => {
+        owners.push(ownerId);
+        return weddingGenerationAllowance({ purchased: paid, active }, used);
+      },
+      inputSchema: { parse: (body: any) => body },
+      z: {
+        object: () => ({ parse: () => ({ generationId: 'g' }) }),
+        string: () => ({ min: () => ({}) }),
+      },
+      getWeddingGeneration: async () => existing,
+      getWeddingInitialGenerationIds,
+      WEDDING_MAX_CANDIDATES: 1,
+      WEDDING_PACK_PRODUCT_ID: 'wedding_identity_pack',
+      respData: (data: any) => ({ data }),
+      respErr: (message: string, status: number, data?: any) => ({
+        message,
+        status,
+        data,
+      }),
     });
-    vm.runInContext(js, context);
-    const post = (context.exports as any)[fixture.method];
-    const req = new Request('http://localhost/api/projects/a/generate', {
-      method: 'POST',
-      headers: { 'x-wedding-guest-id': 'guest' },
-    });
-    const params = { params: Promise.resolve({ id: 'a' }) };
-    if (fixture.method === 'PATCH') canAccess = false;
-    const denied = await post(req, params);
-    assert.equal(denied.status, 401);
-    assert.match(denied.message, /Sign in/);
-    assert.equal(claims, 0);
-    canAccess = true;
-    if (fixture.guestPaid) {
-      paid = true;
-      assert.equal((await post(req, params)).passed, true);
-    }
-    user = null;
-    canAccess = false;
-    project = { id: 'a', userId: 'prior-session-owner', guestId: 'guest' };
-    const expired = await post(req, params);
-    assert.equal(expired.status, 401);
-    assert.match(expired.message, /Sign in/);
+    vm.runInContext(
+      ts.transpileModule(
+        `${source.slice(start, end)}\nreturn {passed:true};\n}catch(error){throw error;}\n}`,
+        {
+          compilerOptions: {
+            target: ts.ScriptTarget.ES2022,
+            module: ts.ModuleKind.CommonJS,
+          },
+        }
+      ).outputText,
+      context
+    );
+    const invoke = (
+      headers: Record<string, string> = { 'x-wedding-guest-id': 'legacy' }
+    ) =>
+      (context.exports as any)[fixture.method](
+        new Request('http://localhost/api/projects/a', {
+          method: fixture.method,
+          headers,
+          ...(fixture.method === 'POST' ? { body: '{}' } : {}),
+        }),
+        { params: Promise.resolve({ id: 'a' }) }
+      );
+    assert.equal(
+      fixture.paidGate ? (await invoke()).status : (await invoke()).passed,
+      fixture.paidGate ? 402 : true
+    );
+    paid = active = true;
+    assert.equal((await invoke()).passed, true);
+    if (fixture.paidGate) assert.equal(owners.at(-1), 'guest-owner');
+    actor = {
+      user: { id: 'new-login' },
+      ownerId: 'new-login',
+      guestOwnerId: 'guest-owner',
+    };
+    assert.equal(
+      (await invoke()).passed,
+      true,
+      'login must retain cookie-owned purchase'
+    );
+    actor = { user: null, guestOwnerId: 'other-guest', ownerId: 'other-guest' };
+    assert.equal(
+      (await invoke()).status,
+      404,
+      'wrong cookie never opens project'
+    );
+    actor = { user: null };
+    assert.equal(
+      (await invoke()).status,
+      404,
+      'missing cookie cannot use legacy header on owned project'
+    );
+    project = { id: 'a', userId: 'expired-session-owner', guestId: 'legacy' };
+    assert.equal(
+      (await invoke()).status,
+      404,
+      'expired session never opens claimed account project'
+    );
     project = null;
-    const missing = await post(req, params);
-    assert.equal(missing.status, 401);
-    assert.equal(missing.message, expired.message);
-    project = { id: 'a', userId: null, guestId: 'guest' };
-    canAccess = true;
-    user = { id: 'user' };
-    assert.equal((await post(req, params)).passed, true);
+    assert.equal((await invoke()).status, 404);
+    project = { id: 'a', userId: null, guestId: 'legacy' };
+    assert.equal(
+      (await invoke()).passed,
+      true,
+      'unclaimed legacy paid header remains compatible'
+    );
+    assert.equal(
+      (await invoke({ 'x-wedding-guest-id': 'wrong-legacy' })).status,
+      404
+    );
+    if (fixture.path.includes('/generate/')) {
+      project = { id: 'a', userId: 'guest-owner' };
+      actor = {
+        user: null,
+        ownerId: 'guest-owner',
+        guestOwnerId: 'guest-owner',
+      };
+      const key = '01a19b43-91ab-7803-9705-3bfd251ae323';
+      used = 10;
+      existing = {
+        id: 'existing',
+        status: 'generating',
+        providerTaskId: 'submitted',
+      };
+      assert.equal(
+        (await invoke({ 'x-wedding-generation-id': key })).data.resumed,
+        true
+      );
+      existing = null;
+      assert.equal((await invoke()).status, 429);
+      active = false;
+      assert.equal((await invoke()).data.reasonCode, 'access_expired');
+    }
     console.log(
-      `PASS ${fixture.path}: unpaid guest 401, authenticated pass${fixture.guestPaid ? ', legacy paid guest pass' : ''}`
+      `PASS ${fixture.path} ${fixture.method}: paid cookie, login continuity, missing/wrong cookie, expired session, legacy and cross-project guards`
     );
   }
-  for (let used = 0; used < 3; used++) {
+  // The creation prefix rejects unpaid identities before any draft/example parsing;
+  // the real transaction guard is tested separately by verify-wedding-access-reservation.ts.
+  const create = readFileSync('src/app/api/projects/route.ts', 'utf8');
+  const createPrefix = create.slice(
+    create.indexOf('export async function POST('),
+    create.indexOf('    const body = createSchema.parse')
+  );
+  let purchased = false;
+  let replayOwner: string | null = null;
+  const createContext = vm.createContext({
+    exports: {},
+    crypto,
+    TextEncoder,
+    getWeddingProject: async (id: string) =>
+      replayOwner ? { id, userId: replayOwner } : null,
+    respData: (data: any) => ({ data }),
+    getWeddingActor: async () => ({
+      user: null,
+      ownerId: 'guest-owner',
+      guestOwnerId: 'guest-owner',
+    }),
+    getWeddingPurchaseOwner: async () => 'guest-owner',
+    getWeddingAccountAccess: async () => ({ canCreateProject: purchased }),
+    respErr: (message: string, status: number) => ({ message, status }),
+  });
+  vm.runInContext(
+    ts.transpileModule(
+      `${createPrefix}\nreturn {passed:true};\n}catch(error){throw error;}\n}`,
+      {
+        compilerOptions: {
+          module: ts.ModuleKind.CommonJS,
+          target: ts.ScriptTarget.ES2022,
+        },
+      }
+    ).outputText,
+    createContext
+  );
+  assert.equal(
+    (await (createContext.exports as any).POST(new Request('http://localhost')))
+      .status,
+    402
+  );
+  purchased = true;
+  assert.equal(
+    (await (createContext.exports as any).POST(new Request('http://localhost')))
+      .passed,
+    true
+  );
+  for (let used = 0; used <= 10; used++)
     assert.equal(
-      decideGenerationAllowance({
-        batches: used,
-        paid: false,
-        isGuest: false,
-        projectsWithGenerations: used ? 1 : 0,
-      }).allowed,
-      true
-    );
-    assert.equal(
-      decideGenerationAllowance({
-        batches: used,
-        paid: false,
-        isGuest: true,
-        projectsWithGenerations: 0,
-      }).allowed,
+      weddingGenerationAllowance({ purchased: false, active: false }, used)
+        .allowed,
       false
     );
-  }
+  console.log(
+    'PASS create: paid guest proceeds, unpaid guest 402; no free generations regardless of login'
+  );
+  purchased = false; // Fifth slot already consumed; replay must return the existing owned draft.
+  replayOwner = 'guest-owner';
+  const replayRequest = () =>
+    new Request('http://localhost', {
+      headers: {
+        'x-wedding-request-id': '01a19b43-91ab-7803-9705-3bfd251ae323',
+      },
+    });
   assert.equal(
-    decideGenerationAllowance({
-      batches: 3,
-      paid: false,
-      isGuest: false,
-      projectsWithGenerations: 1,
-    }).allowed,
-    false
+    (await (createContext.exports as any).POST(replayRequest())).data.project
+      .userId,
+    'guest-owner'
+  );
+  replayOwner = 'other-owner';
+  assert.equal(
+    (await (createContext.exports as any).POST(replayRequest())).status,
+    402
   );
   console.log(
-    'PASS three authenticated free batches retained; no anonymous free batch at any usage count'
+    'PASS project replay at exhausted quota returns only the same owned project; foreign project never returned'
   );
+
   const app = readFileSync('src/shared/contexts/app.tsx', 'utf8');
   const closeStart = app.indexOf('  const setIsShowSignModal = useCallback(');
   const closeSource = app.slice(
@@ -167,32 +312,6 @@ async function main() {
   assert.equal(callback, undefined);
   console.log(
     'PASS modal callback retained while open and cleared on every close'
-  );
-
-  const wizard = readFileSync(
-    'src/themes/default/blocks/wedding-wizard.tsx',
-    'utf8'
-  );
-  for (const name of ['response', 'generateResponse']) {
-    const marker = `      if (${name}.status === 401) {`;
-    const start = wizard.indexOf(marker);
-    assert.ok(start > 0);
-    const block = wizard.slice(start, wizard.indexOf('      }', start) + 7);
-    let prompts = 0;
-    const expiryContext = vm.createContext({
-      [name]: { status: 401 },
-      requestSignIn: () => {
-        prompts++;
-      },
-    });
-    vm.runInContext(
-      `function handle() { ${block} throw new Error('fell through'); } handle();`,
-      expiryContext
-    );
-    assert.equal(prompts, 1);
-  }
-  console.log(
-    'PASS wizard save and generate 401 each reopen login and stop error fallthrough'
   );
 }
 main().catch((error) => {

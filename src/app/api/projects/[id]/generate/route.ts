@@ -1,24 +1,33 @@
 import { z } from 'zod';
 
-import { AIMediaType, AITaskStatus } from '@/extensions/ai';
+import { AIMediaType, AITaskStatus, type AIProvider } from '@/extensions/ai';
+import {
+  generateWeddingImage,
+  OPENAI_IMAGE_MODEL,
+  OpenAIImageProvider,
+} from '@/extensions/ai/openai-image';
 import { getUuid } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
+import { normalizeCheckerboardTransparency } from '@/shared/lib/pure-image';
 import { createAITask } from '@/shared/models/ai_task';
-import { getUserInfo } from '@/shared/models/user';
 import {
   canAccessWeddingProject,
-  claimWeddingProject,
   getActiveWeddingPromptTemplate,
   getWeddingGeneration,
+  getWeddingGenerationAllowance,
   getWeddingProject,
-  hasPaidWeddingOrder,
   reserveWeddingGenerationBatch,
   settleFailedWeddingReservation,
   updateWeddingGeneration,
   updateWeddingProject,
   upsertWeddingPromptTemplate,
 } from '@/shared/models/wedding';
+import {
+  getWeddingActor,
+  getWeddingProjectOwner,
+} from '@/shared/models/wedding-actor';
 import { getAIService } from '@/shared/services/ai';
+import { getStorageService } from '@/shared/services/storage';
 import {
   WEDDING_MAX_CANDIDATES,
   WEDDING_PACK_PRODUCT_ID,
@@ -27,10 +36,12 @@ import {
   compileAssistantEditPrompt,
   editPlanSchema,
 } from '@/shared/wedding/edit-plan';
+import { getWeddingInitialGenerationIds } from '@/shared/wedding/generation-request';
 import {
   compileWeddingDesignEditPrompt,
   compileWeddingPrompt,
   compileWeddingTextEditPrompt,
+  getWeddingReferenceImages,
   getWeddingVersions,
 } from '@/shared/wedding/prompt-compiler';
 import type { WeddingProjectInput } from '@/shared/wedding/types';
@@ -57,6 +68,7 @@ const inputSchema = z.object({
     .object({
       sourceGenerationId: z.string().trim().min(1),
       kind: editKindSchema,
+      replaceLetteringStyle: z.boolean().optional().default(false),
       plan: editPlanSchema.optional(),
     })
     .optional(),
@@ -145,7 +157,7 @@ function assertRasterReferenceImages(urls: string[]) {
   if (!svgReference) return;
 
   throw new Error(
-    'SVG reference images are not supported by Runware. Upload the frame as PNG, JPEG, or WebP.'
+    'SVG reference images are not supported for crest generation. Upload the frame as PNG, JPEG, or WebP.'
   );
 }
 
@@ -164,49 +176,101 @@ export async function POST(
   try {
     const { id } = await params;
     projectId = id;
-    // Free generation requires a session; paid legacy guests retain access.
-    const user = await getUserInfo();
+    const actor = await getWeddingActor();
+    const user = actor.user; // Real session only: guests never create ai_task user rows.
     const guestId = request.headers.get('x-wedding-guest-id') || undefined;
     const project = await getWeddingProject(id);
-    if (
-      !project ||
-      !(await canAccessWeddingProject({ id, userId: user?.id, guestId }))
-    )
-      return user
-        ? respErr('project not found')
-        : respErr('Sign in to continue your wedding design.', 401);
-
-    if (!user && !(await hasPaidWeddingOrder(undefined, id, guestId))) {
-      return respErr(
-        'Sign in to use your 3 free generations. Your existing designs are kept.',
-        401
-      );
-    }
-    if (user && !project.userId) await claimWeddingProject(id, user.id);
+    if (!project) return respErr('project not found', 404);
+    const ownerId = getWeddingProjectOwner(actor, project);
+    if (!(await canAccessWeddingProject({ id, userId: ownerId, guestId })))
+      return respErr('project not found', 404);
 
     const body = inputSchema.parse(await request.json().catch(() => ({})));
-    // Bypass the 1-minute in-memory cache so a freshly-saved admin key
-    // is picked up immediately on the next Generate click.
-    const { invalidateConfigsCache } = await import('@/shared/models/config');
-    invalidateConfigsCache();
-    const aiService = await getAIService();
-    const provider = body.provider
-      ? aiService.getProvider(body.provider)
-      : aiService.getDefaultProvider();
-    if (!provider) {
-      const configured = aiService.getProviderNames();
-      return respErr(
-        configured.length === 0
-          ? 'no AI image provider configured yet. Ask the studio admin to set a Runware API key in admin → settings.'
-          : `requested provider "${body.provider}" is not configured (available: ${configured.join(', ')})`
+    const initialRequestKey = !body.edit
+      ? request.headers.get('x-wedding-generation-id')
+      : null;
+    if (initialRequestKey && !/^[0-9a-f-]{36}$/i.test(initialRequestKey))
+      return respErr('invalid generation request id', 400);
+    const initialCandidateIds = initialRequestKey
+      ? await getWeddingInitialGenerationIds(
+          id,
+          initialRequestKey,
+          WEDDING_MAX_CANDIDATES
+        )
+      : undefined;
+    if (initialCandidateIds) {
+      const existing = await Promise.all(
+        initialCandidateIds.map(getWeddingGeneration)
       );
+      if (existing.every(Boolean))
+        return respData({
+          jobId: id,
+          projectId: id,
+          candidates: initialCandidateIds,
+          status: existing.every((row) => row?.status === 'failed')
+            ? 'failed'
+            : 'generating',
+          productForUnlock: WEDDING_PACK_PRODUCT_ID,
+          resumed: true,
+        });
     }
 
-    const model = pickModel(
-      provider.name,
-      body.model,
-      (provider as { configs?: { model?: string } }).configs?.model
+    const allowance = await getWeddingGenerationAllowance(ownerId, id);
+    if (
+      !allowance.allowed &&
+      !(initialCandidateIds && allowance.reasonCode === 'daily_limit')
+    )
+      return respErr(
+        allowance.reason ?? 'generation unavailable',
+        allowance.reasonCode === 'daily_limit' ? 429 : 402,
+        { reasonCode: allowance.reasonCode }
+      );
+
+    // Read freshly-saved Admin settings for this submission.
+    const { getAllConfigs, invalidateConfigsCache } = await import(
+      '@/shared/models/config'
     );
+    invalidateConfigsCache();
+    const configs = await getAllConfigs();
+    const aiService = await getAIService(configs);
+    const runware = aiService.getProvider('runware');
+    const openaiApiKey = configs.openai_api_key?.trim();
+    const openai =
+      openaiApiKey && configs.openai_image_enabled !== 'false'
+        ? new OpenAIImageProvider(
+            {
+              apiKey: openaiApiKey,
+              model: configs.openai_image_model?.trim() || OPENAI_IMAGE_MODEL,
+              quality: configs.openai_image_quality,
+            },
+            async (image) => {
+              const storage = await getStorageService(configs);
+              const stored = await storage.uploadFile({
+                body: normalizeCheckerboardTransparency(image).buffer,
+                key: `wedding-crests/common/${getUuid()}.png`,
+                contentType: 'image/png',
+                disposition: 'inline',
+              });
+              if (!stored.success || !stored.url) {
+                throw new Error('Could not store the OpenAI image');
+              }
+              return stored.url;
+            }
+          )
+        : undefined;
+    const provider = body.provider
+      ? body.provider === 'openai'
+        ? openai
+        : aiService.getProvider(body.provider)
+      : openai ?? runware ?? aiService.getDefaultProvider();
+    if (!provider) {
+      return respErr(
+        'Image provider is not configured. Check OpenAI and Runware under Admin → Settings → AI.'
+      );
+    }
+    if (provider.name === 'openai' && !(await getStorageService(configs)).getProviderNames().length) {
+      return respErr('OpenAI image generation requires R2 or S3 storage.');
+    }
 
     // Resolve the edit (small modification) flow vs. the full generation
     // flow. Edit prompts are transient and intentionally not persisted to
@@ -247,9 +311,13 @@ export async function POST(
           return respErr('confirmed edit plan required', 400);
         prompt = compileAssistantEditPrompt(body.edit.plan);
       } else if (body.edit.kind === 'lettering') {
-        prompt = compileWeddingTextEditPrompt(sourceInput);
+        prompt = compileWeddingTextEditPrompt(sourceInput, {
+          replaceLetteringStyle: body.edit.replaceLetteringStyle,
+        });
       } else if (body.edit.kind === 'design') {
-        prompt = compileWeddingDesignEditPrompt(sourceInput);
+        prompt = compileWeddingDesignEditPrompt(sourceInput, {
+          replaceLetteringStyle: body.edit.replaceLetteringStyle,
+        });
       } else {
         prompt = buildQuickEditPrompt(body.edit.kind, {
           personalElements: sourceInput.personalElements,
@@ -280,56 +348,38 @@ export async function POST(
       }
     }
 
-    // When the user attached reference photos (personal elements) we need a
-    // multimodal model - a text-only AIR id cannot consume reference images.
-    // Auto-switch to a reference-image-capable model (default
-    // google:nano-banana@2-lite on Runware, which accepts
-    // `inputs.referenceImages`). With the current defaults this resolves to
-    // the same AIR id as the text-to-image path (that is intentional: the
-    // studio runs one model everywhere), so what the switch really controls
-    // is the override slot - WEDDING_AI_MULTIMODAL_MODEL - plus the request
-    // shape below (referenceImages instead of width/height). The id stays
-    // overridable because Runware AIR ids have changed across nano-banana
-    // revisions and not every account has every version enabled.
-    //
-    // Admin-set model / WEDDING_AI_MODEL / explicit body.model can still
-    // override this by passing body.model themselves.
-    //
-    // Edit generations always carry a reference image (the current crest),
-    // so the multimodal switch is also what makes the small-modification
-    // flow work. Example reference images are skipped during edits - the
-    // goal is to keep the existing design, not match a different example.
-    const personalImages =
-      sourceInput?.personalImages ?? project.input.personalImages ?? [];
-    const exampleImage = project.input.exampleImage ?? null;
-    const frameImage = project.input.frameUrl ?? null;
-    const personalReferenceImages = [
-      ...(body.edit ? [] : exampleImage ? [exampleImage] : []),
-      ...(body.edit ? [] : frameImage ? [frameImage] : []),
-      ...personalImages,
-    ];
-    const allReferenceImages = [...referenceImages, ...personalReferenceImages];
-    // Runware's multimodal inputs accept raster images. Legacy admin frame
-    // records may still point at SVG artwork even though the upload endpoint
-    // now allows raster formats only. Reject those records before submitting
-    // (and before changing project state) instead of surfacing Runware's opaque
-    // "User generation failed" response.
+    // Initial generation can also carry reference photos; image edits
+    // always include the source crest as the first reference.
+    const allReferenceImages = getWeddingReferenceImages(
+      sourceInput ?? project.input,
+      body.edit
+        ? { kind: body.edit.kind, sourceImageUrl: referenceImages[0] }
+        : undefined
+    );
     assertRasterReferenceImages(allReferenceImages);
-    const multimodalModel =
-      process.env.WEDDING_AI_MULTIMODAL_MODEL || 'google:nano-banana@2-lite';
-    effectiveModel = body.model
-      ? model
-      : allReferenceImages.length > 0
-        ? multimodalModel
-        : model;
+    const modelFor = (target: AIProvider, requested?: string) => {
+      if (target.name === 'openai') {
+        return requested || target.configs.model || OPENAI_IMAGE_MODEL;
+      }
+      if (!requested && allReferenceImages.length > 0) {
+        return (
+          process.env.WEDDING_AI_MULTIMODAL_MODEL ||
+          (target.name === 'runware' ? target.configs.model : undefined) ||
+          'google:nano-banana@2-lite'
+        );
+      }
+      return pickModel(target.name, requested, target.configs.model);
+    };
+    effectiveModel = modelFor(provider, body.model);
 
     const versions = getWeddingVersions();
-    reservationIds = Array.from({ length: WEDDING_MAX_CANDIDATES }, () =>
-      getUuid()
-    );
+    reservationIds =
+      !body.edit && initialCandidateIds
+        ? initialCandidateIds
+        : Array.from({ length: WEDDING_MAX_CANDIDATES }, () => getUuid());
     const reservation = await reserveWeddingGenerationBatch({
       projectId: id,
-      userId: user?.id,
+      userId: ownerId,
       guestId,
       candidates: reservationIds.map((candidateId, candidateIndex) => ({
         id: candidateId,
@@ -349,11 +399,19 @@ export async function POST(
       reservationIds = [];
       return respErr(
         reservation.reason ?? 'generation limit reached',
-        402,
-        reservation.generatedProjectId
-          ? { generatedProjectId: reservation.generatedProjectId }
-          : undefined
+        reservation.reasonCode === 'daily_limit' ? 429 : 402,
+        { reasonCode: reservation.reasonCode }
       );
+    }
+    if ('existing' in reservation && reservation.existing) {
+      return respData({
+        jobId: id,
+        projectId: id,
+        candidates: reservationIds,
+        status: 'generating',
+        productForUnlock: WEDDING_PACK_PRODUCT_ID,
+        resumed: true,
+      });
     }
     projectMarkedGenerating = true;
     if (Object.keys(projectUpdate).length > 0) {
@@ -376,18 +434,34 @@ export async function POST(
       candidateIndex < WEDDING_MAX_CANDIDATES;
       candidateIndex += 1
     ) {
-      // Build per-candidate options. Runware's nano-banana forbids passing
-      // width/height alongside inputs.referenceImages ("either provide
-      // referenceImages or specify width/height", not both), so the shape
-      // of this object depends on whether the project carries reference
-      // photos.
-      const baseOptions: Record<string, unknown> = { candidateIndex };
-      if (allReferenceImages.length === 0) {
-        baseOptions.width = outputWidth;
-        baseOptions.height = outputHeight;
-      } else {
-        baseOptions.referenceImages = allReferenceImages;
-      }
+      const attempt = (target: AIProvider, model: string) => ({
+        provider: target,
+        params: {
+          mediaType: AIMediaType.IMAGE,
+          model,
+          prompt,
+          async: true,
+          options: {
+            candidateIndex,
+            // Runware's multimodal model expects references OR dimensions.
+            ...(target.name === 'openai' || !allReferenceImages.length
+              ? { width: outputWidth, height: outputHeight }
+              : {}),
+            ...(allReferenceImages.length
+              ? {
+                  referenceImages:
+                    target.name === 'openai'
+                      ? allReferenceImages.map((url) =>
+                          url.startsWith('/') && !url.startsWith('//')
+                            ? new URL(url, configs.app_url).href
+                            : url
+                        )
+                      : allReferenceImages,
+                }
+              : {}),
+          },
+        },
+      });
 
       // Record the attempt before crossing the provider boundary: a timeout
       // can still have incurred provider cost, so retries must not erase it.
@@ -396,15 +470,15 @@ export async function POST(
         cost: -1,
       });
       providerAttempted = true;
-      const result = await provider.generate({
-        params: {
-          mediaType: AIMediaType.IMAGE,
-          model: effectiveModel,
-          prompt,
-          async: true,
-          options: baseOptions,
-        },
-      });
+      const submitted = await generateWeddingImage(
+        attempt(provider, effectiveModel),
+        provider.name === 'openai' && runware
+          ? attempt(runware, modelFor(runware))
+          : undefined
+      );
+      const { result } = submitted;
+      const submittedProvider = submitted.provider.name;
+      effectiveModel = submitted.params.model!;
       if (!result?.taskId)
         throw new Error(
           `AI provider did not return a task id for candidate ${candidateIndex + 1}`
@@ -413,6 +487,8 @@ export async function POST(
       // Persist the provider receipt before optional ai_task bookkeeping.
       // A bookkeeping failure must not erase an already submitted task.
       await updateWeddingGeneration(reservationIds[candidateIndex], {
+        provider: submittedProvider,
+        model: effectiveModel,
         providerTaskId: result.taskId,
         sourceImageUrl: result.taskInfo?.images?.[0]?.imageUrl ?? null,
       });
@@ -425,7 +501,7 @@ export async function POST(
             id: getUuid(),
             userId: user.id,
             mediaType: AIMediaType.IMAGE,
-            provider: provider.name,
+            provider: submittedProvider,
             model: effectiveModel,
             prompt,
             options: JSON.stringify({
@@ -450,7 +526,7 @@ export async function POST(
         await updateWeddingGeneration(reservationIds[candidateIndex], {
           aiTaskId: aiTask?.id ?? null,
           candidateIndex,
-          provider: provider.name,
+          provider: submittedProvider,
           model: effectiveModel,
           promptVersion: getWeddingVersions().promptVersion,
           styleVersion: getWeddingVersions().styleVersion,

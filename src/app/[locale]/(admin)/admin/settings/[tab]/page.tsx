@@ -28,7 +28,10 @@ export default async function SettingsPage({
     locale,
   });
 
-  const configs = await getAllConfigs();
+  const configs = { ...(await getAllConfigs()) };
+  const hasOpenAIKey = Boolean(configs.openai_api_key);
+  // The form is a Client Component: never prefill or serialize this secret.
+  delete configs.openai_api_key;
 
   const settingGroups = await getSettingGroups();
   const settings = await getSettings();
@@ -52,6 +55,12 @@ export default async function SettingsPage({
 
     const updates: Record<string, string> = {};
     data.forEach((value, name) => {
+      if (name === 'openai_api_key') {
+        if (typeof value === 'string' && value.trim()) {
+          updates[name] = value.trim();
+        }
+        return;
+      }
       updates[name] = value as string;
     });
 
@@ -87,7 +96,10 @@ export default async function SettingsPage({
           name: setting.name,
           title: setting.title,
           type: setting.type as any,
-          placeholder: setting.placeholder,
+          placeholder:
+            setting.name === 'openai_api_key' && hasOpenAIKey
+              ? 'Key configured — leave blank to keep it'
+              : setting.placeholder,
           group: setting.group,
           options: setting.options,
           tip: setting.tip,

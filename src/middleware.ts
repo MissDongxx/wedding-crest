@@ -46,6 +46,18 @@ export async function middleware(request: NextRequest) {
   const legacyPath = hasLocalePrefix
     ? `/${segments.slice(1).join('/')}`
     : pathname;
+
+  // Preserve existing examples links and search entries after the URL rename.
+  if (legacyPath === '/examples') {
+    const url = request.nextUrl.clone();
+    const localePath =
+      hasLocalePrefix && segments[0] !== routing.defaultLocale
+        ? `/${segments[0]}`
+        : '';
+    url.pathname = `${localePath}/wedding-crest-examples`;
+    return NextResponse.redirect(url, 301);
+  }
+
   if (
     LEGACY_PREFIXES.some(
       (prefix) => legacyPath === prefix || legacyPath.startsWith(`${prefix}/`)

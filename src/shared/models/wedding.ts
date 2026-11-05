@@ -30,9 +30,11 @@ import {
 import { getUuid } from '@/shared/lib/hash';
 import { OrderStatus } from '@/shared/models/order';
 import {
-  decideGenerationAllowance,
-  WEDDING_PACK_PRODUCT_ID,
-} from '@/shared/wedding/config';
+  countsTowardDailyImages,
+  weddingAccess,
+  weddingGenerationAllowance,
+} from '@/shared/wedding/access';
+import { WEDDING_PACK_PRODUCT_ID } from '@/shared/wedding/config';
 import {
   weddingPalettes,
   WeddingProjectInput,
@@ -150,6 +152,9 @@ function buildInput(
       : 'initials_amp',
     showDate:
       (row as WeddingProjectRow & { showDate?: boolean }).showDate !== false,
+    showLocation: elements.some(
+      (element) => element.type === 'show_location' && element.value === 'true'
+    ),
     frameId,
     exampleImage,
     exampleStyle,
@@ -238,11 +243,14 @@ export async function listWeddingProjectsForGuest(guestId: string) {
   return db()
     .select()
     .from(weddingProject)
-    .where(and(eq(weddingProject.guestId, guestId)))
+    .where(
+      and(eq(weddingProject.guestId, guestId), isNull(weddingProject.userId))
+    )
     .orderBy(desc(weddingProject.updatedAt));
 }
 
 export interface CreateWeddingProjectParams {
+  id?: string;
   userId?: string;
   guestId?: string;
   partner1: string;
@@ -258,6 +266,7 @@ export interface CreateWeddingProjectParams {
   complexity?: string;
   nameDisplay?: string;
   showDate?: boolean;
+  showLocation?: boolean;
   flowers?: string[];
   personalElements?: string[];
   personalImages?: string[];
@@ -278,7 +287,7 @@ export interface CreateWeddingProjectParams {
 }
 
 export async function createWeddingProject(params: CreateWeddingProjectParams) {
-  const id = getUuid();
+  const id = params.id ?? getUuid();
   const initials =
     params.initials && params.initials.length > 0
       ? params.initials
@@ -310,6 +319,9 @@ export async function createWeddingProject(params: CreateWeddingProjectParams) {
   };
 
   const elements = [
+    ...(params.showLocation === true
+      ? [{ id: getUuid(), projectId: id, type: 'show_location', value: 'true' }]
+      : []),
     ...(params.flowers ?? []).map((value) => ({
       id: getUuid(),
       projectId: id,
@@ -396,6 +408,26 @@ export async function createWeddingProject(params: CreateWeddingProjectParams) {
   // already-written row and the elements are replaced, not appended.
   return runInDbTransaction(
     async (tx) => {
+      if (!params.userId)
+        throw new Error(
+          'Purchase your image pack to continue your wedding design.'
+        );
+      await tx.execute(
+        sql`select pg_advisory_xact_lock(hashtextextended(${`wedding:user:${params.userId}`}, 0))`
+      );
+      const access = await readWeddingAccess(tx, params.userId);
+      const [existing] = await tx
+        .select({ id: weddingProject.id, userId: weddingProject.userId })
+        .from(weddingProject)
+        .where(eq(weddingProject.id, id));
+      if (existing && existing.userId !== params.userId)
+        throw new Error('project not found');
+      if (existing) return loadWeddingProject(tx, id);
+      if (!access.canCreateProject) {
+        throw new Error(
+          'Purchase your image pack to start a new design. Your choices are saved.'
+        );
+      }
       await tx
         .insert(weddingProject)
         .values(projectValues)
@@ -408,36 +440,33 @@ export async function createWeddingProject(params: CreateWeddingProjectParams) {
         await tx.insert(weddingProjectElement).values(elements);
       }
 
-      // A prepaid pack belongs to its signed-in purchaser until atomically
-      // claimed by one newly created project. Pending/unpaid orders never qualify.
-      if (params.userId) {
-        const available = await tx
-          .select({ id: order.id })
-          .from(order)
+      // Prepaid checkout precedes project creation. Link one paid receipt to its first
+      // owned draft for funnel attribution only; entitlement remains owner-wide.
+      const [unlinkedPurchase] = await tx
+        .select({ id: order.id })
+        .from(order)
+        .where(
+          and(
+            eq(order.userId, params.userId),
+            eq(order.productId, WEDDING_PACK_PRODUCT_ID),
+            eq(order.status, OrderStatus.PAID),
+            isNull(order.projectId)
+          )
+        )
+        .orderBy(asc(order.createdAt))
+        .limit(1);
+      if (unlinkedPurchase) {
+        await tx
+          .update(order)
+          .set({ projectId: id })
           .where(
             and(
+              eq(order.id, unlinkedPurchase.id),
               eq(order.userId, params.userId),
-              eq(order.productId, WEDDING_PACK_PRODUCT_ID),
               eq(order.status, OrderStatus.PAID),
               isNull(order.projectId)
             )
-          )
-          .orderBy(asc(order.createdAt), asc(order.id));
-        for (const purchase of available) {
-          const claimed = await tx
-            .update(order)
-            .set({ projectId: id })
-            .where(
-              and(
-                eq(order.id, purchase.id),
-                eq(order.userId, params.userId),
-                eq(order.status, OrderStatus.PAID),
-                isNull(order.projectId)
-              )
-            )
-            .returning({ id: order.id });
-          if (claimed.length > 0) break;
-        }
+          );
       }
 
       const created = await loadWeddingProject(tx, id);
@@ -466,6 +495,7 @@ export async function updateWeddingProject(
 
 /** Element types whose rows can be replaced wholesale by the edit flow. */
 export type WeddingElementPatch = {
+  showLocation?: boolean;
   flowers?: string[];
   personalElements?: string[];
   personalImages?: string[];
@@ -485,6 +515,11 @@ export async function updateWeddingProjectElements(
   patch: WeddingElementPatch
 ) {
   const byType: { type: string; values: string[] }[] = [];
+  if (patch.showLocation !== undefined)
+    byType.push({
+      type: 'show_location',
+      values: patch.showLocation ? ['true'] : [],
+    });
   if (patch.flowers) byType.push({ type: 'flower', values: patch.flowers });
   if (patch.personalElements)
     byType.push({ type: 'personal', values: patch.personalElements });
@@ -586,6 +621,98 @@ export async function getWeddingGeneration(id: string) {
   return row ?? null;
 }
 
+/** Read paid orders, never pending/failed checkouts. Called inside the owner lock for writes. */
+async function readWeddingAccess(
+  exec: DbExecutor,
+  userId?: string,
+  projectId?: string,
+  now = new Date()
+) {
+  if (!userId && !projectId) return weddingAccess([], 0, now);
+  const projects = await exec
+    .select({ id: weddingProject.id })
+    .from(weddingProject)
+    .where(
+      userId
+        ? eq(weddingProject.userId, userId)
+        : eq(weddingProject.id, projectId!)
+    );
+  const purchases = await exec
+    .select({ id: order.id, paidAt: order.paidAt, createdAt: order.createdAt })
+    .from(order)
+    .where(
+      and(
+        userId
+          ? or(
+              eq(order.userId, userId),
+              inArray(
+                order.projectId,
+                projects.map((p: { id: string }) => p.id)
+              )
+            )
+          : eq(order.projectId, projectId!),
+        eq(order.productId, WEDDING_PACK_PRODUCT_ID),
+        eq(order.status, OrderStatus.PAID)
+      )
+    );
+  return weddingAccess(purchases, projects.length, now);
+}
+
+type WeddingGenerationUsage = Pick<
+  WeddingGeneration,
+  'id' | 'projectId' | 'status' | 'cost' | 'createdAt'
+>;
+async function readWeddingOwnerGenerations(
+  exec: DbExecutor,
+  userId?: string,
+  projectId?: string
+): Promise<WeddingGenerationUsage[]> {
+  return exec
+    .select({
+      id: weddingGeneration.id,
+      projectId: weddingGeneration.projectId,
+      status: weddingGeneration.status,
+      cost: weddingGeneration.cost,
+      createdAt: weddingGeneration.createdAt,
+    })
+    .from(weddingGeneration)
+    .innerJoin(
+      weddingProject,
+      eq(weddingGeneration.projectId, weddingProject.id)
+    )
+    .where(
+      userId
+        ? eq(weddingProject.userId, userId)
+        : eq(weddingProject.id, projectId!)
+    );
+}
+
+export async function getWeddingAccountAccess(userId: string) {
+  return withDb((exec) => readWeddingAccess(exec, userId), {
+    label: 'getWeddingAccountAccess',
+  });
+}
+
+export async function getWeddingGenerationAllowance(
+  userId?: string,
+  projectId?: string
+) {
+  return withDb(
+    async (exec) => {
+      const now = new Date();
+      const access = await readWeddingAccess(exec, userId, projectId, now);
+      const rows = await readWeddingOwnerGenerations(exec, userId, projectId);
+      return weddingGenerationAllowance(
+        access,
+        rows.filter((row: WeddingGenerationUsage) =>
+          countsTowardDailyImages(row, now)
+        ).length
+      );
+    },
+    { label: 'getWeddingGenerationAllowance' }
+  );
+}
+
 /** Persist quota before external work. Locks are transaction-scoped, never held
  * during provider calls. Reserved rows count toward both batch and owner limits.
  * Fail closed on dialects whose transaction abstraction is non-transactional.
@@ -627,65 +754,52 @@ export async function reserveWeddingGenerationBatch(params: {
     ) {
       throw new Error('project not found');
     }
-    const owners = await tx
-      .select({ id: weddingProject.id })
-      .from(weddingProject)
-      .where(
-        params.userId
-          ? eq(weddingProject.userId, params.userId)
-          : eq(weddingProject.guestId, params.guestId ?? '__none__')
-      );
-    const rows = await tx
-      .select()
+    // Same initial key is a provider-at-most-once reservation even across concurrent returns.
+    // Inspect inside both owner/project locks before evaluating exhausted quotas.
+    const existing = await tx
+      .select({ id: weddingGeneration.id })
       .from(weddingGeneration)
       .where(
         inArray(
-          weddingGeneration.projectId,
-          owners.map((owner: { id: string }) => owner.id)
+          weddingGeneration.id,
+          params.candidates.map((candidate) => candidate.id)
         )
       );
-    const counted = rows.filter(
-      (row: WeddingGeneration) =>
-        row.status !== 'failed' || row.cost === -1 || !!row.providerTaskId
+    if (existing.length > 0)
+      return { allowed: true as const, existing: true as const };
+    const now = new Date();
+    const access = await readWeddingAccess(
+      tx,
+      params.userId,
+      params.projectId,
+      now
     );
-    const projectRows = counted.filter(
-      (row: WeddingGeneration) => row.projectId === params.projectId
+    const rows = await readWeddingOwnerGenerations(
+      tx,
+      params.userId,
+      params.projectId
     );
-    const batches = Math.ceil(projectRows.length / params.candidates.length);
-    const projectsWithGenerations = new Set(
-      counted.map((row: WeddingGeneration) => row.projectId)
-    ).size;
-    const paidOrders = await tx
-      .select({ id: order.id })
-      .from(order)
-      .where(
-        and(
-          eq(order.projectId, params.projectId),
-          eq(order.productId, WEDDING_PACK_PRODUCT_ID),
-          eq(order.status, OrderStatus.PAID)
-        )
-      )
-      .limit(1);
-    const allowance = decideGenerationAllowance({
-      batches,
-      paid: paidOrders.length > 0,
-      isGuest: !params.userId,
-      projectsWithGenerations,
-    });
+    const projectRows = rows.filter(
+      (row: WeddingGenerationUsage) => row.projectId === params.projectId
+    );
+    const todayImages = rows.filter((row: WeddingGenerationUsage) =>
+      countsTowardDailyImages(row, now)
+    ).length;
+    const allowance = weddingGenerationAllowance(
+      access,
+      todayImages + params.candidates.length - 1
+    );
     if (!allowance.allowed)
       return {
         allowed: false as const,
         reason: allowance.reason,
-        generatedProjectId:
-          batches === 0 && projectsWithGenerations >= 1 && params.userId
-            ? counted[0]?.projectId
-            : undefined,
+        reasonCode: allowance.reasonCode,
       };
     // Same-project duplicate clicks must not submit overlapping batches, even
     // when the project still has regeneration quota.
     if (
       projectRows.some(
-        (row: WeddingGeneration) =>
+        (row: WeddingGenerationUsage) =>
           row.status === 'reserved' || row.status === 'generating'
       )
     ) {
@@ -892,7 +1006,7 @@ export async function hasPaidWeddingOrder(
   projectId?: string,
   guestId?: string
 ): Promise<boolean> {
-  // Entitlement belongs to exactly one project; first verify its owner.
+  // Downloads remain available after generation access expires. Verify ownership first.
   if (
     !projectId ||
     !(await canAccessWeddingProject({ id: projectId, userId, guestId }))
@@ -906,7 +1020,9 @@ export async function hasPaidWeddingOrder(
         .from(order)
         .where(
           and(
-            eq(order.projectId, projectId),
+            userId
+              ? or(eq(order.userId, userId), eq(order.projectId, projectId))
+              : eq(order.projectId, projectId),
             eq(order.productId, WEDDING_PACK_PRODUCT_ID),
             eq(order.status, OrderStatus.PAID)
           )

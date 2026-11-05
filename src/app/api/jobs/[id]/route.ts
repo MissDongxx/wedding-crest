@@ -1,12 +1,8 @@
 import { normalizeCheckerboardTransparency as normalizeImageBackgroundToWhite } from '@/shared/lib/pure-image';
 import { respData, respErr } from '@/shared/lib/resp';
-import { getUserInfo } from '@/shared/models/user';
 import {
   canAccessWeddingProject,
-  claimWeddingProject,
-  countProjectsWithGenerations,
-  countWeddingGenerationBatches,
-  createWeddingReview,
+  getWeddingGenerationAllowance,
   getWeddingProject,
   hasPaidWeddingOrder,
   saveWeddingAssets,
@@ -15,13 +11,13 @@ import {
   type NewWeddingAsset,
   type WeddingGeneration,
 } from '@/shared/models/wedding';
+import {
+  getWeddingActor,
+  getWeddingProjectOwner,
+} from '@/shared/models/wedding-actor';
+import { getWeddingReceiptState } from '@/shared/models/wedding-checkout';
 import { getAIService } from '@/shared/services/ai';
 import { getStorageService } from '@/shared/services/storage';
-import {
-  decideGenerationAllowance,
-  decideReview,
-  WEDDING_MAX_CANDIDATES,
-} from '@/shared/wedding/config';
 
 function extractImageUrl(result: any) {
   return (
@@ -57,18 +53,18 @@ export async function GET(
   try {
     const { id } = await params;
     const project = await getWeddingProject(id);
-    if (!project) return respErr('job not found');
-    const user = await getUserInfo();
+    if (!project) return respErr('job not found', 404);
+    const actor = await getWeddingActor();
+    const user = actor.user;
     const guestId = request.headers.get('x-wedding-guest-id') || undefined;
-    if (!(await canAccessWeddingProject({ id, userId: user?.id, guestId })))
-      return respErr('job not found');
+    const ownerId = getWeddingProjectOwner(actor, project);
+    if (!(await canAccessWeddingProject({ id, userId: ownerId, guestId })))
+      return respErr('job not found', 404);
 
-    // Claim guest projects as soon as the owner signs in.
-    if (user && !project.userId && project.guestId === guestId) {
-      await claimWeddingProject(id, user.id);
-    }
-
-    const paid = await hasPaidWeddingOrder(user?.id, id, guestId);
+    const paid = await hasPaidWeddingOrder(ownerId, id, guestId);
+    const receipt = ownerId
+      ? await getWeddingReceiptState(ownerId)
+      : { receiptEmailMissing: false, hasReceiptEmail: false };
 
     const aiService = await getAIService();
     const assets: NewWeddingAsset[] = [];
@@ -102,61 +98,38 @@ export async function GET(
             providerResult?.taskStatus === 'failed' ||
             providerResult?.taskStatus === 'canceled'
           ) {
-            await updateWeddingGeneration(generation.id, { status: 'failed' });
+            await updateWeddingGeneration(generation.id, {
+              status: 'failed',
+              cost: 0,
+            });
             return;
           }
         }
         if (!imageUrl) return;
 
         let storedImageUrl = imageUrl;
-        try {
-          const stored = await storeGeneratedImage(
-            imageUrl,
-            `wedding-crests/common/${generation.id}.png`
-          );
-          storedImageUrl = stored.url || imageUrl;
-        } catch {
-          // Provider URLs remain usable when optional storage or image
-          // normalization is not configured.
+        // OpenAI returns image bytes; the submit route already normalized
+        // and stored them before persisting this URL.
+        if (generation.provider !== 'openai') {
+          try {
+            const stored = await storeGeneratedImage(
+              imageUrl,
+              `wedding-crests/common/${generation.id}.png`
+            );
+            storedImageUrl = stored.url || imageUrl;
+          } catch {
+            // Provider URLs remain usable when optional storage or image
+            // normalization is not configured.
+          }
         }
 
-        // Vision QA (heuristic pass in this iteration): scores are persisted
-        // with the accept/repair/reject thresholds from the style config.
-        const score = 9;
-        const review = {
-          composition: score,
-          styleAdherence: score,
-          objectAccuracy: 8.5,
-          negativeSpace: 9,
-          colorAccuracy: 8.5,
-          artifactFree: 8.5,
-          weddingAesthetic: 9,
-        };
-        const decision = decideReview(score);
-
+        // Provider completion is not a visual review. Leave quality unknown
+        // until an actual image evaluator supplies evidence-backed results.
         await updateWeddingGeneration(generation.id, {
           status: 'complete',
           sourceImageUrl: storedImageUrl,
           finalImageUrl: storedImageUrl,
-          qaScore: score * 100,
-        });
-        await createWeddingReview({
-          id: `${generation.id}-review`,
-          generationId: generation.id,
-          compositionScore: review.composition * 100,
-          styleScore: review.styleAdherence * 100,
-          objectScore: review.objectAccuracy * 100,
-          negativeSpaceScore: review.negativeSpace * 100,
-          colorScore: review.colorAccuracy * 100,
-          artifactScore: review.artifactFree * 100,
-          aestheticScore: review.weddingAesthetic * 100,
-          decision,
-          reviewJson: JSON.stringify({
-            ...review,
-            decision,
-            provider: provider?.name ?? 'stored-result',
-            providerResult,
-          }),
+          qaScore: null,
         });
         assets.push({
           id: `${generation.id}-source`,
@@ -209,38 +182,20 @@ export async function GET(
         : null,
       sourceImageUrl: generation.sourceImageUrl ?? null,
       prompt: generation.prompt ?? null,
-      reviewScore:
-        typeof generation.qaScore === 'number'
-          ? generation.qaScore / 100
-          : null,
+      // Historical scores were synthetic constants, not image assessments.
+      // Do not surface them as quality evidence or rewrite historical data.
+      reviewScore: null,
+      reviewStatus: 'unreviewed' as const,
       reviewNotes: null,
     }));
-    const ownerUserId = finalProject?.userId ?? user?.id ?? null;
-    const ownerGuestId =
-      finalProject?.guestId ?? (!ownerUserId ? (guestId ?? null) : null);
-    const ownerProjects = ownerUserId
-      ? await countProjectsWithGenerations({ userId: ownerUserId })
-      : ownerGuestId
-        ? await countProjectsWithGenerations({ guestId: ownerGuestId })
-        : 0;
-    const ownerBatches = finalProject
-      ? await countWeddingGenerationBatches(
-          finalProject.id,
-          WEDDING_MAX_CANDIDATES
-        )
-      : 0;
-    const allowance = decideGenerationAllowance({
-      batches: ownerBatches,
-      paid,
-      isGuest: !user,
-      projectsWithGenerations: ownerProjects,
-    });
+    const allowance = await getWeddingGenerationAllowance(ownerId, id);
     return respData({
       jobId: id,
       status: finalProject?.status ?? 'failed',
       project: finalProject,
       generations,
       paid,
+      ...receipt,
       signedIn: Boolean(user),
       allowance,
     });

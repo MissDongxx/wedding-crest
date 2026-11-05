@@ -1,11 +1,9 @@
 import { z } from 'zod';
 
 import { respData, respErr } from '@/shared/lib/resp';
-import { getUserInfo } from '@/shared/models/user';
 import {
   canAccessWeddingProject,
-  claimWeddingProject,
-  countWeddingGenerationBatches,
+  getWeddingGenerationAllowance,
   getWeddingProject,
   hasPaidWeddingOrder,
   updateWeddingProject,
@@ -13,11 +11,14 @@ import {
   type WeddingElementPatch,
 } from '@/shared/models/wedding';
 import {
-  decideGenerationAllowance,
+  getWeddingActor,
+  getWeddingProjectOwner,
+} from '@/shared/models/wedding-actor';
+import { getWeddingReceiptState } from '@/shared/models/wedding-checkout';
+import {
   getWeddingStyle,
   layoutsForStyle,
   selectLayout,
-  WEDDING_MAX_CANDIDATES,
 } from '@/shared/wedding/config';
 import {
   WEDDING_MAX_FLOWERS,
@@ -38,33 +39,26 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const user = await getUserInfo();
+    const actor = await getWeddingActor();
     const guestId = guestIdFrom(request);
-    if (!(await canAccessWeddingProject({ id, userId: user?.id, guestId }))) {
-      return respErr('project not found');
-    }
-
     const project = await getWeddingProject(id);
-    if (!project) return respErr('project not found');
+    if (!project) return respErr('project not found', 404);
+    const ownerId = getWeddingProjectOwner(actor, project);
+    if (!(await canAccessWeddingProject({ id, userId: ownerId, guestId })))
+      return respErr('project not found', 404);
+    const paid = await hasPaidWeddingOrder(ownerId, id, guestId);
+    const receipt = ownerId
+      ? await getWeddingReceiptState(ownerId)
+      : { receiptEmailMissing: false, hasReceiptEmail: false };
+    const allowance = await getWeddingGenerationAllowance(ownerId, id);
 
-    // Claim guest projects as soon as a session user sees them.
-    if (user && !project.userId && project.guestId === guestId) {
-      await claimWeddingProject(id, user.id);
-    }
-
-    const paid = await hasPaidWeddingOrder(user?.id, id, guestId);
-    const batches = await countWeddingGenerationBatches(
-      id,
-      WEDDING_MAX_CANDIDATES
-    );
-    const allowance = decideGenerationAllowance({
-      batches,
+    return respData({
+      project,
       paid,
-      isGuest: !user,
-      projectsWithGenerations: 0,
+      ...receipt,
+      allowance,
+      signedIn: Boolean(actor.user),
     });
-
-    return respData({ project, paid, allowance, signedIn: Boolean(user) });
   } catch (error) {
     return respErr(
       error instanceof Error ? error.message : 'failed to load project'
@@ -109,6 +103,7 @@ const patchSchema = z.object({
     ])
     .optional(),
   showDate: z.boolean().optional(),
+  showLocation: z.boolean().optional(),
   // Free-text location/venue, plus element-table fields.
   location: z.string().trim().max(120).nullable().optional(),
   venue: z.string().trim().max(120).nullable().optional(),
@@ -148,22 +143,19 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const user = await getUserInfo();
+    const actor = await getWeddingActor();
     const guestId = guestIdFrom(request);
-    if (!(await canAccessWeddingProject({ id, userId: user?.id, guestId }))) {
-      return user
-        ? respErr('project not found')
-        : respErr('Sign in to continue your wedding design.', 401);
-    }
     const project = await getWeddingProject(id);
-    if (!project)
-      return user
-        ? respErr('project not found')
-        : respErr('Sign in to continue your wedding design.', 401);
+    if (!project) return respErr('project not found', 404);
+    const ownerId = getWeddingProjectOwner(actor, project);
+    if (!(await canAccessWeddingProject({ id, userId: ownerId, guestId })))
+      return respErr('project not found', 404);
     const body = patchSchema.parse(await request.json());
 
     const values: Record<string, unknown> = {};
     const elementPatch: WeddingElementPatch = {};
+    if (body.showLocation !== undefined)
+      elementPatch.showLocation = body.showLocation;
     let nextStyleId: string | null = null;
 
     // Names + initials recompute.

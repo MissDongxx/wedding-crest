@@ -1,4 +1,4 @@
-import { and, count, desc, eq, or } from 'drizzle-orm';
+import { and, count, desc, eq, isNull, or } from 'drizzle-orm';
 
 import { db } from '@/core/db';
 import { credit, order, subscription } from '@/config/db/schema';
@@ -170,6 +170,7 @@ export async function updateOrderByOrderNo(
   options?: {
     // Only update if current status matches (optimistic lock)
     expectedStatus?: OrderStatus;
+    onlyMissingPaymentEmail?: boolean;
   }
 ) {
   const conditions = [eq(order.orderNo, orderNo)];
@@ -177,6 +178,12 @@ export async function updateOrderByOrderNo(
   // Add status check for optimistic locking
   if (options?.expectedStatus) {
     conditions.push(eq(order.status, options.expectedStatus));
+  }
+
+  if (options?.onlyMissingPaymentEmail) {
+    conditions.push(
+      or(isNull(order.paymentEmail), eq(order.paymentEmail, ''))!
+    );
   }
 
   const [result] = await db()
@@ -417,4 +424,22 @@ export async function updateSubscriptionInTransaction({
   });
 
   return result;
+}
+
+/** An atomic insert reserves one provider checkout across parallel retries. */
+export async function reserveWeddingCheckoutOrder(newOrder: NewOrder) {
+  const [created] = await db()
+    .insert(order)
+    .values(newOrder)
+    .onConflictDoNothing()
+    .returning();
+  if (created) return { order: created, created: true };
+  const existing = await findOrderById(newOrder.id!);
+  if (
+    !existing ||
+    existing.userId !== newOrder.userId ||
+    existing.productId !== newOrder.productId
+  )
+    throw new Error('checkout reservation mismatch');
+  return { order: existing, created: false };
 }

@@ -7,7 +7,7 @@ import {
   OrderStatus,
   updateOrderByOrderNo,
 } from '@/shared/models/order';
-import { getUserInfo } from '@/shared/models/user';
+import { getWeddingActor } from '@/shared/models/wedding-actor';
 import {
   canAccessWeddingCheckout,
   weddingCheckoutCookie,
@@ -20,9 +20,9 @@ export async function GET(req: Request) {
 
   if (orderNo) {
     try {
-      const [order, user] = await Promise.all([
+      const [order, actor] = await Promise.all([
         findOrderByOrderNo(orderNo),
-        getUserInfo(),
+        getWeddingActor(),
       ]);
 
       // Only the account owner or checkout guest can cancel an order; only an unpaid
@@ -31,10 +31,19 @@ export async function GET(req: Request) {
       const guestId = (await cookies()).get(
         weddingCheckoutCookie(orderNo)
       )?.value;
-      if (order && (await canAccessWeddingCheckout(order, user?.id, guestId))) {
-        if (order.projectId && order.callbackUrl) {
+      if (
+        order &&
+        (await canAccessWeddingCheckout(
+          order,
+          actor.user?.id,
+          guestId,
+          actor.guestOwnerId
+        ))
+      ) {
+        if (order.callbackUrl) {
           const returnUrl = new URL(order.callbackUrl);
           returnUrl.searchParams.delete('paid');
+          returnUrl.searchParams.delete('prepaid');
           returnUrl.searchParams.set('payment', 'canceled');
           pricingUrl = returnUrl.toString();
         }

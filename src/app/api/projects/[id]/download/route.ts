@@ -2,13 +2,16 @@ import JSZip from 'jszip';
 
 import { respErr } from '@/shared/lib/resp';
 import { getAllConfigs } from '@/shared/models/config';
-import { getUserInfo } from '@/shared/models/user';
 import {
   canAccessWeddingProject,
   getWeddingProject,
   hasPaidWeddingOrder,
   type WeddingGeneration,
 } from '@/shared/models/wedding';
+import {
+  getWeddingActor,
+  getWeddingProjectOwner,
+} from '@/shared/models/wedding-actor';
 import { getWeddingStyle, getWeddingTypography } from '@/shared/wedding/config';
 import { formatWeddingDate } from '@/shared/wedding/display-text';
 import { chooseDownloadGeneration } from '@/shared/wedding/result-data';
@@ -124,15 +127,18 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const user = await getUserInfo(true);
+    const actor = await getWeddingActor();
     const guestId = request.headers.get('x-wedding-guest-id') || undefined;
     const project = await getWeddingProject(id);
+    const ownerId = project
+      ? getWeddingProjectOwner(actor, project)
+      : undefined;
     if (
       !project ||
-      !(await canAccessWeddingProject({ id, userId: user?.id, guestId }))
+      !(await canAccessWeddingProject({ id, userId: ownerId, guestId }))
     )
       return respErr('project not found', 404);
-    if (!(await hasPaidWeddingOrder(user?.id, id, guestId)))
+    if (!(await hasPaidWeddingOrder(ownerId, id, guestId)))
       return respErr('paid Wedding Image Pack required', 402);
 
     const downloadable = project.generations.filter(

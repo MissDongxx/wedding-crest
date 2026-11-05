@@ -29,7 +29,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = [
     '',
     '/create',
-    '/examples',
+    '/wedding-crest-examples',
     '/wedding-crest-generator',
     '/wedding-monogram-maker',
     '/wedding-logo-maker',

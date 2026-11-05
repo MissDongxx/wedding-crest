@@ -2,7 +2,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
+import { envConfigs } from '@/config';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
+import { getAlternates } from '@/shared/lib/seo';
 import {
   listWeddingExamplesSafe,
   type WeddingExampleRow,
@@ -21,6 +23,11 @@ export async function generateMetadata({
   return {
     title: t('meta_title'),
     description: t('meta_description'),
+    alternates: await getAlternates(
+      '/wedding-crest-examples',
+      locale,
+      envConfigs.app_url
+    ),
   };
 }
 

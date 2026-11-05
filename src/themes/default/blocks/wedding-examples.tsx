@@ -89,7 +89,7 @@ export async function WeddingExamples({
         {section.buttons?.[0] && (
           <div className="mt-10 text-center">
             <Link
-              href={section.buttons[0].url ?? '/examples'}
+              href={section.buttons[0].url ?? '/wedding-crest-examples'}
               className={cn(
                 'border-border hover:border-primary/40 hover:bg-accent',
                 'inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm transition-colors'

@@ -1,7 +1,7 @@
 {
   "metadata": {
     "title": "Pricing - Wedding Crest Design",
-    "description": "Design your wedding crest free, then unlock the complete Wedding Image Pack with original AI-generated image files for $2.9."
+    "description": "Purchase the __WEDDING_PRICE__ image pack to start generating. Unlimited regenerations for one week and watermark-free image downloads."
   },
   "page": {
     "title": "Wedding Crest Design Pricing",
@@ -9,7 +9,7 @@
       "pricing": {
         "id": "pricing",
         "title": "Simple, Honest Pricing",
-        "description": "Design free. Pay once, only if you love it.",
+        "description": "Geração após pagamento · Regenerações por uma semana",
         "groups": [
           {
             "name": "one-time",
@@ -19,16 +19,13 @@
         ],
         "items": [
           {
-            "title": "Free",
-            "description": "Design your crest and see it in full.",
+            "title": "Explore for free",
+            "description": "Browse examples and prepare your design. Image generation requires payment.",
             "features_title": "Includes",
             "features": [
-              "1 saved wedding project",
-              "1 finished AI crest design per generation",
-              "3 total generations",
-              "All 6 styles, layouts & palettes",
-              "AI-generated lettering and artwork",
-              "Watermarked preview images"
+              "Browse crest examples",
+              "Explore styles and palettes",
+              "Prepare and save your design choices"
             ],
             "interval": "one-time",
             "amount": 0,
@@ -36,9 +33,9 @@
             "price": "$0",
             "unit": "forever",
             "is_featured": false,
-            "tip": "No credit card required",
+            "tip": "AI generation starts after payment",
             "button": {
-              "title": "Start Designing",
+              "title": "Prepare My Design",
               "url": "/create",
               "icon": "RiFlashlightFill"
             },
@@ -50,12 +47,12 @@
           },
           {
             "title": "Wedding Image Pack",
-            "description": "Unlock watermark-free original AI image files for one wedding project. Pay once - it is yours forever.",
+            "description": "Start generating after payment. Regenerate for one week; keep downloading your completed images afterwards.",
             "label": "Oferta por tempo limitado",
-            "features_title": "Everything in Free, plus",
+            "features_title": "Includes",
             "features": [
               "Watermark-free source-quality image files",
-              "5 regenerations (5 more finished AI crest designs)",
+              "Regenerações ilimitadas por uma semana",
               "Selected original AI-generated crest",
               "Every completed AI-generated variation",
               "Files preserved in their original PNG, JPEG, or WebP format",
@@ -65,20 +62,42 @@
               "Personalized flattened previews; not editable templates or printed products"
             ],
             "interval": "one-time",
-            "amount": 290,
-            "currency": "USD",
-            "price": "$2.9",
-            "original_price": "$9.9",
             "unit": "one-time",
             "is_featured": true,
-            "tip": "Economize $7 (71% de desconto) · Pagamento único · Seu para sempre",
+            "tip": "Save __WEDDING_SAVINGS__ (__WEDDING_DISCOUNT__% off) · Regenerações ilimitadas por uma semana",
             "button": {
-              "title": "Unlock My Crest",
+              "title": "Pagar e gerar meu brasão",
               "url": "/create",
               "icon": "RiVipCrownLine"
             },
             "product_id": "wedding_identity_pack",
             "product_name": "Wedding Image Pack",
+            "credits": 0,
+            "valid_days": 7,
+            "group": "one-time"
+          },
+          {
+            "title": "Criação por um designer",
+            "description": "Um designer real analisa o pedido e cria seu brasão",
+            "features": [
+              "Primeira resposta por e-mail em até 8 horas",
+              "Um designer real analisa o pedido e cria seu brasão",
+              "Pague primeiro, depois envie contato e preferências"
+            ],
+            "interval": "one-time",
+            "amount": 3000,
+            "currency": "USD",
+            "price": "$30",
+            "unit": "one-time",
+            "button": {
+              "title": "Escolher um designer",
+              "url": "/create?service=human#human-design"
+            },
+            "product_id": "wedding_human_design",
+            "product_name": "Brasão de casamento por um designer",
+            "payment_providers": [
+              "waffo"
+            ],
             "credits": 0,
             "valid_days": 0,
             "group": "one-time"

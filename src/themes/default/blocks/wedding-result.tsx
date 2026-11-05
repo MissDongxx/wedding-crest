@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { X } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -23,6 +23,8 @@ import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import { DesignEditAssistant } from '@/shared/components/wedding/design-edit-assistant';
+import { HumanDesignPurchase } from '@/shared/components/wedding/human-design-purchase';
+import { PurchaseReceiptContact } from '@/shared/components/wedding/purchase-receipt-contact';
 import { WeddingApplicationPreview } from '@/shared/components/wedding/wedding-application-preview';
 import { useAppContext } from '@/shared/contexts/app';
 import { readJsonResponse } from '@/shared/lib/read-json-response';
@@ -33,7 +35,16 @@ import {
   observeWeddingExposure,
   trackWeddingFunnel,
 } from '@/shared/wedding/funnel-client';
-import { normalizeWeddingProject } from '@/shared/wedding/result-data';
+import { WEDDING_PACK_PRICING } from '@/shared/wedding/pricing';
+import {
+  requestWeddingCheckout,
+  stableWeddingRequestId,
+  weddingResumePath,
+} from '@/shared/wedding/purchase-client';
+import {
+  isWeddingLetteringPatch,
+  normalizeWeddingProject,
+} from '@/shared/wedding/result-data';
 import {
   WEDDING_MAX_FLOWERS,
   WEDDING_MAX_PALETTE_COLORS,
@@ -76,6 +87,7 @@ interface ProjectData {
   personalElements: string[];
   nameDisplay: WeddingNameDisplay;
   showDate: boolean;
+  showLocation: boolean;
   complexity: 'minimal' | 'medium' | 'rich';
   frameId?: string | null;
   frameUrl?: string | null;
@@ -88,9 +100,11 @@ interface JobResponse {
   generations: GenerationData[];
   paid: boolean;
   signedIn: boolean;
+  receiptEmailMissing?: boolean;
   allowance: {
     allowed: boolean;
     reason?: string;
+    reasonCode?: string;
     maxBatches?: number;
   };
 }
@@ -120,13 +134,12 @@ export function WeddingResult({ projectId }: { projectId: string }) {
   const t = useTranslations('pages.design');
   const locale = useLocale();
   const router = useRouter();
-  const {
-    user,
-    setUser,
-    isCheckSign,
-    setIsShowSignModal,
-    setSignInCallbackUrl,
-  } = useAppContext();
+  const searchParams = useSearchParams();
+  const [paymentState, setPaymentState] = useState<
+    'idle' | 'confirming' | 'unconfirmed'
+  >('idle');
+  const [paymentRetry, setPaymentRetry] = useState(0);
+  const { user, isCheckSign } = useAppContext();
 
   const [data, setData] = useState<JobResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -267,6 +280,40 @@ export function WeddingResult({ projectId }: { projectId: string }) {
     }
   }, [projectId, guestId, t]);
 
+  useEffect(() => {
+    const payment = searchParams.get('payment') || searchParams.get('checkout');
+    if (payment === 'canceled' || payment === 'failed') {
+      localStorage.removeItem(`wedding_result_checkout:${projectId}`);
+      setPaymentState('idle');
+      return;
+    }
+    if (
+      searchParams.get('paid') !== '1' &&
+      searchParams.get('prepaid') !== '1' &&
+      payment !== 'pending'
+    )
+      return;
+    let canceled = false;
+    setPaymentState('confirming');
+    void (async () => {
+      for (let attempt = 0; attempt < 8 && !canceled; attempt++) {
+        const current = await fetchJob();
+        if (canceled) return;
+        if (current?.paid) {
+          setPaymentState('idle');
+          localStorage.removeItem(`wedding_result_checkout:${projectId}`);
+          return;
+        }
+        if (attempt < 7)
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
+      if (!canceled) setPaymentState('unconfirmed');
+    })();
+    return () => {
+      canceled = true;
+    };
+  }, [searchParams, projectId, fetchJob, paymentRetry]);
+
   // Refresh guest allowance exactly once when current auth becomes signed in.
   // fetchJob preserves the displayed generation and existing feedback/editor state.
   const allowanceUserId = useRef<string | null>(null);
@@ -351,7 +398,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
         });
         const envelope = (await response
           .json()
-          .catch(() => ({}))) as ApiEnvelope<unknown>;
+          .catch(() => ({}))) as ApiEnvelope<{ reasonCode?: string }>;
         if (
           !response.ok ||
           (envelope.code !== undefined && envelope.code !== 0)
@@ -387,9 +434,11 @@ export function WeddingResult({ projectId }: { projectId: string }) {
         // or an envelope without `message` still surfaces a useful toast
         // instead of the generic "image pack could not be prepared".
         const raw = await response.text().catch(() => '');
-        let envelope: ApiEnvelope<unknown> = {};
+        let envelope: ApiEnvelope<{ reasonCode?: string }> = {};
         try {
-          envelope = raw ? (JSON.parse(raw) as ApiEnvelope<unknown>) : {};
+          envelope = raw
+            ? (JSON.parse(raw) as ApiEnvelope<{ reasonCode?: string }>)
+            : {};
         } catch {
           envelope = {};
         }
@@ -459,24 +508,23 @@ export function WeddingResult({ projectId }: { projectId: string }) {
     }
   }, [project, selectedGeneration, downloading, busy, guestId, t, locale]);
 
-  const openGenerationSignIn = useCallback(() => {
-    setSignInCallbackUrl?.(window.location.pathname + window.location.search);
-    setIsShowSignModal(true);
-  }, [setSignInCallbackUrl, setIsShowSignModal]);
-
-  const requireGenerationSignIn = useCallback(() => {
-    if (data?.paid) return false;
-    if (isCheckSign) return true;
-    if (user) return false;
-    openGenerationSignIn();
-    return true;
-  }, [data?.paid, isCheckSign, user, openGenerationSignIn]);
+  const requireGenerationAccess = useCallback(() => {
+    if (!data) return true;
+    if (!data.allowance.allowed) {
+      toast.error(
+        data.allowance.reasonCode
+          ? t(data.allowance.reasonCode)
+          : data.allowance.reason || t('allowance_hint')
+      );
+      return true;
+    }
+    return false;
+  }, [data, t]);
 
   const handleAuthRequired = useCallback(() => {
-    setUser(null);
     setData((current) => (current ? { ...current, signedIn: false } : current));
-    openGenerationSignIn();
-  }, [setUser, openGenerationSignIn]);
+    toast.error(t('purchase_access_lost'), { duration: 10000 });
+  }, [t]);
 
   const handleExpiredSession = useCallback(
     (response: Response) => {
@@ -490,7 +538,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
   const confirmAssistantEdit = useCallback(
     async (plan: EditPlan) => {
       if (!project || !selectedGeneration || busy) return false;
-      if (requireGenerationSignIn()) return false;
+      if (requireGenerationAccess()) return false;
       setBusy(true);
       try {
         const response = await fetch(`/api/projects/${project.id}/generate`, {
@@ -508,9 +556,16 @@ export function WeddingResult({ projectId }: { projectId: string }) {
           }),
         });
         if (handleExpiredSession(response)) return false;
-        const envelope = await readJsonResponse<ApiEnvelope<unknown>>(response);
+        const envelope =
+          await readJsonResponse<ApiEnvelope<{ reasonCode?: string }>>(
+            response
+          );
         if (!response.ok || envelope.code !== 0)
-          throw new Error(envelope.message || t('update_error'));
+          throw new Error(
+            envelope.data?.reasonCode
+              ? t(envelope.data.reasonCode)
+              : envelope.message || t('update_error')
+          );
         setSelectedIndex(0);
         setProgressStage('queued');
         setProgressPercent(5);
@@ -532,13 +587,13 @@ export function WeddingResult({ projectId }: { projectId: string }) {
       guestId,
       fetchJob,
       t,
-      requireGenerationSignIn,
+      requireGenerationAccess,
       handleExpiredSession,
     ]
   );
 
   const regenerate = useCallback(async () => {
-    if (!project || requireGenerationSignIn()) return;
+    if (!project || requireGenerationAccess()) return;
     setBusy(true);
     try {
       const response = await fetch(`/api/projects/${project.id}/generate`, {
@@ -550,9 +605,11 @@ export function WeddingResult({ projectId }: { projectId: string }) {
       });
       if (handleExpiredSession(response)) return;
       const raw = await response.text();
-      let body: ApiEnvelope<unknown> = {};
+      let body: ApiEnvelope<{ reasonCode?: string }> = {};
       try {
-        body = raw ? (JSON.parse(raw) as ApiEnvelope<unknown>) : {};
+        body = raw
+          ? (JSON.parse(raw) as ApiEnvelope<{ reasonCode?: string }>)
+          : {};
       } catch {
         // Non-JSON body (HTML 500 from Next, an empty body, a proxy
         // page). Surface what we can: status + the first ~200 chars of
@@ -568,10 +625,18 @@ export function WeddingResult({ projectId }: { projectId: string }) {
         if (body?.error === 'quota_exceeded') {
           toast.error(t('quota_exceeded'));
         } else {
-          const detail = body?.message || body?.error || t('update_error');
+          const detail = body.data?.reasonCode
+            ? t(body.data.reasonCode)
+            : body?.message || body?.error || t('update_error');
           const statusLine =
             `${response.status} ${response.statusText || ''}`.trim();
-          toast.error(statusLine ? `${statusLine}: ${detail}` : detail);
+          toast.error(
+            body.data?.reasonCode
+              ? detail
+              : statusLine
+                ? `${statusLine}: ${detail}`
+                : detail
+          );
         }
         return;
       }
@@ -596,7 +661,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
     guestId,
     t,
     fetchJob,
-    requireGenerationSignIn,
+    requireGenerationAccess,
     handleExpiredSession,
   ]);
 
@@ -610,7 +675,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
         | 'remove_personal_element'
         | null;
     }) => {
-      if (!project || requireGenerationSignIn()) return;
+      if (!project || requireGenerationAccess()) return;
       setBusy(true);
       try {
         // 1. Persist any project field changes first.
@@ -657,6 +722,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
         if (params.regenKind && selectedGeneration) {
           const editBody: {
             sourceGenerationId: string;
+            replaceLetteringStyle?: boolean;
             kind:
               | 'reduce_colors'
               | 'make_simpler'
@@ -679,6 +745,10 @@ export function WeddingResult({ projectId }: { projectId: string }) {
                     kind: 'design',
                   };
 
+          if (params.fieldPatch.typography !== undefined) {
+            editBody.replaceLetteringStyle = true;
+          }
+
           const response = await fetch(`/api/projects/${project.id}/generate`, {
             method: 'POST',
             headers: {
@@ -690,7 +760,9 @@ export function WeddingResult({ projectId }: { projectId: string }) {
           if (handleExpiredSession(response)) return;
           const envelope = (await response
             .json()
-            .catch(() => ({}))) as ApiEnvelope<unknown> & { error?: string };
+            .catch(() => ({}))) as ApiEnvelope<{ reasonCode?: string }> & {
+            error?: string;
+          };
           if (
             !response.ok ||
             (envelope.code !== undefined && envelope.code !== 0)
@@ -699,7 +771,9 @@ export function WeddingResult({ projectId }: { projectId: string }) {
               toast.error(t('quota_exceeded'));
             } else {
               toast.error(
-                envelope.error || envelope.message || t('update_error')
+                envelope.data?.reasonCode
+                  ? t(envelope.data.reasonCode)
+                  : envelope.error || envelope.message || t('update_error')
               );
             }
             return;
@@ -728,7 +802,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
       t,
       fetchJob,
       selectedGeneration,
-      requireGenerationSignIn,
+      requireGenerationAccess,
       handleExpiredSession,
     ]
   );
@@ -738,36 +812,53 @@ export function WeddingResult({ projectId }: { projectId: string }) {
 
   const checkout = useCallback(async () => {
     if (!project || paying) return;
+    if (paymentState !== 'idle') {
+      setPaymentRetry((current) => current + 1);
+      return;
+    }
     trackWeddingFunnel('unlock_clicked', project.id);
     setPaying(true);
     try {
-      const response = await fetch('/api/payment/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(guestId ? { 'x-wedding-guest-id': guestId } : {}),
-        },
-        body: JSON.stringify({
-          product_id: 'wedding_identity_pack',
-          locale: document.documentElement.lang,
-          metadata: { project_id: project.id },
-        }),
-      });
-      const envelope = (await response
-        .json()
-        .catch(() => ({}))) as ApiEnvelope<{
-        checkoutUrl?: string;
-        url?: string;
-      }> & {
-        checkoutUrl?: string;
-        url?: string;
-      };
+      const { response, body: envelope } = await requestWeddingCheckout(
+        async () =>
+          fetch('/api/payment/checkout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-wedding-checkout-id': await stableWeddingRequestId(
+                localStorage,
+                `wedding_result_checkout:${project.id}`
+              ),
+              ...(guestId ? { 'x-wedding-guest-id': guestId } : {}),
+            },
+            body: JSON.stringify({
+              product_id: 'wedding_identity_pack',
+              locale: document.documentElement.lang,
+              metadata: {
+                project_id: project.id,
+                resume_path: weddingResumePath(
+                  window.location.pathname,
+                  window.location.search
+                ),
+              },
+            }),
+          }),
+        () => {
+          localStorage.removeItem(`wedding_result_checkout:${project.id}`);
+        }
+      );
       if (
         !response.ok ||
         (envelope.code !== undefined && envelope.code !== 0)
       ) {
         trackWeddingFunnel('checkout_failed', project.id);
-        toast.error(envelope.error || envelope.message || t('pay_error'));
+        toast.error(
+          envelope.data?.reasonCode === 'checkout_ended'
+            ? t('checkout_ended_retry')
+            : envelope.data?.reasonCode === 'checkout_initializing'
+              ? t('checkout_initializing_retry')
+              : envelope.error || envelope.message || t('pay_error')
+        );
         return;
       }
       const checkoutInfo = envelope.data ?? envelope;
@@ -785,7 +876,7 @@ export function WeddingResult({ projectId }: { projectId: string }) {
     } finally {
       setPaying(false);
     }
-  }, [project, guestId, t, paying]);
+  }, [project, guestId, t, paying, paymentState]);
 
   useEffect(() => {
     if (!project || !selectedGeneration) return;
@@ -885,7 +976,22 @@ export function WeddingResult({ projectId }: { projectId: string }) {
     <div className="bg-background min-h-screen">
       <div className="mx-auto max-w-6xl px-4 py-10 md:py-14">
         {/* progress / status banner */}
-        {!isComplete && !isFailed && (
+        {data?.status === 'draft' && (
+          <div className="bg-muted/40 mb-8 rounded-2xl p-6 text-center">
+            <p className="font-serif text-xl">{t('payment_required')}</p>
+            <p className="text-muted-foreground mt-2 text-sm">
+              {t('weekly_access')}
+            </p>
+            <Button
+              className="mt-4"
+              onClick={data.allowance.allowed ? regenerate : checkout}
+              disabled={busy || paying}
+            >
+              {data.allowance.allowed ? t('regenerate_cta') : t('unlock_cta')}
+            </Button>
+          </div>
+        )}
+        {!isComplete && !isFailed && data?.status !== 'draft' && (
           <div
             className={cn(
               'bg-muted/40 mb-8 rounded-2xl p-6 text-center transition-colors',
@@ -921,6 +1027,23 @@ export function WeddingResult({ projectId }: { projectId: string }) {
             </div>
           </div>
         )}
+
+        {paid &&
+          data?.allowance &&
+          !data.allowance.allowed &&
+          data.allowance.reasonCode && (
+            <div
+              className="bg-muted/40 mb-6 rounded-2xl p-5 text-center"
+              role="status"
+            >
+              <p>{t(data.allowance.reasonCode)}</p>
+              {data.allowance.reasonCode === 'access_expired' && (
+                <Button className="mt-3" onClick={checkout} disabled={paying}>
+                  {t('renew_access')}
+                </Button>
+              )}
+            </div>
+          )}
 
         {isFailed && (
           <div className="border-destructive/40 bg-destructive/5 mb-8 rounded-2xl border p-6 text-center">
@@ -990,29 +1113,67 @@ export function WeddingResult({ projectId }: { projectId: string }) {
             {isComplete && selectedGeneration?.sourceImageUrl && (
               <div
                 id="wedding-pricing"
-                className="border-primary/20 bg-primary/5 rounded-2xl border p-4 sm:p-6 lg:col-start-2 lg:row-start-1 lg:self-start"
+                className={
+                  paid
+                    ? 'border-primary/20 bg-primary/5 rounded-2xl border p-4 sm:p-6 lg:col-start-2 lg:row-start-1 lg:self-start'
+                    : 'lg:col-span-2'
+                }
               >
-                <p className="font-serif text-xl">{t('unlock_title')}</p>
-                <p className="text-muted-foreground mt-2 text-sm">
-                  {t('unlock_description')}
-                </p>
+                {paid && (
+                  <>
+                    <p className="font-serif text-xl">{t('unlock_title')}</p>
+                    <p className="text-muted-foreground mt-2 text-sm">
+                      {t('unlock_description')}
+                    </p>
 
-                <p className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                  <span className="font-serif text-2xl">$2.9</span>
-                  <span className="text-muted-foreground text-sm">
-                    {t('unlock_unit')}
-                  </span>
-                </p>
+                    <p className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                      <span className="font-serif text-2xl">
+                        {WEDDING_PACK_PRICING.price}
+                      </span>
+                      <span className="text-muted-foreground text-sm">
+                        {t('unlock_unit')}
+                      </span>
+                    </p>
+                  </>
+                )}
                 {!paid ? (
                   <>
-                    <Button
-                      className="mt-4 min-h-12 w-full text-center whitespace-normal"
-                      size="lg"
-                      onClick={checkout}
-                      disabled={paying || !isComplete}
-                    >
-                      {paying ? t('unlock_processing') : t('unlock_cta')}
-                    </Button>
+                    <HumanDesignPurchase
+                      projectId={project.id}
+                      brief={JSON.stringify(project)}
+                      aiAction={
+                        <Button
+                          className="min-h-12 w-full text-center whitespace-normal"
+                          size="lg"
+                          onClick={checkout}
+                          disabled={
+                            paying ||
+                            !isComplete ||
+                            paymentState === 'confirming'
+                          }
+                        >
+                          {paymentState === 'confirming'
+                            ? t('payment_confirming')
+                            : paymentState === 'unconfirmed'
+                              ? t('payment_retry_confirmation')
+                              : paying
+                                ? t('unlock_processing')
+                                : t('unlock_cta')}
+                        </Button>
+                      }
+                    />
+                    {paymentState !== 'idle' && (
+                      <p
+                        role="status"
+                        className="text-muted-foreground mt-3 text-sm"
+                      >
+                        {t(
+                          paymentState === 'confirming'
+                            ? 'payment_confirming'
+                            : 'payment_unconfirmed'
+                        )}
+                      </p>
+                    )}
                     {data?.allowance &&
                       !data.allowance.allowed &&
                       showAllowanceHint && (
@@ -1026,27 +1187,16 @@ export function WeddingResult({ projectId }: { projectId: string }) {
                             <X className="size-3.5" aria-hidden="true" />
                           </button>
                           <p>
-                            {!user && !isCheckSign
-                              ? t('feedback.signin_edit')
-                              : data.allowance.reason || t('allowance_hint')}
+                            {(data.allowance.reasonCode
+                              ? t(data.allowance.reasonCode)
+                              : data.allowance.reason) || t('allowance_hint')}
                           </p>
-                          {!user && !isCheckSign ? (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              className="mt-2 min-h-11 w-full whitespace-normal"
-                              onClick={openGenerationSignIn}
-                            >
-                              {t('feedback.signin_edit')}
-                            </Button>
-                          ) : (
-                            <a
-                              className="text-primary mt-2 inline-block font-medium underline underline-offset-2"
-                              href="#wedding-pricing"
-                            >
-                              {t('allowance_link')}
-                            </a>
-                          )}
+                          <a
+                            className="text-primary mt-2 inline-block font-medium underline underline-offset-2"
+                            href="#wedding-pricing"
+                          >
+                            {t('allowance_link')}
+                          </a>
                         </div>
                       )}
                   </>
@@ -1060,13 +1210,21 @@ export function WeddingResult({ projectId }: { projectId: string }) {
                     {downloading ? t('download_preparing') : t('download_zip')}
                   </Button>
                 )}
-                <ul className="mt-4 space-y-2 text-sm">
-                  <li>· {t('unlock_feature_1')}</li>
-                  <li>· {t('unlock_feature_2')}</li>
-                  <li>· {t('unlock_feature_3')}</li>
-                  <li>· {t('unlock_feature_4')}</li>
-                  <li>· {t('unlock_feature_5')}</li>
-                </ul>
+                {paid && (
+                  <PurchaseReceiptContact
+                    projectId={project.id}
+                    receiptEmailMissing={data.receiptEmailMissing}
+                  />
+                )}
+                {paid && (
+                  <ul className="mt-4 space-y-2 text-sm">
+                    <li>· {t('unlock_feature_1')}</li>
+                    <li>· {t('unlock_feature_2')}</li>
+                    <li>· {t('unlock_feature_3')}</li>
+                    <li>· {t('unlock_feature_4')}</li>
+                    <li>· {t('unlock_feature_5')}</li>
+                  </ul>
+                )}
               </div>
             )}
 
@@ -1164,13 +1322,13 @@ export function WeddingResult({ projectId }: { projectId: string }) {
                         type="button"
                         variant="outline"
                         className="mt-3 min-h-11 w-full sm:w-auto"
-                        disabled={busy || (!paid && isCheckSign)}
+                        disabled={busy}
                         aria-expanded={
                           editingGenerationId === selectedGeneration.id
                         }
                         aria-controls="wedding-design-editor"
                         onClick={() => {
-                          if (requireGenerationSignIn()) return;
+                          if (requireGenerationAccess()) return;
                           setEditingGenerationId((current) =>
                             current === selectedGeneration.id
                               ? null
@@ -1266,6 +1424,12 @@ export function WeddingResult({ projectId }: { projectId: string }) {
                       show_date_label: t('show_date_label'),
                       show_date_on: t('show_date_on'),
                       show_date_off: t('show_date_off'),
+                      edit_location: t('edit_location'),
+                      edit_venue: t('edit_venue'),
+                      location_usage: t('location_usage'),
+                      location_inspiration: t('location_inspiration'),
+                      location_print: t('location_print'),
+                      location_usage_hint: t('location_usage_hint'),
                     }}
                   />
                 </div>
@@ -1409,6 +1573,9 @@ interface EditDraft {
   layout: string;
   nameDisplay: WeddingNameDisplay;
   showDate: boolean;
+  showLocation: boolean;
+  location: string;
+  venue: string;
   // Colors
   palette: string[];
   // Flowers & personal elements
@@ -1459,6 +1626,12 @@ interface EditPanelTexts {
   show_date_label: string;
   show_date_on: string;
   show_date_off: string;
+  edit_location: string;
+  edit_venue: string;
+  location_usage: string;
+  location_inspiration: string;
+  location_print: string;
+  location_usage_hint: string;
 }
 
 function EditPanel({
@@ -1502,6 +1675,9 @@ function EditPanel({
     layout: project.layout,
     nameDisplay: project.nameDisplay,
     showDate: project.showDate,
+    showLocation: project.showLocation === true,
+    location: project.location ?? '',
+    venue: project.venue ?? '',
     palette: project.palette,
     flowers: project.flowers,
     personalElements: project.personalElements,
@@ -1556,6 +1732,15 @@ function EditPanel({
     if ((draft.weddingDate || null) !== (project.weddingDate ?? null)) {
       fieldPatch.weddingDate = draft.weddingDate || null;
     }
+    if (draft.showLocation !== project.showLocation) {
+      fieldPatch.showLocation = draft.showLocation;
+    }
+    if ((draft.location.trim() || null) !== (project.location ?? null)) {
+      fieldPatch.location = draft.location.trim() || null;
+    }
+    if ((draft.venue.trim() || null) !== (project.venue ?? null)) {
+      fieldPatch.venue = draft.venue.trim() || null;
+    }
     if (draft.typography !== project.typography) {
       fieldPatch.typography = draft.typography;
     }
@@ -1597,18 +1782,7 @@ function EditPanel({
   // Every visible change goes back through image generation: lettering edits
   // preserve the artwork, while palette/motif/frame/layout edits redesign it.
   const letteringOnly =
-    !hasQuickEdit &&
-    Object.keys(changes).every((k) =>
-      [
-        'partner1',
-        'partner2',
-        'weddingDate',
-        'typography',
-        'layout',
-        'nameDisplay',
-        'showDate',
-      ].includes(k)
-    );
+    !hasQuickEdit && isWeddingLetteringPatch(changes, project);
 
   const regenKind: 'artwork' | 'lettering' | null = hasQuickEdit
     ? 'artwork'
@@ -1886,6 +2060,58 @@ function EditPanel({
                         {draft.showDate ? '✓' : '○'}
                       </span>
                     </button>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-location">{t.edit_location}</Label>
+                    <Input
+                      id="edit-location"
+                      value={draft.location}
+                      maxLength={80}
+                      onChange={(event) =>
+                        setDraft((value) => ({
+                          ...value,
+                          location: event.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-venue">{t.edit_venue}</Label>
+                    <Input
+                      id="edit-venue"
+                      value={draft.venue}
+                      maxLength={80}
+                      onChange={(event) =>
+                        setDraft((value) => ({
+                          ...value,
+                          venue: event.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="edit-location-display">
+                      {t.location_usage}
+                    </Label>
+                    <select
+                      id="edit-location-display"
+                      className="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
+                      value={draft.showLocation ? 'print' : 'inspiration'}
+                      onChange={(event) =>
+                        setDraft((value) => ({
+                          ...value,
+                          showLocation: event.target.value === 'print',
+                        }))
+                      }
+                    >
+                      <option value="inspiration">
+                        {t.location_inspiration}
+                      </option>
+                      <option value="print">{t.location_print}</option>
+                    </select>
+                    <p className="text-muted-foreground text-xs">
+                      {t.location_usage_hint}
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">
