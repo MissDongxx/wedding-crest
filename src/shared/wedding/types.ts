@@ -118,6 +118,8 @@ export interface WeddingProjectInput {
   typography: string;
   palette: string[];
   location?: string | null;
+  /** Print location/venue as secondary text; false keeps legacy setting inspiration. */
+  showLocation?: boolean;
   venue?: string | null;
   flowers: string[];
   personalElements: string[];

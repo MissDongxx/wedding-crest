@@ -116,6 +116,9 @@ export function WeddingStyles({
                       >
                         <Image
                           src={example.imageUrl}
+                          unoptimized={example.imageUrl.startsWith(
+                            'https://images.weddingcrestdesign.com/'
+                          )}
                           alt={example.altText ?? example.name}
                           width={512}
                           height={512}

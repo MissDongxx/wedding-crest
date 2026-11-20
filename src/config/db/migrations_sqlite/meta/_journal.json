@@ -1,0 +1,62 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1786971606902,
+      "tag": "0000_uneven_toad",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1787153113890,
+      "tag": "0001_bumpy_black_widow",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1787300000000,
+      "tag": "0001_add_wedding_typography",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1787300001000,
+      "tag": "0002_add_wedding_frame_and_example",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1787400000000,
+      "tag": "0003_make_wedding_frame_style_optional",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1787700000000,
+      "tag": "0004_drop_wedding_generation_composed_svg",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791792000000,
+      "tag": "0005_wedding_funnel_events",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794873600000,
+      "tag": "0006_payment_diagnostic_events",
+      "breakpoints": true
+    }
+  ]
+}

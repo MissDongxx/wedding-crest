@@ -1,9 +1,10 @@
-import { ReactNode } from 'react';
+import { ReactNode, Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 
 import { getThemeLayout } from '@/core/theme';
 import { LocaleDetector } from '@/shared/blocks/common/locale-detector';
 import { TopBanner } from '@/shared/blocks/common/top-banner';
+import { CheckoutReturnTelemetry } from '@/shared/components/wedding/checkout-return-telemetry';
 import {
   Footer as FooterType,
   Header as HeaderType,
@@ -26,6 +27,9 @@ export default async function LandingLayout({
 
   return (
     <Layout header={header} footer={footer}>
+      <Suspense fallback={null}>
+        <CheckoutReturnTelemetry />
+      </Suspense>
       <LocaleDetector />
       {header.topbanner && header.topbanner.text && (
         <TopBanner

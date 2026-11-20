@@ -1,7 +1,7 @@
 {
   "metadata": {
     "title": "Pricing - Wedding Crest Design",
-    "description": "Design your wedding crest free, then unlock the complete Wedding Image Pack with original AI-generated image files for $2.9."
+    "description": "购买 __WEDDING_PRICE__ 图片包，付款后开始生成，一周内无限次重复生成并下载无水印图片。"
   },
   "page": {
     "title": "Wedding Crest Design Pricing",
@@ -9,7 +9,7 @@
       "pricing": {
         "id": "pricing",
         "title": "Simple, Honest Pricing",
-        "description": "Design free. Pay once, only if you love it.",
+        "description": "付款后开始生图 · 一周内无限次重复生成",
         "groups": [
           {
             "name": "one-time",
@@ -19,16 +19,13 @@
         ],
         "items": [
           {
-            "title": "Free",
-            "description": "Design your crest and see it in full.",
+            "title": "免费探索",
+            "description": "浏览案例、选择风格并准备设计，付款后开始生图。",
             "features_title": "Includes",
             "features": [
-              "1 saved wedding project",
-              "1 finished AI crest design per generation",
-              "3 total generations",
-              "All 6 styles, layouts & palettes",
-              "AI-generated lettering and artwork",
-              "Watermarked preview images"
+              "浏览徽章案例",
+              "选择风格和配色",
+              "填写并保存设计选项"
             ],
             "interval": "one-time",
             "amount": 0,
@@ -36,9 +33,9 @@
             "price": "$0",
             "unit": "forever",
             "is_featured": false,
-            "tip": "No credit card required",
+            "tip": "付款后开始 AI 生图",
             "button": {
-              "title": "Start Designing",
+              "title": "开始设计",
               "url": "/create",
               "icon": "RiFlashlightFill"
             },
@@ -50,12 +47,12 @@
           },
           {
             "title": "Wedding Image Pack",
-            "description": "Unlock watermark-free original AI image files for one wedding project. Pay once - it is yours forever.",
+            "description": "付款后开始生成。一周内可重复生图，已生成图片可持续下载。",
             "label": "限时优惠",
-            "features_title": "Everything in Free, plus",
+            "features_title": "包含权益",
             "features": [
               "Watermark-free source-quality image files",
-              "5 regenerations (5 more finished AI crest designs)",
+              "一周内无限次重复生成",
               "Selected original AI-generated crest",
               "Every completed AI-generated variation",
               "Files preserved in their original PNG, JPEG, or WebP format",
@@ -65,20 +62,42 @@
               "Personalized flattened previews; not editable templates or printed products"
             ],
             "interval": "one-time",
-            "amount": 290,
-            "currency": "USD",
-            "price": "$2.9",
-            "original_price": "$9.9",
             "unit": "one-time",
             "is_featured": true,
-            "tip": "立省 $7（约 71%） · 一次付款 · 永久拥有",
+            "tip": "节省 __WEDDING_SAVINGS__（优惠 __WEDDING_DISCOUNT__%） · 一周内无限次重复生成",
             "button": {
-              "title": "Unlock My Crest",
+              "title": "付款并开始生成",
               "url": "/create",
               "icon": "RiVipCrownLine"
             },
             "product_id": "wedding_identity_pack",
             "product_name": "Wedding Image Pack",
+            "credits": 0,
+            "valid_days": 7,
+            "group": "one-time"
+          },
+          {
+            "title": "真人设计师出稿",
+            "description": "真人设计师审阅需求并为你出稿",
+            "features": [
+              "8 小时内首次邮件回复",
+              "真人设计师审阅需求并为你出稿",
+              "先付款，再填写联系邮箱和设计需求"
+            ],
+            "interval": "one-time",
+            "amount": 3000,
+            "currency": "USD",
+            "price": "$30",
+            "unit": "one-time",
+            "button": {
+              "title": "选择真人出稿",
+              "url": "/create?service=human#human-design"
+            },
+            "product_id": "wedding_human_design",
+            "product_name": "真人婚礼徽章设计",
+            "payment_providers": [
+              "waffo"
+            ],
             "credits": 0,
             "valid_days": 0,
             "group": "one-time"

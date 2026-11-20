@@ -38,3 +38,5 @@ export const weddingFrame = activeSchema.weddingFrame;
 export const weddingExample = activeSchema.weddingExample;
 
 export const weddingFunnelEvent = activeSchema.weddingFunnelEvent;
+
+export const paymentDiagnosticEvent = activeSchema.paymentDiagnosticEvent;

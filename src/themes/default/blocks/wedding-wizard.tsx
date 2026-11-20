@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -11,10 +11,22 @@ import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { Progress } from '@/shared/components/ui/progress';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
-import { useAppContext } from '@/shared/contexts/app';
+import { HumanDesignPurchase } from '@/shared/components/wedding/human-design-purchase';
+import { PurchaseReceiptContact } from '@/shared/components/wedding/purchase-receipt-contact';
 import { cn } from '@/shared/lib/utils';
-import { resolveWeddingDisplayTexts } from '@/shared/wedding/display-text';
+import {
+  beginCheckoutAttempt,
+  recordCheckoutAccessUnconfirmed,
+} from '@/shared/wedding/checkout-telemetry-client';
 import { trackWeddingFunnel } from '@/shared/wedding/funnel-client';
+import {
+  fetchWeddingAccess,
+  requestWeddingCheckout,
+  stableWeddingRequestId,
+  weddingCheckoutStorage,
+  weddingResumePath,
+  type WeddingClientAccess,
+} from '@/shared/wedding/purchase-client';
 import {
   WEDDING_MAX_FLOWERS,
   WEDDING_MAX_PALETTE_COLORS,
@@ -79,6 +91,7 @@ interface PersistedWizardState {
   customHex: string;
   location: string;
   venue: string;
+  showLocation: boolean;
   flowers: string[];
   customFlower: string;
   personalElements: string[];
@@ -170,8 +183,6 @@ type ApiEnvelope<T> = {
  */
 export function WeddingWizard() {
   const t = useTranslations('pages.create');
-  const { user, isCheckSign, setIsShowSignModal, setSignInCallbackUrl } =
-    useAppContext();
   const searchParams = useSearchParams();
   // When the result page sends the user back to the create flow to make
   // tweaks, it links to /create?edit=<projectId>. The wizard then runs
@@ -255,6 +266,9 @@ export function WeddingWizard() {
   // step 5: details
   const [location, setLocation] = useState(
     typeof persisted.location === 'string' ? persisted.location : ''
+  );
+  const [showLocation, setShowLocation] = useState(
+    persisted.showLocation === true
   );
   const [venue, setVenue] = useState(
     typeof persisted.venue === 'string' ? persisted.venue : ''
@@ -343,6 +357,24 @@ export function WeddingWizard() {
   // leave the picker empty.
   const [exampleStyleIds, setExampleStyleIds] = useState<string[] | null>(null);
   const router = useRouter();
+  const [access, setAccess] = useState<WeddingClientAccess | null>(null);
+  const [paymentState, setPaymentState] = useState<
+    'idle' | 'confirming' | 'unconfirmed'
+  >('idle');
+  const submitInFlight = useRef(false);
+  const purchaseResumed = useRef(false);
+  const savedProjectId = useRef<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetchWeddingAccess()
+      .then((rights) => {
+        if (!cancelled) setAccess(rights);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // One cheap pass over the catalogue to learn which styles have photos.
   // Runs once on mount (not gated on the step) so the answer is ready by
@@ -423,6 +455,8 @@ export function WeddingWizard() {
     if (typeof saved.customHex === 'string') setCustomHex(saved.customHex);
     if (typeof saved.location === 'string') setLocation(saved.location);
     if (typeof saved.venue === 'string') setVenue(saved.venue);
+    if (typeof saved.showLocation === 'boolean')
+      setShowLocation(saved.showLocation);
     if (isStringArray(saved.flowers)) setFlowers(saved.flowers);
     if (typeof saved.customFlower === 'string')
       setCustomFlower(saved.customFlower);
@@ -502,6 +536,7 @@ export function WeddingWizard() {
         }
         if (typeof input.location === 'string') setLocation(input.location);
         if (typeof input.venue === 'string') setVenue(input.venue);
+        setShowLocation(input.showLocation === true);
         if (Array.isArray(input.flowers)) setFlowers(input.flowers);
         if (Array.isArray(input.personalElements)) {
           setPersonalElements(input.personalElements);
@@ -525,6 +560,8 @@ export function WeddingWizard() {
         if (typeof saved.customHex === 'string') setCustomHex(saved.customHex);
         if (typeof saved.location === 'string') setLocation(saved.location);
         if (typeof saved.venue === 'string') setVenue(saved.venue);
+        if (typeof saved.showLocation === 'boolean')
+          setShowLocation(saved.showLocation);
         if (typeof saved.customFlower === 'string')
           setCustomFlower(saved.customFlower);
         if (typeof saved.customElement === 'string')
@@ -575,61 +612,61 @@ export function WeddingWizard() {
   // - frames are refetched from the API based on `style`.
   // Edit drafts use a project-specific key and are saved only after prefill,
   // preserving unsaved choices through sign-in without leaking between projects.
+  const draftSnapshot = useMemo<PersistedWizardState>(
+    () => ({
+      step,
+      partner1,
+      partner2,
+      weddingDate,
+      nameDisplay,
+      style,
+      typography,
+      frameId,
+      palette,
+      customHex,
+      location,
+      venue,
+      showLocation,
+      flowers,
+      customFlower,
+      personalElements,
+      customElement,
+      personalImages,
+      complexity,
+      matchExample,
+    }),
+    [
+      step,
+      partner1,
+      partner2,
+      weddingDate,
+      nameDisplay,
+      style,
+      typography,
+      frameId,
+      palette,
+      customHex,
+      location,
+      venue,
+      showLocation,
+      flowers,
+      customFlower,
+      personalElements,
+      customElement,
+      personalImages,
+      complexity,
+      matchExample,
+    ]
+  );
+
   useEffect(() => {
-    if (isEditMode && !isEditPrefilled) return;
-    if (!isHydrated || typeof window === 'undefined') return;
+    if ((isEditMode && !isEditPrefilled) || !isHydrated) return;
     try {
-      const payload: PersistedWizardState = {
-        step,
-        partner1,
-        partner2,
-        weddingDate,
-        nameDisplay,
-        style,
-        typography,
-        frameId,
-        palette,
-        customHex,
-        location,
-        venue,
-        flowers,
-        customFlower,
-        personalElements,
-        customElement,
-        personalImages,
-        complexity,
-        matchExample,
-      };
-      window.localStorage.setItem(draftKey, JSON.stringify(payload));
+      window.localStorage.setItem(draftKey, JSON.stringify(draftSnapshot));
     } catch {
-      // Quota exceeded or storage disabled — non-fatal, the wizard
-      // still works in memory.
+      // Submission verifies durable storage before leaving for payment.
     }
-  }, [
-    isEditMode,
-    isEditPrefilled,
-    draftKey,
-    step,
-    partner1,
-    partner2,
-    weddingDate,
-    nameDisplay,
-    style,
-    typography,
-    frameId,
-    palette,
-    customHex,
-    location,
-    venue,
-    flowers,
-    customFlower,
-    personalElements,
-    customElement,
-    personalImages,
-    complexity,
-    matchExample,
-    isHydrated,
-  ]);
+  }, [draftSnapshot, draftKey, isEditMode, isEditPrefilled, isHydrated]);
 
   // preselect style from ?style= deep link (used by style cards + SEO pages)
   useEffect(() => {
@@ -1062,6 +1099,7 @@ export function WeddingWizard() {
     setCustomHex('');
     setLocation('');
     setVenue('');
+    setShowLocation(false);
     setFlowers([]);
     setCustomFlower('');
     setPersonalElements([]);
@@ -1070,6 +1108,22 @@ export function WeddingWizard() {
     setComplexity('medium');
     setMatchExample(MATCH_EXAMPLE_DEFAULT);
     clearPersistedWizardState(draftKey);
+    for (const suffix of [
+      'checkout',
+      'payment-pending',
+      'return-project',
+      'request:guest',
+      'request:account',
+    ]) {
+      localStorage.removeItem(`${draftKey}:${suffix}`);
+    }
+    savedProjectId.current = null;
+    purchaseResumed.current = false;
+    setPaymentState('idle');
+    router.replace(
+      weddingResumePath(window.location.pathname, window.location.search),
+      { scroll: false }
+    );
   };
 
   // Pick a style on the style step. The picker stays visible even when the
@@ -1162,24 +1216,148 @@ export function WeddingWizard() {
     }
   };
 
-  const requestSignIn = () => {
-    // Keep the persisted review draft even if the session expires mid-submit.
-    setSignInCallbackUrl(window.location.pathname + window.location.search);
-    setIsShowSignModal(true);
+  const showAccessRecovery = () => {
+    toast.error(t('purchase_access_lost'), { duration: 10000 });
+  };
+
+  const checkoutForWizard = async () => {
+    const telemetry = beginCheckoutAttempt({
+      entry: 'wizard',
+      projectId: isEditMode ? editId || undefined : undefined,
+    });
+    const { response: checkoutResponse, body: checkoutBody } =
+      await requestWeddingCheckout(
+        async () =>
+          telemetry.fetch({
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-wedding-checkout-id': await stableWeddingRequestId(
+                weddingCheckoutStorage,
+                `${draftKey}:checkout`
+              ),
+            },
+            body: JSON.stringify({
+              product_id: 'wedding_identity_pack',
+              locale: document.documentElement.lang,
+              metadata: {
+                resume_wizard: true,
+                resume_path: weddingResumePath(
+                  window.location.pathname,
+                  window.location.search
+                ),
+                ...(isEditMode ? { project_id: editId } : {}),
+              },
+            }),
+          }),
+        () => {
+          weddingCheckoutStorage.removeItem(`${draftKey}:checkout`);
+          weddingCheckoutStorage.removeItem(`${draftKey}:payment-pending`);
+        },
+        undefined,
+        telemetry
+      );
+    if (checkoutResponse.status === 401) {
+      showAccessRecovery();
+      return;
+    }
+    if (
+      !checkoutResponse.ok ||
+      checkoutBody.code !== 0 ||
+      !checkoutBody.data?.checkoutUrl
+    )
+      throw new Error(
+        checkoutBody.data?.reasonCode === 'checkout_ended'
+          ? t('checkout_ended_retry')
+          : checkoutBody.data?.reasonCode === 'checkout_initializing'
+            ? t('checkout_initializing_retry')
+            : checkoutBody.message || t('submit_error')
+      );
+    weddingCheckoutStorage.setItem(`${draftKey}:payment-pending`, '1');
+    telemetry.redirect(checkoutBody.data.checkoutUrl, () =>
+      toast.error(t('submit_error'))
+    );
   };
 
   const submit = async () => {
-    if (submitting || isCheckSign) return;
-    if (!user) {
-      requestSignIn();
+    if (
+      submitInFlight.current ||
+      !isHydrated ||
+      !isEditPrefilled ||
+      examplePending
+    )
       return;
-    }
     const analyticsFlowId = crypto.randomUUID();
-    trackWeddingFunnel('create_clicked', undefined, undefined, analyticsFlowId);
+    void trackWeddingFunnel(
+      'create_clicked',
+      undefined,
+      undefined,
+      analyticsFlowId
+    );
+    submitInFlight.current = true;
     setSubmitting(true);
-    // eslint-disable-next-line no-console
-    console.log('[wedding-wizard] submit start (v2 hardened)');
     try {
+      // Save the latest controlled inputs synchronously before any redirect.
+      const serialized = JSON.stringify({
+        ...draftSnapshot,
+        sourcePath: weddingResumePath(
+          window.location.pathname,
+          window.location.search
+        ),
+      });
+      localStorage.setItem(draftKey, serialized);
+      if (localStorage.getItem(draftKey) !== serialized)
+        throw new Error(t('draft_storage_error'));
+      const returnParams = new URLSearchParams(window.location.search);
+      const returnState =
+        returnParams.get('payment') || returnParams.get('checkout');
+      const confirming =
+        !['canceled', 'failed'].includes(returnState || '') &&
+        (returnParams.get('prepaid') === '1' ||
+          returnState === 'pending' ||
+          localStorage.getItem(`${draftKey}:payment-pending`) === '1');
+      let rights = await fetchWeddingAccess();
+      const scope = rights.identityScope === 'account' ? 'account' : 'guest';
+      const requestKeyStorage = `${draftKey}:request:${scope}`;
+      if (
+        !confirming &&
+        !isEditMode &&
+        localStorage.getItem(`${draftKey}:return-project`)
+      ) {
+        localStorage.removeItem(`${draftKey}:return-project`);
+        localStorage.removeItem(requestKeyStorage);
+        localStorage.removeItem(`${draftKey}:checkout`);
+      }
+      const canContinue = (value: WeddingClientAccess) =>
+        value.active &&
+        (isEditMode ||
+          Boolean(savedProjectId.current) ||
+          Boolean(localStorage.getItem(requestKeyStorage)) ||
+          value.canCreateProject);
+      if (confirming && !canContinue(rights)) {
+        setPaymentState('confirming');
+        for (let attempt = 0; attempt < 7 && !canContinue(rights); attempt++) {
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+          rights = await fetchWeddingAccess();
+        }
+      }
+      setAccess(rights);
+      if (confirming && !canContinue(rights)) {
+        recordCheckoutAccessUnconfirmed('wizard');
+        setPaymentState('unconfirmed');
+        return;
+      }
+      if (rights.allowance?.reasonCode === 'daily_limit') {
+        toast.error(t('daily_limit'));
+        return;
+      }
+      if (!canContinue(rights)) {
+        await checkoutForWizard();
+        return;
+      }
+      setPaymentState('idle');
+      localStorage.removeItem(`${draftKey}:payment-pending`);
+
       // guest token: created server-side on first project, remembered after
       let guestId =
         typeof window !== 'undefined'
@@ -1198,6 +1376,7 @@ export function WeddingWizard() {
         palette,
         location: location.trim() || null,
         venue: venue.trim() || null,
+        showLocation,
         flowers,
         personalElements,
         personalImages,
@@ -1220,11 +1399,20 @@ export function WeddingWizard() {
       };
 
       const requestUrl =
-        isEditMode && editId ? `/api/projects/${editId}` : '/api/projects';
-      const requestMethod = isEditMode ? 'PATCH' : 'POST';
+        editId || savedProjectId.current
+          ? `/api/projects/${editId || savedProjectId.current}`
+          : '/api/projects';
+      const requestMethod =
+        isEditMode || savedProjectId.current ? 'PATCH' : 'POST';
+      const requestKey = await stableWeddingRequestId(
+        localStorage,
+        requestKeyStorage,
+        `${draftKey}:checkout`
+      );
       const response = await fetch(requestUrl, {
         method: requestMethod,
         headers: {
+          'x-wedding-request-id': requestKey,
           'Content-Type': 'application/json',
           ...(guestId ? { 'x-wedding-guest-id': guestId } : {}),
         },
@@ -1232,7 +1420,7 @@ export function WeddingWizard() {
       });
 
       if (response.status === 401) {
-        requestSignIn();
+        showAccessRecovery();
         return;
       }
 
@@ -1258,6 +1446,10 @@ export function WeddingWizard() {
         !response.ok ||
         (envelope.code !== undefined && envelope.code !== 0)
       ) {
+        if (response.status === 402) {
+          await checkoutForWizard();
+          return;
+        }
         const statusLine =
           `${response.status} ${response.statusText || ''}`.trim();
         const detailed = apiError
@@ -1285,6 +1477,7 @@ export function WeddingWizard() {
         localStorage.setItem('wedding_guest_id', data.guestId);
       }
 
+      savedProjectId.current = projectId;
       trackWeddingFunnel(
         'project_created',
         projectId,
@@ -1298,6 +1491,7 @@ export function WeddingWizard() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'x-wedding-generation-id': requestKey,
             ...(guestId || data.guestId
               ? { 'x-wedding-guest-id': guestId || data.guestId }
               : {}),
@@ -1305,13 +1499,13 @@ export function WeddingWizard() {
         }
       );
       if (generateResponse.status === 401) {
-        requestSignIn();
+        showAccessRecovery();
         return;
       }
       const generateRaw = await generateResponse.text();
       let generateEnvelope: ApiEnvelope<{
         candidates?: string[];
-        generatedProjectId?: string | null;
+        reasonCode?: string;
       }> = {};
       if (generateRaw) {
         try {
@@ -1328,7 +1522,11 @@ export function WeddingWizard() {
         (generateEnvelope.code !== undefined && generateEnvelope.code !== 0)
       ) {
         const generateError =
-          generateEnvelope.error || generateEnvelope.message;
+          (generateEnvelope.data?.reasonCode
+            ? t(generateEnvelope.data.reasonCode)
+            : null) ||
+          generateEnvelope.error ||
+          generateEnvelope.message;
         // The API uses the codebase's respErr convention: most user-actionable
         // errors come back as HTTP 200 with `code: -1` carrying a clear
         // message (e.g. "no AI image provider configured yet..."). 4xx
@@ -1344,39 +1542,7 @@ export function WeddingWizard() {
             ? t('submit_error')
             : `${generateResponse.status} ${generateResponse.statusText || ''}`.trim() ||
               t('submit_error');
-        const generatedProjectId = generateEnvelope.data?.generatedProjectId;
-        if (generatedProjectId) {
-          toast.custom(
-            (toastId) => (
-              <div
-                role="alert"
-                className="bg-background text-foreground flex max-w-md items-start gap-3 rounded-lg border p-4 text-sm shadow-lg"
-              >
-                <p className="flex-1 leading-5">
-                  {detailed}{' '}
-                  <Link
-                    href={`/design/${generatedProjectId}`}
-                    className="text-primary font-medium underline underline-offset-2"
-                    onClick={() => toast.dismiss(toastId)}
-                  >
-                    {t('one_generated_project')}
-                  </Link>
-                </p>
-                <button
-                  type="button"
-                  aria-label={t('dismiss')}
-                  className="text-muted-foreground hover:text-foreground -mt-1 -mr-1 px-1 text-lg leading-none"
-                  onClick={() => toast.dismiss(toastId)}
-                >
-                  ×
-                </button>
-              </div>
-            ),
-            { duration: Infinity }
-          );
-        } else {
-          toast.error(detailed, { duration: 8000 });
-        }
+        toast.error(detailed, { duration: 8000 });
         if (!isUserFacing) {
           // System errors (5xx, network failures). Log the full response
           // so a misconfigured provider / model name is visible in dev
@@ -1392,7 +1558,12 @@ export function WeddingWizard() {
         return;
       }
 
-      window.location.href = `/design/${projectId}`;
+      const localePrefix =
+        document.documentElement.lang === 'en'
+          ? ''
+          : `/${document.documentElement.lang}`;
+      localStorage.setItem(`${draftKey}:return-project`, projectId);
+      window.location.href = `${localePrefix}/design/${projectId}`;
       // Clear the in-progress draft so the next visit to /create starts
       // fresh. We do this after the redirect is queued so the
       // localStorage write doesn't race the navigation. Clear only this
@@ -1405,12 +1576,64 @@ export function WeddingWizard() {
           ? error.message
           : t('submit_error');
       toast.error(message);
+      setPaymentState((current) =>
+        current === 'confirming' ? 'unconfirmed' : current
+      );
       // eslint-disable-next-line no-console
       console.error('[wedding-wizard] submit failed', error);
     } finally {
+      submitInFlight.current = false;
       setSubmitting(false);
     }
   };
+
+  const latestSubmit = useRef(submit);
+  latestSubmit.current = submit;
+
+  useEffect(() => {
+    const payment = searchParams.get('payment') || searchParams.get('checkout');
+    if (payment === 'canceled' || payment === 'failed') {
+      localStorage.removeItem(`${draftKey}:payment-pending`);
+      localStorage.removeItem(`${draftKey}:checkout`);
+      setPaymentState('idle');
+      return;
+    }
+    if (
+      isHydrated &&
+      (searchParams.get('prepaid') === '1' || payment === 'pending')
+    ) {
+      const completed = localStorage.getItem(`${draftKey}:return-project`);
+      if (completed && /^[a-zA-Z0-9_-]+$/.test(completed)) {
+        const localePrefix =
+          document.documentElement.lang === 'en'
+            ? ''
+            : `/${document.documentElement.lang}`;
+        window.location.replace(`${localePrefix}/design/${completed}`);
+        return;
+      }
+    }
+    if (
+      (searchParams.get('prepaid') !== '1' && payment !== 'pending') ||
+      purchaseResumed.current ||
+      !isHydrated ||
+      !isEditPrefilled ||
+      examplePending ||
+      !partner1.trim() ||
+      !partner2.trim()
+    )
+      return;
+    purchaseResumed.current = true;
+    // Keep the return marker until generation succeeds, so refresh can retry confirmation.
+    void latestSubmit.current();
+  }, [
+    searchParams,
+    draftKey,
+    isHydrated,
+    isEditPrefilled,
+    examplePending,
+    partner1,
+    partner2,
+  ]);
 
   const styleConfig = weddingStyles.find((s) => s.id === style);
 
@@ -1461,6 +1684,20 @@ export function WeddingWizard() {
             <p className="text-muted-foreground mt-3 text-balance">
               {isEditMode ? t('edit_description') : t('description')}
             </p>
+            {(searchParams.get('payment') === 'canceled' ||
+              searchParams.get('checkout') === 'canceled') && (
+              <p role="status" className="mt-3 text-sm">
+                {t('payment_canceled')}
+              </p>
+            )}
+            {searchParams.get('payment') === 'failed' && (
+              <p role="status" className="mt-3 text-sm">
+                {t('payment_failed')}
+              </p>
+            )}
+            {access?.receiptEmailMissing && (
+              <PurchaseReceiptContact namespace="pages.create" />
+            )}
             {isEditMode && editId && (
               <p className="text-muted-foreground mt-3 text-xs">
                 <Link
@@ -1694,7 +1931,7 @@ export function WeddingWizard() {
                           {t('start_from_example')}
                         </p>
                         <Link
-                          href="/examples"
+                          href="/wedding-crest-examples"
                           className="text-muted-foreground hover:text-foreground text-xs underline-offset-4 hover:underline"
                         >
                           {t('see_more_examples')}
@@ -2166,6 +2403,27 @@ export function WeddingWizard() {
                     />
                   </div>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="location-display">
+                    {t('location_usage')}
+                  </Label>
+                  <select
+                    id="location-display"
+                    className="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
+                    value={showLocation ? 'print' : 'inspiration'}
+                    onChange={(event) =>
+                      setShowLocation(event.target.value === 'print')
+                    }
+                  >
+                    <option value="inspiration">
+                      {t('location_inspiration')}
+                    </option>
+                    <option value="print">{t('location_print')}</option>
+                  </select>
+                  <p className="text-muted-foreground text-xs">
+                    {t('location_usage_hint')}
+                  </p>
+                </div>
               </div>
             )}
 
@@ -2390,7 +2648,19 @@ export function WeddingWizard() {
                     </div>
                     <div className="flex justify-between gap-4">
                       <dt className="text-muted-foreground">{t('location')}</dt>
-                      <dd>{location || '—'}</dd>
+                      <dd>
+                        {[venue, location].filter(Boolean).join(', ') || '—'}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-muted-foreground">
+                        {t('location_usage')}
+                      </dt>
+                      <dd>
+                        {showLocation
+                          ? t('location_print')
+                          : t('location_inspiration')}
+                      </dd>
                     </div>
                     <div className="flex justify-between gap-4">
                       <dt className="text-muted-foreground">{t('flowers')}</dt>
@@ -2413,22 +2683,53 @@ export function WeddingWizard() {
                   </dl>
                 </div>
                 <p className="text-muted-foreground text-sm">
-                  {t('generate_hint')}
+                  {t('human_design.compare_intro')}
                 </p>
-                <Button
-                  size="lg"
-                  className="w-full sm:w-auto"
-                  disabled={submitting || isCheckSign || !isEditPrefilled}
-                  onClick={submit}
-                >
-                  {submitting
-                    ? t('submitting')
-                    : isEditMode
-                      ? t('edit_generate')
-                      : user
-                        ? t('generate')
-                        : t('sign_in_generate')}
-                </Button>
+                {paymentState !== 'idle' && (
+                  <p role="status" className="text-muted-foreground text-sm">
+                    {t(
+                      paymentState === 'confirming'
+                        ? 'payment_confirming'
+                        : 'payment_unconfirmed'
+                    )}
+                  </p>
+                )}
+                <HumanDesignPurchase
+                  brief={JSON.stringify({
+                    ...draftSnapshot,
+                    exampleId: searchParams.get('exampleId'),
+                  })}
+                  projectId={isEditMode ? editId || undefined : undefined}
+                  aiIncluded={Boolean(
+                    access?.active && (isEditMode || access.canCreateProject)
+                  )}
+                  aiAction={
+                    <Button
+                      size="lg"
+                      className="min-h-12 w-full whitespace-normal"
+                      disabled={
+                        submitting ||
+                        !isHydrated ||
+                        !isEditPrefilled ||
+                        examplePending
+                      }
+                      onClick={() => void submit()}
+                    >
+                      {paymentState === 'confirming'
+                        ? t('payment_confirming')
+                        : submitting
+                          ? t('submitting')
+                          : paymentState === 'unconfirmed'
+                            ? t('payment_retry_confirmation')
+                            : access?.active &&
+                                (isEditMode || access.canCreateProject)
+                              ? isEditMode
+                                ? t('edit_generate')
+                                : t('generate')
+                              : t('pay_generate')}
+                    </Button>
+                  }
+                />
               </div>
             )}
 

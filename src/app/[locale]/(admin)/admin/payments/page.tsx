@@ -6,10 +6,16 @@ import { Header, Main, MainHeader } from '@/shared/blocks/dashboard';
 import { TableCard } from '@/shared/blocks/table';
 import { Badge } from '@/shared/components/ui/badge';
 import {
+  paymentDiagnosticLabel,
+  PaymentDiagnostics,
+} from '@/shared/components/wedding/payment-diagnostics';
+import {
   getPaymentDisplayStatus,
   PaymentDisplayStatus,
 } from '@/shared/lib/payment-status';
 import { getOrders, getOrdersCount, OrderStatus } from '@/shared/models/order';
+import { getPaymentDiagnosticsForOrders } from '@/shared/models/payment-diagnostic';
+import { inspectPaymentPlatform } from '@/shared/models/payment-diagnostic-platform';
 import { Crumb, Filter, Search, Tab } from '@/shared/types/blocks/common';
 import { type Table } from '@/shared/types/blocks/table';
 
@@ -45,6 +51,7 @@ export default async function PaymentsPage({
     status?: string;
     provider?: string;
     orderNo?: string;
+    refresh?: string;
   }>;
 }) {
   const { locale } = await params;
@@ -66,6 +73,7 @@ export default async function PaymentsPage({
     status,
     provider,
     orderNo,
+    refresh,
   } = await searchParams;
   const page = pageNum || 1;
   const limit = pageSize || 30;
@@ -177,6 +185,31 @@ export default async function PaymentsPage({
     limit,
   });
 
+  const platformObservation =
+    refresh === '1' &&
+    orderNo &&
+    payments.length === 1 &&
+    payments[0].orderNo === orderNo
+      ? await inspectPaymentPlatform(payments[0])
+      : undefined;
+  const diagnostics = await getPaymentDiagnosticsForOrders(
+    payments.map((payment) => payment.orderNo)
+  );
+  const diagnosticEventsFor = (orderNo: string) => {
+    const attempts = new Set(
+      diagnostics
+        .filter((event) => event.orderNo === orderNo && event.attemptId)
+        .map((event) => `${event.ownerId || ''}:${event.attemptId}`)
+    );
+    return diagnostics.filter(
+      (event) =>
+        event.orderNo === orderNo ||
+        (!event.orderNo &&
+          event.attemptId &&
+          attempts.has(`${event.ownerId || ''}:${event.attemptId}`))
+    );
+  };
+
   const table: Table = {
     columns: [
       { name: 'orderNo', title: t('fields.order_no'), type: 'copy' },
@@ -199,6 +232,24 @@ export default async function PaymentsPage({
           const status = getDisplayStatusPresentation(item, t);
           return <Badge className={status.className}>{status.label}</Badge>;
         },
+      },
+      {
+        name: 'diagnostics',
+        title: t('fields.diagnostics'),
+        callback: (item) => (
+          <div className="space-y-2">
+            <PaymentDiagnostics
+              events={diagnosticEventsFor(item.orderNo)}
+              locale={locale}
+            />
+            <a
+              className="text-primary block text-xs underline"
+              href={`?orderNo=${encodeURIComponent(item.orderNo)}&refresh=1`}
+            >
+              {t('diagnostics.refresh')}
+            </a>
+          </div>
+        ),
       },
       {
         name: 'paymentType',
@@ -238,6 +289,23 @@ export default async function PaymentsPage({
           filters={filters}
           search={search}
         />
+        {platformObservation && (
+          <section
+            className="mb-4 rounded-md border p-4 text-sm"
+            aria-label={t('fields.diagnostics')}
+          >
+            <p className="font-medium">
+              {paymentDiagnosticLabel(
+                platformObservation.providerReason ||
+                  platformObservation.reason,
+                locale
+              )}
+            </p>
+            <p className="text-muted-foreground mt-1 text-xs">
+              {platformObservation.checkedAt} · {t('diagnostics.platform_hint')}
+            </p>
+          </section>
+        )}
         <TableCard table={table} />
       </Main>
     </>

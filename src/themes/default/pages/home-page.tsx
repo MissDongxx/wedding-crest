@@ -8,6 +8,7 @@ import { Cta } from '../blocks/cta';
 import { Faq } from '../blocks/faq';
 import { Introduce } from '../blocks/introduce';
 import { Pricing } from '../blocks/pricing';
+import { WeddingBlog } from '../blocks/wedding-blog';
 import { WeddingHero } from '../blocks/wedding-hero';
 import { WeddingStyles } from '../blocks/wedding-styles';
 
@@ -50,6 +51,7 @@ export default async function HomePage({ page }: { page: DynamicPageType }) {
         <h1 className="sr-only">{page.title}</h1>
       )}
       <WeddingExamplesProvider>{renderedSections}</WeddingExamplesProvider>
+      <WeddingBlog />
     </>
   );
 }

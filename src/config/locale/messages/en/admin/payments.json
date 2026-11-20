@@ -9,7 +9,8 @@
     "provider": "Provider",
     "created_at": "Created At",
     "status": "Status",
-    "action": "Action"
+    "action": "Action",
+    "diagnostics": "Payment diagnostics"
   },
   "list": {
     "title": "Payments",
@@ -59,5 +60,9 @@
       "awaiting_payment": "Awaiting payment",
       "pending": "Creating payment"
     }
+  },
+  "diagnostics": {
+    "refresh": "Check latest platform status",
+    "platform_hint": "Read-only platform check; no charge, refund or order update."
   }
 }

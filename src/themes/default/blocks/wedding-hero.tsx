@@ -23,6 +23,7 @@ export function WeddingHero({
       id={section.id}
       className={`pt-24 pb-4 md:pt-48 lg:pt-56 ${className ?? ''}`}
     >
+      <link rel="preconnect" href="https://images.weddingcrestdesign.com" />
       <div className="mx-auto max-w-full px-4 text-center md:max-w-5xl">
         <div>
           {section.announcement?.title && (

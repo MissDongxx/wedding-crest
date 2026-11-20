@@ -9,7 +9,8 @@
     "provider": "Fournisseur",
     "created_at": "Date de Création",
     "status": "Statut",
-    "action": "Action"
+    "action": "Action",
+    "diagnostics": "Diagnostic du paiement"
   },
   "list": {
     "title": "Paiements",
@@ -59,5 +60,9 @@
       "awaiting_payment": "En attente du paiement",
       "pending": "Création du paiement"
     }
+  },
+  "diagnostics": {
+    "refresh": "Vérifier le statut sur la plateforme",
+    "platform_hint": "Consultation uniquement : aucun paiement, remboursement ou changement de commande."
   }
 }

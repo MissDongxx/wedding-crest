@@ -46,7 +46,31 @@ export async function middleware(request: NextRequest) {
   const legacyPath = hasLocalePrefix
     ? `/${segments.slice(1).join('/')}`
     : pathname;
+
+  // Preserve existing examples links and search entries after the URL rename.
+  if (legacyPath === '/examples') {
+    const url = request.nextUrl.clone();
+    const localePath =
+      hasLocalePrefix && segments[0] !== routing.defaultLocale
+        ? `/${segments[0]}`
+        : '';
+    url.pathname = `${localePath}/wedding-crest-examples`;
+    return NextResponse.redirect(url, 301);
+  }
+
+  // Only the new, curated English blog URLs are live. Keep retired articles
+  // from the old product redirected rather than reviving the legacy blog.
+  const isWeddingBlog =
+    legacyPath === '/blog' ||
+    legacyPath === '/blog/how-to-create-a-wedding-crest';
+  if (isWeddingBlog && hasLocalePrefix && segments[0] !== 'en') {
+    const url = request.nextUrl.clone();
+    url.pathname = legacyPath;
+    return NextResponse.redirect(url, 308);
+  }
+
   if (
+    !isWeddingBlog &&
     LEGACY_PREFIXES.some(
       (prefix) => legacyPath === prefix || legacyPath.startsWith(`${prefix}/`)
     )
@@ -75,6 +99,10 @@ export async function middleware(request: NextRequest) {
 
   // Handle internationalization first
   const intlResponse = intlMiddleware(request);
+  // These guides exist only in English. next-intl otherwise advertises
+  // translated URLs in the HTTP Link header even though they redirect.
+  // Keep the article's explicit en/x-default alternates in its HTML metadata.
+  if (isWeddingBlog) intlResponse.headers.delete('Link');
 
   // Extract locale from pathname
   const locale = pathname.split('/')[1];

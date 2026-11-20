@@ -4,20 +4,22 @@ import { AIMediaType, AITaskStatus } from '@/extensions/ai';
 import { getUuid } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
 import { createAITask } from '@/shared/models/ai_task';
-import { getUserInfo } from '@/shared/models/user';
 import {
   canAccessWeddingProject,
-  claimWeddingProject,
   getActiveWeddingPromptTemplate,
   getWeddingGeneration,
+  getWeddingGenerationAllowance,
   getWeddingProject,
-  hasPaidWeddingOrder,
   reserveWeddingGenerationBatch,
   settleFailedWeddingReservation,
   updateWeddingGeneration,
   updateWeddingProject,
   upsertWeddingPromptTemplate,
 } from '@/shared/models/wedding';
+import {
+  getWeddingActor,
+  getWeddingProjectOwner,
+} from '@/shared/models/wedding-actor';
 import { getAIService } from '@/shared/services/ai';
 import {
   WEDDING_MAX_CANDIDATES,
@@ -27,10 +29,12 @@ import {
   compileAssistantEditPrompt,
   editPlanSchema,
 } from '@/shared/wedding/edit-plan';
+import { getWeddingInitialGenerationIds } from '@/shared/wedding/generation-request';
 import {
   compileWeddingDesignEditPrompt,
   compileWeddingPrompt,
   compileWeddingTextEditPrompt,
+  getWeddingReferenceImages,
   getWeddingVersions,
 } from '@/shared/wedding/prompt-compiler';
 import type { WeddingProjectInput } from '@/shared/wedding/types';
@@ -57,6 +61,7 @@ const inputSchema = z.object({
     .object({
       sourceGenerationId: z.string().trim().min(1),
       kind: editKindSchema,
+      replaceLetteringStyle: z.boolean().optional().default(false),
       plan: editPlanSchema.optional(),
     })
     .optional(),
@@ -164,27 +169,56 @@ export async function POST(
   try {
     const { id } = await params;
     projectId = id;
-    // Free generation requires a session; paid legacy guests retain access.
-    const user = await getUserInfo();
+    const actor = await getWeddingActor();
+    const user = actor.user; // Real session only: guests never create ai_task user rows.
     const guestId = request.headers.get('x-wedding-guest-id') || undefined;
     const project = await getWeddingProject(id);
-    if (
-      !project ||
-      !(await canAccessWeddingProject({ id, userId: user?.id, guestId }))
-    )
-      return user
-        ? respErr('project not found')
-        : respErr('Sign in to continue your wedding design.', 401);
-
-    if (!user && !(await hasPaidWeddingOrder(undefined, id, guestId))) {
-      return respErr(
-        'Sign in to use your 3 free generations. Your existing designs are kept.',
-        401
-      );
-    }
-    if (user && !project.userId) await claimWeddingProject(id, user.id);
+    if (!project) return respErr('project not found', 404);
+    const ownerId = getWeddingProjectOwner(actor, project);
+    if (!(await canAccessWeddingProject({ id, userId: ownerId, guestId })))
+      return respErr('project not found', 404);
 
     const body = inputSchema.parse(await request.json().catch(() => ({})));
+    const initialRequestKey = !body.edit
+      ? request.headers.get('x-wedding-generation-id')
+      : null;
+    if (initialRequestKey && !/^[0-9a-f-]{36}$/i.test(initialRequestKey))
+      return respErr('invalid generation request id', 400);
+    const initialCandidateIds = initialRequestKey
+      ? await getWeddingInitialGenerationIds(
+          id,
+          initialRequestKey,
+          WEDDING_MAX_CANDIDATES
+        )
+      : undefined;
+    if (initialCandidateIds) {
+      const existing = await Promise.all(
+        initialCandidateIds.map(getWeddingGeneration)
+      );
+      if (existing.every(Boolean))
+        return respData({
+          jobId: id,
+          projectId: id,
+          candidates: initialCandidateIds,
+          status: existing.every((row) => row?.status === 'failed')
+            ? 'failed'
+            : 'generating',
+          productForUnlock: WEDDING_PACK_PRODUCT_ID,
+          resumed: true,
+        });
+    }
+
+    const allowance = await getWeddingGenerationAllowance(ownerId, id);
+    if (
+      !allowance.allowed &&
+      !(initialCandidateIds && allowance.reasonCode === 'daily_limit')
+    )
+      return respErr(
+        allowance.reason ?? 'generation unavailable',
+        allowance.reasonCode === 'daily_limit' ? 429 : 402,
+        { reasonCode: allowance.reasonCode }
+      );
+
     // Bypass the 1-minute in-memory cache so a freshly-saved admin key
     // is picked up immediately on the next Generate click.
     const { invalidateConfigsCache } = await import('@/shared/models/config');
@@ -247,9 +281,13 @@ export async function POST(
           return respErr('confirmed edit plan required', 400);
         prompt = compileAssistantEditPrompt(body.edit.plan);
       } else if (body.edit.kind === 'lettering') {
-        prompt = compileWeddingTextEditPrompt(sourceInput);
+        prompt = compileWeddingTextEditPrompt(sourceInput, {
+          replaceLetteringStyle: body.edit.replaceLetteringStyle,
+        });
       } else if (body.edit.kind === 'design') {
-        prompt = compileWeddingDesignEditPrompt(sourceInput);
+        prompt = compileWeddingDesignEditPrompt(sourceInput, {
+          replaceLetteringStyle: body.edit.replaceLetteringStyle,
+        });
       } else {
         prompt = buildQuickEditPrompt(body.edit.kind, {
           personalElements: sourceInput.personalElements,
@@ -299,16 +337,12 @@ export async function POST(
     // so the multimodal switch is also what makes the small-modification
     // flow work. Example reference images are skipped during edits - the
     // goal is to keep the existing design, not match a different example.
-    const personalImages =
-      sourceInput?.personalImages ?? project.input.personalImages ?? [];
-    const exampleImage = project.input.exampleImage ?? null;
-    const frameImage = project.input.frameUrl ?? null;
-    const personalReferenceImages = [
-      ...(body.edit ? [] : exampleImage ? [exampleImage] : []),
-      ...(body.edit ? [] : frameImage ? [frameImage] : []),
-      ...personalImages,
-    ];
-    const allReferenceImages = [...referenceImages, ...personalReferenceImages];
+    const allReferenceImages = getWeddingReferenceImages(
+      sourceInput ?? project.input,
+      body.edit
+        ? { kind: body.edit.kind, sourceImageUrl: referenceImages[0] }
+        : undefined
+    );
     // Runware's multimodal inputs accept raster images. Legacy admin frame
     // records may still point at SVG artwork even though the upload endpoint
     // now allows raster formats only. Reject those records before submitting
@@ -324,12 +358,13 @@ export async function POST(
         : model;
 
     const versions = getWeddingVersions();
-    reservationIds = Array.from({ length: WEDDING_MAX_CANDIDATES }, () =>
-      getUuid()
-    );
+    reservationIds =
+      !body.edit && initialCandidateIds
+        ? initialCandidateIds
+        : Array.from({ length: WEDDING_MAX_CANDIDATES }, () => getUuid());
     const reservation = await reserveWeddingGenerationBatch({
       projectId: id,
-      userId: user?.id,
+      userId: ownerId,
       guestId,
       candidates: reservationIds.map((candidateId, candidateIndex) => ({
         id: candidateId,
@@ -349,11 +384,19 @@ export async function POST(
       reservationIds = [];
       return respErr(
         reservation.reason ?? 'generation limit reached',
-        402,
-        reservation.generatedProjectId
-          ? { generatedProjectId: reservation.generatedProjectId }
-          : undefined
+        reservation.reasonCode === 'daily_limit' ? 429 : 402,
+        { reasonCode: reservation.reasonCode }
       );
+    }
+    if ('existing' in reservation && reservation.existing) {
+      return respData({
+        jobId: id,
+        projectId: id,
+        candidates: reservationIds,
+        status: 'generating',
+        productForUnlock: WEDDING_PACK_PRODUCT_ID,
+        resumed: true,
+      });
     }
     projectMarkedGenerating = true;
     if (Object.keys(projectUpdate).length > 0) {

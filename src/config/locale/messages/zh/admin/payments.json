@@ -9,7 +9,8 @@
     "provider": "提供商",
     "created_at": "创建时间",
     "status": "状态",
-    "action": "操作"
+    "action": "操作",
+    "diagnostics": "支付诊断"
   },
   "list": {
     "title": "支付",
@@ -59,5 +60,9 @@
       "awaiting_payment": "等待用户付款",
       "pending": "正在创建支付"
     }
+  },
+  "diagnostics": {
+    "refresh": "查询平台最新状态",
+    "platform_hint": "仅查询支付平台，不扣款、不退款、不改订单状态。"
   }
 }

@@ -3,13 +3,13 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { Button } from '@/shared/components/ui/button';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
-import { getUserInfo } from '@/shared/models/user';
 import {
   getWeddingProject,
   listWeddingProjectsForUser,
   type WeddingProject,
   type WeddingProjectRow,
 } from '@/shared/models/wedding';
+import { getWeddingActor } from '@/shared/models/wedding-actor';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,14 +34,28 @@ export default async function MyDesignsPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations('pages.myDesigns');
-  const user = await getUserInfo();
+  const actor = await getWeddingActor();
+  const hasIdentity = Boolean(actor.ownerId);
+  const localePrefix = locale === 'en' ? '' : `/${locale}`;
 
   let projects: WeddingProject[] = [];
-  if (user) {
-    const rows = await listWeddingProjectsForUser(user.id);
+  if (hasIdentity) {
+    const ownerIds = [
+      ...new Set(
+        [actor.user?.id, actor.guestOwnerId].filter((id): id is string =>
+          Boolean(id)
+        )
+      ),
+    ];
+    const rows = (
+      await Promise.all(
+        ownerIds.map((ownerId) => listWeddingProjectsForUser(ownerId))
+      )
+    ).flat();
+    const uniqueRows = [...new Map(rows.map((row) => [row.id, row])).values()];
     projects = (
       await Promise.all(
-        rows.map((row: WeddingProjectRow) => getWeddingProject(row.id))
+        uniqueRows.map((row: WeddingProjectRow) => getWeddingProject(row.id))
       )
     ).filter((project): project is WeddingProject => project !== null);
   }
@@ -54,31 +68,26 @@ export default async function MyDesignsPage({
             {t('title')}
           </h1>
           <p className="text-muted-foreground mt-3 text-balance">
-            {user ? t('description') : t('description_guest')}
+            {hasIdentity ? t('description') : t('description_guest')}
           </p>
         </div>
       </ScrollAnimation>
 
-      {!user ? (
-        <div className="bg-muted/40 rounded-2xl border p-8 text-center">
-          <p className="text-muted-foreground mb-4 text-sm">
-            {t('signin_hint')}
-          </p>
-          <Button asChild>
-            <Link href="/sign-in?callbackUrl=/my-designs">{t('signin')}</Link>
-          </Button>
-        </div>
-      ) : projects.length === 0 ? (
+      {projects.length === 0 ? (
         <div className="bg-muted/40 rounded-2xl border p-8 text-center">
           <p className="text-muted-foreground mb-4 text-sm">{t('empty')}</p>
           <Button asChild>
-            <Link href="/create">{t('create_new')}</Link>
+            <Link href={`${localePrefix}/create`}>{t('create_new')}</Link>
           </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
-            <DesignCard key={project.id} project={project} />
+            <DesignCard
+              key={project.id}
+              project={project}
+              localePrefix={localePrefix}
+            />
           ))}
         </div>
       )}
@@ -86,14 +95,20 @@ export default async function MyDesignsPage({
   );
 }
 
-function DesignCard({ project }: { project: WeddingProject }) {
+function DesignCard({
+  project,
+  localePrefix,
+}: {
+  project: WeddingProject;
+  localePrefix: string;
+}) {
   const generation = project.generations?.find(
     (item) => item.sourceImageUrl || item.finalImageUrl
   );
   const imageUrl = generation?.sourceImageUrl || generation?.finalImageUrl;
   return (
     <Link
-      href={`/design/${project.id}`}
+      href={`${localePrefix}/design/${project.id}`}
       className="group bg-card block overflow-hidden rounded-2xl border shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
     >
       <div className="bg-wedding-ivory p-6">

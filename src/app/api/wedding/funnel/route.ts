@@ -3,8 +3,14 @@ import { ZodError } from 'zod';
 
 import { db } from '@/core/db';
 import { weddingFunnelEvent, weddingGeneration } from '@/config/db/schema';
-import { getUserInfo } from '@/shared/models/user';
-import { canAccessWeddingProject } from '@/shared/models/wedding';
+import {
+  canAccessWeddingProject,
+  getWeddingProject,
+} from '@/shared/models/wedding';
+import {
+  getWeddingActor,
+  getWeddingProjectOwner,
+} from '@/shared/models/wedding-actor';
 import { funnelInput } from '@/shared/wedding/funnel';
 
 export async function POST(request: Request) {
@@ -52,15 +58,22 @@ export async function POST(request: Request) {
         )
       );
     if (usage.total >= 300) return new Response(null, { status: 429 });
-    const user = await getUserInfo();
+    const actor = await getWeddingActor();
+    const user = actor.user;
     const guestId = request.headers.get('x-wedding-guest-id') || undefined;
     if (input.eventName !== 'create_clicked' && !input.projectId)
       return new Response(null, { status: 400 });
+    const project = input.projectId
+      ? await getWeddingProject(input.projectId)
+      : null;
+    const ownerId = project
+      ? getWeddingProjectOwner(actor, project)
+      : undefined;
     if (
       input.projectId &&
       !(await canAccessWeddingProject({
         id: input.projectId,
-        userId: user?.id,
+        userId: ownerId,
         guestId,
       }))
     )

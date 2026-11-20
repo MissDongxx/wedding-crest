@@ -14,6 +14,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/shared/components/ui/card';
@@ -34,7 +35,9 @@ import {
   PricingItem,
   Pricing as PricingType,
 } from '@/shared/types/blocks/pricing';
+import { beginCheckoutAttempt } from '@/shared/wedding/checkout-telemetry-client';
 import { WEDDING_PACK_PRODUCT_ID } from '@/shared/wedding/config';
+import { requestWeddingCheckout } from '@/shared/wedding/purchase-client';
 
 // Helper function to get all available currencies from a pricing item
 function getCurrenciesFromItem(item: PricingItem | null): PricingCurrency[] {
@@ -206,8 +209,15 @@ export function Pricing({
   };
 
   const handlePayment = async (item: PricingItem) => {
-    // Guest purchases need a completed project so the pack can be delivered.
-    // Start with the free design flow instead of opening generic sign-in.
+    if (item.product_id === 'wedding_human_design') {
+      router.push('/create?service=human');
+      return;
+    }
+    if (item.product_id === 'free') {
+      router.push('/create');
+      return;
+    }
+    // Visitors can prepare a design before signing in and purchasing.
     if (!user && item.product_id === WEDDING_PACK_PRODUCT_ID) {
       router.push('/create');
       return;
@@ -286,13 +296,23 @@ export function Pricing({
       setIsLoading(true);
       setProductId(item.product_id);
 
-      const response = await fetch('/api/payment/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(params),
+      const telemetry = beginCheckoutAttempt({
+        entry: 'pricing',
+        provider: paymentProvider,
       });
+      const { response, body } = await requestWeddingCheckout(
+        () =>
+          telemetry.fetch({
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(params),
+          }),
+        () => {},
+        undefined,
+        telemetry
+      );
 
       if (response.status === 401) {
         setIsLoading(false);
@@ -302,7 +322,7 @@ export function Pricing({
         return;
       }
 
-      const { code, message, data } = await response.json();
+      const { code, message, data } = body;
       if (!response.ok) {
         throw new Error(
           message || `request failed with status ${response.status}`
@@ -312,12 +332,16 @@ export function Pricing({
         throw new Error(message);
       }
 
-      const { checkoutUrl } = data;
+      const checkoutUrl = data?.checkoutUrl;
       if (!checkoutUrl) {
         throw new Error('checkout url not found');
       }
 
-      window.location.href = checkoutUrl;
+      telemetry.redirect(checkoutUrl, () => {
+        setIsLoading(false);
+        setProductId(null);
+        toast.error('The payment page did not open. Please retry.');
+      });
     } catch (e: any) {
       console.log('checkout failed: ', e);
       toast.error('checkout failed: ' + e.message);
@@ -338,60 +362,44 @@ export function Pricing({
   return (
     <section
       id={section.id}
-      className={cn('py-24 md:py-36', section.className, className)}
+      className={cn('py-16 md:py-24', section.className, className)}
     >
-      <div className="mx-auto mb-12 px-4 text-center md:px-8">
+      <div className="mx-auto mb-10 max-w-3xl px-4 text-center md:mb-14 md:px-8">
         {section.sr_only_title && (
           <h1 className="sr-only">{section.sr_only_title}</h1>
         )}
-        <h2 className="mb-6 text-3xl font-bold text-pretty lg:text-4xl">
+        <h2 className="mb-4 font-serif text-3xl font-medium text-balance lg:text-4xl">
           {section.title}
         </h2>
-        <p className="text-muted-foreground mx-auto mb-4 max-w-xl lg:max-w-none lg:text-lg">
+        <p className="text-muted-foreground mx-auto max-w-2xl text-base leading-relaxed text-pretty">
           {section.description}
         </p>
       </div>
 
       <div className="container">
-        {section.groups && section.groups.length > 0 && (
-          <div className="mx-auto mt-8 mb-16 flex w-full justify-center md:max-w-lg">
-            <Tabs value={group} onValueChange={setGroup} className="">
+        {section.groups && section.groups.length > 1 && (
+          <div className="mx-auto mb-10 flex w-full justify-center">
+            <Tabs value={group} onValueChange={setGroup}>
               <TabsList>
-                {section.groups.map((item, i) => {
-                  return (
-                    <TabsTrigger key={i} value={item.name || ''}>
-                      {item.title}
-                      {item.label && (
-                        <Badge className="ml-2">{item.label}</Badge>
-                      )}
-                    </TabsTrigger>
-                  );
-                })}
+                {section.groups.map((item, i) => (
+                  <TabsTrigger key={i} value={item.name || ''}>
+                    {item.title}
+                    {item.label && <Badge className="ml-2">{item.label}</Badge>}
+                  </TabsTrigger>
+                ))}
               </TabsList>
             </Tabs>
           </div>
         )}
 
-        <div
-          className={`mx-auto mt-0 grid w-full gap-6 md:grid-cols-${
-            section.items?.filter((item) => !item.group || item.group === group)
-              ?.length
-          }`}
-        >
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-stretch gap-6 md:grid-cols-3">
           {section.items?.map((item: PricingItem, idx) => {
             if (item.group && item.group !== group) {
               return null;
             }
 
-            let isCurrentPlan = false;
-            if (
-              currentSubscription &&
-              currentSubscription.productId === item.product_id
-            ) {
-              isCurrentPlan = true;
-            }
-
-            // Get currency state for this item
+            const isCurrentPlan =
+              currentSubscription?.productId === item.product_id;
             const currencyState = itemCurrencies[item.product_id];
             const displayedItem = currencyState?.displayedItem || item;
             const selectedCurrency =
@@ -399,38 +407,40 @@ export function Pricing({
             const currencies = getCurrenciesFromItem(item);
 
             return (
-              <Card key={idx} className="relative">
+              <Card
+                key={idx}
+                className={cn(
+                  'relative min-w-0 gap-6 shadow-none',
+                  item.is_featured ? 'border-primary border-2' : 'border-border'
+                )}
+              >
                 {item.label && (
-                  <span className="absolute inset-x-0 -top-3 mx-auto flex h-6 w-fit items-center rounded-full bg-linear-to-br/increasing from-purple-400 to-amber-300 px-3 py-1 text-xs font-medium text-amber-950 ring-1 ring-white/20 ring-offset-1 ring-offset-gray-950/5 ring-inset">
+                  <span className="bg-primary text-foreground dark:text-primary-foreground absolute -top-3 left-6 max-w-[calc(100%-3rem)] rounded-full px-3 py-1 text-center text-xs leading-snug font-semibold">
                     {item.label}
                   </span>
                 )}
 
-                <CardHeader>
-                  <CardTitle className="font-medium">
-                    <h3 className="text-sm font-medium">{item.title}</h3>
+                <CardHeader className="gap-3">
+                  <CardTitle>
+                    <h3 className="font-serif text-xl leading-snug font-medium text-balance">
+                      {item.title}
+                    </h3>
                   </CardTitle>
 
-                  <div className="my-3 flex items-baseline gap-2">
+                  <div className="flex min-h-16 flex-wrap items-baseline gap-x-2 gap-y-1">
+                    <span className="text-foreground font-serif text-4xl leading-tight font-medium tabular-nums">
+                      {displayedItem.price}
+                    </span>
                     {displayedItem.original_price && (
                       <span className="text-muted-foreground text-sm line-through">
                         {displayedItem.original_price}
                       </span>
                     )}
-
-                    <div className="my-3 block text-2xl font-semibold">
-                      <span className="text-primary">
-                        {displayedItem.price}
-                      </span>{' '}
-                      {displayedItem.unit ? (
-                        <span className="text-muted-foreground text-sm font-normal">
-                          {displayedItem.unit}
-                        </span>
-                      ) : (
-                        ''
-                      )}
-                    </div>
-
+                    {displayedItem.unit && (
+                      <span className="text-muted-foreground text-sm">
+                        {displayedItem.unit}
+                      </span>
+                    )}
                     {currencies.length > 1 && (
                       <Select
                         value={selectedCurrency}
@@ -439,8 +449,8 @@ export function Pricing({
                         }
                       >
                         <SelectTrigger
-                          size="sm"
-                          className="border-muted-foreground/30 bg-background/50 h-6 min-w-[60px] px-2 text-xs"
+                          aria-label="Currency"
+                          className="min-h-11 min-w-20 text-sm"
                         >
                           <SelectValue placeholder="Currency" />
                         </SelectTrigger>
@@ -449,7 +459,6 @@ export function Pricing({
                             <SelectItem
                               key={currency.currency}
                               value={currency.currency}
-                              className="text-xs"
                             >
                               {currency.currency.toUpperCase()}
                             </SelectItem>
@@ -459,70 +468,76 @@ export function Pricing({
                     )}
                   </div>
 
-                  <CardDescription className="text-sm">
+                  <CardDescription className="text-sm leading-relaxed text-pretty">
                     {item.description}
                   </CardDescription>
-                  {item.tip && (
-                    <span className="text-muted-foreground text-sm">
-                      {item.tip}
-                    </span>
-                  )}
+                </CardHeader>
 
+                <CardContent className="flex-1 space-y-4">
+                  <hr />
+                  {item.features_title && (
+                    <p className="text-sm font-medium">{item.features_title}</p>
+                  )}
+                  <ul className="space-y-3 text-sm leading-relaxed">
+                    {item.features?.map((feature, index) => (
+                      <li key={index} className="flex items-start gap-2.5">
+                        <Check
+                          aria-hidden="true"
+                          className="mt-1 size-4 shrink-0"
+                        />
+                        <span className="min-w-0 break-words">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+
+                <CardFooter className="mt-auto flex-col items-stretch gap-4">
+                  {item.tip && (
+                    <p className="text-muted-foreground text-sm leading-relaxed text-pretty">
+                      {item.tip}
+                    </p>
+                  )}
                   {isCurrentPlan ? (
                     <Button
                       variant="outline"
-                      className="mt-4 h-9 w-full px-4 py-2"
+                      className="h-auto min-h-11 w-full px-4 py-3 text-sm whitespace-normal"
                       disabled
                     >
-                      <span className="hidden text-sm md:block">
-                        {t('current_plan')}
-                      </span>
+                      {t('current_plan')}
                     </Button>
                   ) : (
                     <Button
+                      variant={item.is_featured ? 'default' : 'outline'}
                       onClick={() => handlePayment(item)}
                       disabled={isLoading}
                       className={cn(
-                        'focus-visible:ring-ring inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
-                        'mt-4 h-9 w-full px-4 py-2',
-                        'bg-primary text-primary-foreground hover:bg-primary/90 border-[0.5px] border-white/25 shadow-md shadow-black/20'
+                        'h-auto min-h-11 w-full px-4 py-3 text-sm leading-snug whitespace-normal',
+                        item.is_featured &&
+                          'bg-foreground text-background hover:bg-foreground/90'
                       )}
                     >
                       {isLoading && item.product_id === productId ? (
                         <>
-                          <Loader2 className="size-4 animate-spin" />
-                          <span className="block">{t('processing')}</span>
+                          <Loader2
+                            aria-hidden="true"
+                            className="size-4 shrink-0 animate-spin"
+                          />
+                          <span role="status">{t('processing')}</span>
                         </>
                       ) : (
                         <>
                           {item.button?.icon && (
                             <SmartIcon
-                              name={item.button?.icon as string}
-                              className="size-4"
+                              name={item.button.icon as string}
+                              className="size-4 shrink-0"
                             />
                           )}
-                          <span className="block">{item.button?.title}</span>
+                          <span>{item.button?.title}</span>
                         </>
                       )}
                     </Button>
                   )}
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  <hr className="border-dashed" />
-
-                  {item.features_title && (
-                    <p className="text-sm font-medium">{item.features_title}</p>
-                  )}
-                  <ul className="list-outside space-y-3 text-sm">
-                    {item.features?.map((item, index) => (
-                      <li key={index} className="flex items-center gap-2">
-                        <Check className="size-3" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
+                </CardFooter>
               </Card>
             );
           })}

@@ -2,7 +2,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
+import { envConfigs } from '@/config';
 import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
+import { getAlternates } from '@/shared/lib/seo';
 import {
   listWeddingExamplesSafe,
   type WeddingExampleRow,
@@ -21,6 +23,11 @@ export async function generateMetadata({
   return {
     title: t('meta_title'),
     description: t('meta_description'),
+    alternates: await getAlternates(
+      '/wedding-crest-examples',
+      locale,
+      envConfigs.app_url
+    ),
   };
 }
 
@@ -66,9 +73,12 @@ export default async function ExamplesPage({
   const t = await getTranslations('pages.examples');
 
   const allowedStyles = new Set<string>(weddingExampleStyleIds);
-  const dbRows = (await listWeddingExamplesSafe({
-    activeOnly: true,
-  })) as WeddingExampleRow[];
+  // The gallery depends on this data; allow a cold connection to complete.
+  // Keep the shorter default timeout for optional homepage previews.
+  const dbRows = (await listWeddingExamplesSafe(
+    { activeOnly: true },
+    10000
+  )) as WeddingExampleRow[];
 
   const photosByStyle = new Map<string, PhotoExample[]>();
   for (const row of dbRows) {

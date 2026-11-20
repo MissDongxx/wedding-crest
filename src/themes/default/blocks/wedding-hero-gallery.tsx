@@ -66,6 +66,9 @@ export function WeddingHeroGallery() {
           >
             <Image
               src={example.imageUrl}
+              unoptimized={example.imageUrl.startsWith(
+                'https://images.weddingcrestdesign.com/'
+              )}
               alt={example.altText ?? example.name}
               width={640}
               height={640}

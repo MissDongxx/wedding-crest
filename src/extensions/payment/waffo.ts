@@ -8,6 +8,12 @@ import {
 } from '@waffo/pancake-ts';
 
 import {
+  classifyPaymentDiagnosticError,
+  recordPaymentDiagnostic,
+} from '@/shared/models/payment-diagnostic';
+import { classifyProviderPaymentReason } from '@/shared/wedding/payment-diagnostics-contract';
+
+import {
   CheckoutSession,
   PaymentConfigs,
   PaymentEvent,
@@ -245,6 +251,22 @@ export class WaffoProvider implements PaymentProvider {
   }: {
     order: PaymentOrder;
   }): Promise<CheckoutSession> {
+    const startedAt = Date.now();
+    const trace = (
+      stage: string,
+      reason?: string,
+      details?: Record<string, any>
+    ) =>
+      recordPaymentDiagnostic({
+        source: 'provider',
+        stage,
+        reason,
+        provider: this.name,
+        orderNo: order.orderNo,
+        attemptId: order.metadata?.payment_attempt_id,
+        latencyMs: Date.now() - startedAt,
+        details,
+      }).catch(() => {});
     if (!order.productId) {
       throw new Error(
         'waffo requires a Waffo product id (PROD_xxx); map it in Admin > Payment > Waffo Product IDs'
@@ -300,13 +322,27 @@ export class WaffoProvider implements PaymentProvider {
             cause.message?.includes(
               'before secure TLS connection was established'
             ));
-        if (!unsent || attempt >= 2) throw error;
+        const failure = classifyPaymentDiagnosticError(error);
+        if (!unsent || attempt >= 2) {
+          await trace(
+            'provider_checkout_failed',
+            failure.reason,
+            failure.details
+          );
+          throw error;
+        }
+        await trace(
+          'provider_checkout_retry',
+          'connection_not_established',
+          failure.details
+        );
         await new Promise((resolve) =>
           setTimeout(resolve, 250 * (attempt + 1))
         );
       }
     }
 
+    await trace('provider_checkout_created', 'checkout_created');
     return {
       provider: this.name,
       checkoutParams: params,
@@ -333,11 +369,27 @@ export class WaffoProvider implements PaymentProvider {
   }: {
     sessionId: string;
   }): Promise<PaymentSession> {
+    const startedAt = Date.now();
+    const trace = (
+      stage: string,
+      reason?: string,
+      details?: Record<string, any>
+    ) =>
+      recordPaymentDiagnostic({
+        source: 'provider',
+        stage,
+        reason,
+        provider: this.name,
+        orderNo: sessionId,
+        latencyMs: Date.now() - startedAt,
+        details,
+      }).catch(() => {});
     try {
       const { data, errors } = await this.client.graphql.query<{
         payments: Array<{
           id: string;
           status: string;
+          failureReason?: string | null;
           createdAt: string;
           snapshotAmountDetails?: Record<string, any>;
           onetimeOrder?: Record<string, any> | null;
@@ -348,6 +400,7 @@ export class WaffoProvider implements PaymentProvider {
           payments(filter: { orderMerchantExternalId: { eq: $ref } }) {
             id
             status
+            failureReason
             createdAt
             snapshotAmountDetails { currency subtotal taxAmount total taxCategory }
             onetimeOrder { id status buyerEmail currency }
@@ -366,11 +419,14 @@ export class WaffoProvider implements PaymentProvider {
 
       const payments = data?.payments ?? [];
       if (payments.length === 0) {
+        await trace('provider_payment_lookup', 'no_payment_record', {
+          paymentStatus: PaymentStatus.PROCESSING,
+        });
         // No payment recorded yet — the buyer may still be on the cashier page.
         return {
           provider: this.name,
           paymentStatus: PaymentStatus.PROCESSING,
-          paymentResult: { sessionId },
+          paymentResult: { sessionId, diagnosticReason: 'no_payment_record' },
           metadata: {},
         };
       }
@@ -378,8 +434,28 @@ export class WaffoProvider implements PaymentProvider {
       const succeeded = payments.find((p) => p.status === 'succeeded');
       const payment = succeeded || payments[0];
 
+      const lookupReason =
+        payment.status === 'failed'
+          ? 'provider_payment_failed'
+          : payment.status === 'canceled'
+            ? 'provider_payment_canceled'
+            : succeeded
+              ? 'payment_succeeded'
+              : 'payment_processing';
+      const providerReason =
+        payment.status === 'failed'
+          ? classifyProviderPaymentReason(payment.failureReason) ||
+            'provider_rejected'
+          : payment.status === 'canceled'
+            ? 'canceled'
+            : undefined;
+      await trace('provider_payment_lookup', lookupReason, {
+        paymentStatus: payment.status,
+        ...(providerReason ? { providerReason } : {}),
+      });
       return this.buildPaymentSession({
-        payment,
+        // Provider free-form failure text may contain PII; retain only its canonical reason.
+        payment: { ...payment, failureReason: providerReason },
         paymentStatus: succeeded
           ? PaymentStatus.SUCCESS
           : payment.status === 'failed'
@@ -389,11 +465,21 @@ export class WaffoProvider implements PaymentProvider {
               : PaymentStatus.PROCESSING,
       });
     } catch (e: any) {
-      console.error('waffo getPaymentSession failed:', e?.message || e);
+      const failure = classifyPaymentDiagnosticError(e);
+      await trace(
+        'provider_payment_lookup_failed',
+        'provider_query_error',
+        failure.details
+      );
+      console.error('waffo getPaymentSession failed:', failure.reason);
       return {
         provider: this.name,
         paymentStatus: PaymentStatus.PROCESSING,
-        paymentResult: { sessionId, error: e?.message || String(e) },
+        paymentResult: {
+          sessionId,
+          diagnosticReason: 'provider_query_error',
+          errorCode: failure.details.errorCode,
+        },
         metadata: {},
       };
     }
@@ -407,10 +493,29 @@ export class WaffoProvider implements PaymentProvider {
    * the bytes and every signature fails.
    */
   async getPaymentEvent({ req }: { req: Request }): Promise<PaymentEvent> {
+    const startedAt = Date.now();
+    const requestId = crypto.randomUUID();
+    const trace = (
+      stage: string,
+      reason?: string,
+      orderNo?: string,
+      attemptId?: string
+    ) =>
+      recordPaymentDiagnostic({
+        source: 'provider',
+        stage,
+        reason,
+        provider: this.name,
+        requestId,
+        orderNo,
+        attemptId,
+        latencyMs: Date.now() - startedAt,
+      }).catch(() => {});
     const rawBody = await req.text();
     const signature = req.headers.get('x-waffo-signature');
 
     if (!rawBody || !signature) {
+      await trace('provider_webhook_rejected', 'missing_webhook_signature');
       throw new Error('Invalid webhook request');
     }
 
@@ -420,11 +525,18 @@ export class WaffoProvider implements PaymentProvider {
         environment: this.environment,
       });
     } catch (e: any) {
+      await trace('provider_webhook_rejected', 'invalid_webhook_signature');
       throw new Error(`Invalid webhook signature: ${e?.message || e}`);
     }
 
     const eventType = this.mapEventType(event.eventType);
     const paymentSession = this.buildPaymentSessionFromEvent(event, eventType);
+    await trace(
+      'provider_webhook_verified',
+      'provider_event_verified',
+      paymentSession.metadata?.order_no,
+      paymentSession.metadata?.payment_attempt_id
+    );
 
     return {
       eventType,
@@ -663,6 +775,7 @@ export class WaffoProvider implements PaymentProvider {
     payment: {
       id: string;
       status: string;
+      failureReason?: string;
       createdAt: string;
       snapshotAmountDetails?: Record<string, any>;
       onetimeOrder?: Record<string, any> | null;

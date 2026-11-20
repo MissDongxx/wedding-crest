@@ -6,6 +6,10 @@ import {
   findOrderByOrderNo,
   findOrderByTransactionId,
 } from '@/shared/models/order';
+import {
+  classifyPaymentDiagnosticError,
+  recordPaymentDiagnostic,
+} from '@/shared/models/payment-diagnostic';
 import { findSubscriptionByProviderSubscriptionId } from '@/shared/models/subscription';
 import {
   getPaymentService,
@@ -19,6 +23,32 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ provider: string }> }
 ) {
+  const startedAt = Date.now();
+  const requestId = crypto.randomUUID();
+  let diagnosticOrder:
+    | Awaited<ReturnType<typeof findOrderByOrderNo>>
+    | undefined;
+  let diagnosticProvider: string | undefined;
+  let attemptId: string | undefined;
+  const trace = (
+    stage: string,
+    reason?: string,
+    details?: Record<string, any>
+  ) =>
+    recordPaymentDiagnostic({
+      source: 'server',
+      stage,
+      reason,
+      requestId,
+      attemptId,
+      orderNo: diagnosticOrder?.orderNo,
+      ownerId: diagnosticOrder?.userId,
+      provider: diagnosticProvider,
+      projectId: diagnosticOrder?.projectId || undefined,
+      latencyMs: Date.now() - startedAt,
+      details,
+    }).catch(() => {});
+  await trace('webhook_received');
   try {
     const { provider } = await params;
 
@@ -32,6 +62,7 @@ export async function POST(
       throw new Error('payment provider not found');
     }
 
+    diagnosticProvider = paymentProvider.name;
     // get payment event from webhook notification
     const event = await paymentProvider.getPaymentEvent({ req });
     if (!event) {
@@ -49,6 +80,15 @@ export async function POST(
       throw new Error('payment session not found');
     }
 
+    const suppliedAttemptId = session.metadata?.payment_attempt_id;
+    if (
+      typeof suppliedAttemptId === 'string' &&
+      /^[0-9a-f-]{36}$/i.test(suppliedAttemptId)
+    )
+      attemptId = suppliedAttemptId;
+    await trace('webhook_verified', 'provider_event_verified', {
+      paymentStatus: session.paymentStatus,
+    });
     if (eventType === PaymentEventType.CHECKOUT_SUCCESS) {
       // one-time payment or subscription first payment
       const orderNo = session.metadata.order_no;
@@ -62,6 +102,8 @@ export async function POST(
         throw new Error('order not found');
       }
 
+      diagnosticOrder = order;
+      await trace('webhook_order_matched');
       await handleCheckoutSuccess({
         order,
         session,
@@ -144,6 +186,8 @@ export async function POST(
           throw new Error('order not found');
         }
 
+        diagnosticOrder = order;
+        await trace('webhook_order_matched');
         // handleCheckoutSuccess has idempotency check and optimistic lock
         await handleCheckoutSuccess({
           order,
@@ -191,10 +235,15 @@ export async function POST(
     } else {
     }
 
+    await trace('webhook_completed', 'payment_synchronized', {
+      paymentStatus: session.paymentStatus,
+    });
     return Response.json({
       message: 'success',
     });
   } catch (err) {
+    const failure = classifyPaymentDiagnosticError(err);
+    await trace('webhook_failed', failure.reason, failure.details);
     return Response.json(
       {
         message: `handle payment notify failed: ${err instanceof Error ? err.message : String(err)}`,

@@ -106,3 +106,14 @@ export function resolveWeddingDisplayTexts(
     date: input.showDate === false ? '' : formatWeddingDate(input.weddingDate),
   };
 }
+
+/** Explicit opt-in; legacy location fields remain illustration inspiration only. */
+export function resolveWeddingLocationText(input: WeddingProjectInput): string {
+  if (!input.showLocation) return '';
+  return [input.venue?.trim(), input.location?.trim()]
+    .filter(
+      (value, index, values) =>
+        Boolean(value) && values.indexOf(value) === index
+    )
+    .join(', ');
+}

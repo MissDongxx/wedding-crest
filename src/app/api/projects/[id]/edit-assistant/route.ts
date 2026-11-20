@@ -2,13 +2,16 @@ import { z } from 'zod';
 
 import { respData, respErr } from '@/shared/lib/resp';
 import { getAllConfigs } from '@/shared/models/config';
-import { getUserInfo } from '@/shared/models/user';
 import {
   canAccessWeddingProject,
   getWeddingGeneration,
+  getWeddingGenerationAllowance,
   getWeddingProject,
-  hasPaidWeddingOrder,
 } from '@/shared/models/wedding';
+import {
+  getWeddingActor,
+  getWeddingProjectOwner,
+} from '@/shared/models/wedding-actor';
 import { assistantReplySchema } from '@/shared/wedding/edit-plan';
 
 const requestSchema = z.object({
@@ -43,18 +46,21 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const user = await getUserInfo();
+    const actor = await getWeddingActor();
     const guestId = request.headers.get('x-wedding-guest-id') || undefined;
-    if (!user && !guestId) return respErr('project access required', 401);
-    if (!(await canAccessWeddingProject({ id, userId: user?.id, guestId })))
-      return user
-        ? respErr('project not found', 404)
-        : respErr('Sign in to continue your wedding design.', 401);
-    if (!user && !(await hasPaidWeddingOrder(undefined, id, guestId)))
-      return respErr('Sign in to adjust your free wedding design.', 401);
+    const project = await getWeddingProject(id);
+    if (!project) return respErr('project not found', 404);
+    const ownerId = getWeddingProjectOwner(actor, project);
+    if (!(await canAccessWeddingProject({ id, userId: ownerId, guestId })))
+      return respErr('project not found', 404);
+    const allowance = await getWeddingGenerationAllowance(ownerId, id);
+    if (!allowance.allowed)
+      return respErr(
+        allowance.reason ?? 'generation unavailable',
+        allowance.reasonCode === 'daily_limit' ? 429 : 402
+      );
     const body = requestSchema.parse(await request.json());
-    const [project, source, configs] = await Promise.all([
-      getWeddingProject(id),
+    const [source, configs] = await Promise.all([
       getWeddingGeneration(body.sourceGenerationId),
       getAllConfigs(),
     ]);
@@ -71,7 +77,7 @@ export async function POST(
         'Configure Runware in Admin > Settings > AI. Existing quick edits are still available.',
         503
       );
-    if (!allowPlanning(user?.id || guestId!))
+    if (!allowPlanning(ownerId || guestId!))
       return respErr('Too many planning requests. Please wait a minute.', 429);
     const response = await fetch('https://api.runware.ai/v1/chat/completions', {
       method: 'POST',

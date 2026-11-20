@@ -25,13 +25,18 @@
         },
         {
           "title": "Examples",
-          "url": "/examples",
+          "url": "/wedding-crest-examples",
           "icon": "RiEyeLine"
         },
         {
           "title": "Pricing",
           "url": "/#pricing",
           "icon": "DollarSign"
+        },
+        {
+          "title": "Blog",
+          "url": "/blog",
+          "icon": "FileText"
         }
       ]
     },
@@ -143,7 +148,7 @@
           "children": [
             {
               "title": "Examples",
-              "url": "/examples",
+              "url": "/wedding-crest-examples",
               "target": "_self"
             },
             {

@@ -1,0 +1,96 @@
+.body {
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  overflow-wrap: anywhere;
+}
+.body p,
+.body ul,
+.body ol,
+.body table {
+  margin: 1.25rem 0;
+}
+.body h2 {
+  margin: 3.75rem 0 1.25rem;
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 3.5vw, 2.25rem);
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  scroll-margin-top: 7rem;
+}
+.body h3 {
+  margin: 2.5rem 0 1rem;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  line-height: 1.4;
+  scroll-margin-top: 7rem;
+}
+.body a {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.body a:hover {
+  text-decoration-thickness: 2px;
+}
+.body a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+.body ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+}
+.body ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+}
+.body li {
+  margin: 0.65rem 0;
+  padding-left: 0.25rem;
+}
+.body aside {
+  margin: 2rem 0;
+  border-left: 3px solid var(--primary);
+  background: var(--muted);
+  padding: 0.5rem 1.5rem;
+  font-size: 0.9375rem;
+}
+.body table {
+  width: 100%;
+  min-width: 34rem;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+}
+.body th,
+.body td {
+  border: 1px solid var(--border);
+  padding: 0.85rem 1rem;
+  text-align: left;
+  vertical-align: top;
+}
+.body th {
+  background: var(--muted);
+  font-weight: 600;
+}
+.body figure {
+  margin: 2.25rem 0;
+}
+.body figcaption {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--muted-foreground);
+}
+.body summary {
+  cursor: pointer;
+  font-weight: 600;
+  line-height: 1.6;
+  padding: 1rem 0;
+}
+.body details {
+  border-bottom: 1px solid var(--border);
+}
+.body details p {
+  margin-top: 0;
+}

@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next';
 
 import { envConfigs } from '@/config';
 import { defaultLocale, locales } from '@/config/locale';
+import { weddingCrestGuide } from '@/shared/content/wedding-crest-guide';
 
 const STYLE_ROUTES = [
   'wedding-crest/botanical-watercolor',
@@ -29,7 +30,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = [
     '',
     '/create',
-    '/examples',
+    '/wedding-crest-examples',
     '/wedding-crest-generator',
     '/wedding-monogram-maker',
     '/wedding-logo-maker',
@@ -80,5 +81,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     });
   });
 
+  // These guides are English-only; do not advertise translated URLs that
+  // redirect or invent fresh article modification dates on every build.
+  sitemapEntries.push(
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: weddingCrestGuide.published,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}${weddingCrestGuide.path}`,
+      lastModified: weddingCrestGuide.published,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    }
+  );
   return sitemapEntries;
 }

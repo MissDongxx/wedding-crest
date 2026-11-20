@@ -779,3 +779,31 @@ export const weddingFunnelEvent = table('wedding_funnel_event', {
   isTest: boolean('is_test').notNull().default(false),
   createdAt: timestamp('created_at').notNull(),
 }, (t) => [index('idx_wedding_funnel_created').on(t.createdAt), index('idx_wedding_funnel_project').on(t.projectId)]);
+
+/** Bounded, PII-free checkout lifecycle diagnostics; no provider payloads. */
+export const paymentDiagnosticEvent = table(
+  'payment_diagnostic_event',
+  {
+    id: text('id').primaryKey(),
+    source: text('source').notNull(),
+    stage: text('stage').notNull(),
+    reason: text('reason'),
+    requestId: text('request_id'),
+    attemptId: text('attempt_id'),
+    orderNo: text('order_no'),
+    provider: text('provider'),
+    ownerId: text('owner_id'),
+    projectId: text('project_id'),
+    entry: text('entry'),
+    httpStatus: integer('http_status'),
+    latencyMs: integer('latency_ms'),
+    details: text('details'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (t) => [
+    index('idx_payment_diag_order_created').on(t.orderNo, t.createdAt),
+    index('idx_payment_diag_attempt_created').on(t.attemptId, t.createdAt),
+    index('idx_payment_diag_owner_created').on(t.ownerId, t.createdAt),
+    index('idx_payment_diag_created').on(t.createdAt),
+  ]
+);

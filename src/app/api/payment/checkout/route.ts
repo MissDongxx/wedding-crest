@@ -14,27 +14,118 @@ import {
   createOrder,
   NewOrder,
   OrderStatus,
+  reserveWeddingCheckoutOrder,
   updateOrderByOrderNo,
 } from '@/shared/models/order';
-import { getUserInfo } from '@/shared/models/user';
+import {
+  classifyPaymentDiagnosticError,
+  recordPaymentDiagnostic,
+} from '@/shared/models/payment-diagnostic';
 import {
   canAccessWeddingProject,
   getWeddingProject,
 } from '@/shared/models/wedding';
+import {
+  getWeddingActor,
+  getWeddingProjectOwner,
+} from '@/shared/models/wedding-actor';
 import {
   ensureWeddingGuestBuyer,
   weddingCheckoutCookie,
 } from '@/shared/models/wedding-checkout';
 import { getPaymentService } from '@/shared/services/payment';
 import { PricingCurrency } from '@/shared/types/blocks/pricing';
-import { WEDDING_PACK_PRODUCT_ID } from '@/shared/wedding/config';
+import {
+  weddingCheckoutId,
+  weddingCheckoutReturnUrl,
+} from '@/shared/wedding/checkout-contract';
+import {
+  HUMAN_DESIGN_AMOUNT,
+  HUMAN_DESIGN_PRODUCT_ID,
+  isWeddingCheckoutProduct,
+} from '@/shared/wedding/config';
+import { humanDesignCheckoutSchema } from '@/shared/wedding/human-design';
 
 export async function POST(req: Request) {
+  const startedAt = Date.now();
+  const requestId = crypto.randomUUID();
+  const uuid =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const suppliedAttempt = req.headers.get('x-checkout-attempt-id');
+  const checkoutRequestId = req.headers.get('x-wedding-checkout-id');
+  const attemptId =
+    suppliedAttempt && uuid.test(suppliedAttempt)
+      ? suppliedAttempt
+      : checkoutRequestId && uuid.test(checkoutRequestId)
+        ? checkoutRequestId
+        : crypto.randomUUID();
+  let diagnosticOrderNo: string | undefined;
+  let diagnosticOwnerId: string | undefined;
+  let diagnosticProjectId: string | undefined;
+  let diagnosticProvider: string | undefined;
+  const trace = (
+    stage: string,
+    reason?: string,
+    extra: Record<string, any> = {}
+  ) =>
+    recordPaymentDiagnostic({
+      source: 'server',
+      stage,
+      reason,
+      requestId,
+      attemptId,
+      orderNo: diagnosticOrderNo,
+      ownerId: diagnosticOwnerId,
+      projectId: diagnosticProjectId,
+      provider: diagnosticProvider,
+      latencyMs: Date.now() - startedAt,
+      ...extra,
+    }).catch(() => {});
+  const fail = async (
+    message: string,
+    status = 200,
+    data?: Record<string, any>
+  ) => {
+    const reason =
+      data?.reasonCode ||
+      (status === 401
+        ? 'identity_required'
+        : status === 403
+          ? 'invalid_origin'
+          : status === 404
+            ? 'project_not_found'
+            : 'request_validation_failed');
+    await trace('checkout_rejected', reason, { httpStatus: status });
+    return respErr(message, status, {
+      ...data,
+      orderNo: diagnosticOrderNo,
+      attemptId,
+      requestId,
+    });
+  };
+  const success = async (data: Record<string, any>) => {
+    await trace('checkout_response', 'checkout_ready', { httpStatus: 200 });
+    return respData({
+      ...data,
+      orderNo: diagnosticOrderNo,
+      attemptId,
+      requestId,
+    });
+  };
+  await trace('checkout_received');
   try {
+    if (suppliedAttempt && !uuid.test(suppliedAttempt))
+      return fail('invalid checkout attempt id', 400);
+    const origin = req.headers.get('origin');
+    if (
+      (origin && origin !== new URL(req.url).origin) ||
+      req.headers.get('sec-fetch-site') === 'cross-site'
+    )
+      return fail('invalid checkout origin', 403);
     const { product_id, currency, locale, payment_provider, metadata } =
       await req.json();
     if (!product_id) {
-      return respErr('product_id is required');
+      return fail('product_id is required');
     }
 
     // Load pricing config directly instead of using getTranslations.
@@ -45,7 +136,7 @@ export async function POST(req: Request) {
     const pricing = pricingMessages?.page?.sections?.pricing;
 
     if (!pricing || !pricing.items) {
-      return respErr('pricing configuration not found');
+      return fail('pricing configuration not found');
     }
 
     const pricingItem = pricing.items.find(
@@ -53,60 +144,70 @@ export async function POST(req: Request) {
     );
 
     if (!pricingItem) {
-      return respErr('pricing item not found');
+      return fail('pricing item not found');
     }
 
     if (!pricingItem.product_id && !pricingItem.amount) {
-      return respErr('invalid pricing item');
+      return fail('invalid pricing item');
     }
 
-    const user = await getUserInfo(true);
+    const isHumanDesign = product_id === HUMAN_DESIGN_PRODUCT_ID;
+    const humanRequest = isHumanDesign
+      ? humanDesignCheckoutSchema.safeParse(metadata?.human_design ?? {})
+      : undefined;
+    if (isHumanDesign && !humanRequest?.success)
+      return fail('Invalid design context.', 400);
+    if (isHumanDesign) {
+      pricingItem.amount = HUMAN_DESIGN_AMOUNT;
+      pricingItem.currency = 'USD';
+    }
+    const actor = await getWeddingActor({
+      createGuest: isWeddingCheckoutProduct(product_id),
+    });
+    const user = actor.user;
+    diagnosticOwnerId = actor.ownerId;
     const guestId = req.headers.get('x-wedding-guest-id') || undefined;
-    const isWeddingPack = product_id === WEDDING_PACK_PRODUCT_ID;
+    const isWeddingPack = isWeddingCheckoutProduct(product_id);
     const projectId =
       typeof metadata?.project_id === 'string'
         ? metadata.project_id
         : undefined;
+    diagnosticProjectId = projectId;
+    let projectOwnerId: string | undefined;
     if (isWeddingPack && projectId) {
+      const project = await getWeddingProject(projectId);
+      projectOwnerId = project
+        ? getWeddingProjectOwner(actor, project)
+        : undefined;
       if (
         !projectId ||
         !(await canAccessWeddingProject({
           id: projectId,
-          userId: user?.id,
+          userId: projectOwnerId,
           guestId,
         }))
       ) {
-        return respErr('project not found', 404);
+        return fail('project not found', 404);
       }
-      const project = await getWeddingProject(projectId);
-      if (
-        !project?.generations.some(
-          (generation) =>
-            ['complete', 'selected'].includes(generation.status) &&
-            generation.sourceImageUrl
-        )
-      )
-        return respErr('completed crest required before checkout', 400);
     }
-    if ((!isWeddingPack || !projectId) && !user?.email) {
-      return respErr('no auth, please sign in', 401);
-    }
-    // Anonymous checkout is restricted to this one-time, project-scoped product.
-    if (!user && pricingItem.interval !== PaymentInterval.ONE_TIME) {
-      return respErr('sign in is required for subscriptions', 401);
-    }
+    if (!isWeddingPack && !user?.email)
+      return fail('Sign in to continue checkout.', 401);
+    if (isWeddingPack && !user && !actor.guestToken)
+      return fail('checkout identity required', 401);
 
     // get configs
     const configs = await getAllConfigs();
 
     // choose payment provider
-    let paymentProviderName = payment_provider || '';
+    let paymentProviderName = isHumanDesign ? 'waffo' : payment_provider || '';
     if (!paymentProviderName) {
       paymentProviderName = configs.default_payment_provider;
     }
     if (!paymentProviderName) {
-      return respErr('no payment provider configured');
+      return fail('no payment provider configured');
     }
+
+    diagnosticProvider = paymentProviderName;
 
     // Validate payment provider against allowed providers
     // First check currency-specific payment_providers if currency is provided
@@ -131,7 +232,7 @@ export async function POST(req: Request) {
     // If payment_providers is configured, validate the selected provider
     if (allowedProviders && allowedProviders.length > 0) {
       if (!allowedProviders.includes(paymentProviderName)) {
-        return respErr(
+        return fail(
           `payment provider ${paymentProviderName} is not supported for this currency`
         );
       }
@@ -152,7 +253,7 @@ export async function POST(req: Request) {
 
     const paymentProvider = paymentService.getProvider(paymentProviderName);
     if (!paymentProvider || !paymentProvider.name) {
-      return respErr('no payment provider configured');
+      return fail('no payment provider configured');
     }
 
     // checkout currency and amount - calculate from server-side data only (never trust client input)
@@ -194,8 +295,29 @@ export async function POST(req: Request) {
         ? PaymentType.ONE_TIME
         : PaymentType.SUBSCRIPTION;
 
-    const buyerId = user?.id || (await ensureWeddingGuestBuyer(projectId!));
-    const orderNo = getSnowId();
+    if (isWeddingPack && paymentType !== PaymentType.ONE_TIME)
+      return fail('invalid wedding payment type', 400);
+    const buyerId =
+      projectOwnerId ||
+      user?.id ||
+      (await ensureWeddingGuestBuyer(actor.guestToken!));
+    diagnosticOwnerId = buyerId;
+    const requestKey = req.headers.get('x-wedding-checkout-id');
+    if (
+      requestKey &&
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        requestKey
+      )
+    )
+      return fail('invalid checkout request id', 400);
+    const checkoutId = isWeddingPack
+      ? await weddingCheckoutId(
+          isHumanDesign ? `${buyerId}:human-design` : buyerId,
+          requestKey || getUuid()
+        )
+      : undefined;
+    const orderNo = checkoutId ? `wc_${checkoutId.slice(0, 28)}` : getSnowId();
+    diagnosticOrderNo = orderNo;
 
     // get payment product id from pricing table in local file
     // First try to get currency-specific payment_product_id
@@ -242,7 +364,7 @@ export async function POST(req: Request) {
     if (!paymentProductId) {
       // checkout price validation
       if (!checkoutPrice.amount || !checkoutPrice.currency) {
-        return respErr('invalid checkout price');
+        return fail('invalid checkout price');
       }
     } else {
       paymentProductId = paymentProductId.trim();
@@ -253,25 +375,35 @@ export async function POST(req: Request) {
       callbackBaseUrl += `/${locale}`;
     }
 
-    const callbackUrl =
-      isWeddingPack && projectId
-        ? `${callbackBaseUrl}/design/${encodeURIComponent(projectId!)}?paid=1`
-        : isWeddingPack
-          ? `${callbackBaseUrl}/create?prepaid=1`
-          : paymentType === PaymentType.SUBSCRIPTION
-            ? `${callbackBaseUrl}/settings/billing`
-            : `${callbackBaseUrl}/settings/payments`;
+    const callbackUrl = isHumanDesign
+      ? `${callbackBaseUrl}/human-design?order_no=${encodeURIComponent(orderNo)}`
+      : isWeddingPack
+        ? weddingCheckoutReturnUrl({
+            appUrl: configs.app_url,
+            locale,
+            defaultLocale: configs.default_locale,
+            resumePath: metadata?.resume_path,
+            projectId,
+            resumeWizard: metadata?.resume_wizard === true,
+          })
+        : paymentType === PaymentType.SUBSCRIPTION
+          ? `${callbackBaseUrl}/settings/billing`
+          : `${callbackBaseUrl}/settings/payments`;
 
     // build checkout order
     const checkoutOrder: PaymentOrder = {
+      orderNo,
       description: pricingItem.product_name,
       customer: user ? { name: user.name, email: user.email } : undefined,
       type: paymentType,
       metadata: {
-        ...(metadata || {}),
+        ...(isHumanDesign
+          ? { human_design: humanRequest!.data, fulfillment: 'human_design' }
+          : metadata || {}),
         app_name: configs.app_name,
         order_no: orderNo,
         user_id: buyerId,
+        payment_attempt_id: attemptId,
         ...(isWeddingPack && projectId ? { project_id: projectId } : {}),
       },
       successUrl: `${configs.app_url}/api/payment/callback?order_no=${orderNo}`,
@@ -308,7 +440,7 @@ export async function POST(req: Request) {
 
     // build order info
     const order: NewOrder = {
-      id: getUuid(),
+      id: checkoutId || getUuid(),
       orderNo: orderNo,
       userId: buyerId,
       projectId: isWeddingPack ? (projectId ?? null) : null,
@@ -332,24 +464,73 @@ export async function POST(req: Request) {
       discountCode: promotionCode,
     };
 
-    // create order
-    await createOrder(order);
+    // Reserve before provider I/O: concurrent retries reuse one provider session.
+    if (isWeddingPack) {
+      const reservation = await reserveWeddingCheckoutOrder(order);
+      if (!reservation.created) {
+        const previous = reservation.order;
+        if (previous.status === OrderStatus.PAID)
+          return success({
+            checkoutUrl: previous.callbackUrl || callbackUrl,
+            paid: true,
+          });
+        if (previous.status === OrderStatus.CREATED && previous.checkoutUrl) {
+          if (isExpiredCheckout(previous)) {
+            await trace('checkout_expired', 'checkout_expired');
+            return fail(
+              'This checkout has expired. Start a new checkout.',
+              409,
+              {
+                reasonCode: 'checkout_ended',
+              }
+            );
+          }
+          await trace('checkout_reused', 'existing_checkout');
+          return success({
+            checkoutUrl: previous.checkoutUrl,
+            sessionId: previous.paymentSessionId,
+            reused: true,
+          });
+        }
+        if (previous.status === OrderStatus.PENDING)
+          return fail(
+            'Checkout is being prepared. Retry shortly using the same request.',
+            409,
+            { reasonCode: 'checkout_initializing' }
+          );
+        return fail('This checkout has ended. Start a new checkout.', 409, {
+          reasonCode: 'checkout_ended',
+        });
+      }
+    } else await createOrder(order);
 
+    await trace('checkout_reserved');
+    const providerStartedAt = Date.now();
     try {
+      await trace('provider_create_started');
       // create payment
       const result = await paymentProvider.createPayment({
         order: checkoutOrder,
       });
 
-      // update order status to created, waiting for payment
-      await updateOrderByOrderNo(orderNo, {
-        status: OrderStatus.CREATED, // means checkout created, waiting for payment
-        checkoutInfo: JSON.stringify(result.checkoutParams),
-        checkoutResult: JSON.stringify(result.checkoutResult),
-        checkoutUrl: result.checkoutInfo.checkoutUrl,
-        paymentSessionId: result.checkoutInfo.sessionId,
-        paymentProvider: result.provider,
+      await trace('provider_create_succeeded', 'checkout_created', {
+        latencyMs: Date.now() - providerStartedAt,
       });
+      // update order status to created, waiting for payment
+      await updateOrderByOrderNo(
+        orderNo,
+        {
+          status: OrderStatus.CREATED, // means checkout created, waiting for payment
+          checkoutInfo: JSON.stringify(
+            isHumanDesign ? checkoutOrder : result.checkoutParams
+          ),
+          checkoutResult: JSON.stringify(result.checkoutResult),
+          checkoutUrl: result.checkoutInfo.checkoutUrl,
+          paymentSessionId: result.checkoutInfo.sessionId,
+          paymentProvider: result.provider,
+        },
+        isWeddingPack ? { expectedStatus: OrderStatus.PENDING } : undefined
+      );
 
       if (!user && guestId && projectId) {
         (await cookies()).set(weddingCheckoutCookie(orderNo), guestId, {
@@ -360,20 +541,33 @@ export async function POST(req: Request) {
           maxAge: 60 * 60 * 24,
         });
       }
-      return respData(result.checkoutInfo);
+      return success(result.checkoutInfo);
     } catch (e: any) {
-      console.error('PayPal checkout creation failed:', e);
-      // update order status to completed, means checkout failed
-      await updateOrderByOrderNo(orderNo, {
-        status: OrderStatus.COMPLETED, // means checkout failed
-        checkoutInfo: JSON.stringify(checkoutOrder),
+      const failure = classifyPaymentDiagnosticError(e);
+      await trace('provider_create_failed', failure.reason, {
+        details: failure.details,
+        latencyMs: Date.now() - providerStartedAt,
       });
+      console.error('Payment checkout creation failed:', failure.reason);
+      // update order status to completed, means checkout failed
+      await updateOrderByOrderNo(
+        orderNo,
+        {
+          status: OrderStatus.COMPLETED, // means checkout failed
+          checkoutInfo: JSON.stringify(checkoutOrder),
+        },
+        isWeddingPack ? { expectedStatus: OrderStatus.PENDING } : undefined
+      );
 
-      return respErr('checkout failed: ' + e.message);
+      return fail('checkout failed: ' + e.message);
     }
   } catch (e: any) {
-    console.error('Checkout route error:', e);
-    return respErr('checkout failed: ' + e.message);
+    const failure = classifyPaymentDiagnosticError(e);
+    await trace('checkout_failed', failure.reason, {
+      details: failure.details,
+    });
+    console.error('Checkout route error:', failure.reason);
+    return fail('checkout failed: ' + e.message);
   }
 }
 
@@ -432,5 +626,21 @@ async function getPromotionCode(
     }
   } catch {
     return;
+  }
+}
+
+/** A stored Waffo session has an authoritative expiry; keep its order open for late success. */
+function isExpiredCheckout(order: {
+  paymentProvider: string;
+  checkoutResult?: string | null;
+}): boolean {
+  if (order.paymentProvider !== 'waffo' || !order.checkoutResult) return false;
+  try {
+    const expiresAt = JSON.parse(order.checkoutResult)?.expiresAt;
+    const expiresAtMs =
+      typeof expiresAt === 'string' ? Date.parse(expiresAt) : NaN;
+    return Number.isFinite(expiresAtMs) && expiresAtMs <= Date.now();
+  } catch {
+    return false;
   }
 }

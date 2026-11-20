@@ -9,7 +9,8 @@
     "provider": "Anbieter",
     "created_at": "Erstellt am",
     "status": "Status",
-    "action": "Aktion"
+    "action": "Aktion",
+    "diagnostics": "Zahlungsdiagnose"
   },
   "list": {
     "title": "Zahlungen",
@@ -59,5 +60,9 @@
       "awaiting_payment": "Zahlung ausstehend",
       "pending": "Zahlung wird erstellt"
     }
+  },
+  "diagnostics": {
+    "refresh": "Aktuellen Plattformstatus prüfen",
+    "platform_hint": "Nur Statusabfrage; keine Zahlung, Erstattung oder Bestelländerung."
   }
 }

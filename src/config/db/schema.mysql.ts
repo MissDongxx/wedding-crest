@@ -515,3 +515,31 @@ export const chatMessage = table(
     index('idx_chat_message_user_id').on(table.userId, table.status),
   ]
 );
+
+/** Bounded, PII-free checkout lifecycle diagnostics; no provider payloads. */
+export const paymentDiagnosticEvent = table(
+  'payment_diagnostic_event',
+  {
+    id: varchar191('id').primaryKey(),
+    source: varchar191('source').notNull(),
+    stage: varchar191('stage').notNull(),
+    reason: varchar191('reason'),
+    requestId: varchar191('request_id'),
+    attemptId: varchar191('attempt_id'),
+    orderNo: varchar191('order_no'),
+    provider: varchar191('provider'),
+    ownerId: varchar191('owner_id'),
+    projectId: varchar191('project_id'),
+    entry: varchar191('entry'),
+    httpStatus: int('http_status'),
+    latencyMs: int('latency_ms'),
+    details: text('details'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (t) => [
+    index('idx_payment_diag_order_created').on(t.orderNo, t.createdAt),
+    index('idx_payment_diag_attempt_created').on(t.attemptId, t.createdAt),
+    index('idx_payment_diag_owner_created').on(t.ownerId, t.createdAt),
+    index('idx_payment_diag_created').on(t.createdAt),
+  ]
+);

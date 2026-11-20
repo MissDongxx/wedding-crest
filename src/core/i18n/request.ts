@@ -5,6 +5,7 @@ import {
   localeMessagesPaths,
   localeMessagesRootPath,
 } from '@/config/locale';
+import { applyWeddingPricing } from '@/shared/wedding/pricing';
 
 import { routing } from './config';
 
@@ -17,14 +18,14 @@ export async function loadMessages(
     const messages = await import(
       `@/config/locale/messages/${locale}/${path}.json`
     );
-    return messages.default;
+    return applyWeddingPricing(path, messages.default);
   } catch (e) {
     try {
       // try to load default locale messages
       const messages = await import(
         `@/config/locale/messages/${defaultLocale}/${path}.json`
       );
-      return messages.default;
+      return applyWeddingPricing(path, messages.default);
     } catch (err) {
       // if default locale is not found, return empty object
       return {};
