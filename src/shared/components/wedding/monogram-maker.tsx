@@ -21,6 +21,12 @@ import {
   type MonogramLayoutChoice,
   type MonogramOptions,
 } from '@/shared/wedding/monogram-maker';
+import {
+  readTableMonogram,
+  tableInk,
+  tableNumberHandoff,
+  tableNumberPath,
+} from '@/shared/wedding/table-number-maker';
 
 type Copy = (typeof enSeo)['monogram']['guide']['maker'];
 type Format = 'svg' | 'png' | 'pngSmall';
@@ -51,6 +57,57 @@ const palettes = [
 ] as const;
 const initialLetters = { first: 'A', second: 'L', surname: '' };
 type InitialField = keyof typeof initialLetters;
+
+type EditorSnapshot = {
+  version: 1;
+  letters: typeof initialLetters;
+  layoutChoice: MonogramLayoutChoice;
+  options: MonogramOptions;
+  paletteKey: (typeof palettes)[number]['key'];
+  background: Background;
+  customBackground: string;
+};
+
+function readEditorSnapshot(value: string | null): EditorSnapshot | undefined {
+  if (!value || !readTableMonogram(value)?.editable) return;
+  const { editor } = JSON.parse(value);
+  const {
+    letters,
+    options,
+    layoutChoice,
+    paletteKey,
+    background,
+    customBackground,
+  } = editor;
+  const validInk = (ink: unknown) => typeof ink === 'string' && tableInk(ink);
+  if (
+    !letters ||
+    !options ||
+    !(['first', 'second', 'surname'] as const).every(
+      (field) =>
+        typeof letters[field] === 'string' && /^[A-Z]?$/.test(letters[field])
+    ) ||
+    !layoutIds.includes(layoutChoice) ||
+    !palettes.some(({ key }) => key === paletteKey) ||
+    !backgrounds.includes(background) ||
+    !validInk(customBackground) ||
+    !monogramFonts.some(([id]) => id === options.font) ||
+    options.layout !==
+      monogramLayoutChoices[layoutChoice as MonogramLayoutChoice].layout ||
+    !monogramElements.frame.includes(options.frame) ||
+    !monogramElements.wreath.includes(options.wreath) ||
+    !monogramElements.embellishment.includes(options.embellishment) ||
+    !['ampersand', 'dot', 'none'].includes(options.separator) ||
+    !['first', 'last'].includes(options.front) ||
+    !Number.isFinite(options.spacing) ||
+    !validInk(options.ink) ||
+    !Object.values(layerInk).every(
+      (field) => options[field] === undefined || validInk(options[field])
+    )
+  )
+    return;
+  return editor as EditorSnapshot;
+}
 
 function Choice({
   group,
@@ -147,7 +204,13 @@ function Artwork({
   );
 }
 
-export function MonogramMaker({ copy }: { copy: Copy }) {
+export function MonogramMaker({
+  copy,
+  tableNumbers,
+}: {
+  copy: Copy;
+  tableNumbers?: boolean;
+}) {
   const id = useId();
   const section = useRef<HTMLElement>(null);
   const [letters, setLetters] = useState(initialLetters);
@@ -176,9 +239,33 @@ export function MonogramMaker({ copy }: { copy: Copy }) {
   const [busy, setBusy] = useState<Format>();
   const [exportError, setExportError] = useState(false);
   const [interactive, setInteractive] = useState(false);
+  const [editingForTables, setEditingForTables] = useState(false);
+  const [handoffError, setHandoffError] = useState(false);
 
   useEffect(() => {
     setInteractive(true);
+    if (
+      tableNumbers &&
+      new URLSearchParams(window.location.search).get('edit') === 'table-number'
+    ) {
+      try {
+        const draft = readEditorSnapshot(
+          sessionStorage.getItem(tableNumberHandoff)
+        );
+        if (draft) {
+          setLetters(draft.letters);
+          setLayoutChoice(draft.layoutChoice);
+          setOptions(draft.options);
+          setPalette(
+            palettes.find(({ key }) => key === draft.paletteKey) ?? palettes[0]
+          );
+          setBackground(draft.background);
+          setCustomBackground(draft.customBackground);
+          setEditingForTables(true);
+          setLoad('pending');
+        }
+      } catch {}
+    }
     const element = section.current;
     if (!element) return;
     if (typeof IntersectionObserver === 'undefined') {
@@ -195,7 +282,7 @@ export function MonogramMaker({ copy }: { copy: Copy }) {
     );
     observer.observe(element);
     return () => observer.disconnect();
-  }, []);
+  }, [tableNumbers]);
 
   useEffect(() => {
     if (load !== 'pending') return;
@@ -306,6 +393,31 @@ export function MonogramMaker({ copy }: { copy: Copy }) {
       setExportError(true);
     } finally {
       setBusy(undefined);
+    }
+  }
+
+  function useOnTableNumbers() {
+    setHandoffError(false);
+    try {
+      const mark = renderMonogramSvg(
+        { ...options, initials, background: undefined },
+        atlas
+      );
+      const editor: EditorSnapshot = {
+        version: 1,
+        letters,
+        layoutChoice,
+        options,
+        paletteKey: palette.key,
+        background,
+        customBackground,
+      };
+      const payload = JSON.stringify({ svg: mark, ink: options.ink, editor });
+      if (!readTableMonogram(payload)) throw new Error('Invalid monogram');
+      sessionStorage.setItem(tableNumberHandoff, payload);
+      window.location.assign(tableNumberPath);
+    } catch {
+      setHandoffError(true);
     }
   }
 
@@ -804,6 +916,22 @@ export function MonogramMaker({ copy }: { copy: Copy }) {
                     </Button>
                   ))}
                 </div>
+                {tableNumbers && !editingForTables && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-3 w-full"
+                    disabled={!interactive || !svg || !!busy}
+                    onClick={useOnTableNumbers}
+                  >
+                    Use on table numbers
+                  </Button>
+                )}
+                {!editingForTables && handoffError && (
+                  <p role="alert" className="text-destructive mt-2 text-sm">
+                    Couldn’t apply the monogram. Try again.
+                  </p>
+                )}
                 <p className="text-muted-foreground mt-3 text-xs">
                   {copy.export_note}
                 </p>
@@ -816,6 +944,23 @@ export function MonogramMaker({ copy }: { copy: Copy }) {
             )}
           </div>
 
+          {editingForTables && (
+            <div className="mt-4">
+              <Button
+                type="button"
+                className="w-full"
+                onClick={useOnTableNumbers}
+                disabled={!interactive || !svg || !!busy || load === 'pending'}
+              >
+                Apply to table numbers
+              </Button>
+              {handoffError && (
+                <p role="alert" className="text-destructive mt-2 text-sm">
+                  Couldn’t apply the monogram. Try again.
+                </p>
+              )}
+            </div>
+          )}
           <div className="border-border mt-5 flex items-center justify-between gap-3 border-t pt-4">
             {stepIndex > 0 && (
               <Button

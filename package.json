@@ -29,7 +29,8 @@
     "postinstall": "fumadocs-mdx",
     "patch:cf": "node scripts/patch-cf-canvas.mjs",
     "cf:preview": "node scripts/patch-cf-canvas.mjs && opennextjs-cloudflare build && node scripts/patch-cf-canvas.mjs && node scripts/patch-cf-canvas.mjs --check && opennextjs-cloudflare preview",
-    "cf:deploy": "node scripts/patch-cf-canvas.mjs && opennextjs-cloudflare build && node scripts/patch-cf-canvas.mjs && node scripts/patch-cf-canvas.mjs --check && opennextjs-cloudflare deploy",
+    "cf:deploy": "node scripts/patch-cf-canvas.mjs && opennextjs-cloudflare build && node scripts/patch-cf-canvas.mjs && node scripts/patch-cf-canvas.mjs --check && opennextjs-cloudflare deploy && pnpm run cf:postdeploy",
+    "cf:postdeploy": "node scripts/indexnow-push.mjs",
     "cf:upload": "node scripts/patch-cf-canvas.mjs && opennextjs-cloudflare build && node scripts/patch-cf-canvas.mjs && node scripts/patch-cf-canvas.mjs --check && opennextjs-cloudflare upload",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv src/shared/types/cloudflare.d.ts",
     "test:pricing": "node scripts/verify-wedding-pricing.mjs && node scripts/verify-wedding-promotion.mjs"

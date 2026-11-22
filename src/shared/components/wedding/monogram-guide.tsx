@@ -187,7 +187,7 @@ export async function MonogramGuide({ locale }: { locale: string }) {
 
   return (
     <div className="mt-12 space-y-12">
-      <MonogramMaker copy={t.raw('maker')} />
+      <MonogramMaker copy={t.raw('maker')} tableNumbers={locale === 'en'} />
 
       <section aria-labelledby="monogram-layouts">
         <h2 id="monogram-layouts" className="scroll-mt-24 font-serif text-2xl">
