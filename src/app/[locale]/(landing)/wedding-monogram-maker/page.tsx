@@ -1,8 +1,9 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { envConfigs } from '@/config';
-import { getAlternates } from '@/shared/lib/seo';
+import { MonogramGuide } from '@/shared/components/wedding/monogram-guide';
 import { SeoArticle } from '@/shared/components/wedding/seo-article';
+import { getAlternates } from '@/shared/lib/seo';
 
 export const dynamic = 'force-static';
 
@@ -31,5 +32,9 @@ export default async function MonogramPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <SeoArticle articleKey="monogram" />;
+  return (
+    <SeoArticle articleKey="monogram">
+      <MonogramGuide locale={locale} />
+    </SeoArticle>
+  );
 }
