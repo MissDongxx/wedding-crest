@@ -142,3 +142,6 @@
   .galleryGrid section { padding: 7px; }
   .galleryGrid h3 { font-size: .93rem; }
 }
+
+.matchLink { display: block; margin-top: 10px; min-height: 40px; color: var(--accent); text-decoration: underline; text-underline-offset: .2em; font-size: .875rem; font-weight: 600; cursor: pointer; }
+.matchLink:disabled { opacity: .65; cursor: wait; }

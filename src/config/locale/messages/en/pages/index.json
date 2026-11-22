@@ -7,6 +7,7 @@
     "show_sections": [
       "hero",
       "styles",
+      "weddingTools",
       "introduce",
       "benefits",
       "examples",
@@ -44,6 +45,10 @@
         "title": "Find Your Style",
         "description": "Explore six illustrated wedding crest design styles, each with matching layouts, palettes, and typography. Pick the one that feels like your wedding.",
         "tip": "Tip: tap any example below to start your crest with that exact style, color, and layout — you can swap your names in next."
+      },
+      "weddingTools": {
+        "block": "wedding-tool-gallery",
+        "title": "Wedding Stationery Tools"
       },
       "introduce": {
         "id": "introduce",

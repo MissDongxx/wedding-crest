@@ -1,3 +1,15 @@
+import {
+  illustratedTableTemplates,
+  renderIllustratedTableCard,
+} from './table-number-artwork';
+import { tableNameLines } from './table-number-text';
+import {
+  matchingSpec,
+  matchingTableTemplates,
+  type MatchingMaterials,
+  type WelcomeMatch,
+} from './table-number-welcome-match';
+
 export const tableNumberPath = '/table-number-maker';
 export const tableNumberMonogramEditPath =
   '/wedding-monogram-maker?edit=table-number#monogram-maker';
@@ -5,9 +17,11 @@ export const tableNumberHandoff = 'wedding-table-number-monogram-v1';
 export const tableCountLimit = 100;
 
 export const tableTemplates = {
+  ...illustratedTableTemplates,
   classic: { label: 'Classic', ink: '#382d2b', paper: '#fdf9f1' },
   botanical: { label: 'Botanical', ink: '#3a5142', paper: '#f6f8ee' },
   crest: { label: 'Crest', ink: '#75414b', paper: '#fcf2ef' },
+  ...matchingTableTemplates,
 } as const;
 export const tableSizes = {
   '4x6': [288, 432],
@@ -15,6 +29,13 @@ export const tableSizes = {
 } as const;
 
 export type TableTemplate = keyof typeof tableTemplates;
+export const defaultTableTemplate: TableTemplate = 'porcelain';
+export function isTableTemplate(value: unknown): value is TableTemplate {
+  return (
+    typeof value === 'string' &&
+    Object.prototype.hasOwnProperty.call(tableTemplates, value)
+  );
+}
 export type TableSize = keyof typeof tableSizes;
 export type TablePaper = 'letter' | 'a4';
 export type TablePrint = 'home' | 'shop';
@@ -25,6 +46,9 @@ export type TableDesign = {
   names: string;
   date: string;
   monogram?: TableMonogram;
+  autumnArtwork?: string;
+  welcomeMatch?: WelcomeMatch;
+  matchingMaterials?: MatchingMaterials;
 };
 
 const sheets = {
@@ -127,7 +151,8 @@ const xml = (value: string) =>
       })[c] ?? ''
   );
 export const svgImage = (svg: string) =>
-  'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  'data:image/svg+xml;charset=utf-8,' +
+  encodeURIComponent(svg.replace(/[\uD800-\uDFFF]/gu, '\uFFFD'));
 
 const vine =
   '<path d="M0 66Q9 21 49 0M12 35Q-5 13 22 12Q27 25 12 35M25 20Q21 -2 43 -5Q44 10 25 20M10 47Q29 33 42 38Q35 55 10 47M31 13Q48 7 56 13Q47 25 31 13"/>';
@@ -138,6 +163,67 @@ export function tableCardSvg(
   number: number
 ) {
   const [w, h] = tableSizes[size];
+  const nameLines = tableNameLines(design.names);
+  const matching = matchingSpec(design.template, design.welcomeMatch);
+  if (matching) {
+    const { palette, template } = matching;
+    const art = design.matchingMaterials;
+    const color = tableInk(design.ink) ? design.ink : palette.ink;
+    const numberSize = number >= 100 ? 86 : 113;
+    const textX =
+      template.sceneId === 'olive' && template.variation !== 2 ? 177 : 150;
+    const namesY =
+      template.sceneId === 'meadow' && template.variation ? 258 : 285;
+    const numberY =
+      (template.sceneId === 'meadow' && template.variation ? 226 : 244) -
+      (nameLines.length > 2 ? 9 : 0);
+    const details = (
+      value: string,
+      y: number,
+      fontSize: number,
+      names = false
+    ) => {
+      if (!value.trim()) return '';
+      const size = Math.min(
+        fontSize,
+        (textX === 177 ? 160 : 174) /
+          Math.max(1, Array.from(value).length * 0.61)
+      );
+      return `<text x="${textX}" y="${y}" font-size="${size}" font-family="${names && art?.font ? 'PaperNames, Georgia, serif' : 'Georgia, serif'}">${xml(value)}</text>`;
+    };
+    const matchedFont = art?.font
+      ? `<style>@font-face{font-family:PaperNames;src:url('${art.font}') format('woff2')}</style>`
+      : '';
+    const plate = art?.plate
+      ? `<image width="300" height="420" href="${art.plate}" preserveAspectRatio="none"/>`
+      : `<rect width="300" height="420" fill="${palette.paper}"/><rect x="18" y="18" width="264" height="384" fill="none" stroke="${palette.accent}"/>`;
+    const mark = design.monogram
+      ? `<image x="${textX - 20}" y="87" width="40" height="40" href="${svgImage(design.monogram.svg)}"/>`
+      : '';
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 300 420" preserveAspectRatio="none" aria-label="Table ${number}" data-welcome-template="${template.id}">
+    ${matchedFont}${plate}${mark}
+    <g text-anchor="middle" fill="${color}" font-family="Georgia, serif">
+    <text x="${textX}" y="143" font-size="11" letter-spacing="3">TABLE</text>
+    <text x="${textX}" y="${numberY}" font-size="${numberSize}">${number}</text>
+    ${nameLines.length < 2 ? `<path d="M${textX - 18} ${namesY - 18}h36" stroke="${palette.accent}" stroke-width=".8"/>` : ''}
+    ${nameLines.map((line, i) => details(line, namesY - (nameLines.length - 1 - i) * 10, nameLines.length === 1 ? 21 : 14, true)).join('')}
+    ${details(design.date, namesY + 18, 11)}
+    </g></svg>`;
+  }
+  const illustrated = renderIllustratedTableCard({
+    template: design.template,
+    color: tableInk(design.ink)
+      ? design.ink
+      : tableTemplates[design.template].ink,
+    number,
+    names: design.names.trim(),
+    date: design.date.trim(),
+    monogramUrl: design.monogram && svgImage(design.monogram.svg),
+    monogramInk: design.monogram?.ink,
+    autumnArtwork: design.autumnArtwork,
+  });
+  if (illustrated)
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 300 420" preserveAspectRatio="none" aria-label="Table ${number}">${illustrated}</svg>`;
   const { paper: lightPaper, ink: defaultInk } =
     tableTemplates[design.template];
   const ink = tableInk(design.ink) ? design.ink : defaultInk;
@@ -146,7 +232,7 @@ export function tableCardSvg(
     ((rgb >> 16) * 299 + ((rgb >> 8) & 255) * 587 + (rgb & 255) * 114) / 1000;
   const paper = luma > 160 ? '#29251f' : lightPaper;
   const c = w / 2;
-  const details = [design.names.trim(), design.date.trim()].filter(Boolean);
+
   const label = (text: string, y: number, font: number) => {
     const fit = Math.min(
       font,
@@ -169,6 +255,7 @@ export function tableCardSvg(
 <g text-anchor="middle" fill="${ink}" font-family="Georgia, 'Times New Roman', serif">
 <text x="${c}" y="${h * 0.39}" font-family="Arial, sans-serif" font-size="9" letter-spacing="3">TABLE</text>
 <text x="${c}" y="${h * 0.605}" font-size="${w * (number >= 100 ? 0.35 : 0.41)}">${number}</text>
-${details.map((text, i) => label(text, h * (0.78 + i * 0.05), i ? 10 : 13)).join('')}
+${nameLines.map((line, i) => label(line, h * 0.78 - (nameLines.length - 1 - i) * 12, 13)).join('')}
+${design.date.trim() ? label(design.date.trim(), h * (nameLines.length ? 0.83 : 0.78), nameLines.length ? 10 : 13) : ''}
 </g></svg>`;
 }

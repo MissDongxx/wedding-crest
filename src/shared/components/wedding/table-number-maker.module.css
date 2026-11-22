@@ -148,7 +148,7 @@
 }
 .templates {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.45rem;
 }
 .templates label,
@@ -170,11 +170,14 @@
   display: grid;
   justify-items: center;
   gap: 0.28rem;
-  padding: 0.42rem 0.2rem 0.3rem;
+  padding: 0.4rem 0.15rem 0.3rem;
+  align-content: start;
+  text-align: center;
+  line-height: 1.2;
   border: 1px solid var(--line);
   border-radius: 3px;
   background: #f5efe5;
-  font-size: 0.77rem;
+  font-size: 0.72rem;
   transition:
     background 0.16s ease,
     border-color 0.16s ease;
@@ -206,11 +209,21 @@
 }
 .printMode label {
   display: grid;
-  place-items: center;
-  min-height: 2.45rem;
+  justify-items: center;
+  align-content: start;
+  grid-template-rows: 46px auto auto;
+  gap: 0.22rem;
+  padding: 0.4rem 0.3rem 0.55rem;
   border: 1px solid var(--line);
   border-radius: 3px;
   text-align: center;
+  line-height: 1.26;
+}
+.printMode strong {
+  font-weight: 600;
+}
+.printDetail {
+  font-size: 0.72rem;
 }
 .sizes {
   display: grid;
@@ -367,4 +380,15 @@
   .templates label {
     transition: none;
   }
+}
+
+.matchingToggle {
+  display: block;
+  color: var(--ink);
+  font-size: 0.8rem;
+  font-weight: 600;
+  min-height: 2.5rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
 }

@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { envConfigs } from '@/config';
@@ -35,6 +36,16 @@ export default async function MonogramPage({
   return (
     <SeoArticle articleKey="monogram">
       <MonogramGuide locale={locale} />
+      {locale === 'en' && (
+        <p className="mt-8 text-center">
+          <Link
+            className="underline underline-offset-4"
+            href="/table-number-maker"
+          >
+            Wedding Table Number Maker
+          </Link>
+        </p>
+      )}
     </SeoArticle>
   );
 }

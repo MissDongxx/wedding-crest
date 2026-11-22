@@ -31,7 +31,8 @@ export function drawReferenceSign(
   h: number,
   date: string,
   assets: ReadonlyMap<SignArtwork, HTMLImageElement>,
-  appearance: SignAppearance
+  appearance: SignAppearance,
+  ornamentsOnly = false
 ) {
   const { sceneId, variation: v } = template;
   const { paper, ink, accent, panel } = signPalette(
@@ -134,6 +135,7 @@ export function drawReferenceSign(
       upper = false,
     }: TypeStyle = {}
   ) => {
+    if (ornamentsOnly) return;
     const label = upper ? value.toLocaleUpperCase() : value;
     ctx.textAlign = align;
     const size = fit(label, face, px, max, tracking);
@@ -361,6 +363,7 @@ export function drawReferenceSign(
       if (v === 1) {
         branch(300, ry(0.205), 0.84, false);
         branch(300, ry(0.255), -0.72, true);
+        if (ornamentsOnly) break;
         type(initials, 300, 0.388, 'classic', 81, { tracking: 6 });
         caps('the wedding of', 0.454, 14, { tracking: 4.2 });
         paired(0.593, 'serif', 57);
@@ -374,6 +377,11 @@ export function drawReferenceSign(
             1.55
           );
         });
+        if (ornamentsOnly) {
+          branch(127, ry(0.833), 0.6, false);
+          branch(127, ry(0.88), 0.55, true);
+          break;
+        }
         type('welcome to the', 300, 0.328, 'pinyon', 39, { max: 332 });
         type('wedding of', 300, 0.377, 'pinyon', 39, { max: 310 });
         names(0.515, 0.683, v === 2 ? 'serif' : 'alex', v === 2 ? 78 : 101, {
@@ -392,6 +400,7 @@ export function drawReferenceSign(
     case 'meadow':
       if (v === 0) {
         inkArt('wreath', 36, ry(0.058), 528, ry(0.875), { fill: true });
+        if (ornamentsOnly) break;
         type('WELCOME', 300, 0.341, 'serif', 25, { tracking: 6 });
         caps('to the wedding of', 0.377, 13, { tracking: 2.3 });
         names(0.494, 0.649, 'pinyon', 87, {
@@ -403,6 +412,7 @@ export function drawReferenceSign(
       } else if (v === 1) {
         stroke(34, 30, 532, h - 60, accent, 1.3);
         inkArt('meadow', 18, ry(0.712), 564, ry(0.274));
+        if (ornamentsOnly) break;
         caps('welcome to the wedding of', 0.284, 15, { tracking: 2 });
         names(0.443, 0.615, 'fine', 108, {
           max: 456,
@@ -412,6 +422,7 @@ export function drawReferenceSign(
         finish(0.696, { dots: true });
       } else {
         inkArt('meadow', -27, ry(0.665), 654, ry(0.369), { alpha: 0.9 });
+        if (ornamentsOnly) break;
         type('Welcome', 300, 0.239, 'hand', 102, { max: 437 });
         caps('to the wedding of', 0.31, 14, { tracking: 3.1 });
         paired(0.49, 'serif', 66, { max: 468 });
@@ -424,7 +435,7 @@ export function drawReferenceSign(
         type('The Wedding Post', 300, 0.119, 'classic', 35, { max: 506 });
         caps('wedding edition', 0.182, 13, { tracking: 4 });
         type('FOREVER BEGINS TODAY', 300, 0.309, 'bodoni', 50, { max: 519 });
-        rule(42, 558, 0.344, ink, 1.2);
+        if (!ornamentsOnly) rule(42, 558, 0.344, ink, 1.2);
         caps('the wedding of', 0.424, 14, { tracking: 3.7 });
         names(0.536, 0.705, 'bodoni', 90, {
           joinFace: 'italic',
@@ -480,6 +491,10 @@ export function drawReferenceSign(
           turn: -0.2,
           alpha: 0.21,
         });
+        if (ornamentsOnly) {
+          seal(0.765, accentColor('#f5c976'), 0.68);
+          break;
+        }
         type('welcome', 300, 0.393, 'hand', 128, {
           max: 492,
           color: textColor('#f9e1a2'),
@@ -620,6 +635,7 @@ export function drawReferenceSign(
         );
         ctx.restore();
       }
+      if (ornamentsOnly) break;
       if (v === 1) {
         type('Welcome', 300, 0.362, 'pinyon', 131, { max: 477 });
         caps('to the wedding of', 0.441, 15, { tracking: 2.6 });
@@ -713,6 +729,13 @@ export function drawReferenceSign(
       });
       break;
     case 'gallery':
+      if (ornamentsOnly) {
+        if (v === 2) {
+          rule(188, 412, 0.218, accent, 0.75);
+          rule(188, 412, 0.783, accent, 0.75);
+        }
+        break;
+      }
       if (v === 2) {
         caps('welcome to our wedding', 0.23, 16, { tracking: 4.8 });
         names(0.441, 0.651, 'classic', 80, {
