@@ -39,7 +39,161 @@
     "faq_2_q": "Can I use just one initial?",
     "faq_2_a": "Yes. The name display can be initials only, full first names, or a surname — whichever fits your wedding's tone.",
     "faq_3_q": "What's the difference between a monogram and a crest?",
-    "faq_3_a": "A monogram focuses on initials. A crest combines the initials or names with illustrated motifs; AI renders both together in the final image."
+    "faq_3_a": "A monogram focuses on initials. A crest combines the initials or names with illustrated motifs; AI renders both together in the final image.",
+    "guide": {
+      "layouts": "8 wedding monogram layouts",
+      "compare_fonts": "Compare fonts",
+      "maker": {
+        "title": "Free wedding monogram maker",
+        "initials": "Initials",
+        "initials_note": "1–3 letters, A–Z",
+        "swap": "Reverse initials",
+        "font": "Font",
+        "layout": "Layout",
+        "paired": "Side by side",
+        "interlace": "Interlaced",
+        "frame": "Frame",
+        "no_frame": "No frame",
+        "circle": "Circle",
+        "double_circle": "Double circle",
+        "ink": "Ink color",
+        "spacing": "Letter spacing",
+        "overlap_amount": "Overlap",
+        "separator": "Separator",
+        "no_separator": "None",
+        "front": "Letter in front",
+        "first": "First",
+        "last": "Last",
+        "center": "Middle initial",
+        "preview": "Monogram preview",
+        "empty": "Enter your initials to preview.",
+        "loading": "Loading letter shapes…",
+        "font_error": "Letter shapes didn’t load.",
+        "dark": "Dark preview",
+        "small": "Small preview",
+        "preparing": "Preparing…",
+        "download_svg": "Download SVG",
+        "download_png": "Download PNG",
+        "export_note": "Free download. No sign-in or watermark.",
+        "export_error": "The download didn’t start. Try again.",
+        "retry": "Retry loading letters",
+        "edit": "Edit monogram",
+        "color": "Color",
+        "custom_color": "Custom color",
+        "download": "Download",
+        "ink_charcoal": "Charcoal",
+        "ink_moss": "Moss",
+        "ink_wine": "Wine",
+        "ink_blue": "Ink blue",
+        "ink_ivory": "Ivory",
+        "your_initials": "Your initials",
+        "your_monogram": "Your monogram",
+        "reset": "Reset",
+        "first_initial": "First initial",
+        "second_initial": "Second initial",
+        "surname_initial": "Surname initial (optional)",
+        "latin_initials": "One Latin letter per field",
+        "design_and_color": "Layout and design",
+        "design": "Design",
+        "png_small": "PNG · 1024 px",
+        "png_large": "PNG · 2400 px",
+        "adjust": "Fine-tune",
+        "view_preview": "View preview",
+        "back": "Back",
+        "next": "Next",
+        "steps": {
+          "font": "Font",
+          "layout": "Layout",
+          "elements": "Elements",
+          "color": "Color",
+          "export": "Export"
+        },
+        "layer_labels": {
+          "frame": "Border",
+          "wreath": "Wreath",
+          "embellishment": "Embellishment",
+          "letters": "Letter color"
+        },
+        "elements": {
+          "frame": {
+            "none": "None",
+            "circle": "Circle",
+            "double": "Double ring",
+            "oval": "Oval",
+            "shield": "Shield",
+            "arch": "Arch",
+            "diamond": "Diamond"
+          },
+          "wreath": {
+            "none": "None",
+            "laurel": "Laurel",
+            "olive": "Olive",
+            "crescent": "Botanical crescent",
+            "sprig": "Side sprig",
+            "wildflower": "Wildflowers",
+            "roses": "Garden roses"
+          },
+          "embellishment": {
+            "none": "None",
+            "bow": "Bow",
+            "ribbon": "Ribbon",
+            "rules": "Diamond rules",
+            "flourish": "Flourish",
+            "sparkles": "Sparkles",
+            "pearls": "Pearl dots"
+          }
+        },
+        "layouts": {
+          "paired": "Side by side",
+          "overlap": "Interlocked",
+          "stacked": "Stacked",
+          "minimal": "Modern minimal",
+          "diagonal": "Diagonal",
+          "centerpiece": "Large initial",
+          "spaced": "Wide-set"
+        },
+        "export_background": "Background",
+        "background_color": "Background color",
+        "backgrounds": {
+          "transparent": "Transparent",
+          "paper": "Palette paper",
+          "custom": "Custom color"
+        }
+      },
+      "examples": {
+        "paired": "Side by side",
+        "ampersand": "Linked by an ampersand",
+        "stacked": "Stacked initials",
+        "diagonal": "Diagonal split",
+        "overlap": "Overlapping initials",
+        "surname": "Surname initial in the center",
+        "circle": "Circle frame",
+        "diamond": "Diamond frame"
+      },
+      "comparison": {
+        "title": "Wedding monogram vs. wedding crest",
+        "body": "A monogram is a lettering mark made from initials. It can stand on its own when space is tight. A crest is a larger illustrated composition: it can surround the same initials with flowers, a shield, a venue, or a date. Use the crest as the main artwork and repeat just the initials on smaller pieces. See how both work together in the <examples>wedding crest examples</examples>."
+      },
+      "uses": {
+        "title": "Where to use your wedding monogram",
+        "invitations": {
+          "title": "Invitations",
+          "body": "Center a paired or stacked monogram above the names, or use a small version on the envelope liner. At the final print size, check that any overlapping strokes stay distinct."
+        },
+        "napkins": {
+          "title": "Napkins",
+          "body": "Choose bold paired initials with open spacing. For foil or embroidery, ask for a sample on the actual material so the fine strokes do not fill in."
+        },
+        "favors": {
+          "title": "Favors",
+          "body": "A round monogram fits stickers and jar lids; a stacked one fits narrow tags. Leave space between the letters and the cut or punch line."
+        },
+        "wax": {
+          "title": "Wax seals",
+          "body": "Use one or two bold initials and skip fine outlines, dates, and extra flourishes. Ask your stamp maker for a proof at the die size before ordering."
+        }
+      }
+    }
   },
   "logo": {
     "meta_title": "Wedding Logo Maker: Custom Crests & Monograms for Couples",

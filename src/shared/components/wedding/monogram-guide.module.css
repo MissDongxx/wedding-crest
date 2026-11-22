@@ -1,0 +1,87 @@
+/* These Google Fonts subsets contain only the fixed specimen characters. */
+@font-face {
+  font-family: 'Monogram Pinyon';
+  src: url('/fonts/wedding/monogram/pinyonscript-sample.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0026, U+0041, U+004C-004D;
+}
+
+@font-face {
+  font-family: 'Monogram Great Vibes';
+  src: url('/fonts/wedding/monogram/greatvibes-sample.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0026, U+0041, U+004C-004D;
+}
+
+@font-face {
+  font-family: 'Monogram Mea Culpa';
+  src: url('/fonts/wedding/monogram/meaculpa-sample.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0041, U+004C;
+}
+
+@font-face {
+  font-family: 'Monogram Fleur De Leah';
+  src: url('/fonts/wedding/monogram/fleurdeleah-sample.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0041, U+004C;
+}
+
+@font-face {
+  font-family: 'Monogram Allura';
+  src: url('/fonts/wedding/monogram/allura-sample.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0041, U+004C;
+}
+
+@font-face {
+  font-family: 'Monogram Alex Brush';
+  src: url('/fonts/wedding/monogram/alexbrush-sample.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0041, U+004C;
+}
+
+.pinyon,
+.greatVibes,
+.meaCulpa,
+.fleurDeLeah,
+.allura,
+.alexBrush {
+  font-weight: 400;
+}
+
+.pinyon {
+  font-family: 'Monogram Pinyon', var(--font-serif);
+}
+
+.greatVibes {
+  font-family: 'Monogram Great Vibes', var(--font-serif);
+}
+
+.meaCulpa {
+  font-family: 'Monogram Mea Culpa', var(--font-serif);
+}
+
+.fleurDeLeah {
+  font-family: 'Monogram Fleur De Leah', var(--font-serif);
+}
+
+.allura {
+  font-family: 'Monogram Allura', var(--font-serif);
+}
+
+.alexBrush {
+  font-family: 'Monogram Alex Brush', var(--font-serif);
+}

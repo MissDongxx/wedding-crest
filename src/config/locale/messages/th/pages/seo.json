@@ -39,7 +39,161 @@
     "faq_2_q": "Can I use just one initial?",
     "faq_2_a": "Yes. The name display can be initials only, full first names, or a surname — whichever fits your wedding's tone.",
     "faq_3_q": "What's the difference between a monogram and a crest?",
-    "faq_3_a": "A monogram focuses on initials. A crest combines the initials or names with illustrated motifs; AI renders both together in the final image."
+    "faq_3_a": "A monogram focuses on initials. A crest combines the initials or names with illustrated motifs; AI renders both together in the final image.",
+    "guide": {
+      "layouts": "ตัวอย่างโมโนแกรมงานแต่งงาน 8 แบบ",
+      "compare_fonts": "เปรียบเทียบแบบอักษร",
+      "maker": {
+        "title": "สร้างโมโนแกรมงานแต่งงานฟรี",
+        "initials": "อักษรย่อ",
+        "initials_note": "อักษร A–Z จำนวน 1–3 ตัว",
+        "swap": "สลับลำดับอักษร",
+        "font": "แบบอักษร",
+        "layout": "การจัดวาง",
+        "paired": "วางคู่กัน",
+        "interlace": "อักษรซ้อนกัน",
+        "frame": "กรอบ",
+        "no_frame": "ไม่ใส่กรอบ",
+        "circle": "วงกลม",
+        "double_circle": "วงกลมสองชั้น",
+        "ink": "สีตัวอักษร",
+        "spacing": "ระยะห่างตัวอักษร",
+        "overlap_amount": "ระยะซ้อน",
+        "separator": "ตัวคั่น",
+        "no_separator": "ไม่ใช้ตัวคั่น",
+        "front": "อักษรด้านหน้า",
+        "first": "ตัวแรก",
+        "last": "ตัวสุดท้าย",
+        "center": "อักษรตรงกลาง",
+        "preview": "ตัวอย่างโมโนแกรม",
+        "empty": "กรอกอักษรย่อเพื่อดูตัวอย่าง",
+        "loading": "กำลังโหลดรูปอักษร…",
+        "font_error": "โหลดรูปอักษรไม่สำเร็จ",
+        "dark": "ดูบนพื้นสีเข้ม",
+        "small": "ดูขนาดเล็ก",
+        "preparing": "กำลังเตรียม…",
+        "download_svg": "ดาวน์โหลด SVG",
+        "download_png": "ดาวน์โหลด PNG",
+        "export_note": "ดาวน์โหลดฟรี ไม่ต้องเข้าสู่ระบบและไม่มีลายน้ำ",
+        "export_error": "การดาวน์โหลดไม่เริ่ม กรุณาลองอีกครั้ง",
+        "retry": "ลองโหลดรูปอักษรอีกครั้ง",
+        "edit": "แก้ไขโมโนแกรม",
+        "color": "สี",
+        "custom_color": "เลือกสีเอง",
+        "download": "ดาวน์โหลด",
+        "ink_charcoal": "ดำถ่าน",
+        "ink_moss": "เขียวมอส",
+        "ink_wine": "แดงไวน์",
+        "ink_blue": "น้ำเงินหมึก",
+        "ink_ivory": "สีงาช้าง",
+        "your_initials": "อักษรย่อของคุณ",
+        "your_monogram": "โมโนแกรมของคุณ",
+        "reset": "รีเซ็ต",
+        "first_initial": "อักษรตัวแรก",
+        "second_initial": "อักษรตัวที่สอง",
+        "surname_initial": "อักษรย่อนามสกุล (ไม่บังคับ)",
+        "latin_initials": "ใส่อักษรละตินหนึ่งตัวต่อช่อง",
+        "design_and_color": "การจัดวางและดีไซน์",
+        "design": "ดีไซน์",
+        "png_small": "PNG · 1024 px",
+        "png_large": "PNG · 2400 px",
+        "adjust": "ปรับละเอียด",
+        "view_preview": "ดูตัวอย่าง",
+        "back": "ย้อนกลับ",
+        "next": "ถัดไป",
+        "steps": {
+          "font": "แบบอักษร",
+          "layout": "การจัดวาง",
+          "elements": "องค์ประกอบ",
+          "color": "สี",
+          "export": "ส่งออก"
+        },
+        "layer_labels": {
+          "frame": "กรอบ",
+          "wreath": "พวงใบไม้",
+          "embellishment": "เครื่องประดับ",
+          "letters": "สีตัวอักษร"
+        },
+        "elements": {
+          "frame": {
+            "none": "ไม่ใส่",
+            "circle": "วงกลม",
+            "double": "วงแหวนคู่",
+            "oval": "วงรี",
+            "shield": "โล่",
+            "arch": "กรอบโค้ง",
+            "diamond": "ข้าวหลามตัด"
+          },
+          "wreath": {
+            "none": "ไม่ใส่",
+            "laurel": "ลอเรล",
+            "olive": "มะกอก",
+            "crescent": "กิ่งไม้ทรงเสี้ยว",
+            "sprig": "กิ่งไม้ด้านข้าง",
+            "wildflower": "ดอกไม้ป่า",
+            "roses": "กุหลาบสวน"
+          },
+          "embellishment": {
+            "none": "ไม่ใส่",
+            "bow": "โบ",
+            "ribbon": "ริบบิ้น",
+            "rules": "เส้นคั่นรูปเพชร",
+            "flourish": "ลายเส้นโค้ง",
+            "sparkles": "ประกายดาว",
+            "pearls": "จุดไข่มุก"
+          }
+        },
+        "layouts": {
+          "paired": "วางคู่กัน",
+          "overlap": "อักษรไขว้",
+          "stacked": "ซ้อนแนวตั้ง",
+          "minimal": "มินิมอลสมัยใหม่",
+          "diagonal": "แนวทแยง",
+          "centerpiece": "เน้นอักษรหลัก",
+          "spaced": "เว้นระยะกว้าง"
+        },
+        "export_background": "พื้นหลัง",
+        "background_color": "สีพื้นหลัง",
+        "backgrounds": {
+          "transparent": "โปร่งใส",
+          "paper": "สีกระดาษ",
+          "custom": "เลือกสีเอง"
+        }
+      },
+      "examples": {
+        "paired": "วางคู่กัน",
+        "ampersand": "คั่นด้วยเครื่องหมาย &",
+        "stacked": "ซ้อนแนวตั้ง",
+        "diagonal": "วางแนวทแยง",
+        "overlap": "ตัวอักษรซ้อนกัน",
+        "surname": "อักษรย่อนามสกุลอยู่กลาง",
+        "circle": "กรอบวงกลม",
+        "diamond": "กรอบสี่เหลี่ยมข้าวหลามตัด"
+      },
+      "comparison": {
+        "title": "โมโนแกรมกับตรางานแต่งงานต่างกันอย่างไร",
+        "body": "โมโนแกรมเป็นสัญลักษณ์จากอักษรย่อ เหมาะกับพื้นที่เล็ก ส่วนตรางานแต่งงานเป็นภาพประกอบที่อาจมีดอกไม้ โล่ สถานที่ หรือวันที่ล้อมรอบอักษรย่อ ใช้ตราเป็นภาพหลัก แล้วใช้อักษรย่ออย่างเดียวบนชิ้นเล็ก ๆ ดูทั้งสองแบบใน <examples>ตัวอย่างตรางานแต่งงาน</examples>"
+      },
+      "uses": {
+        "title": "ใช้โมโนแกรมงานแต่งงานที่ไหนได้บ้าง",
+        "invitations": {
+          "title": "การ์ดเชิญ",
+          "body": "วางอักษรย่อแบบคู่หรือแบบซ้อนไว้เหนือชื่อ หรือใช้แบบเล็กบนกระดาษรองซอง ตรวจว่าตัวอักษรที่ซ้อนกันยังอ่านออกเมื่อพิมพ์ขนาดจริง"
+        },
+        "napkins": {
+          "title": "ผ้าเช็ดปาก",
+          "body": "เลือกอักษรย่อเส้นหนาและเว้นช่องไฟ สำหรับงานปั๊มฟอยล์หรืองานปัก ขอให้ร้านทำตัวอย่างบนวัสดุจริงก่อน"
+        },
+        "favors": {
+          "title": "ของชำร่วย",
+          "body": "กรอบวงกลมเหมาะกับสติกเกอร์และฝาขวด แบบซ้อนเหมาะกับป้ายแคบ เว้นระยะจากเส้นตัดหรือรูร้อยเชือก"
+        },
+        "wax": {
+          "title": "ตราครั่ง",
+          "body": "ใช้อักษรย่อเส้นหนาหนึ่งหรือสองตัว เลี่ยงเส้นบาง วันที่ และลายละเอียด ขอแบบตัวอย่างตามขนาดหน้าตราก่อนสั่งทำ"
+        }
+      }
+    }
   },
   "logo": {
     "meta_title": "Wedding Logo Maker",

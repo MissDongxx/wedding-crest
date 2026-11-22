@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
@@ -13,8 +14,10 @@ export type SeoArticleKey = 'generator' | 'monogram' | 'logo';
 
 export async function SeoArticle({
   articleKey,
+  children,
 }: {
   articleKey: SeoArticleKey;
+  children?: ReactNode;
 }) {
   const t = await getTranslations(`pages.seo.${articleKey}`);
   const featured = (
@@ -52,6 +55,8 @@ export async function SeoArticle({
           </Button>
         </div>
       </ScrollAnimation>
+
+      {children}
 
       {featured.length > 0 && (
         <div className="bg-wedding-ivory mt-12 grid grid-cols-2 gap-4 rounded-2xl border p-6 sm:grid-cols-3">

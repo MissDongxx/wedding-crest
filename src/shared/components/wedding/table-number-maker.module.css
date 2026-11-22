@@ -1,0 +1,370 @@
+.page {
+  --ink: #2c2620;
+  --muted: #63594c;
+  --line: #dcd2c4;
+  --accent: #543f32;
+  background: #f9f6f0;
+  color: var(--ink);
+  padding: clamp(5.5rem, 10vw, 7rem) 1rem 3rem;
+}
+
+.shell {
+  max-width: 67rem;
+  margin-inline: auto;
+}
+.page h1 {
+  font:
+    400 clamp(2.15rem, 5.5vw, 4.35rem) / 0.98 Georgia,
+    serif;
+  letter-spacing: -0.055em;
+  margin: 0 0 clamp(1.1rem, 4vw, 2.3rem);
+  text-wrap: balance;
+}
+.editor {
+  display: grid;
+  grid-template-areas: 'controls proof';
+  grid-template-columns: minmax(19rem, 0.8fr) minmax(23rem, 1.2fr);
+  border: 1px solid var(--line);
+  background: #fffdfa;
+  min-height: 35rem;
+  animation: enter 0.4s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.proof {
+  grid-area: proof;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: #e7ded1;
+}
+.proofBar {
+  min-height: 3.45rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.45rem 1rem;
+  color: var(--muted);
+  border-bottom: 1px solid #cec1af;
+  font-size: 0.83rem;
+}
+.switch {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+.switch button {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  padding: 0.38rem 0.75rem;
+  font: inherit;
+  cursor: pointer;
+}
+.switch button[aria-pressed='true'] {
+  background: #fffdfa;
+  color: var(--ink);
+  border-color: #bcad98;
+}
+.stage {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  place-items: center;
+  padding: clamp(0.8rem, 3vw, 1.7rem);
+}
+.sheet,
+.stage .card {
+  display: block;
+  width: auto;
+  height: min(56vw, 29rem);
+  max-width: 100%;
+  box-shadow:
+    0 8px 20px #392d231e,
+    0 2px 4px #392d2326;
+}
+.sheet {
+  width: min(100%, 34rem);
+  height: auto;
+}
+.stage .card {
+  object-fit: contain;
+}
+.controls {
+  grid-area: controls;
+  padding: clamp(1rem, 3.6vw, 2rem);
+  min-width: 0;
+  border-right: 1px solid var(--line);
+}
+.fields,
+.choiceSet {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-inline-size: 0;
+}
+.fields {
+  display: grid;
+  gap: 1rem;
+}
+.fields label,
+.fields legend,
+.personalize summary {
+  font-size: 0.88rem;
+  font-weight: 550;
+}
+.fields legend {
+  padding: 0;
+  margin-bottom: 0.42rem;
+}
+.count {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.fields select,
+.fields input:not([type='radio']):not([type='color']) {
+  display: block;
+  background: #fffdfa;
+  color: var(--ink);
+  border: 1px solid #c9bdad;
+  border-radius: 3px;
+  min-height: 2.45rem;
+  padding: 0.35rem 0.55rem;
+  max-width: 100%;
+}
+.fields input[type='number'] {
+  width: 5.4rem;
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
+}
+.templates {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+.templates label,
+.printMode label {
+  position: relative;
+  cursor: pointer;
+}
+.templates input,
+.printMode input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  inset: 0 auto auto 0;
+  clip-path: inset(50%);
+  pointer-events: none;
+  opacity: 0;
+}
+.templates label {
+  display: grid;
+  justify-items: center;
+  gap: 0.28rem;
+  padding: 0.42rem 0.2rem 0.3rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: #f5efe5;
+  font-size: 0.77rem;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease;
+}
+.templates label .card {
+  width: clamp(2rem, 6vw, 3.4rem);
+  height: auto;
+  box-shadow: 0 1px 4px #49352922;
+}
+.templates label:has(input:checked),
+.printMode label:has(input:checked) {
+  border-color: var(--accent);
+  background: #ece2d4;
+}
+.templates label:hover,
+.printMode label:hover {
+  border-color: var(--accent);
+}
+.templates label:has(input:focus-visible),
+.printMode label:has(input:focus-visible),
+.page :is(a, button, select, input, summary):focus-visible {
+  outline: 2px solid #725124;
+  outline-offset: 3px;
+}
+.printMode {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
+.printMode label {
+  display: grid;
+  place-items: center;
+  min-height: 2.45rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  text-align: center;
+}
+.sizes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+.sizes select,
+.personalFields input:not([type='color']) {
+  width: 100%;
+  margin-top: 0.24rem;
+}
+.personalize {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.personalize summary {
+  cursor: pointer;
+  padding: 0.62rem 0;
+}
+.personalFields {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0 0 0.7rem;
+}
+.personalFields a,
+.related a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: fit-content;
+}
+.personalFields a:hover,
+.related a:hover,
+.applied :is(a, button):hover {
+  text-decoration: underline;
+}
+.ink,
+.applied {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.applied {
+  color: #3f5145;
+  background: #eff2e9;
+  border: 1px solid #ccd4c6;
+  padding: 0.48rem 0.65rem;
+  font-size: 0.8rem;
+}
+.appliedActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.1rem 0.75rem;
+}
+.appliedActions :is(a, button) {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: underline;
+  min-height: 2rem;
+}
+.download {
+  width: 100%;
+  min-height: 2.85rem;
+  margin-top: 0.85rem;
+  border-radius: 3px;
+  background: #4b3529;
+  color: #fffaf3;
+  font-weight: 650;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+.download:hover:enabled {
+  background: #614839;
+  transform: translateY(-1px);
+}
+.download:active:enabled {
+  transform: translateY(1px);
+}
+.download:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.printNote,
+.error {
+  margin: 0.55rem 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-align: center;
+}
+.error {
+  color: #93282e;
+}
+.related {
+  display: flex;
+  gap: 0.7rem 1.75rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--line);
+  padding: 1.15rem 0;
+  font-size: 0.9rem;
+}
+.mobileAction {
+  display: none;
+}
+@media (max-width: 740px) {
+  .mobileAction {
+    display: block;
+    grid-area: download;
+    padding: 0.9rem 1rem 0.75rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .mobileAction .download {
+    margin-top: 0;
+  }
+  .desktopAction {
+    display: none;
+  }
+  .editor {
+    grid-template-areas: 'proof' 'download' 'controls';
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .controls {
+    border-right: 0;
+  }
+  .proofBar {
+    min-height: 2.85rem;
+  }
+  .sheet {
+    width: min(100%, 24rem);
+    height: auto;
+  }
+  .stage .card {
+    height: clamp(11rem, 50vw, 20rem);
+  }
+  .templates label .card {
+    width: 2.7rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .editor {
+    animation: none;
+  }
+  .download,
+  .templates label {
+    transition: none;
+  }
+}
