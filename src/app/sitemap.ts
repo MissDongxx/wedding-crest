@@ -81,6 +81,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     });
   });
 
+  // The localized tool routes are noindex; only the canonical page belongs here.
+  sitemapEntries.push({
+    url: `${baseUrl}/wedding-welcome-sign-maker`,
+  });
+
   // These guides are English-only; do not advertise translated URLs that
   // redirect or invent fresh article modification dates on every build.
   sitemapEntries.push(
