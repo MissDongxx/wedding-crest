@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { setRequestLocale } from 'next-intl/server';
 
 import { envConfigs } from '@/config';
@@ -47,5 +48,19 @@ export default async function WelcomeSignPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <WelcomeSignMaker />;
+  return (
+    <>
+      <WelcomeSignMaker />
+      {locale === 'en' && (
+        <p className="container pb-12 text-center">
+          <Link
+            className="underline underline-offset-4"
+            href="/table-number-maker"
+          >
+            Browse wedding table number templates
+          </Link>
+        </p>
+      )}
+    </>
+  );
 }

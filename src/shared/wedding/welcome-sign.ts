@@ -240,13 +240,45 @@ function loadArt(id: SignArtwork) {
   return loading;
 }
 
-export async function loadSignResources(template: SignTemplate) {
-  await Promise.all([
-    loadSignFonts(),
-    ...(template.sceneId === 'coast'
+function loadSignArtwork(template: SignTemplate) {
+  return Promise.all(
+    template.sceneId === 'coast'
       ? [loadArt(template.variation === 2 ? 'coast' : 'toile')]
-      : (artByScene[template.sceneId] ?? []).map(loadArt)),
-  ]);
+      : (artByScene[template.sceneId] ?? []).map(loadArt)
+  );
+}
+
+export async function loadSignResources(template: SignTemplate) {
+  await Promise.all([loadSignFonts(), loadSignArtwork(template)]);
+}
+
+export async function makeSignOrnamentPlate(
+  template: SignTemplate,
+  appearance: SignAppearance
+) {
+  await loadSignArtwork(template);
+  const canvas = document.createElement('canvas');
+  canvas.width = 900;
+  canvas.height = 1260;
+  const ctx = canvas.getContext('2d', { alpha: false });
+  if (!ctx) throw new Error('Ornament preview is unavailable');
+  try {
+    ctx.scale(1.5, 1.4);
+    drawReferenceSign(
+      ctx,
+      template,
+      { first: '', second: '', date: '' },
+      900,
+      '',
+      artwork,
+      appearance,
+      true
+    );
+    return canvas.toDataURL('image/webp', 0.94);
+  } finally {
+    canvas.width = 1;
+    canvas.height = 1;
+  }
 }
 
 export function drawSign(

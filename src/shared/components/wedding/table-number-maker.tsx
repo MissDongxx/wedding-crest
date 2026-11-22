@@ -4,7 +4,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowDownToLine, ArrowUpRight } from 'lucide-react';
 
+import { loadTableAutumnArt } from '@/shared/wedding/table-number-artwork';
 import {
+  defaultTableTemplate,
+  isTableTemplate,
   readTableMonogram,
   svgImage,
   tableCardSvg,
@@ -23,8 +26,26 @@ import {
   type TableSize,
   type TableTemplate,
 } from '@/shared/wedding/table-number-maker';
+import { tableNameLimit } from '@/shared/wedding/table-number-text';
+import {
+  loadMatchingMaterials,
+  matchingKey,
+  matchingSpec,
+  matchingTableTemplates,
+  readWelcomeMatch,
+  readWelcomeSource,
+  welcomeEditorHandoff,
+  welcomeEditorPath,
+  welcomeTableHandoff,
+  type MatchingMaterials,
+  type MatchingTableId,
+  type WelcomeMatch,
+  type WelcomeTableSource,
+} from '@/shared/wedding/table-number-welcome-match';
+import { formatSignDate } from '@/shared/wedding/welcome-sign';
 
 import styles from './table-number-maker.module.css';
+import { TablePrintDiagram } from './table-print-diagram';
 
 const tableDraftKey = 'wedding-table-number-draft-v1';
 
@@ -65,7 +86,7 @@ function Card({
 
 export function TableNumberMaker() {
   const [countInput, setCountInput] = useState('20');
-  const [template, setTemplate] = useState<TableTemplate>('classic');
+  const [template, setTemplate] = useState<TableTemplate>(defaultTableTemplate);
   const [size, setSize] = useState<TableSize>('4x6');
   const [mode, setMode] = useState<TablePrint>('home');
   const [paper, setPaper] = useState<TablePaper>('letter');
@@ -73,39 +94,104 @@ export function TableNumberMaker() {
   const [date, setDate] = useState('');
   const [ink, setInk] = useState<string>();
   const [monogram, setMonogram] = useState<TableMonogram>();
+  const [autumnArtwork, setAutumnArtwork] = useState<string>();
   const [preview, setPreview] = useState<'first' | 'last'>('first');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
+  const [editError, setEditError] = useState(false);
+  const [welcomeMatch, setWelcomeMatch] = useState<WelcomeMatch>();
+  const [matchingOpen, setMatchingOpen] = useState(false);
+  const [welcomeSource, setWelcomeSource] = useState<WelcomeTableSource>();
+  const [ready, setReady] = useState(false);
+  const [matchArt, setMatchArt] = useState<Record<string, MatchingMaterials>>(
+    {}
+  );
 
   useEffect(() => {
+    let mounted = true;
+    void loadTableAutumnArt()
+      .then((artwork) => {
+        if (mounted) setAutumnArtwork(artwork);
+      })
+      .catch(() => {});
+    let previousSource: WelcomeTableSource | undefined;
     try {
       const draft = sessionStorage.getItem(tableDraftKey);
       if (draft) {
-        sessionStorage.removeItem(tableDraftKey);
         const saved = JSON.parse(draft);
+        previousSource = readWelcomeSource(saved?.welcomeSource);
+        setWelcomeSource(previousSource);
+        setWelcomeMatch(readWelcomeMatch(saved?.welcomeMatch));
         if (
           typeof saved?.countInput === 'string' &&
           /^\d{0,3}$/.test(saved.countInput)
         )
           setCountInput(saved.countInput);
-        if (
-          saved?.template === 'classic' ||
-          saved?.template === 'botanical' ||
-          saved?.template === 'crest'
-        )
+        if (isTableTemplate(saved?.template)) {
           setTemplate(saved.template);
+          setMatchingOpen(Boolean(matchingSpec(saved.template)));
+        }
         if (saved?.size === '4x6' || saved?.size === '5x7') setSize(saved.size);
         if (saved?.mode === 'home' || saved?.mode === 'shop')
           setMode(saved.mode);
         if (saved?.paper === 'letter' || saved?.paper === 'a4')
           setPaper(saved.paper);
-        if (typeof saved?.names === 'string')
-          setNames(saved.names.slice(0, 52));
+        if (typeof saved?.names === 'string') setNames(saved.names);
         if (typeof saved?.date === 'string') setDate(saved.date.slice(0, 40));
         if (typeof saved?.ink === 'string' && tableInk(saved.ink))
           setInk(saved.ink);
         if (saved?.preview === 'first' || saved?.preview === 'last')
           setPreview(saved.preview);
+      }
+    } catch {}
+
+    try {
+      const payload = sessionStorage.getItem(welcomeTableHandoff);
+      if (payload) {
+        sessionStorage.removeItem(welcomeTableHandoff);
+        const {
+          source: rawSource,
+          returning,
+          match: raw,
+          names,
+          date,
+        } = JSON.parse(payload);
+        const source = readWelcomeSource(rawSource);
+        const match = source?.match ?? readWelcomeMatch(raw);
+        const id =
+          match &&
+          (Object.keys(matchingTableTemplates) as MatchingTableId[]).find(
+            (key) => matchingSpec(key, match)?.template.id === match.templateId
+          );
+        if (match && id) {
+          setWelcomeMatch(match);
+          setWelcomeSource(source);
+          setMatchingOpen(true);
+          setTemplate(id);
+          if (
+            !returning ||
+            !previousSource ||
+            previousSource.match.templateId !== match.templateId ||
+            previousSource.match.appearance.palette !== match.appearance.palette
+          )
+            setInk(undefined);
+          if (source) {
+            const { first, second, date } = source.details;
+            if (
+              !returning ||
+              first !== previousSource?.details.first ||
+              second !== previousSource?.details.second
+            )
+              setNames(
+                [first.trim(), second.trim()].filter(Boolean).join(' & ')
+              );
+            if (!returning || date !== previousSource?.details.date)
+              setDate(date ? formatSignDate(date) : '');
+          } else {
+            setNames(typeof names === 'string' ? names : '');
+            setDate(typeof date === 'string' ? formatSignDate(date) : '');
+          }
+        }
       }
     } catch {}
 
@@ -118,18 +204,49 @@ export function TableNumberMaker() {
         measure('table_number_monogram_applied', { source: 'monogram_maker' });
       }
     } catch {}
+    setReady(true);
+    return () => {
+      mounted = false;
+    };
   }, []);
 
+  useEffect(() => {
+    let active = true;
+    for (const id of matchingOpen
+      ? Object.keys(matchingTableTemplates)
+      : [template]) {
+      const spec = matchingSpec(id, welcomeMatch);
+      if (!spec) continue;
+      const key = matchingKey(spec);
+      void loadMatchingMaterials(spec)
+        .then((art) => {
+          if (active) setMatchArt((current) => ({ ...current, [key]: art }));
+        })
+        .catch(() => {});
+    }
+    return () => {
+      active = false;
+    };
+  }, [matchingOpen, template, welcomeMatch]);
+
+  const matching = matchingSpec(template, welcomeMatch);
   const count = Number(countInput);
   const valid =
     Number.isInteger(count) && count >= 1 && count <= tableCountLimit;
   const previewCount = valid ? count : 20;
   const design = {
     template,
-    ink: ink ?? monogram?.ink ?? tableTemplates[template].ink,
+    ink:
+      ink ??
+      matching?.palette.ink ??
+      monogram?.ink ??
+      tableTemplates[template].ink,
     names,
     date,
     monogram,
+    autumnArtwork,
+    welcomeMatch,
+    matchingMaterials: matching && matchArt[matchingKey(matching)],
   };
   const layout = tableLayout(size, mode, paper);
   const sheetCount = Math.ceil(previewCount / layout.slots.length);
@@ -139,23 +256,46 @@ export function TableNumberMaker() {
     (_, index) => firstOnSheet + index <= previewCount
   );
 
-  function saveDraft(preserveInk = false) {
+  const draftJson = JSON.stringify({
+    countInput,
+    template,
+    welcomeMatch,
+    welcomeSource,
+    size,
+    mode,
+    paper,
+    names,
+    date,
+    ink,
+    preview,
+  });
+
+  useEffect(() => {
+    if (!ready) return;
     try {
-      sessionStorage.setItem(
-        tableDraftKey,
-        JSON.stringify({
-          countInput,
-          template,
-          size,
-          mode,
-          paper,
-          names,
-          date,
-          ink: preserveInk ? ink : undefined,
-          preview,
-        })
-      );
+      sessionStorage.setItem(tableDraftKey, draftJson);
     } catch {}
+  }, [ready, draftJson]);
+
+  function saveDraft() {
+    try {
+      sessionStorage.setItem(tableDraftKey, draftJson);
+    } catch {}
+  }
+
+  function editWelcome(event: React.MouseEvent<HTMLAnchorElement>) {
+    if (!welcomeSource) return;
+    setEditError(false);
+    try {
+      sessionStorage.setItem(tableDraftKey, draftJson);
+      sessionStorage.setItem(
+        welcomeEditorHandoff,
+        JSON.stringify(welcomeSource)
+      );
+    } catch {
+      event.preventDefault();
+      setEditError(true);
+    }
   }
 
   function removeMonogram() {
@@ -180,8 +320,24 @@ export function TableNumberMaker() {
       const { exportTableNumbers } = await import(
         '@/shared/wedding/table-number-export'
       );
+      const printArtwork =
+        template === 'autumn' && !autumnArtwork
+          ? await loadTableAutumnArt().catch(() => undefined)
+          : autumnArtwork;
       const url = URL.createObjectURL(
-        await exportTableNumbers({ count, design, mode, size, paper })
+        await exportTableNumbers({
+          count,
+          design: {
+            ...design,
+            autumnArtwork: printArtwork,
+            matchingMaterials: matching
+              ? await loadMatchingMaterials(matching)
+              : undefined,
+          },
+          mode,
+          size,
+          paper,
+        })
       );
       const a = document.createElement('a');
       a.href = url;
@@ -205,7 +361,7 @@ export function TableNumberMaker() {
         className={styles.download}
         type="submit"
         form="table-number-controls"
-        disabled={busy || !valid}
+        disabled={!ready || busy || !valid}
       >
         <ArrowDownToLine size={17} aria-hidden="true" />
         {busy ? 'Preparing PDF…' : 'Download PDF'}
@@ -220,6 +376,36 @@ export function TableNumberMaker() {
       )}
     </>
   );
+
+  const renderTemplate = (key: TableTemplate) => {
+    const spec = matchingSpec(key, welcomeMatch);
+    return (
+      <label key={key}>
+        <input
+          type="radio"
+          name="table-template"
+          value={key}
+          checked={template === key}
+          onChange={() => setTemplate(key)}
+        />
+        <Card
+          design={{
+            template: key,
+            ink: spec?.palette.ink ?? tableTemplates[key].ink,
+            welcomeMatch,
+            matchingMaterials: spec && matchArt[matchingKey(spec)],
+            names: '',
+            date: '',
+            autumnArtwork,
+          }}
+          size="4x6"
+          number={1}
+          label=""
+        />
+        <span>{tableTemplates[key].label}</span>
+      </label>
+    );
+  };
 
   return (
     <main className={styles.page}>
@@ -333,30 +519,26 @@ export function TableNumberMaker() {
               <fieldset className={styles.choiceSet}>
                 <legend>Template</legend>
                 <div className={styles.templates}>
-                  {(Object.keys(tableTemplates) as TableTemplate[]).map(
-                    (key) => (
-                      <label key={key}>
-                        <input
-                          type="radio"
-                          name="table-template"
-                          value={key}
-                          checked={template === key}
-                          onChange={() => setTemplate(key)}
-                        />
-                        <Card
-                          design={{
-                            template: key,
-                            ink: tableTemplates[key].ink,
-                            names: '',
-                            date: '',
-                          }}
-                          size="4x6"
-                          number={1}
-                          label=""
-                        />
-                        <span>{tableTemplates[key].label}</span>
-                      </label>
-                    )
+                  {(Object.keys(tableTemplates) as TableTemplate[])
+                    .filter((key) => !matchingSpec(key))
+                    .map(renderTemplate)}
+                </div>
+                <button
+                  type="button"
+                  className={styles.matchingToggle}
+                  aria-expanded={matchingOpen}
+                  aria-controls="welcome-table-templates"
+                  onClick={() => setMatchingOpen(!matchingOpen)}
+                >
+                  Matching welcome signs
+                </button>
+                <div id="welcome-table-templates" hidden={!matchingOpen}>
+                  {matchingOpen && (
+                    <div className={styles.templates}>
+                      {(
+                        Object.keys(matchingTableTemplates) as MatchingTableId[]
+                      ).map(renderTemplate)}
+                    </div>
                   )}
                 </div>
               </fieldset>
@@ -369,11 +551,26 @@ export function TableNumberMaker() {
                       <input
                         type="radio"
                         name="table-print-mode"
+                        aria-labelledby={`table-print-label-${value}`}
+                        aria-describedby={`table-print-detail-${value}`}
                         checked={mode === value}
                         onChange={() => setMode(value)}
                       />
-                      <span>
+                      <TablePrintDiagram
+                        mode={value}
+                        size={size}
+                        paper={paper}
+                      />
+                      <strong id={`table-print-label-${value}`}>
                         {value === 'home' ? 'Home printing' : 'Print shop'}
+                      </strong>
+                      <span
+                        id={`table-print-detail-${value}`}
+                        className={styles.printDetail}
+                      >
+                        {value === 'home'
+                          ? '2 cards per sheet · Cut marks'
+                          : '1 card per PDF page · No cut marks'}
                       </span>
                     </label>
                   ))}
@@ -419,7 +616,7 @@ export function TableNumberMaker() {
                     <input
                       type="text"
                       value={names}
-                      maxLength={52}
+                      maxLength={tableNameLimit}
                       onChange={(e) => setNames(e.currentTarget.value)}
                     />
                   </label>
@@ -443,13 +640,28 @@ export function TableNumberMaker() {
                   {!monogram && (
                     <Link
                       href="/wedding-monogram-maker#monogram-maker"
-                      onClick={() => saveDraft()}
+                      onClick={saveDraft}
                     >
                       Add monogram <ArrowUpRight size={14} aria-hidden="true" />
                     </Link>
                   )}
                 </div>
               </details>
+              {welcomeSource && (
+                <div className={styles.applied}>
+                  <span>Matched welcome sign</span>
+                  <div className={styles.appliedActions}>
+                    <Link href={welcomeEditorPath} onClick={editWelcome}>
+                      Edit welcome sign
+                    </Link>
+                  </div>
+                </div>
+              )}
+              {editError && (
+                <p role="alert" className={styles.error}>
+                  The welcome sign editor didn’t open. Try again.
+                </p>
+              )}
               {monogram && (
                 <div className={styles.applied}>
                   <span>Monogram applied</span>
@@ -457,7 +669,7 @@ export function TableNumberMaker() {
                     {monogram.editable && (
                       <Link
                         href={tableNumberMonogramEditPath}
-                        onClick={() => saveDraft(true)}
+                        onClick={saveDraft}
                       >
                         Edit monogram
                       </Link>

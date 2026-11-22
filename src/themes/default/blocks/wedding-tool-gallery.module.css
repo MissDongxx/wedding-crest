@@ -1,0 +1,96 @@
+.section {
+  padding-block: clamp(3.5rem, 8vw, 6.5rem);
+}
+
+.title {
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  line-height: 1.08;
+}
+
+.grid {
+  display: grid;
+  gap: clamp(1.5rem, 2.7vw, 2.25rem);
+}
+
+@media (min-width: 840px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.tool {
+  display: block;
+  min-width: 0;
+}
+
+.art {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  gap: clamp(0.45rem, 1.2vw, 0.9rem);
+  aspect-ratio: 16 / 9;
+  padding: clamp(0.8rem, 2vw, 1.5rem);
+  background: #ece4d9;
+}
+
+.art[data-tool='monogram'] {
+  background: #ede3e1;
+}
+
+.art[data-tool='table'] {
+  background: #e8ebe6;
+}
+
+.art figure {
+  margin: 0;
+  box-shadow: 0 3px 10px #49322425;
+  background: #fffdf7;
+}
+
+.art img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.art[data-tool='monogram'] figure {
+  padding: 5%;
+}
+
+.name {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.85rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid currentColor;
+  font-size: clamp(1rem, 1.4vw, 1.17rem);
+  font-weight: 600;
+}
+
+.name svg {
+  flex: none;
+}
+
+.tool:hover .name {
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+}
+
+.tool:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 5px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .name svg {
+    transition: transform 160ms ease-out;
+  }
+
+  .tool:hover .name svg {
+    transform: translate(2px, -2px);
+  }
+}

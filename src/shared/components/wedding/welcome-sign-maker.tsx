@@ -12,6 +12,7 @@ import {
   type NameFont, type SignAppearance, type SignPaletteId,
 } from '@/shared/wedding/welcome-sign-customization';
 import { sceneImageAlt, signImageRoot, templateImageAlt } from '@/shared/wedding/welcome-sign-images';
+import { readWelcomeSource, welcomeDraftKey, welcomeEditorHandoff, welcomeTableHandoff, type WelcomeTableSource } from '@/shared/wedding/table-number-welcome-match';
 import styles from './welcome-sign-maker.module.css';
 
 const scenesWithTemplates = signScenes.map((scene) => ({
@@ -61,6 +62,33 @@ export function WelcomeSignMaker() {
   const [status, setStatus] = useState('');
   const [error, setError] = useState(false);
   const lock = useRef(false);
+  const [ready, setReady] = useState(false);
+  const [returningToTables, setReturningToTables] = useState(false);
+  useEffect(() => {
+    const returning = new URLSearchParams(window.location.search).get('edit') === 'table-number';
+    try {
+      const incoming = returning && sessionStorage.getItem(welcomeEditorHandoff);
+      const saved = readWelcomeSource(JSON.parse(incoming || sessionStorage.getItem(welcomeDraftKey) || 'null'));
+      if (returning) sessionStorage.removeItem(welcomeEditorHandoff);
+      if (saved) {
+        const design = signTemplates.find(({id}) => id === saved.match.templateId);
+        if (design) {
+          setSceneId(design.sceneId);
+          setSelections({[design.sceneId]: design.id});
+          setTemplateAppearance({[design.id]: saved.match.appearance});
+          setDetails(saved.details);
+          setSize(saved.size);
+        }
+      }
+    } catch {}
+    setReturningToTables(returning);
+    setReady(true);
+  }, []);
+  useEffect(() => {
+    if (!ready) return;
+    const source: WelcomeTableSource = {match: {templateId: template.id, appearance}, details, size};
+    try { sessionStorage.setItem(welcomeDraftKey, JSON.stringify(source)); } catch {}
+  }, [ready, template.id, appearance, details, size]);
   const [width, height] = signSizes[size];
   const shown = signScenes.filter((item) => group === 'All' || item.group === group);
   const preview = {
@@ -94,6 +122,18 @@ export function WelcomeSignMaker() {
     }));
     setStatus('');
     setError(false);
+  }
+
+  function openMatchingTables() {
+    try {
+      const source: WelcomeTableSource = { match: { templateId: template.id, appearance }, details, size };
+      sessionStorage.setItem(welcomeDraftKey, JSON.stringify(source));
+      sessionStorage.setItem(welcomeTableHandoff, JSON.stringify({ source, returning: returningToTables }));
+      window.location.assign('/table-number-maker');
+    } catch {
+      setError(true);
+      setStatus('The table number editor didn’t open. Try again.');
+    }
   }
 
   async function download(event: FormEvent<HTMLFormElement>) {
@@ -199,6 +239,9 @@ export function WelcomeSignMaker() {
           <button type="submit" value="pdf" disabled={!!busy}><Download size={16} aria-hidden="true" /> Download PDF</button>
           <button type="submit" value="png" disabled={!!busy}><Download size={16} aria-hidden="true" /> Download PNG</button>
         </div>
+          <button type="button" className={styles.matchLink} onClick={openMatchingTables} disabled={!ready || !!busy}>
+            {returningToTables ? 'Apply to table numbers' : 'Make matching table numbers'}
+          </button>
         <p className={error ? styles.error : styles.status} role="status">{status}</p>
       </form>
     </div>

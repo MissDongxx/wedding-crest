@@ -25,8 +25,10 @@ const LEGAL_ROUTES = [
 const LEGAL_LOCALES = ['en', 'zh'];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = envConfigs.app_url;
+  const baseUrl = envConfigs.app_url.replace(/\/$/, '');
 
+  // Preserve the production URL set. Locale and legacy-route removals need a
+  // separate sitemap migration, not an incidental change to this release.
   const staticRoutes = [
     '',
     '/create',
@@ -38,6 +40,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ];
 
   const sitemapEntries: MetadataRoute.Sitemap = [];
+  const lastModified = new Date();
 
   staticRoutes.forEach((route) => {
     // The homepage is English-only now; every other route keeps its localized
@@ -49,7 +52,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       const finalUrl = `${baseUrl}${localePath}${route}`;
       sitemapEntries.push({
         url: finalUrl,
-        lastModified: new Date(),
+        lastModified,
         changeFrequency: route === '' ? 'weekly' : 'monthly',
         priority: route === '' ? 1.0 : 0.9,
       });
@@ -62,7 +65,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       const localePath = isDefault ? '' : `/${locale}`;
       sitemapEntries.push({
         url: `${baseUrl}${localePath}/${route}`,
-        lastModified: new Date(),
+        lastModified,
         changeFrequency: 'monthly',
         priority: 0.8,
       });
@@ -74,7 +77,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       const localePath = locale === defaultLocale ? '' : `/${locale}`;
       sitemapEntries.push({
         url: `${baseUrl}${localePath}${route}`,
-        lastModified: new Date(),
+        lastModified,
         changeFrequency: 'yearly',
         priority: 0.3,
       });

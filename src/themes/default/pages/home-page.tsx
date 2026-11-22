@@ -11,6 +11,7 @@ import { Pricing } from '../blocks/pricing';
 import { WeddingBlog } from '../blocks/wedding-blog';
 import { WeddingHero } from '../blocks/wedding-hero';
 import { WeddingStyles } from '../blocks/wedding-styles';
+import { WeddingToolGallery } from '../blocks/wedding-tool-gallery';
 
 // The home page has a fixed, small set of blocks. Keeping this registry local
 // avoids making the generic theme block import context part of the home-page
@@ -18,6 +19,7 @@ import { WeddingStyles } from '../blocks/wedding-styles';
 const homeBlocks: Record<string, ComponentType<any>> = {
   'wedding-hero': WeddingHero,
   'wedding-styles': WeddingStyles,
+  'wedding-tool-gallery': WeddingToolGallery,
   introduce: Introduce,
   benefits: Benefits,
   pricing: Pricing,
