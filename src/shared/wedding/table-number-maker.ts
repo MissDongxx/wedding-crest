@@ -2,6 +2,10 @@ import {
   illustratedTableTemplates,
   renderIllustratedTableCard,
 } from './table-number-artwork';
+import {
+  placeTableNumber,
+  type TableNumberPlacement,
+} from './table-number-placement';
 import { tableNameLines } from './table-number-text';
 import {
   matchingSpec,
@@ -46,6 +50,8 @@ export type TableDesign = {
   names: string;
   date: string;
   monogram?: TableMonogram;
+  monogramPng?: string;
+  numberPlacement?: TableNumberPlacement;
   autumnArtwork?: string;
   welcomeMatch?: WelcomeMatch;
   matchingMaterials?: MatchingMaterials;
@@ -163,6 +169,8 @@ export function tableCardSvg(
   number: number
 ) {
   const [w, h] = tableSizes[size];
+  const monogramUrl =
+    design.monogramPng ?? (design.monogram && svgImage(design.monogram.svg));
   const nameLines = tableNameLines(design.names);
   const matching = matchingSpec(design.template, design.welcomeMatch);
   if (matching) {
@@ -197,14 +205,21 @@ export function tableCardSvg(
     const plate = art?.plate
       ? `<image width="300" height="420" href="${art.plate}" preserveAspectRatio="none"/>`
       : `<rect width="300" height="420" fill="${palette.paper}"/><rect x="18" y="18" width="264" height="384" fill="none" stroke="${palette.accent}"/>`;
-    const mark = design.monogram
-      ? `<image x="${textX - 20}" y="87" width="40" height="40" href="${svgImage(design.monogram.svg)}"/>`
+    const mark = monogramUrl
+      ? `<image x="${textX - 31}" y="74" width="62" height="62" href="${monogramUrl}"/>`
       : '';
     return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 300 420" preserveAspectRatio="none" aria-label="Table ${number}" data-welcome-template="${template.id}">
     ${matchedFont}${plate}${mark}
     <g text-anchor="middle" fill="${color}" font-family="Georgia, serif">
-    <text x="${textX}" y="143" font-size="11" letter-spacing="3">TABLE</text>
-    <text x="${textX}" y="${numberY}" font-size="${numberSize}">${number}</text>
+    ${placeTableNumber(
+      `<text x="${textX}" y="${monogramUrl ? 155 : 143}" font-size="11" letter-spacing="3">TABLE</text>
+       <text x="${textX}" y="${numberY}" font-size="${numberSize}">${number}</text>`,
+      design.numberPlacement,
+      300,
+      420,
+      textX,
+      numberY - 52
+    )}
     ${nameLines.length < 2 ? `<path d="M${textX - 18} ${namesY - 18}h36" stroke="${palette.accent}" stroke-width=".8"/>` : ''}
     ${nameLines.map((line, i) => details(line, namesY - (nameLines.length - 1 - i) * 10, nameLines.length === 1 ? 21 : 14, true)).join('')}
     ${details(design.date, namesY + 18, 11)}
@@ -218,8 +233,8 @@ export function tableCardSvg(
     number,
     names: design.names.trim(),
     date: design.date.trim(),
-    monogramUrl: design.monogram && svgImage(design.monogram.svg),
-    monogramInk: design.monogram?.ink,
+    monogramUrl,
+    numberPlacement: design.numberPlacement,
     autumnArtwork: design.autumnArtwork,
   });
   if (illustrated)
@@ -246,15 +261,22 @@ export function tableCardSvg(
       : design.template === 'botanical'
         ? `<g stroke-width="1"><g transform="translate(16 21)">${vine}</g><g transform="translate(${w - 16} ${h - 21}) rotate(180)">${vine}</g></g>`
         : `<path d="M${c} 19Q${c + 30} 36 ${w - 20} 39V${h - 66}Q${w - 20} ${h - 37} ${c} ${h - 18}Q20 ${h - 37} 20 ${h - 66}V39Q${c - 30} 36 ${c} 19Z" stroke-width=".9"/><rect x="11" y="11" width="${w - 22}" height="${h - 22}" stroke-width=".4"/>`;
-  const mark = design.monogram
-    ? `<image x="${c - w * 0.15}" y="${h * 0.115}" width="${w * 0.3}" height="${w * 0.3}" href="${svgImage(design.monogram.svg)}"/>`
+  const mark = monogramUrl
+    ? `<image x="${c - w * 0.15}" y="${h * 0.115}" width="${w * 0.3}" height="${w * 0.3}" href="${monogramUrl}"/>`
     : `<path d="M${c} ${h * 0.2 - 5}l5 5-5 5-5-5Z" fill="${ink}"/>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
 <rect width="${w}" height="${h}" fill="${paper}"/>
 <g fill="none" stroke="${ink}">${frame}</g>${mark}
 <g text-anchor="middle" fill="${ink}" font-family="Georgia, 'Times New Roman', serif">
-<text x="${c}" y="${h * 0.39}" font-family="Arial, sans-serif" font-size="9" letter-spacing="3">TABLE</text>
-<text x="${c}" y="${h * 0.605}" font-size="${w * (number >= 100 ? 0.35 : 0.41)}">${number}</text>
+${placeTableNumber(
+  `<text x="${c}" y="${h * 0.39}" font-family="Arial, sans-serif" font-size="9" letter-spacing="3">TABLE</text>
+   <text x="${c}" y="${h * 0.605}" font-size="${w * (number >= 100 ? 0.35 : 0.41)}">${number}</text>`,
+  design.numberPlacement,
+  w,
+  h,
+  c,
+  h * 0.48
+)}
 ${nameLines.map((line, i) => label(line, h * 0.78 - (nameLines.length - 1 - i) * 12, 13)).join('')}
 ${design.date.trim() ? label(design.date.trim(), h * (nameLines.length ? 0.83 : 0.78), nameLines.length ? 10 : 13) : ''}
 </g></svg>`;

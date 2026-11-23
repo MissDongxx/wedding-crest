@@ -1,3 +1,7 @@
+import {
+  placeTableNumber,
+  type TableNumberPlacement,
+} from './table-number-placement';
 import { tableNameLines } from './table-number-text';
 import rawAtlas from './table-number-type.json';
 
@@ -134,15 +138,9 @@ function autumnFallback() {
   ${leaves.map(([x, y, angle, s], index) => `<g transform="translate(${x} ${y}) rotate(${angle}) scale(${s})" opacity="${0.76 + 0.055 * (index % 4)}"><path d="${leafBody}" fill="url(#leaf)"/><path d="M0 0Q-2 -30 -7 -62" fill="none" stroke="#fbc98e" stroke-width=".65" opacity=".68"/></g>`).join('')}`;
 }
 
-function mark(
-  url: string | undefined,
-  x: number,
-  y: number,
-  size: number,
-  backing?: string
-) {
+function mark(url: string | undefined, x: number, y: number, size: number) {
   if (!url) return '';
-  return `${backing ? `<circle cx="${x}" cy="${y}" r="${size * 0.46}" fill="${backing}"/>` : ''}<image x="${x - size / 2}" y="${y - size / 2}" width="${size}" height="${size}" href="${url}"/>`;
+  return `<image x="${x - size / 2}" y="${y - size / 2}" width="${size}" height="${size}" href="${url}"/>`;
 }
 
 const typeColor = (accent: string, fallback: string) => {
@@ -187,7 +185,7 @@ type ArtOptions = {
   names: string;
   date: string;
   monogramUrl?: string;
-  monogramInk?: string;
+  numberPlacement?: TableNumberPlacement;
   autumnArtwork?: string;
 };
 
@@ -204,15 +202,19 @@ export function renderIllustratedTableCard(options: ArtOptions) {
   const { monogramUrl: monogram, names, date, autumnArtwork } = options;
   const nameLines = tableNameLines(names);
   const accent = typeColor(options.color, ink);
-  const paleMark =
-    options.monogramInk &&
-    typeColor(options.monogramInk, 'contrast') === 'contrast'
-      ? '#45403c'
-      : undefined;
   const number = String(options.number);
   const base = `<rect width="${normalWidth}" height="${normalHeight}" fill="${paper}"/>`;
   const centered = (content: string) =>
     `<g fill="${accent}" color="${accent}" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif">${content}</g>`;
+  const numberBlock = (art: string, x: number, y: number) =>
+    placeTableNumber(
+      art,
+      options.numberPlacement,
+      normalWidth,
+      normalHeight,
+      x,
+      y
+    );
   const printDetails = (
     y: number,
     size: number,
@@ -243,11 +245,14 @@ export function renderIllustratedTableCard(options: ArtOptions) {
       <path d="M130 64c9 12 27 14 29 3 1-9-14-10-17-1-3 11 17 11 27-1M130 376c12-9 27-14 29-3 1 9-14 10-17 1-3-11 17-11 27 1" />
       ${frill.samples.map(([x, y, angle], i) => (i % 2 === 0 ? `<path transform="translate(${point(x)} ${point(y)}) rotate(${angle})" d="M-7 1c4-6 12-10 15-5s-6 8-6 3c0-1 1-1 2-1" opacity=".83"/>` : '')).join('')}
     </g>` +
-      mark(monogram, center, 107, 42, paleMark) +
+      mark(monogram, center, 107, 42) +
       centered(
-        outline(number, 'italic', center, 145, 139, 141) +
-          outline('table', 'script', center, 298, 25, 78) +
-          printDetails(341, 11.5, 130, 13)
+        numberBlock(
+          outline(number, 'italic', center, 145, 139, 141) +
+            outline('table', 'script', center, 298, 25, 78),
+          center,
+          220
+        ) + printDetails(341, 11.5, 130, 13)
       )
     );
   }
@@ -256,11 +261,14 @@ export function renderIllustratedTableCard(options: ArtOptions) {
     return (
       base +
       `<path d="${sageField}" fill="#d1e6cb"/>` +
-      mark(monogram, center, 59, 43, paleMark) +
+      mark(monogram, center, 59, 43) +
       centered(
-        outline('Table', 'script', center, monogram ? 91 : 77, 49, 138) +
-          outline(number, 'script', center, 150, 130, 159, 'middle', 7) +
-          printDetails(337, 18, 202, 18, 'font-style="italic"')
+        numberBlock(
+          outline('Table', 'script', center, monogram ? 91 : 77, 49, 138) +
+            outline(number, 'script', center, 150, 130, 159, 'middle', 7),
+          center,
+          178
+        ) + printDetails(337, 18, 202, 18, 'font-style="italic"')
       )
     );
   }
@@ -277,11 +285,15 @@ export function renderIllustratedTableCard(options: ArtOptions) {
       <rect x="54" y="61" width="192" height="300" fill="none" stroke="#fff7e6" stroke-width="1" stroke-dasharray="1 1.6"/>
       ${outside.samples.map(([x, y, angle]) => `<g transform="translate(${point(x)} ${point(y)}) rotate(${angle})" stroke="#fff4e7" stroke-width="1" fill="none"><circle r="8.7" stroke-dasharray="1.1 1.6"/><path d="M0-6Q3-9 4-4Q9-4 6 0Q9 3 4 4Q2 9 0 6Q-4 9-4 4Q-9 3-6 0Q-9-4-4-4Q-2-9 0-6Z" fill="#f9e4d6"/><circle r="1.35" fill="#8d3931" stroke="none"/></g>`).join('')}
     ` +
-      mark(monogram, center, 104, 38, paleMark) +
+      mark(monogram, center, 104, 38) +
       centered(
         `<path transform="translate(0 ${monogram ? 17 : 0})" d="M128 131c-12-11-35-5-40 7s9 23 31 21c13-2 24-10 22-15-3-7-17-3-24 1-10 5-14 13-8 18 7 5 21 2 27-5" fill="none" stroke="${accent}" stroke-width=".62" opacity=".72"/>` +
-          outline('Table', 'script', center, monogram ? 133 : 116, 53, 143) +
-          outline(number, 'garamond', center, 204, 75, 119) +
+          numberBlock(
+            outline('Table', 'script', center, monogram ? 133 : 116, 53, 143) +
+              outline(number, 'garamond', center, 204, 75, 119),
+            center,
+            196
+          ) +
           printDetails(309, 13, 162, 16)
       )
     );
@@ -293,11 +305,14 @@ export function renderIllustratedTableCard(options: ArtOptions) {
       `<defs><linearGradient id="brass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a27d42"/><stop offset=".45" stop-color="#d4bc80"/><stop offset=".77" stop-color="#7f612d"/><stop offset="1" stop-color="#c0a46b"/></linearGradient></defs>
       <path d="M28 388V137a122 112 0 0 1 244 0v251Z" fill="none" stroke="url(#brass)" stroke-width="1.5"/>
       <g transform="translate(231 388)" fill="none" stroke="#967843" stroke-width="1.65" stroke-linecap="round"><path d="${flourish}"/></g>` +
-      mark(monogram, center, 99, 48, paleMark) +
+      mark(monogram, center, 99, 48) +
       centered(
-        '<text x="150" y="144" font-size="11" letter-spacing=".7">TABLE</text>' +
-          outline(number, 'cormorant', center, 171, 79, 144) +
-          printDetails(292, 13, 195, 18)
+        numberBlock(
+          '<text x="150" y="144" font-size="11" letter-spacing=".7">TABLE</text>' +
+            outline(number, 'cormorant', center, 171, 79, 144),
+          center,
+          190
+        ) + printDetails(292, 13, 195, 18)
       )
     );
   }
@@ -307,10 +322,14 @@ export function renderIllustratedTableCard(options: ArtOptions) {
     (autumnArtwork
       ? `<image x="0" y="0" width="300" height="420" preserveAspectRatio="none" href="${autumnArtwork}"/>`
       : autumnFallback()) +
-    mark(monogram, 238, 67, 63, paleMark) +
+    mark(monogram, 238, 67, 63) +
     `<g fill="${accent}" font-family="Georgia, 'Times New Roman', serif">
-      ${outline('Table', 'script', 30, 31, 42, 114, 'start')}
-      ${outline(number, 'cormorant', 27, 97, 201, 156, 'start')}
+      ${numberBlock(
+        outline('Table', 'script', 30, 31, 42, 114, 'start') +
+          outline(number, 'cormorant', 27, 97, 201, 156, 'start'),
+        106,
+        162
+      )}
       ${names ? liveText('The Wedding of', 30, 353, 10, 150, 'font-family="Arial, sans-serif" font-style="italic" font-weight="bold"') : ''}
        ${nameLines.map((line, index) => liveText(line, 30, 366 + index * 10, 12, 150, 'font-family="Arial, sans-serif" font-style="italic" font-weight="bold"')).join('')}
       ${liveText(date, 30, 385 + Math.max(0, nameLines.length - 2) * 9, 10, 150, 'font-family="Arial, sans-serif" font-style="italic"')}

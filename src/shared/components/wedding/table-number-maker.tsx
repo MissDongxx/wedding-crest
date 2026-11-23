@@ -4,6 +4,12 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowDownToLine, ArrowUpRight } from 'lucide-react';
 
+import {
+  editAppliedMonogramPath,
+  readAppliedMonogram,
+  removeAppliedMonogram,
+  type AppliedMonogram,
+} from '@/shared/wedding/monogram-application';
 import { loadTableAutumnArt } from '@/shared/wedding/table-number-artwork';
 import {
   defaultTableTemplate,
@@ -26,6 +32,11 @@ import {
   type TableSize,
   type TableTemplate,
 } from '@/shared/wedding/table-number-maker';
+import {
+  defaultTableNumberPlacement,
+  readTableNumberPlacement,
+  tableNumberPlacementControls,
+} from '@/shared/wedding/table-number-placement';
 import { tableNameLimit } from '@/shared/wedding/table-number-text';
 import {
   loadMatchingMaterials,
@@ -92,7 +103,12 @@ export function TableNumberMaker() {
   const [paper, setPaper] = useState<TablePaper>('letter');
   const [names, setNames] = useState('');
   const [date, setDate] = useState('');
+  const [numberPlacement, setNumberPlacement] = useState(
+    defaultTableNumberPlacement
+  );
+  const [numberLayoutOpen, setNumberLayoutOpen] = useState(false);
   const [ink, setInk] = useState<string>();
+  const [applied, setApplied] = useState<AppliedMonogram>();
   const [monogram, setMonogram] = useState<TableMonogram>();
   const [autumnArtwork, setAutumnArtwork] = useState<string>();
   const [preview, setPreview] = useState<'first' | 'last'>('first');
@@ -119,6 +135,7 @@ export function TableNumberMaker() {
       const draft = sessionStorage.getItem(tableDraftKey);
       if (draft) {
         const saved = JSON.parse(draft);
+        setNumberPlacement(readTableNumberPlacement(saved?.numberPlacement));
         previousSource = readWelcomeSource(saved?.welcomeSource);
         setWelcomeSource(previousSource);
         setWelcomeMatch(readWelcomeMatch(saved?.welcomeMatch));
@@ -199,11 +216,19 @@ export function TableNumberMaker() {
       const handoff = readTableMonogram(
         sessionStorage.getItem(tableNumberHandoff)
       );
-      if (handoff) {
-        setMonogram(handoff);
+      const libraryDesign = readAppliedMonogram('table-number');
+      setApplied(libraryDesign);
+      if (handoff || libraryDesign) {
+        setMonogram(libraryDesign ? undefined : handoff);
         measure('table_number_monogram_applied', { source: 'monogram_maker' });
       }
     } catch {}
+    const linked = new URLSearchParams(window.location.search).get('style');
+    if (isTableTemplate(linked)) {
+      setTemplate(linked);
+      setMatchingOpen(Boolean(matchingSpec(linked)));
+      setInk(undefined);
+    }
     setReady(true);
     return () => {
       mounted = false;
@@ -244,6 +269,8 @@ export function TableNumberMaker() {
     names,
     date,
     monogram,
+    monogramPng: applied?.png,
+    numberPlacement,
     autumnArtwork,
     welcomeMatch,
     matchingMaterials: matching && matchArt[matchingKey(matching)],
@@ -267,6 +294,7 @@ export function TableNumberMaker() {
     names,
     date,
     ink,
+    numberPlacement,
     preview,
   });
 
@@ -300,7 +328,9 @@ export function TableNumberMaker() {
 
   function removeMonogram() {
     setMonogram(undefined);
+    setApplied(undefined);
     try {
+      removeAppliedMonogram('table-number');
       sessionStorage.removeItem(tableNumberHandoff);
     } catch {}
   }
@@ -314,7 +344,7 @@ export function TableNumberMaker() {
       print_mode: mode,
       card_size: size,
       table_count: count,
-      has_monogram: monogram ? 'yes' : 'no',
+      has_monogram: monogram || applied ? 'yes' : 'no',
     };
     try {
       const { exportTableNumbers } = await import(
@@ -411,7 +441,7 @@ export function TableNumberMaker() {
     <main className={styles.page}>
       <div className={styles.shell}>
         <h1>Wedding Table Number Maker</h1>
-        <div className={styles.editor}>
+        <div id="table-number-editor" className={`${styles.editor} scroll-mt-20`}>
           <div className={styles.proof}>
             <div className={styles.proofBar}>
               <span aria-live="polite">
@@ -608,6 +638,65 @@ export function TableNumberMaker() {
                 )}
               </div>
 
+              <details
+                className={styles.personalize}
+                onToggle={(event) => setNumberLayoutOpen(event.currentTarget.open)}
+              >
+                <summary>Table number layout</summary>
+                <div className={styles.numberLayout}>
+                  {numberLayoutOpen && (
+                    <div className={styles.numberLayoutProof}>
+                      <Card
+                        design={design}
+                        size={size}
+                        number={firstOnSheet}
+                        label={`Table ${firstOnSheet} layout preview`}
+                      />
+                    </div>
+                  )}
+                  {tableNumberPlacementControls.map(
+                    ({ key, label, min, max }) => (
+                      <label key={key}>
+                        <span>
+                          {label}
+                          <span aria-hidden="true">
+                            {numberPlacement[key]}%
+                          </span>
+                        </span>
+                        <input
+                          type="range"
+                          min={min}
+                          max={max}
+                          value={numberPlacement[key]}
+                          aria-label={label}
+                          aria-valuetext={`${numberPlacement[key]}%`}
+                          onChange={(event) => {
+                            const value = event.currentTarget.valueAsNumber;
+                            setNumberPlacement((current) => ({
+                              ...current,
+                              [key]: value,
+                            }));
+                          }}
+                        />
+                      </label>
+                    )
+                  )}
+                  <button
+                    type="button"
+                    disabled={tableNumberPlacementControls.every(
+                      ({ key }) =>
+                        numberPlacement[key] ===
+                        defaultTableNumberPlacement[key]
+                    )}
+                    onClick={() =>
+                      setNumberPlacement(defaultTableNumberPlacement)
+                    }
+                  >
+                    Reset layout
+                  </button>
+                </div>
+              </details>
+
               <details className={styles.personalize}>
                 <summary>Personalize</summary>
                 <div className={styles.personalFields}>
@@ -637,7 +726,7 @@ export function TableNumberMaker() {
                       onChange={(e) => setInk(e.currentTarget.value)}
                     />
                   </label>
-                  {!monogram && (
+                  {!monogram && !applied && (
                     <Link
                       href="/wedding-monogram-maker#monogram-maker"
                       onClick={saveDraft}
@@ -662,13 +751,13 @@ export function TableNumberMaker() {
                   The welcome sign editor didn’t open. Try again.
                 </p>
               )}
-              {monogram && (
+              {(monogram || applied) && (
                 <div className={styles.applied}>
                   <span>Monogram applied</span>
                   <div className={styles.appliedActions}>
-                    {monogram.editable && (
+                    {(applied || monogram?.editable) && (
                       <Link
-                        href={tableNumberMonogramEditPath}
+                        href={applied ? editAppliedMonogramPath('table-number', applied) : tableNumberMonogramEditPath}
                         onClick={saveDraft}
                       >
                         Edit monogram
@@ -684,6 +773,46 @@ export function TableNumberMaker() {
             <div className={styles.desktopAction}>{downloadAction}</div>
           </form>
         </div>
+        <section className={styles.printGuide} aria-labelledby="table-number-print-guide">
+          <h2 id="table-number-print-guide">How to print and place table numbers</h2>
+          <h3>Arrange tables 1 to 20</h3>
+          <p>
+            Leave Tables set to 20 for a complete set. Home printing lays the
+            numbers out two per landscape sheet (1 and 2, 3 and 4, through 19
+            and 20); Print shop exports one card per page. On your floor plan,
+            number tables from the entrance in a consistent order so guests can
+            find them without doubling back.
+          </p>
+          <h3>Print double-sided cards</h3>
+          <p>
+            The PDF has single-sided artwork. For home printing, print two
+            copies at Actual Size (100%), cut them and put each matching pair
+            back-to-back in a holder. For true duplex printing, ask a print shop
+            to put the same number on both sides of each card and check that
+            both sides are upright on a proof.
+          </p>
+          <h3>Trim along the crop marks</h3>
+          <p>
+            Choose Letter or A4 to match the paper in your printer and turn off
+            Fit to Page. Use the short lines outside each corner to line up a
+            ruler or paper trimmer. The Print shop file is already sized to
+            4 × 6 or 5 × 7 in and has no crop marks; ask the shop if it needs
+            a bleed version.
+          </p>
+          <h3>Choose paper for your holders</h3>
+          <p>
+            Use matte cardstock to reduce glare under reception lights. Pick a
+            weight your printer supports and test one sheet first, especially
+            if the design has a dark background. A freestanding holder may need
+            stiffer stock than a frame or clip.
+          </p>
+          <h3>Table numbers are not a seating chart</h3>
+          <p>
+            The seating chart at the entrance tells guests which table they’re
+            assigned to. A number card identifies the table in the room. Use
+            the same numbers on both and face the cards toward the aisle.
+          </p>
+        </section>
         <nav
           className={styles.related}
           aria-label="More wedding stationery tools"

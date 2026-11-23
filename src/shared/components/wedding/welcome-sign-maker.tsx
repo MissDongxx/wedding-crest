@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
+import Link from 'next/link';
 import { Check, Download } from 'lucide-react';
 
 import {
@@ -11,6 +12,12 @@ import {
   defaultAppearance, nameFontOptions, signPalette, signPaletteOptions,
   type NameFont, type SignAppearance, type SignPaletteId,
 } from '@/shared/wedding/welcome-sign-customization';
+import {
+  editAppliedMonogramPath,
+  readAppliedMonogram,
+  removeAppliedMonogram,
+  type AppliedMonogram,
+} from '@/shared/wedding/monogram-application';
 import { sceneImageAlt, signImageRoot, templateImageAlt } from '@/shared/wedding/welcome-sign-images';
 import { readWelcomeSource, welcomeDraftKey, welcomeEditorHandoff, welcomeTableHandoff, type WelcomeTableSource } from '@/shared/wedding/table-number-welcome-match';
 import styles from './welcome-sign-maker.module.css';
@@ -20,8 +27,36 @@ const scenesWithTemplates = signScenes.map((scene) => ({
   templates: signTemplates.filter((item) => item.sceneId === scene.id),
 }));
 
-function Preview({template, details, size, appearance}: {
-  template: SignTemplate; details: SignDetails; size: SignSize; appearance: SignAppearance;
+
+const scenePrintNotes = {
+  chateau:
+    'A hand-drawn blue border and chandelier suit a château courtyard or historic estate; pair the ivory ground with dusty-blue linens. Print at 24 × 36 in on matte poster paper at a print shop and mount it on a rigid board for the entrance easel.',
+  meadow:
+    'An oval watercolor wildflower wreath feels at home in a garden or meadow; pick up its soft greens and flower colors in bud vases or napkins. Print at 18 × 24 in on matte poster paper for a sheltered easel beside the ceremony path.',
+  editorial:
+    'A newspaper masthead and bold serif headlines suit a city loft or stone gallery; pair the warm paper tone and charcoal type with black frames. Ask a print shop for a 24 × 36 in matte poster so the headline reads across a lobby.',
+  oriental:
+    'A gold floral crown and Double Happiness seal suit a Chinese wedding banquet entrance; pair the red and gold with ivory flowers or warm lighting. Print at 24 × 36 in on matte board through a print shop to keep the dark red readable under spotlights.',
+  chapel:
+    'An initial crest and fine double border suit a chapel entry; echo the sage and cream with greenery and ivory ribbons. A framed 18 × 24 in matte poster fits a small vestibule without crowding the doorway.',
+  noir:
+    'Gold-toned Art Deco corner rays on black suit a candlelit ballroom; pair them with champagne linens or brass accents. Order a 24 × 36 in matte board for the foyer so overhead lights don’t reflect off the sign.',
+  rose:
+    'Diagonal rose clusters and flowing script suit a rose garden or conservatory; carry the dusty pink and ivory into the flowers or table linens. Print at 18 × 24 in on matte poster paper for a framed sign at the cocktail-hour entrance.',
+  olive:
+    'A tall watercolor olive branch suits a vineyard, olive grove or villa terrace; pair olive green with cream and natural linen. Print at 24 × 36 in on rigid matte board for a courtyard easel, and secure it if the spot is breezy.',
+  gallery:
+    'A sweeping lowercase welcome and black type on white suit a modern gallery or civil ceremony; pair them with white florals and black frames. Print at 18 × 24 in on smooth matte poster paper for a slim frame at the check-in table.',
+  ribbon:
+    'Pink stripes, a red bow and a floral border suit a restaurant reception or a room with velvet drapes; pair them with wine-red candles and cream linens. A 24 × 36 in matte poster from a print shop works well on an easel against the drapery.',
+  coast:
+    'A blue-and-ivory floral toile border suits a seaside terrace or coastal inn; repeat the blue with white linens and natural textures. Ask a print shop for a 24 × 36 in print mounted on rigid board for a covered terrace entrance.',
+  desert:
+    'A cream arch and handwritten names suit a desert ranch or adobe courtyard; pair terracotta and sand with rust-colored florals. Print at 24 × 36 in on matte board and secure it to a weighted easel near the outdoor entrance.',
+} satisfies Record<SignScene['id'], string>;
+
+function Preview({template, details, size, appearance, monogram}: {
+  template: SignTemplate; details: SignDetails; size: SignSize; appearance: SignAppearance; monogram?: HTMLImageElement;
 }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [width, height] = signSizes[size];
@@ -29,13 +64,13 @@ function Preview({template, details, size, appearance}: {
     let active = true;
     const paint = () => {
       const ctx = canvas.current?.getContext('2d', {alpha: false});
-      if (active && ctx) drawSign(ctx, template, details, size, 960, 0, appearance);
+      if (active && ctx) drawSign(ctx, template, details, size, 960, 0, appearance, monogram);
     };
     // Paint immediately for typing; repaint once the bundled fonts and art are ready.
     paint();
     void loadSignResources(template).then(paint, paint);
     return () => { active = false; };
-  }, [template, details, size, appearance]);
+  }, [template, details, size, appearance, monogram]);
   return <canvas
     ref={canvas}
     width={960}
@@ -63,9 +98,12 @@ export function WelcomeSignMaker() {
   const [error, setError] = useState(false);
   const lock = useRef(false);
   const [ready, setReady] = useState(false);
+  const [applied, setApplied] = useState<AppliedMonogram>();
+  const [monogram, setMonogram] = useState<HTMLImageElement>();
   const [returningToTables, setReturningToTables] = useState(false);
   useEffect(() => {
-    const returning = new URLSearchParams(window.location.search).get('edit') === 'table-number';
+    const entry = new URLSearchParams(window.location.search);
+    const returning = entry.get('edit') === 'table-number';
     try {
       const incoming = returning && sessionStorage.getItem(welcomeEditorHandoff);
       const saved = readWelcomeSource(JSON.parse(incoming || sessionStorage.getItem(welcomeDraftKey) || 'null'));
@@ -81,9 +119,38 @@ export function WelcomeSignMaker() {
         }
       }
     } catch {}
+    const linked = !returning && signTemplates.find(({id}) => id === entry.get('style'));
+    if (linked) {
+      setSceneId(linked.sceneId);
+      setSelections((current) => ({...current, [linked.sceneId]: linked.id}));
+    }
+    setApplied(readAppliedMonogram('welcome-sign'));
     setReturningToTables(returning);
     setReady(true);
   }, []);
+  useEffect(() => {
+    if (!applied) return;
+    let active = true;
+    const mark = new Image();
+    mark.src = applied.png;
+    void mark.decode().then(() => {
+      if (active) setMonogram(mark);
+    }).catch(() => {
+      if (!active) return;
+      setError(true);
+      setStatus('The monogram didn’t load. Reapply it or remove it to continue.');
+    });
+    return () => { active = false; };
+  }, [applied]);
+
+  function removeMonogram() {
+    try { removeAppliedMonogram('welcome-sign'); } catch {}
+    setApplied(undefined);
+    setMonogram(undefined);
+    setError(false);
+    setStatus('');
+  }
+
   useEffect(() => {
     if (!ready) return;
     const source: WelcomeTableSource = {match: {templateId: template.id, appearance}, details, size};
@@ -138,7 +205,7 @@ export function WelcomeSignMaker() {
 
   async function download(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!valid || lock.current) return;
+    if (!valid || lock.current || (applied && !monogram)) return;
     const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
     const format = submitter?.value === 'png' ? 'png' : 'pdf';
     lock.current = true;
@@ -147,7 +214,7 @@ export function WelcomeSignMaker() {
     setStatus(`Preparing ${format.toUpperCase()}…`);
     try {
       const {exportWelcomeSign} = await import('@/shared/wedding/welcome-sign-export');
-      const blob = await exportWelcomeSign(template, preview, size, format, appearance);
+      const blob = await exportWelcomeSign(template, preview, size, format, appearance, monogram);
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -168,7 +235,7 @@ export function WelcomeSignMaker() {
 
   return <main className={styles.root}>
     <div className={styles.heading}><h1>Wedding Welcome Sign Maker</h1></div>
-    <div className={styles.studio} ref={editor} tabIndex={-1} aria-label="Welcome sign editor">
+    <div id="welcome-sign-editor" className={styles.studio} ref={editor} tabIndex={-1} aria-label="Welcome sign editor">
       <aside className={styles.library} aria-label="Scenes">
         <h2>Scenes</h2>
         <div className={styles.filters} role="group" aria-label="Scene style">
@@ -202,7 +269,7 @@ export function WelcomeSignMaker() {
         </div>
         <div className={styles.stage}>
           <div className={styles.art} style={{'--sign-ratio': width / height} as React.CSSProperties}>
-            <Preview template={template} details={preview} size={size} appearance={appearance} />
+            <Preview template={template} details={preview} size={size} appearance={appearance} monogram={monogram} />
           </div>
         </div>
       </section>
@@ -235,9 +302,18 @@ export function WelcomeSignMaker() {
             </label>)}
           </div>
         </fieldset>
+        {applied && (
+          <div className={styles.applied}>
+            <span>{monogram ? 'Monogram applied' : 'Monogram'}</span>
+            <div>
+              <Link href={editAppliedMonogramPath('welcome-sign', applied)}>Edit monogram</Link>
+              <button type="button" onClick={removeMonogram} disabled={!!busy}>Remove</button>
+            </div>
+          </div>
+        )}
         <div className={styles.downloads}>
-          <button type="submit" value="pdf" disabled={!!busy}><Download size={16} aria-hidden="true" /> Download PDF</button>
-          <button type="submit" value="png" disabled={!!busy}><Download size={16} aria-hidden="true" /> Download PNG</button>
+          <button type="submit" value="pdf" disabled={!!busy || !!(applied && !monogram)}><Download size={16} aria-hidden="true" /> Download PDF</button>
+          <button type="submit" value="png" disabled={!!busy || !!(applied && !monogram)}><Download size={16} aria-hidden="true" /> Download PNG</button>
         </div>
           <button type="button" className={styles.matchLink} onClick={openMatchingTables} disabled={!ready || !!busy}>
             {returningToTables ? 'Apply to table numbers' : 'Make matching table numbers'}
@@ -259,9 +335,20 @@ export function WelcomeSignMaker() {
                 </button>
               ))}
             </div>
+            <p className={styles.scenePrintNote}>{scenePrintNotes[scene.id]}</p>
           </section>
         ))}
       </div>
+    </section>
+    <section className={styles.stationeryGuide} aria-labelledby="matching-wedding-stationery">
+      <h2 id="matching-wedding-stationery">Match your welcome sign, seating chart and table numbers</h2>
+      <p>
+        Carry one accent color, one typeface and a small motif from the welcome sign
+        onto the seating chart and table numbers. In the editor, choose
+        {' '}<strong>Make matching table numbers</strong> to carry your sign design over;
+        use the same table numbers on your seating chart and keep guest names and
+        numbers in a high-contrast, easy-to-read font.
+      </p>
     </section>
   </main>;
 }

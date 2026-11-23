@@ -20,9 +20,21 @@ export type MonogramLayout =
   | 'diagonal'
   | 'centerpiece';
 export const monogramElements = {
-  frame: ['none', 'circle', 'double', 'oval', 'shield', 'arch', 'diamond'],
+  frame: [
+    'none',
+    'cameo',
+    'scalloped',
+    'ornateOval',
+    'circle',
+    'double',
+    'oval',
+    'shield',
+    'arch',
+    'diamond',
+  ],
   wreath: [
     'none',
+    'engravedLaurel',
     'laurel',
     'olive',
     'crescent',
@@ -413,8 +425,52 @@ const roseGarden =
   scatter(rose, rosePositions) +
   scatter(blossom, roseCompanions);
 
+// New vector ornaments are built separately from the glyphs so frames and
+// initials remain independently recolorable, including after SVG export.
+const scaleOrnament = (art: string, scale: number) =>
+  `<g transform="translate(180 180) scale(${scale}) translate(-180 -180)">${art}</g>`;
+const cameoOval =
+  '<ellipse cx="180" cy="180" rx="105" ry="139" stroke-width="2.05"/>' +
+  '<ellipse cx="180" cy="180" rx="100" ry="134" stroke-width="1.15"/>';
+const scallopOutline =
+  'M180 39C207 39 215 64 242 67C266 70 278 87 275 113C273 138 296 148 296 180C296 212 273 222 275 247C278 273 266 290 242 293C215 296 207 321 180 321C153 321 145 296 118 293C94 290 82 273 85 247C87 222 64 212 64 180C64 148 87 138 85 113C82 87 94 70 118 67C145 64 153 39 180 39Z';
+const engravedOvalSide =
+  'M166 48C118 46 74 103 74 180S118 314 166 312' +
+  'M164 55C120 52 81 108 81 180S120 308 164 305';
+const engravedFinial =
+  '<path d="M180 53C177 40 164 36 161 44C159 51 169 53 170 47M180 53C183 40 196 36 199 44C201 51 191 53 190 47M180 40l-5 7 5 9 5-9Z"/>' +
+  '<path d="M180 61q-11-6-17-2m17 2q11-6 17-2" stroke-width=".85"/>';
+const engravedLeaf =
+  '<path d="M0 0C-13-7-16-21-11-34C0-27 7-13 0 0ZM0 0C10-7 15-20 31-25C30-11 17-1 0 0ZM0 0C4-9 2-23 10-34C17-24 15-9 0 0Z"/>' +
+  '<path d="M0 0l-10-25M0 0l23-18M0 0l10-26" stroke-width=".8"/>';
+const engravedLaurelBranch =
+  '<path d="M180 321C107 322 57 278 44 214C34 157 48 109 77 76" stroke-width="1.9"/>' +
+  scatter(engravedLeaf, [
+    [74, 84, -24, 0.67],
+    [52, 115, -40, 0.85],
+    [43, 150, -68, 0.91],
+    [42, 187, -83, 0.94],
+    [51, 224, -102, 0.92],
+    [70, 259, -118, 0.93],
+    [97, 287, -136, 0.94],
+    [132, 306, -156, 0.81],
+  ]) +
+  '<g stroke-width=".8"><circle cx="66" cy="100" r="2.4"/><circle cx="70" cy="219" r="2.8"/><circle cx="91" cy="272" r="2.6"/><circle cx="125" cy="295" r="2.7"/></g>';
+const engravedKnot =
+  '<path d="M176 320C164 304 151 302 150 311C149 321 167 326 176 323M184 320C196 304 209 302 210 311C211 321 193 326 184 323M177 325q-14 5-19 15l-7-3m32-12q14 5 19 15l7-3"/>' +
+  '<ellipse cx="180" cy="322" rx="5.5" ry="3.6" fill="currentColor"/>';
+
 const frames: Record<MonogramFrame, string> = {
   none: '',
+  cameo: cameoOval,
+  scalloped:
+    `<path d="${scallopOutline}" stroke-width="2.4"/>` +
+    scaleOrnament(`<path d="${scallopOutline}" stroke-width="1.05"/>`, 0.944),
+  ornateOval:
+    `<path d="${engravedOvalSide}"/>` +
+    mirror(`<path d="${engravedOvalSide}"/>`) +
+    engravedFinial +
+    `<g transform="translate(0 360) scale(1 -1)">${engravedFinial}</g>`,
   circle: ring,
   double: ring + '<circle cx="180" cy="180" r="141" stroke-width="0.9"/>',
   oval: '<ellipse cx="180" cy="180" rx="150" ry="122"/>',
@@ -427,6 +483,8 @@ const frames: Record<MonogramFrame, string> = {
 
 const wreaths: Record<MonogramWreath, string> = {
   none: '',
+  engravedLaurel:
+    engravedLaurelBranch + mirror(engravedLaurelBranch) + engravedKnot,
   laurel: laurelBranch + mirror(laurelBranch),
   olive: oliveBranch + mirror(motif(oliveBranch, -5, -4, 2)),
   crescent,
@@ -469,9 +527,7 @@ const svgTag = (art: string, viewBox = `0 0 ${monogramSize} ${monogramSize}`) =>
 const cleanInk = (ink: string | undefined, fallback: string) =>
   ink && /^#[\da-f]{6}$/i.test(ink) ? ink : fallback;
 const scaleFromCenter = (art: string, scale: number) =>
-  scale === 1
-    ? art
-    : `<g transform="translate(180 180) scale(${scale}) translate(-180 -180)">${art}</g>`;
+  scale === 1 ? art : scaleOrnament(art, scale);
 
 function layer<K extends MonogramElement>(
   kind: K,
@@ -600,9 +656,14 @@ export function renderMonogramSvg(
   const framed = options.frame !== 'none';
   const hasWreath = options.wreath !== 'none';
   const hasEmbellishment = options.embellishment !== 'none';
-  // The tighter framed bounds fit a rectangle safely inside either circle.
-  const maxWidth =
-    options.frame === 'diamond'
+  const narrowOval = ['cameo', 'scalloped', 'ornateOval'].includes(
+    options.frame
+  );
+  // Reserve the shoulders and curves of the narrower portrait frames.
+
+  const maxWidth = narrowOval
+    ? 152
+    : options.frame === 'diamond'
       ? 162
       : options.frame === 'arch' || options.frame === 'shield'
         ? 175
@@ -611,8 +672,9 @@ export function renderMonogramSvg(
           : hasWreath
             ? 220
             : 292;
-  const maxHeight =
-    options.frame === 'arch'
+  const maxHeight = narrowOval
+    ? 177
+    : options.frame === 'arch'
       ? 205
       : options.frame === 'oval'
         ? 149
@@ -658,7 +720,11 @@ export function renderMonogramSvg(
   );
   const central = scaleFromCenter(
     frame + `<g data-monogram-layer="letters" fill="${ink}">${artwork}</g>`,
-    framed && hasWreath ? 0.69 : 1
+    framed &&
+      hasWreath &&
+      !(options.frame === 'cameo' && options.wreath === 'engravedLaurel')
+      ? 0.69
+      : 1
   );
 
   const background = cleanInk(options.background, '');

@@ -1,0 +1,1498 @@
+[
+  {
+    "id": "01-01",
+    "name": "Meadow Stems",
+    "group": "botanical",
+    "sheet": "01",
+    "slot": 1,
+    "reading": "AH?",
+    "letters": [
+      "A",
+      "H"
+    ],
+    "rule": [
+      "cc",
+      "arc",
+      [
+        0.36,
+        0.46,
+        0.79,
+        0.69
+      ],
+      [
+        0.68,
+        0.55,
+        0.79,
+        0.68
+      ],
+      0.56,
+      1.1,
+      true
+    ],
+    "ratio": 0.9384057971014492
+  },
+  {
+    "id": "01-02",
+    "name": "Palmette Medallion",
+    "group": "cameos",
+    "sheet": "01",
+    "slot": 2,
+    "reading": "CG",
+    "letters": [
+      "C",
+      "G"
+    ],
+    "rule": [
+      "bp",
+      "weave",
+      [
+        0.4,
+        0.44,
+        0.8,
+        0.72
+      ],
+      [
+        0.64,
+        0.56,
+        0.84,
+        0.79
+      ],
+      0.49,
+      1,
+      false
+    ],
+    "ratio": 0.7914110429447853
+  },
+  {
+    "id": "01-03",
+    "name": "Laurel Shield",
+    "group": "shields",
+    "sheet": "01",
+    "slot": 3,
+    "reading": "RA",
+    "letters": [
+      "R",
+      "A"
+    ],
+    "rule": [
+      "bb",
+      "weave",
+      [
+        0.41,
+        0.43,
+        0.84,
+        0.74
+      ],
+      [
+        0.61,
+        0.57,
+        0.84,
+        0.74
+      ],
+      0.58,
+      1.35,
+      true
+    ],
+    "ratio": 1.048780487804878
+  },
+  {
+    "id": "01-04",
+    "name": "Rose Shield",
+    "group": "shields",
+    "sheet": "01",
+    "slot": 4,
+    "reading": "NJ?",
+    "letters": [
+      "N",
+      "J"
+    ],
+    "rule": [
+      "zz",
+      "outline",
+      [
+        0.39,
+        0.43,
+        0.82,
+        0.72
+      ],
+      [
+        0.65,
+        0.56,
+        0.82,
+        0.72
+      ],
+      0.53,
+      0.7,
+      false
+    ],
+    "ratio": 1.1460176991150441
+  },
+  {
+    "id": "01-05",
+    "name": "Scroll Oval",
+    "group": "cameos",
+    "sheet": "01",
+    "slot": 5,
+    "reading": "PR",
+    "letters": [
+      "P",
+      "R"
+    ],
+    "rule": [
+      "bb",
+      "shared",
+      [
+        0.4,
+        0.42,
+        0.77,
+        0.72
+      ],
+      [
+        0.59,
+        0.57,
+        0.87,
+        0.72
+      ],
+      0.57,
+      1.15,
+      false
+    ],
+    "ratio": 0.9772727272727273
+  },
+  {
+    "id": "01-06",
+    "name": "Crowned Rose Shield",
+    "group": "shields",
+    "sheet": "01",
+    "slot": 6,
+    "reading": "AD?",
+    "letters": [
+      "A",
+      "D"
+    ],
+    "rule": [
+      "cc",
+      "ring",
+      [
+        0.38,
+        0.45,
+        0.81,
+        0.7
+      ],
+      [
+        0.65,
+        0.55,
+        0.81,
+        0.7
+      ],
+      0.48,
+      1.15,
+      true
+    ],
+    "ratio": 1.084033613445378
+  },
+  {
+    "id": "01-07",
+    "name": "Olive Shield",
+    "group": "shields",
+    "sheet": "01",
+    "slot": 7,
+    "reading": "RL",
+    "letters": [
+      "R",
+      "L"
+    ],
+    "rule": [
+      "pp",
+      "weave",
+      [
+        0.38,
+        0.4,
+        0.78,
+        0.76
+      ],
+      [
+        0.63,
+        0.59,
+        0.84,
+        0.78
+      ],
+      0.44,
+      1.2,
+      false
+    ],
+    "ratio": 0.9522058823529411
+  },
+  {
+    "id": "01-08",
+    "name": "Grand Botanical Shield",
+    "group": "shields",
+    "sheet": "01",
+    "slot": 8,
+    "reading": "K?",
+    "letters": [
+      "K"
+    ],
+    "rule": [
+      "zg",
+      "weave",
+      [
+        0.42,
+        0.48,
+        0.91,
+        0.73
+      ],
+      [
+        0.63,
+        0.55,
+        0.77,
+        0.78
+      ],
+      0.53,
+      1.15,
+      true
+    ],
+    "ratio": 1.4021739130434783
+  },
+  {
+    "id": "01-09",
+    "name": "Orchid Editorial",
+    "group": "botanical",
+    "sheet": "01",
+    "slot": 9,
+    "reading": "VB",
+    "letters": [
+      "V",
+      "B"
+    ],
+    "rule": [
+      "bb",
+      "weave",
+      [
+        0.27,
+        0.37,
+        0.72,
+        0.6
+      ],
+      [
+        0.67,
+        0.6,
+        0.8,
+        0.65
+      ],
+      0.45,
+      0.95,
+      true
+    ],
+    "ratio": 0.8927335640138409
+  },
+  {
+    "id": "02-01",
+    "name": "Olive Crescent",
+    "group": "botanical",
+    "sheet": "02",
+    "slot": 1,
+    "reading": "PR?",
+    "letters": [
+      "P",
+      "R"
+    ],
+    "rule": [
+      "gp",
+      "loop",
+      [
+        0.43,
+        0.39,
+        0.67,
+        0.79
+      ],
+      [
+        0.58,
+        0.66,
+        0.7,
+        0.79
+      ],
+      0.5,
+      null,
+      false
+    ],
+    "ratio": 0.9345454545454546
+  },
+  {
+    "id": "02-02",
+    "name": "Square Leaf Wreath",
+    "group": "wreaths",
+    "sheet": "02",
+    "slot": 2,
+    "reading": "LS",
+    "letters": [
+      "L",
+      "S"
+    ],
+    "rule": [
+      "bc",
+      "layer",
+      [
+        0.37,
+        0.56,
+        0.88,
+        0.57
+      ],
+      [
+        0.62,
+        0.4,
+        0.79,
+        0.64
+      ],
+      0.6,
+      null,
+      false
+    ],
+    "ratio": 0.7870370370370371
+  },
+  {
+    "id": "02-03",
+    "name": "Rose Crescent",
+    "group": "botanical",
+    "sheet": "02",
+    "slot": 3,
+    "reading": "HR",
+    "letters": [
+      "H",
+      "R"
+    ],
+    "rule": [
+      "cc",
+      "vertical",
+      [
+        0.5,
+        0.27,
+        0.37,
+        0.51
+      ],
+      [
+        0.5,
+        0.74,
+        0.37,
+        0.51
+      ],
+      0.5,
+      null,
+      false
+    ],
+    "ratio": 1.040983606557377
+  },
+  {
+    "id": "02-04",
+    "name": "Hydrangea Overture",
+    "group": "botanical",
+    "sheet": "02",
+    "slot": 4,
+    "reading": "MB",
+    "letters": [
+      "M",
+      "B"
+    ],
+    "rule": [
+      "cp",
+      "weave",
+      [
+        0.42,
+        0.47,
+        0.78,
+        0.69
+      ],
+      [
+        0.64,
+        0.56,
+        0.87,
+        0.67
+      ],
+      0.51,
+      null,
+      false
+    ],
+    "ratio": 1.1576576576576576
+  },
+  {
+    "id": "02-05",
+    "name": "Pearl Rose Oval",
+    "group": "cameos",
+    "sheet": "02",
+    "slot": 5,
+    "reading": "GA",
+    "letters": [
+      "G",
+      "A"
+    ],
+    "rule": [
+      "pb",
+      "weave",
+      [
+        0.4,
+        0.52,
+        0.86,
+        0.62
+      ],
+      [
+        0.62,
+        0.48,
+        0.78,
+        0.58
+      ],
+      0.43,
+      null,
+      false
+    ],
+    "ratio": 0.9883720930232558
+  },
+  {
+    "id": "02-06",
+    "name": "Blue Rococo Label",
+    "group": "cartouches",
+    "sheet": "02",
+    "slot": 6,
+    "reading": "MD?",
+    "letters": [
+      "M",
+      "D"
+    ],
+    "rule": [
+      "zz",
+      "outline",
+      [
+        0.42,
+        0.49,
+        0.89,
+        0.71
+      ],
+      [
+        0.61,
+        0.53,
+        0.84,
+        0.71
+      ],
+      0.57,
+      null,
+      false
+    ],
+    "ratio": 1.076271186440678
+  },
+  {
+    "id": "02-07",
+    "name": "Berry Shield",
+    "group": "shields",
+    "sheet": "02",
+    "slot": 7,
+    "reading": "N",
+    "letters": [
+      "N"
+    ],
+    "rule": [
+      "z",
+      "single",
+      [
+        0.5,
+        0.52,
+        0.8,
+        0.83
+      ],
+      null,
+      0.5,
+      null,
+      false
+    ],
+    "ratio": 0.948339483394834
+  },
+  {
+    "id": "02-08",
+    "name": "Acanthus Diamond",
+    "group": "wreaths",
+    "sheet": "02",
+    "slot": 8,
+    "reading": "AM",
+    "letters": [
+      "A",
+      "M"
+    ],
+    "rule": [
+      "cc",
+      "vertical",
+      [
+        0.5,
+        0.24,
+        0.4,
+        0.59
+      ],
+      [
+        0.5,
+        0.73,
+        0.42,
+        0.62
+      ],
+      0.5,
+      null,
+      false
+    ],
+    "ratio": 1.3783783783783783
+  },
+  {
+    "id": "02-09",
+    "name": "Blossom Quartet",
+    "group": "cartouches",
+    "sheet": "02",
+    "slot": 9,
+    "reading": "NP?",
+    "letters": [
+      "N",
+      "P"
+    ],
+    "rule": [
+      "zz",
+      "outline",
+      [
+        0.43,
+        0.55,
+        0.85,
+        0.65
+      ],
+      [
+        0.61,
+        0.42,
+        0.75,
+        0.63
+      ],
+      0.49,
+      null,
+      false
+    ],
+    "ratio": 0.8788927335640139
+  },
+  {
+    "id": "03-01",
+    "name": "Lace Oval",
+    "group": "cameos",
+    "sheet": "03",
+    "slot": 1,
+    "reading": "DC",
+    "letters": [
+      "D",
+      "C"
+    ],
+    "rule": [
+      "cp",
+      "weave",
+      [
+        0.4,
+        0.39,
+        0.73,
+        0.66
+      ],
+      [
+        0.61,
+        0.59,
+        0.78,
+        0.7
+      ],
+      0.5,
+      null,
+      false
+    ],
+    "ratio": 0.9345454545454546
+  },
+  {
+    "id": "03-02",
+    "name": "Acanthus Oval",
+    "group": "cameos",
+    "sheet": "03",
+    "slot": 2,
+    "reading": "AK",
+    "letters": [
+      "A",
+      "K"
+    ],
+    "rule": [
+      "bp",
+      "weave",
+      [
+        0.5,
+        0.4,
+        0.69,
+        0.58
+      ],
+      [
+        0.53,
+        0.61,
+        0.84,
+        0.89
+      ],
+      0.49,
+      null,
+      false
+    ],
+    "ratio": 0.7870370370370371
+  },
+  {
+    "id": "03-03",
+    "name": "Garden Shield",
+    "group": "shields",
+    "sheet": "03",
+    "slot": 3,
+    "reading": "SD",
+    "letters": [
+      "S",
+      "D"
+    ],
+    "rule": [
+      "pp",
+      "loop",
+      [
+        0.41,
+        0.35,
+        0.64,
+        0.62
+      ],
+      [
+        0.6,
+        0.62,
+        0.75,
+        0.7
+      ],
+      0.47,
+      null,
+      false
+    ],
+    "ratio": 1.040983606557377
+  },
+  {
+    "id": "03-04",
+    "name": "Black Garland",
+    "group": "wreaths",
+    "sheet": "03",
+    "slot": 4,
+    "reading": "AB",
+    "letters": [
+      "A",
+      "B"
+    ],
+    "rule": [
+      "bp",
+      "weave",
+      [
+        0.36,
+        0.42,
+        0.73,
+        0.62
+      ],
+      [
+        0.59,
+        0.58,
+        0.8,
+        0.73
+      ],
+      0.52,
+      null,
+      false
+    ],
+    "ratio": 1.1576576576576576
+  },
+  {
+    "id": "03-05",
+    "name": "Blue Crown Shield",
+    "group": "shields",
+    "sheet": "03",
+    "slot": 5,
+    "reading": "SB",
+    "letters": [
+      "S",
+      "B"
+    ],
+    "rule": [
+      "pp",
+      "loop",
+      [
+        0.35,
+        0.44,
+        0.73,
+        0.62
+      ],
+      [
+        0.62,
+        0.62,
+        0.7,
+        0.73
+      ],
+      0.47,
+      null,
+      false
+    ],
+    "ratio": 0.9883720930232558
+  },
+  {
+    "id": "03-06",
+    "name": "Scroll Cartouche",
+    "group": "cartouches",
+    "sheet": "03",
+    "slot": 6,
+    "reading": "SY",
+    "letters": [
+      "S",
+      "Y"
+    ],
+    "rule": [
+      "pg",
+      "loop",
+      [
+        0.39,
+        0.38,
+        0.63,
+        0.63
+      ],
+      [
+        0.61,
+        0.63,
+        0.7,
+        0.68
+      ],
+      0.53,
+      null,
+      false
+    ],
+    "ratio": 1.076271186440678
+  },
+  {
+    "id": "03-07",
+    "name": "Ornate Quatrefoil",
+    "group": "cartouches",
+    "sheet": "03",
+    "slot": 7,
+    "reading": "DL",
+    "letters": [
+      "D",
+      "L"
+    ],
+    "rule": [
+      "pc",
+      "weave",
+      [
+        0.41,
+        0.47,
+        0.79,
+        0.69
+      ],
+      [
+        0.62,
+        0.57,
+        0.76,
+        0.63
+      ],
+      0.53,
+      null,
+      false
+    ],
+    "ratio": 0.948339483394834
+  },
+  {
+    "id": "03-08",
+    "name": "Rose Plaque",
+    "group": "cartouches",
+    "sheet": "03",
+    "slot": 8,
+    "reading": "AP",
+    "letters": [
+      "A",
+      "P"
+    ],
+    "rule": [
+      "bp",
+      "weave",
+      [
+        0.51,
+        0.38,
+        0.71,
+        0.57
+      ],
+      [
+        0.55,
+        0.62,
+        0.86,
+        0.65
+      ],
+      0.43,
+      null,
+      false
+    ],
+    "ratio": 1.3783783783783783
+  },
+  {
+    "id": "03-09",
+    "name": "Frosted Cartouche",
+    "group": "cartouches",
+    "sheet": "03",
+    "slot": 9,
+    "reading": "UB",
+    "letters": [
+      "U",
+      "B"
+    ],
+    "rule": [
+      "cp",
+      "weave",
+      [
+        0.41,
+        0.42,
+        0.69,
+        0.64
+      ],
+      [
+        0.63,
+        0.58,
+        0.71,
+        0.71
+      ],
+      0.48,
+      null,
+      false
+    ],
+    "ratio": 0.8788927335640139
+  },
+  {
+    "id": "04-01",
+    "name": "Sprig Arch",
+    "group": "minimal",
+    "sheet": "04",
+    "slot": 1,
+    "reading": "EE",
+    "letters": [
+      "E",
+      "E"
+    ],
+    "rule": [
+      "bp",
+      "vflow",
+      [
+        0.38,
+        0.32,
+        0.59,
+        0.62
+      ],
+      [
+        0.61,
+        0.65,
+        0.66,
+        0.74
+      ],
+      0.52,
+      null,
+      false
+    ],
+    "ratio": 0.8842832469775475
+  },
+  {
+    "id": "04-02",
+    "name": "Rope Oval",
+    "group": "cameos",
+    "sheet": "04",
+    "slot": 2,
+    "reading": "YA",
+    "letters": [
+      "Y",
+      "A"
+    ],
+    "rule": [
+      "pb",
+      "weave",
+      [
+        0.4,
+        0.5,
+        0.76,
+        0.72
+      ],
+      [
+        0.65,
+        0.49,
+        0.82,
+        0.59
+      ],
+      0.52,
+      null,
+      false
+    ],
+    "ratio": 0.8850174216027874
+  },
+  {
+    "id": "04-03",
+    "name": "Petite Floral Oval",
+    "group": "cameos",
+    "sheet": "04",
+    "slot": 3,
+    "reading": "AB",
+    "letters": [
+      "A",
+      "B"
+    ],
+    "rule": [
+      "bp",
+      "weave",
+      [
+        0.45,
+        0.41,
+        0.73,
+        0.6
+      ],
+      [
+        0.58,
+        0.62,
+        0.77,
+        0.74
+      ],
+      0.56,
+      null,
+      false
+    ],
+    "ratio": 0.8850174216027874
+  },
+  {
+    "id": "04-04",
+    "name": "Open Laurel",
+    "group": "wreaths",
+    "sheet": "04",
+    "slot": 4,
+    "reading": "MP",
+    "letters": [
+      "M",
+      "P"
+    ],
+    "rule": [
+      "bp",
+      "weave",
+      [
+        0.4,
+        0.42,
+        0.73,
+        0.68
+      ],
+      [
+        0.6,
+        0.59,
+        0.77,
+        0.71
+      ],
+      0.52,
+      null,
+      false
+    ],
+    "ratio": 0.8842832469775475
+  },
+  {
+    "id": "04-05",
+    "name": "Floral Plaque",
+    "group": "cartouches",
+    "sheet": "04",
+    "slot": 5,
+    "reading": "RC",
+    "letters": [
+      "R",
+      "C"
+    ],
+    "rule": [
+      "pg",
+      "loop",
+      [
+        0.38,
+        0.36,
+        0.65,
+        0.73
+      ],
+      [
+        0.6,
+        0.61,
+        0.75,
+        0.66
+      ],
+      0.48,
+      null,
+      false
+    ],
+    "ratio": 0.8850174216027874
+  },
+  {
+    "id": "04-06",
+    "name": "Acanthus Seal",
+    "group": "cartouches",
+    "sheet": "04",
+    "slot": 6,
+    "reading": "UO",
+    "letters": [
+      "U",
+      "O"
+    ],
+    "rule": [
+      "cp",
+      "weave",
+      [
+        0.45,
+        0.4,
+        0.68,
+        0.62
+      ],
+      [
+        0.57,
+        0.61,
+        0.66,
+        0.71
+      ],
+      0.51,
+      null,
+      false
+    ],
+    "ratio": 0.8850174216027874
+  },
+  {
+    "id": "05-01",
+    "name": "Garden Square",
+    "group": "wreaths",
+    "sheet": "05",
+    "slot": 1,
+    "reading": "DR",
+    "letters": [
+      "D",
+      "R"
+    ],
+    "rule": [
+      "bp",
+      "weave",
+      [
+        0.39,
+        0.38,
+        0.67,
+        0.67
+      ],
+      [
+        0.6,
+        0.61,
+        0.79,
+        0.72
+      ],
+      0.46,
+      null,
+      false
+    ],
+    "ratio": 0.8842832469775475
+  },
+  {
+    "id": "05-02",
+    "name": "Fine Cameo",
+    "group": "cameos",
+    "sheet": "05",
+    "slot": 2,
+    "reading": "NB?",
+    "letters": [
+      "N",
+      "B"
+    ],
+    "rule": [
+      "cb",
+      "shared",
+      [
+        0.38,
+        0.37,
+        0.74,
+        0.6
+      ],
+      [
+        0.61,
+        0.62,
+        0.71,
+        0.57
+      ],
+      0.54,
+      null,
+      false
+    ],
+    "ratio": 0.8850174216027874
+  },
+  {
+    "id": "05-03",
+    "name": "Olive Ring",
+    "group": "wreaths",
+    "sheet": "05",
+    "slot": 3,
+    "reading": "LB",
+    "letters": [
+      "L",
+      "B"
+    ],
+    "rule": [
+      "pb",
+      "vflow",
+      [
+        0.42,
+        0.34,
+        0.58,
+        0.78
+      ],
+      [
+        0.62,
+        0.6,
+        0.76,
+        0.55
+      ],
+      0.51,
+      null,
+      false
+    ],
+    "ratio": 0.8850174216027874
+  },
+  {
+    "id": "05-04",
+    "name": "Double Capsule",
+    "group": "cameos",
+    "sheet": "05",
+    "slot": 4,
+    "reading": "BX?",
+    "letters": [
+      "B",
+      "X"
+    ],
+    "rule": [
+      "pg",
+      "loop",
+      [
+        0.4,
+        0.45,
+        0.81,
+        0.71
+      ],
+      [
+        0.62,
+        0.58,
+        0.77,
+        0.7
+      ],
+      0.53,
+      null,
+      false
+    ],
+    "ratio": 0.8842832469775475
+  },
+  {
+    "id": "05-05",
+    "name": "Rose Posies",
+    "group": "botanical",
+    "sheet": "05",
+    "slot": 5,
+    "reading": "CA",
+    "letters": [
+      "C",
+      "A"
+    ],
+    "rule": [
+      "cc",
+      "weave",
+      [
+        0.41,
+        0.4,
+        0.68,
+        0.69
+      ],
+      [
+        0.59,
+        0.57,
+        0.73,
+        0.57
+      ],
+      0.51,
+      null,
+      false
+    ],
+    "ratio": 0.8850174216027874
+  },
+  {
+    "id": "05-06",
+    "name": "Bow Cameo",
+    "group": "cameos",
+    "sheet": "05",
+    "slot": 6,
+    "reading": "A?",
+    "letters": [
+      "A"
+    ],
+    "rule": [
+      "zp",
+      "etched",
+      [
+        0.46,
+        0.51,
+        0.87,
+        0.72
+      ],
+      [
+        0.61,
+        0.55,
+        0.83,
+        0.63
+      ],
+      0.55,
+      null,
+      false
+    ],
+    "ratio": 0.8850174216027874
+  },
+  {
+    "id": "06-01",
+    "name": "Heron Shield",
+    "group": "shields",
+    "sheet": "06",
+    "slot": 1,
+    "reading": "RR?",
+    "letters": [
+      "R",
+      "R"
+    ],
+    "rule": [
+      "cc",
+      "shared",
+      [
+        0.41,
+        0.47,
+        0.84,
+        0.66
+      ],
+      [
+        0.57,
+        0.53,
+        0.83,
+        0.75
+      ],
+      0.53,
+      null,
+      false
+    ],
+    "ratio": 1.0025641025641026
+  },
+  {
+    "id": "06-02",
+    "name": "Blue Flower Medallion",
+    "group": "flourished",
+    "sheet": "06",
+    "slot": 2,
+    "reading": "FK",
+    "letters": [
+      "F",
+      "K"
+    ],
+    "rule": [
+      "bp",
+      "weave",
+      [
+        0.38,
+        0.4,
+        0.7,
+        0.69
+      ],
+      [
+        0.6,
+        0.59,
+        0.78,
+        0.74
+      ],
+      0.53,
+      null,
+      false
+    ],
+    "ratio": 0.9897435897435898
+  },
+  {
+    "id": "06-03",
+    "name": "Scroll Portrait",
+    "group": "flourished",
+    "sheet": "06",
+    "slot": 3,
+    "reading": "GB",
+    "letters": [
+      "G",
+      "B"
+    ],
+    "rule": [
+      "pp",
+      "loop",
+      [
+        0.4,
+        0.44,
+        0.81,
+        0.7
+      ],
+      [
+        0.63,
+        0.62,
+        0.67,
+        0.67
+      ],
+      0.56,
+      null,
+      false
+    ],
+    "ratio": 1.0103359173126616
+  },
+  {
+    "id": "06-04",
+    "name": "Inset Oval",
+    "group": "cameos",
+    "sheet": "06",
+    "slot": 4,
+    "reading": "MI",
+    "letters": [
+      "M",
+      "I"
+    ],
+    "rule": [
+      "cc",
+      "weave",
+      [
+        0.38,
+        0.45,
+        0.84,
+        0.64
+      ],
+      [
+        0.65,
+        0.57,
+        0.72,
+        0.62
+      ],
+      0.62,
+      null,
+      false
+    ],
+    "ratio": 0.9948320413436692
+  },
+  {
+    "id": "07-01",
+    "name": "Spiral Sprigs",
+    "group": "botanical",
+    "sheet": "07",
+    "slot": 1,
+    "reading": "ME",
+    "letters": [
+      "M",
+      "E"
+    ],
+    "rule": [
+      "cp",
+      "vflow",
+      [
+        0.46,
+        0.31,
+        0.59,
+        0.8
+      ],
+      [
+        0.57,
+        0.7,
+        0.6,
+        0.74
+      ],
+      0.55,
+      null,
+      false
+    ],
+    "ratio": 0.8846153846153846
+  },
+  {
+    "id": "07-02",
+    "name": "Ribbon Crest",
+    "group": "shields",
+    "sheet": "07",
+    "slot": 2,
+    "reading": "MH",
+    "letters": [
+      "M",
+      "H"
+    ],
+    "rule": [
+      "pp",
+      "vflow",
+      [
+        0.55,
+        0.32,
+        0.57,
+        0.67
+      ],
+      [
+        0.71,
+        0.67,
+        0.55,
+        0.62
+      ],
+      0.53,
+      null,
+      false
+    ],
+    "ratio": 0.8847926267281107
+  },
+  {
+    "id": "08-01",
+    "name": "Lace Scroll Oval",
+    "group": "engraved",
+    "sheet": "08",
+    "slot": 1,
+    "reading": "NC",
+    "letters": [
+      "N",
+      "C"
+    ],
+    "rule": [
+      "zz",
+      "outline",
+      [
+        0.43,
+        0.49,
+        0.9,
+        0.71
+      ],
+      [
+        0.6,
+        0.51,
+        0.82,
+        0.75
+      ],
+      0.47,
+      null,
+      false
+    ],
+    "ratio": 0.8846153846153846
+  },
+  {
+    "id": "08-02",
+    "name": "Engraved Portrait",
+    "group": "engraved",
+    "sheet": "08",
+    "slot": 2,
+    "reading": "FS",
+    "letters": [
+      "F",
+      "S"
+    ],
+    "rule": [
+      "zb",
+      "etched",
+      [
+        0.39,
+        0.42,
+        0.82,
+        0.69
+      ],
+      [
+        0.62,
+        0.58,
+        0.81,
+        0.72
+      ],
+      0.49,
+      null,
+      false
+    ],
+    "ratio": 0.8847926267281107
+  }
+]

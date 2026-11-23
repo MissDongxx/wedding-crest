@@ -32,7 +32,8 @@ export async function exportWelcomeSign(
   details: SignDetails,
   size: SignSize,
   format: 'png' | 'pdf',
-  appearance?: SignAppearance
+  appearance?: SignAppearance,
+  monogram?: HTMLImageElement
 ) {
   await loadSignResources(template);
   const [inW, inH] = signSizes[size];
@@ -49,7 +50,7 @@ export async function exportWelcomeSign(
       willReadFrequently: format === 'png',
     });
     if (!ctx) throw new Error('Canvas context unavailable');
-    drawSign(ctx, template, details, size, width, y, appearance);
+    drawSign(ctx, template, details, size, width, y, appearance, monogram);
     return ctx;
   };
 

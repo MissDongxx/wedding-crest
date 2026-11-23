@@ -5,6 +5,7 @@ import { ArrowLeftRight } from 'lucide-react';
 
 import type enSeo from '@/config/locale/messages/en/pages/seo.json';
 import { Button } from '@/shared/components/ui/button';
+import { removeAppliedMonogram } from '@/shared/wedding/monogram-application';
 import {
   defaultMonogram,
   loadMonogramAtlas,
@@ -22,11 +23,21 @@ import {
   type MonogramOptions,
 } from '@/shared/wedding/monogram-maker';
 import {
+  currentMonogramStyle,
+  defaultMonogramStyle,
+  monogramStyleIds,
+  monogramStyleOptions,
+  monogramStyles,
+  type MonogramStyle,
+} from '@/shared/wedding/monogram-styles';
+import {
   readTableMonogram,
   tableInk,
   tableNumberHandoff,
   tableNumberPath,
 } from '@/shared/wedding/table-number-maker';
+
+import presetCss from './monogram-presets.module.css';
 
 type Copy = (typeof enSeo)['monogram']['guide']['maker'];
 type Format = 'svg' | 'png' | 'pngSmall';
@@ -57,6 +68,18 @@ const palettes = [
 ] as const;
 const initialLetters = { first: 'A', second: 'L', surname: '' };
 type InitialField = keyof typeof initialLetters;
+const defaultStyle = monogramStyles[defaultMonogramStyle];
+const stylePreviews = monogramStyleIds.map((key) => ({
+  key,
+  paper: monogramStyles[key].paper,
+  svg: renderMonogramSvg(monogramStyleOptions(key, 'AL')),
+}));
+function stylePalette(style: MonogramStyle) {
+  return (
+    palettes.find(({ key }) => key === monogramStyles[style].palette) ??
+    palettes[0]
+  );
+}
 
 type EditorSnapshot = {
   version: 1;
@@ -214,24 +237,23 @@ export function MonogramMaker({
   const id = useId();
   const section = useRef<HTMLElement>(null);
   const [letters, setLetters] = useState(initialLetters);
-  const [layoutChoice, setLayoutChoice] =
-    useState<MonogramLayoutChoice>('paired');
+  const [layoutChoice, setLayoutChoice] = useState<MonogramLayoutChoice>(
+    defaultStyle.layout
+  );
   const [step, setStep] = useState<Step>('font');
   const stepIndex = steps.indexOf(step);
   const stepPanel = useRef<HTMLDivElement>(null);
   const moveFocus = useRef(false);
   const [palette, setPalette] = useState<(typeof palettes)[number]>(
-    palettes[0]
+    stylePalette(defaultMonogramStyle)
   );
   const [background, setBackground] = useState<Background>('transparent');
   const [customBackground, setCustomBackground] = useState<string>(
-    palettes[0].paper
+    defaultStyle.paper
   );
-  const [options, setOptions] = useState<MonogramOptions>({
-    ...defaultMonogram,
-    ...monogramLayoutChoices.paired,
-    ink: palettes[0].ink,
-  });
+  const [options, setOptions] = useState<MonogramOptions>(() =>
+    monogramStyleOptions(defaultMonogramStyle, defaultMonogram.initials)
+  );
   const [atlas, setAtlas] = useState<MonogramAtlas>();
   const [load, setLoad] = useState<'idle' | 'pending' | 'ready' | 'failed'>(
     'idle'
@@ -263,6 +285,13 @@ export function MonogramMaker({
           setCustomBackground(draft.customBackground);
           setEditingForTables(true);
           setLoad('pending');
+          const customEditor = section.current;
+          customEditor?.closest('details')?.setAttribute('open', '');
+          if (window.location.hash === '#monogram-maker') {
+            requestAnimationFrame(() => {
+              customEditor?.scrollIntoView({ block: 'start' });
+            });
+          }
         }
       } catch {}
     }
@@ -321,9 +350,14 @@ export function MonogramMaker({
   }
 
   const initials = letters.first + letters.surname + letters.second;
+  const activeStyle = currentMonogramStyle(options);
+  const paper =
+    activeStyle && palette.key === monogramStyles[activeStyle].palette
+      ? monogramStyles[activeStyle].paper
+      : palette.paper;
   const exportBackground =
     background === 'paper'
-      ? palette.paper
+      ? paper
       : background === 'custom'
         ? customBackground
         : undefined;
@@ -342,6 +376,15 @@ export function MonogramMaker({
     }));
     setExportError(false);
   }
+  function pickStyle(style: MonogramStyle) {
+    const selected = monogramStyles[style];
+    setLayoutChoice(selected.layout);
+    setPalette(stylePalette(style));
+    setOptions(monogramStyleOptions(style, initials));
+    setExportError(false);
+    setHandoffError(false);
+    beginLoading();
+  }
   function pickLayout(value: MonogramLayoutChoice) {
     setLayoutChoice(value);
     setOptions((current) => ({ ...current, ...monogramLayoutChoices[value] }));
@@ -354,16 +397,14 @@ export function MonogramMaker({
   }
   function reset() {
     setLetters(initialLetters);
-    setLayoutChoice('paired');
+    setLayoutChoice(defaultStyle.layout);
     setStep('font');
-    setPalette(palettes[0]);
+    setPalette(stylePalette(defaultMonogramStyle));
     setBackground('transparent');
-    setCustomBackground(palettes[0].paper);
-    setOptions({
-      ...defaultMonogram,
-      ...monogramLayoutChoices.paired,
-      ink: palettes[0].ink,
-    });
+    setCustomBackground(defaultStyle.paper);
+    setOptions(
+      monogramStyleOptions(defaultMonogramStyle, defaultMonogram.initials)
+    );
     setExportError(false);
   }
   function beginLoading() {
@@ -415,6 +456,7 @@ export function MonogramMaker({
       const payload = JSON.stringify({ svg: mark, ink: options.ink, editor });
       if (!readTableMonogram(payload)) throw new Error('Invalid monogram');
       sessionStorage.setItem(tableNumberHandoff, payload);
+      removeAppliedMonogram('table-number');
       window.location.assign(tableNumberPath);
     } catch {
       setHandoffError(true);
@@ -482,10 +524,10 @@ export function MonogramMaker({
   return (
     <section
       ref={section}
-      aria-labelledby="monogram-maker"
+      aria-labelledby="monogram-custom-maker"
       onFocus={beginLoading}
     >
-      <h2 id="monogram-maker" className="scroll-mt-24 font-serif text-3xl">
+      <h2 id="monogram-custom-maker" className="scroll-mt-24 font-serif text-3xl">
         {copy.title}
       </h2>
       <div className="relative left-1/2 mt-5 grid w-[min(calc(100vw-2rem),68rem)] -translate-x-1/2 items-start gap-4 min-[900px]:grid-cols-[1.14fr_1fr] min-[900px]:grid-rows-[auto_1fr] sm:gap-5">
@@ -552,6 +594,32 @@ export function MonogramMaker({
           >
             {copy.latin_initials}
           </p>
+          <fieldset className={presetCss.field} disabled={!interactive}>
+            <legend className={presetCss.legend}>{copy.styles.label}</legend>
+            <div className={presetCss.grid}>
+              {stylePreviews.map(({ key, svg, paper }) => (
+                <label key={key} className={presetCss.option}>
+                  <input
+                    className="sr-only"
+                    type="radio"
+                    name={`${id}-style`}
+                    checked={activeStyle === key}
+                    value={key}
+                    onChange={() => pickStyle(key)}
+                  />
+                  <span>
+                    <span
+                      className={presetCss.art}
+                      style={{ backgroundColor: paper }}
+                    >
+                      <Artwork svg={svg} label="" className="object-contain" />
+                    </span>
+                    <span className={presetCss.label}>{copy.styles[key]}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
         </div>
 
         <div className="z-10 min-[900px]:top-24 min-[900px]:col-start-2 min-[900px]:row-span-2 min-[900px]:row-start-1 [@media(min-height:650px)]:sticky [@media(min-height:650px)]:top-16">
@@ -561,7 +629,7 @@ export function MonogramMaker({
             className={`relative grid h-[min(38vw,11rem)] w-full scroll-mt-24 place-items-center overflow-hidden rounded-xl min-[900px]:aspect-square min-[900px]:h-auto ${step === 'export' && !exportBackground && svg ? checker : ''}`}
             style={{
               backgroundColor:
-                step === 'export' && svg ? exportBackground : palette.paper,
+                step === 'export' && svg ? exportBackground : paper,
               color: palette.ink,
             }}
             aria-busy={load === 'pending' && !!initials && !svg}
@@ -870,7 +938,7 @@ export function MonogramMaker({
                           style={{
                             backgroundColor:
                               value === 'paper'
-                                ? palette.paper
+                                ? paper
                                 : value === 'custom'
                                   ? customBackground
                                   : undefined,
