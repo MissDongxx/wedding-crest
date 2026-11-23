@@ -32,7 +32,8 @@ export function drawReferenceSign(
   date: string,
   assets: ReadonlyMap<SignArtwork, HTMLImageElement>,
   appearance: SignAppearance,
-  ornamentsOnly = false
+  ornamentsOnly = false,
+  monogram?: HTMLImageElement
 ) {
   const { sceneId, variation: v } = template;
   const { paper, ink, accent, panel } = signPalette(
@@ -364,7 +365,8 @@ export function drawReferenceSign(
         branch(300, ry(0.205), 0.84, false);
         branch(300, ry(0.255), -0.72, true);
         if (ornamentsOnly) break;
-        type(initials, 300, 0.388, 'classic', 81, { tracking: 6 });
+        if (!monogram)
+          type(initials, 300, 0.388, 'classic', 81, { tracking: 6 });
         caps('the wedding of', 0.454, 14, { tracking: 4.2 });
         paired(0.593, 'serif', 57);
         finish(0.786, { dots: true });
@@ -589,13 +591,14 @@ export function drawReferenceSign(
       }
       if (v === 2) {
         branch(300, ry(0.173), 0.94);
-        type(initials, 300, 0.362, 'cinzel', 85, { tracking: 4.3, max: 393 });
+        if (!monogram)
+          type(initials, 300, 0.362, 'cinzel', 85, { tracking: 4.3, max: 393 });
         caps('to the wedding of', 0.457, 16, { tracking: 3 });
         paired(0.636, 'serif', 58, { max: 460 });
         finish(0.819, { dots: true });
         break;
       }
-      type(initials, 300, 0.154, 'cinzel', 43, { tracking: 3 });
+      if (!monogram) type(initials, 300, 0.154, 'cinzel', 43, { tracking: 3 });
       branch(300, ry(0.238), 0.72);
       type('WELCOME', 300, 0.335, 'serif', 31, { tracking: 5 });
       type('to our wedding', 300, 0.375, 'pinyon', 33);
@@ -873,5 +876,31 @@ export function drawReferenceSign(
       finish(0.849, { dots: true, tracking: 3.5, color: col });
       break;
     }
+  }
+
+  if (!ornamentsOnly && monogram) {
+    // Positions sit in the clear area of each sign, or replace its preset initials.
+    const y = {
+      chateau: [0.896, 0.35, 0.896],
+      meadow: [0.229, 0.153, 0.081],
+      editorial: [0.903, 0.099, 0.109],
+      oriental: [0.911, 0.919, 0.919],
+      chapel: [0.148, 0.159, 0.323],
+      noir: [0.143, 0.143, 0.143],
+      rose: [0.148, 0.148, 0.148],
+      olive: [0.135, 0.135, 0.903],
+      gallery: [0.154, 0.154, 0.902],
+      ribbon: [0.833, 0.833, 0.841],
+      coast: [0.157, 0.157, 0.82],
+      desert: [0.148, 0.153, 0.148],
+    }[sceneId][v];
+    const x = sceneId === 'olive' && v !== 2 ? 356 : 300;
+    const scale = Math.min(
+      106 / monogram.naturalWidth,
+      (h * 0.105) / monogram.naturalHeight
+    );
+    const w = monogram.naturalWidth * scale;
+    const height = monogram.naturalHeight * scale;
+    ctx.drawImage(monogram, x - w / 2, ry(y) - height / 2, w, height);
   }
 }

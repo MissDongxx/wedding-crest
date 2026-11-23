@@ -288,7 +288,8 @@ export function drawSign(
   size: SignSize,
   width: number,
   offset = 0,
-  appearance: SignAppearance = defaultAppearance
+  appearance: SignAppearance = defaultAppearance,
+  monogram?: HTMLImageElement
 ) {
   const [inW, inH] = signSizes[size];
   ctx.save();
@@ -301,7 +302,9 @@ export function drawSign(
     (600 * inH) / inW,
     formatSignDate(details.date),
     artwork,
-    appearance
+    appearance,
+    false,
+    monogram
   );
   ctx.restore();
 }

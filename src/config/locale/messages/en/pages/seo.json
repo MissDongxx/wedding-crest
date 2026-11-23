@@ -44,6 +44,14 @@
       "layouts": "8 wedding monogram layouts",
       "compare_fonts": "Compare fonts",
       "maker": {
+        "styles": {
+          "label": "Styles",
+          "editorial": "Editorial Serif",
+          "signature": "Signature Oval",
+          "scallop": "Scalloped Seal",
+          "laurel": "Laurel Crest",
+          "engraved": "Engraved Oval"
+        },
         "title": "Free wedding monogram maker",
         "initials": "Initials",
         "initials_note": "1–3 letters, A–Z",
@@ -116,6 +124,9 @@
         },
         "elements": {
           "frame": {
+            "cameo": "Double oval",
+            "scalloped": "Scalloped outline",
+            "ornateOval": "Engraved oval",
             "none": "None",
             "circle": "Circle",
             "double": "Double ring",
@@ -125,6 +136,7 @@
             "diamond": "Diamond"
           },
           "wreath": {
+            "engravedLaurel": "Engraved laurel",
             "none": "None",
             "laurel": "Laurel",
             "olive": "Olive",

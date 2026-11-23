@@ -1,10 +1,9 @@
 import type { ReactNode } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 
+import { Link } from '@/core/i18n/navigation';
 import { Button } from '@/shared/components/ui/button';
-import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import {
   listWeddingExamplesSafe,
   type WeddingExampleRow,
@@ -20,9 +19,14 @@ export async function SeoArticle({
   children?: ReactNode;
 }) {
   const t = await getTranslations(`pages.seo.${articleKey}`);
-  const featured = (
-    (await listWeddingExamplesSafe({ activeOnly: true })) as WeddingExampleRow[]
-  ).slice(0, 6);
+  const featured =
+    articleKey === 'monogram'
+      ? []
+      : (
+          (await listWeddingExamplesSafe({
+            activeOnly: true,
+          })) as WeddingExampleRow[]
+        ).slice(0, 6);
 
   const faqJsonLd = {
     '@context': 'https://schema.org',
@@ -41,20 +45,28 @@ export async function SeoArticle({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
 
-      <ScrollAnimation>
+      <header
+        className={
+          articleKey === 'monogram' ? 'pt-5 sm:pt-7 md:pt-8' : undefined
+        }
+      >
         <h1 className="font-serif text-3xl text-balance md:text-4xl">
           {t('heading')}
         </h1>
         <p className="text-muted-foreground mt-4 text-balance">{t('intro')}</p>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Button asChild size="lg">
-            <Link href="/create">{t('cta')}</Link>
-          </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link href="/wedding-crest-examples">See examples</Link>
-          </Button>
-        </div>
-      </ScrollAnimation>
+        {articleKey !== 'monogram' && (
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button asChild size="lg">
+              <Link href="/create">{t('cta')}</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link href="/wedding-crest-examples">
+                {t.has('see_examples') ? t('see_examples') : 'See examples'}
+              </Link>
+            </Button>
+          </div>
+        )}
+      </header>
 
       {children}
 
@@ -82,7 +94,7 @@ export async function SeoArticle({
         {[1, 2, 3, 4].map((n) => (
           <section key={n}>
             <h2 className="font-serif text-2xl">{t(`section_${n}_title`)}</h2>
-            <p className="text-muted-foreground mt-3 text-pretty leading-relaxed">
+            <p className="text-muted-foreground mt-3 leading-relaxed text-pretty">
               {t(`section_${n}_body`)}
             </p>
           </section>
@@ -90,9 +102,13 @@ export async function SeoArticle({
       </div>
 
       <section className="mt-16 space-y-4">
-        <h2 className="font-serif text-2xl">Frequently asked questions</h2>
+        <h2 className="font-serif text-2xl">
+          {t.has('faq_heading')
+            ? t('faq_heading')
+            : 'Frequently asked questions'}
+        </h2>
         {[1, 2, 3].map((n) => (
-          <details key={n} className="rounded-xl border bg-card p-4">
+          <details key={n} className="bg-card rounded-xl border p-4">
             <summary className="cursor-pointer font-medium">
               {t(`faq_${n}_q`)}
             </summary>
@@ -103,11 +119,13 @@ export async function SeoArticle({
         ))}
       </section>
 
-      <div className="mt-16 text-center">
-        <Button asChild size="lg">
-          <Link href="/create">{t('cta')}</Link>
-        </Button>
-      </div>
+      {articleKey !== 'monogram' && (
+        <div className="mt-16 text-center">
+          <Button asChild size="lg">
+            <Link href="/create">{t('cta')}</Link>
+          </Button>
+        </div>
+      )}
     </article>
   );
 }

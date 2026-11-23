@@ -248,6 +248,37 @@
   gap: 0.55rem;
   padding: 0 0 0.7rem;
 }
+.numberLayout {
+  display: grid;
+  gap: 0.35rem;
+  padding-bottom: 0.5rem;
+}
+.numberLayoutProof {
+  display: none;
+}
+.numberLayout label > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.numberLayout input {
+  display: block;
+  width: 100%;
+  min-height: 2rem;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+.numberLayout button {
+  justify-self: start;
+  min-height: 2rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.numberLayout button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
 .personalFields a,
 .related a {
   display: inline-flex;
@@ -371,6 +402,15 @@
   .templates label .card {
     width: 2.7rem;
   }
+  .numberLayoutProof {
+    display: block;
+    justify-self: center;
+    padding-bottom: 0.25rem;
+  }
+  .numberLayoutProof .card {
+    width: auto;
+    height: 8rem;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .editor {
@@ -391,4 +431,24 @@
   text-decoration: underline;
   text-underline-offset: 0.2em;
   cursor: pointer;
+}
+
+.printGuide {
+  max-width: 68ch;
+  margin-top: 2.5rem;
+}
+.printGuide h2 {
+  font:
+    400 clamp(1.55rem, 3vw, 2.3rem) / 1.15 Georgia,
+    serif;
+  letter-spacing: -0.035em;
+}
+.printGuide h3 {
+  margin-top: 1.15rem;
+  font-weight: 600;
+}
+.printGuide p {
+  margin-top: 0.25rem;
+  color: var(--muted);
+  line-height: 1.55;
 }

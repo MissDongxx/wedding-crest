@@ -10,6 +10,7 @@ import {
 } from '@/shared/wedding/monogram-maker';
 
 import styles from './monogram-guide.module.css';
+import { MonogramLibrary } from './monogram-library';
 import { MonogramMaker } from './monogram-maker';
 
 const layouts = [
@@ -187,7 +188,15 @@ export async function MonogramGuide({ locale }: { locale: string }) {
 
   return (
     <div className="mt-12 space-y-12">
-      <MonogramMaker copy={t.raw('maker')} tableNumbers={locale === 'en'} />
+      <MonogramLibrary locale={locale} />
+      <details className="border-border rounded-lg border px-4 py-3">
+        <summary className="cursor-pointer text-sm font-medium">
+          {locale === 'zh' ? '自定义编辑器' : 'Custom editor'}
+        </summary>
+        <div className="pt-4">
+          <MonogramMaker copy={t.raw('maker')} tableNumbers={locale === 'en'} />
+        </div>
+      </details>
 
       <section aria-labelledby="monogram-layouts">
         <h2 id="monogram-layouts" className="scroll-mt-24 font-serif text-2xl">
